@@ -1,0 +1,3 @@
+GET   /:UTR/:TAX_YEAR/ats-data                controllers.ATSDataController.getATSData(UTR: String, TAX_YEAR: Int)
+GET   /:UTR/has_summary_for_previous_period   controllers.ATSDataController.hasAts(UTR: String)
+GET   /:UTR/ats-list                          controllers.ATSDataController.getATSList(UTR: String)

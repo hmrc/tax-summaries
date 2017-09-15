@@ -1,0 +1,30 @@
+{
+  "name": {
+    "title": "Mr",
+    "secondForename": null,
+    "surname": "surname",
+    "honours": null
+  },
+ "address": {
+      "addressLine1": "1 Example Street",
+      "addressLine2": "Example Town",
+      "addressLine3": "Example Region",
+      "addressLine4": null,
+      "addressLine5": null,
+      "postcode": "$postcode",
+      "foreignCountry": null,
+      "returnedLetter": false,
+      "additionalDeliveryInformation": null
+    },
+    "contact": {
+      "telephone": {
+        "daytime": "01111111111",
+        "fax": null,
+        "evening": "01111111111",
+        "mobile": "07777777777"
+      },
+    "email": {
+      "primary": "example@example.com"
+    }
+   }
+ }
