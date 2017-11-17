@@ -18,11 +18,10 @@ package config
 
 import play.api.{Configuration, Application}
 import play.api.mvc.EssentialFilter
-import uk.gov.hmrc.play.audit.filters.AuditFilter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.RunMode
-import uk.gov.hmrc.play.http.logging.filters.LoggingFilter
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
+import uk.gov.hmrc.play.microservice.filters.{ AuditFilter, LoggingFilter }
 
 object ApplicationGlobal extends DefaultMicroserviceGlobal with RunMode {
 

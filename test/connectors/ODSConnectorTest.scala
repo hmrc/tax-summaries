@@ -16,8 +16,6 @@
 
 package connectors
 
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.http.ws.WSHttp
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.JsValue
@@ -26,14 +24,16 @@ import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import utils.TestConstants._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads}
+import uk.gov.hmrc.play.config.ServicesConfig
 
 class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
 
-  class TestConnector extends ODSConnector {
+  class TestConnector extends ODSConnector with ServicesConfig{
     override lazy val serviceUrl = ""
-    override lazy val http = mock[WSHttp]
+    override lazy val http = mock[HttpGet]
   }
 
 
@@ -41,7 +41,8 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return successful future" in new TestConnector {
 
-      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries/2014")))(any[HttpReads[JsValue]], any[HeaderCarrier]))
+
+      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries/2014")))(any[HttpReads[JsValue]], any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(mock[JsValue]))
 
       val result = connectToSelfAssessment(testUtr, 2014)(mock[HeaderCarrier])
@@ -53,7 +54,7 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return failed future" in new TestConnector {
 
-      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries/2014")))(any[HttpReads[JsValue]], any[HeaderCarrier]))
+      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries/2014")))(any[HttpReads[JsValue]], any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception))
 
       val result = connectToSelfAssessment(testUtr, 2014)(mock[HeaderCarrier])
@@ -70,7 +71,7 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return a successful future" in new TestConnector {
 
-      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries")))(any[HttpReads[JsValue]], any[HeaderCarrier]))
+      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries")))(any[HttpReads[JsValue]], any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(mock[JsValue]))
 
       val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
@@ -82,7 +83,7 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return failed future" in new TestConnector {
 
-      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries")))(any[HttpReads[JsValue]], any[HeaderCarrier]))
+      when(http.GET[JsValue](eqTo(url("/self-assessment/individuals/"+testUtr+"/annual-tax-summaries")))(any[HttpReads[JsValue]], any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception()))
 
       val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
@@ -98,7 +99,7 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return successful future" in new TestConnector {
 
-      when(http.GET[JsValue](eqTo(url("/self-assessment/individual/"+testUtr+"/designatory-details/taxpayer")))(any[HttpReads[JsValue]], any[HeaderCarrier]))
+      when(http.GET[JsValue](eqTo(url("/self-assessment/individual/"+testUtr+"/designatory-details/taxpayer")))(any[HttpReads[JsValue]], any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(mock[JsValue]))
 
       val result = connectToSATaxpayerDetails(testUtr)(mock[HeaderCarrier])
@@ -110,7 +111,7 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return failed future" in new TestConnector {
 
-      when(http.GET[JsValue](eqTo(url("/self-assessment/individual/"+testUtr+"/designatory-details/taxpayer")))(any[HttpReads[JsValue]], any[HeaderCarrier]))
+      when(http.GET[JsValue](eqTo(url("/self-assessment/individual/"+testUtr+"/designatory-details/taxpayer")))(any[HttpReads[JsValue]], any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception))
 
       val result = connectToSATaxpayerDetails(testUtr)(mock[HeaderCarrier])
