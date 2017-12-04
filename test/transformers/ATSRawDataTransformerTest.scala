@@ -213,6 +213,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
           "additional_rate" -> Amount(0.00, "GBP"),
           "additional_rate_amount" -> Amount(0.00, "GBP"),
           "other_adjustments_increasing" -> Amount(0.00, "GBP"),
+          "marriage_allowance_received_amount" -> Amount(0.00, "GBP"),
           "other_adjustments_reducing" -> Amount(0.00, "GBP"),
           "total_income_tax" -> Amount(372.00, "GBP"))
       testPayload shouldEqual parsedPayload

@@ -80,21 +80,21 @@ object GovSpendService {
   )
 
   val taxYear2017: Map[String, BigDecimal] = Map(
-    "Welfare" -> 25.00,
-    "Health" -> 19.90,
-    "StatePensions" -> 12.80,
-    "Education" -> 12.00,
+    "Welfare" -> 24.30,
+    "Health" -> 20.30,
+    "StatePensions" -> 12.90,
+    "Education" -> 12.30,
     "Defence" -> 5.20,
-    "NationalDebtInterest" -> 5.30,
-    "PublicOrderAndSafety" -> 4.30,
-    "Transport" -> 4.00,
-    "BusinessAndIndustry" -> 2.40,
-    "GovernmentAdministration" -> 2.00,
+    "NationalDebtInterest" -> 5.50,
+    "PublicOrderAndSafety" -> 4.20,
+    "Transport" -> 4.20,
+    "BusinessAndIndustry" -> 2.50,
+    "GovernmentAdministration" -> 2.10,
     "Culture" -> 1.60,
-    "Environment" -> 1.70,
-    "HousingAndUtilities" -> 1.40,
-    "OverseasAid" -> 1.20,
-    "UkContributionToEuBudget" -> 1.10
+    "Environment" -> 1.60,
+    "HousingAndUtilities" -> 1.50,
+    "OverseasAid" -> 1.10,
+    "UkContributionToEuBudget" -> 0.70
   )
 
 }

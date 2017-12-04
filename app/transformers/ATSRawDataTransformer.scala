@@ -102,6 +102,7 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createYourTaxFreeAmountBreakdown =
     Option(Map("personal_tax_free_amount" -> createPersonalTaxFreeAmount,
+      "marriage_allowance_transferred_amount" -> createMarriageAllowanceTransferredAmount,
       "other_allowances_amount" -> createOtherAllowancesAmount,
       "total_tax_free_amount" -> createTotalTaxFreeAmount))
 
@@ -138,6 +139,7 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
       "additional_rate" -> createAdditionalRateDividends,
       "additional_rate_amount" -> createAdditionalRateDividendsAmount,
       "other_adjustments_increasing" -> createOtherAdjustmentsIncreasing,
+      "marriage_allowance_received_amount" -> createMarriageAllowanceReceivedAmount,
       "other_adjustments_reducing" -> createOtherAdjustmentsReducing,
       "total_income_tax" -> createTotalIncomeTaxAmount))
 
@@ -220,7 +222,9 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     createUpperRateDividendsAmount +
     createAdditionalRateDividendsAmount +
     createOtherAdjustmentsIncreasing -
-    createOtherAdjustmentsReducing
+    createOtherAdjustmentsReducing -
+    createMarriageAllowanceReceivedAmount
+
 
   private def createTotalIncomeTaxPageRates =
     Option(Map(
@@ -296,6 +300,10 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createPersonalTaxFreeAmount = getTliSlpAmountVal("ctnPersonalAllowance")
 
+  private def createMarriageAllowanceTransferredAmount = getTliSlpAmountVal("ctnMarriageAllceOutAmt")
+
+  private def createMarriageAllowanceReceivedAmount = getTliSlpAmountVal("ctnMarriageAllceInAmt")
+
   private def createOtherAllowancesAmount = getAmountSum(
     "ctnEmploymentExpensesAmt",
     "ctnSummaryTotalDedPpr",
@@ -311,7 +319,8 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createTotalTaxFreeAmount =
     createOtherAllowancesAmount +
-      createPersonalTaxFreeAmount
+      createPersonalTaxFreeAmount -
+      createMarriageAllowanceTransferredAmount
 
   private def createTotalAmountEmployeeNic =
     getSaPayeAmountVal("employeeClass1Nic") +

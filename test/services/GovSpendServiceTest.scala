@@ -88,21 +88,21 @@ class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     "return correct amounts for 2017" in {
       val result: Map[String, BigDecimal] = GovSpendService.govSpending(2017)
 
-      result("Welfare") shouldBe 25.00
-      result("Health") shouldBe 19.90
-      result("StatePensions") shouldBe 12.80
-      result("Education") shouldBe 12.00
+      result("Welfare") shouldBe 24.30
+      result("Health") shouldBe 20.30
+      result("StatePensions") shouldBe 12.90
+      result("Education") shouldBe 12.30
       result("Defence") shouldBe 5.20
-      result("NationalDebtInterest") shouldBe 5.30
-      result("PublicOrderAndSafety") shouldBe 4.30
-      result("Transport") shouldBe 4.00
-      result("BusinessAndIndustry") shouldBe 2.40
-      result("GovernmentAdministration") shouldBe 2.00
+      result("NationalDebtInterest") shouldBe 5.50
+      result("PublicOrderAndSafety") shouldBe 4.20
+      result("Transport") shouldBe 4.20
+      result("BusinessAndIndustry") shouldBe 2.50
+      result("GovernmentAdministration") shouldBe 2.10
       result("Culture") shouldBe 1.60
-      result("Environment") shouldBe 1.70
-      result("HousingAndUtilities") shouldBe 1.40
-      result("OverseasAid") shouldBe 1.20
-      result("UkContributionToEuBudget") shouldBe 1.10
+      result("Environment") shouldBe 1.60
+      result("HousingAndUtilities") shouldBe 1.50
+      result("OverseasAid") shouldBe 1.10
+      result("UkContributionToEuBudget") shouldBe 0.70
     }
 
   }
