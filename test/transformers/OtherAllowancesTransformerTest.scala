@@ -45,6 +45,7 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload =
         Map("personal_tax_free_amount" -> Amount(9440.0, "GBP"),
+          "marriage_allowance_transferred_amount" -> Amount(0.00, "GBP"),
           "other_allowances_amount" -> Amount(300.0, "GBP"),
           "total_tax_free_amount" -> Amount(9740.0, "GBP"))
       testPayload shouldEqual parsedPayload

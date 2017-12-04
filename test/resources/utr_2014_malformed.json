@@ -90,6 +90,9 @@
       "ctnCgDueHigherRate":{"amount":0.00, "currency":"GBP"},
       "capAdjustmentAmt":{"amount":0.00, "currency":"GBP"},
       "ctnPensionLumpSumTaxRate":{"amount":0.00, "currency":"GBP"},
-      "ctnPensionLsumTaxDueAmt":{"amount":0.00, "currency":"GBP"}
+      "ctnPensionLsumTaxDueAmt":{"amount":0.00, "currency":"GBP"},
+      "ctnMarriageAllceInAmt":{"amount":0.00, "currency":"GBP"},
+      "ctnMarriageAllceOutAmt":{"amount":0.00, "currency":"GBP"},
+      "ctnSocialInvTaxRelAmt":{"amount":0.50, "currency":"GBP"}
 }
 
