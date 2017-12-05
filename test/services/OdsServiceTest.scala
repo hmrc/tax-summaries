@@ -24,13 +24,13 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.time.{Seconds, Span, Millis}
 import play.api.libs.json.{Json, JsValue}
-import uk.gov.hmrc.play.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import utils.TaxsJsonHelper
 import utils.TestConstants._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, NotFoundException }
 
 class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 

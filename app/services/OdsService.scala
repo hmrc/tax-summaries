@@ -23,10 +23,10 @@ import models.{AtsYearList, AtsCheck, AtsMiddleTierData}
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.http.{HeaderCarrier, NotFoundException}
 import utils.TaxsJsonHelper
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, NotFoundException }
 
 trait OdsService {
 

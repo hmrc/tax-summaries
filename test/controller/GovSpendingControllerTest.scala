@@ -24,11 +24,11 @@ import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
 import play.api.test.{FakeRequest}
 import play.test.{WithApplication}
 import services.OdsService
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TaxsJsonHelper
 import utils.TestConstants._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet }
 
 class GovSpendingControllerTest extends UnitSpec {
 

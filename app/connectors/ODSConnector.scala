@@ -19,9 +19,10 @@ package connectors
 import config.WSHttp
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet }
 
 object ODSConnector extends ODSConnector with ServicesConfig {
 

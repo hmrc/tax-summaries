@@ -38,6 +38,7 @@ trait MicroService {
     .settings(playSettings ++ scoverageSettings : _*)
     .settings(defaultSettings(): _*)
     .settings(
+      scalaVersion := "2.11.11",
       targetJvm := "jvm-1.8",
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
