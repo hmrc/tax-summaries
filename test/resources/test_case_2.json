@@ -95,7 +95,15 @@
       "ctnPensionLsumTaxDueAmt":{"amount":0.00, "currency":"GBP"},
       "ctnMarriageAllceInAmt":{"amount":0.00, "currency":"GBP"},
       "ctnMarriageAllceOutAmt":{"amount":0.00, "currency":"GBP"},
-      "ctnSocialInvTaxRelAmt":{"amount":0.50, "currency":"GBP"}
+      "ctnSocialInvTaxRelAmt":{"amount":0.50, "currency":"GBP"},
+      "atsTaxCharged":{"amount":0.00, "currency":"GBP"},
+      "atsNRGTGainsAfterLoss":{"amount":0.00, "currency":"GBP"},
+      "atsCGOtherGainsAfterLoss":{"amount":0.00, "currency":"GBP"},
+      "ctnCGAtLowerRateRPCI":{"amount":0.00, "currency":"GBP"},
+      "ctnLowerRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
+      "ctnCGAtHigherRateRPCI":{"amount":0.00, "currency":"GBP"},
+      "ctnHigherRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
+      "incomeTaxStatus":""
     }
 }
 

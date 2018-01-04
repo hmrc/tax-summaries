@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,18 +57,17 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     Option(transform.govSpendReferenceDTO)
   }
 
-  private def createSummaryData = Option(DataHolder(createSummaryPageBreakdown, createSummaryPageRates))
+  private def createSummaryData = Option(DataHolder(createSummaryPageBreakdown, createSummaryPageRates, None))
 
-  private def createIncomeData = Option(DataHolder(createYourIncomeBeforeTaxBreakdown, None))
+  private def createIncomeData = Option(DataHolder(createYourIncomeBeforeTaxBreakdown, None, None))
 
-  private def createIncomeTaxData = Option(DataHolder(createTotalIncomeTaxPageBreakdown, createTotalIncomeTaxPageRates))
+  private def createIncomeTaxData = Option(DataHolder(createTotalIncomeTaxPageBreakdown, createTotalIncomeTaxPageRates, createIncomeTaxStatus))
 
-  private def createAllowanceData = Option(DataHolder(createYourTaxFreeAmountBreakdown, None))
+  private def createAllowanceData = Option(DataHolder(createYourTaxFreeAmountBreakdown, None, None))
 
-  private def createCapitalGainsData = Option(DataHolder(createCapitalGainsTaxBreakdown, createCapitalGainsTaxRates))
+  private def createCapitalGainsData = Option(DataHolder(createCapitalGainsTaxBreakdown, createCapitalGainsTaxRates, None))
 
   private def createTaxPayerData = Option(ATSTaxpayerDataTransformer(rawTaxPayerJson).atsTaxpayerDataDTO)
-
 
   private def createCapitalGainsTaxBreakdown =
     Option(Map("taxable_gains" -> createTaxableGains,
@@ -141,7 +140,8 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
       "other_adjustments_increasing" -> createOtherAdjustmentsIncreasing,
       "marriage_allowance_received_amount" -> createMarriageAllowanceReceivedAmount,
       "other_adjustments_reducing" -> createOtherAdjustmentsReducing,
-      "total_income_tax" -> createTotalIncomeTaxAmount))
+      "total_income_tax" -> createTotalIncomeTaxAmount,
+      "scottish_income_tax" -> createScottishIncomeTax))
 
   private def createStartingRateForSavings = getTliSlpAmountVal("ctnSavingsChgbleStartRate")
 
@@ -225,7 +225,6 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     createOtherAdjustmentsReducing -
     createMarriageAllowanceReceivedAmount
 
-
   private def createTotalIncomeTaxPageRates =
     Option(Map(
       "starting_rate_for_savings_rate" -> TaxRateService.startingRateForSavingsRate,
@@ -304,6 +303,17 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createMarriageAllowanceReceivedAmount = getTliSlpAmountVal("ctnMarriageAllceInAmt")
 
+  private def createIncomeTaxStatus = Option(getTliSlpString("incomeTaxStatus"))
+
+  private def createCtnIncomeChgbleBasicRate = getTliSlpAmountVal("ctnIncomeChgbleBasicRate")
+
+  private def createCtnIncomeChgbleHigherRate = getTliSlpAmountVal("ctnIncomeChgbleHigherRate")
+
+  private def createCtnIncomeChgbleAddHRate = getTliSlpAmountVal("ctnIncomeChgbleAddHRate")
+
+  private def createScottishIncomeTax = Amount((createCtnIncomeChgbleBasicRate + createCtnIncomeChgbleHigherRate + createCtnIncomeChgbleAddHRate).amount * 0.1,"GBP")
+
+
   private def createOtherAllowancesAmount = getAmountSum(
     "ctnEmploymentExpensesAmt",
     "ctnSummaryTotalDedPpr",
@@ -345,6 +355,10 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def rateFromPerUnitAmount(amountPerUnit:Amount) = {
     Rate(formatter.format((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN)) + "%")
+  }
+
+  private def getTliSlpString(key: String):String = {
+    jsonValLookupWithErrorHandling[String](key, "tliSlpAtsData")
   }
 
   private def getTliSlpAmountVal(key: String):Amount = {

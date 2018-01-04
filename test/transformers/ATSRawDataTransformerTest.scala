@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,6 +215,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
           "other_adjustments_increasing" -> Amount(0.00, "GBP"),
           "marriage_allowance_received_amount" -> Amount(0.00, "GBP"),
           "other_adjustments_reducing" -> Amount(0.00, "GBP"),
+          "scottish_income_tax" -> Amount(186.00, "GBP"),
           "total_income_tax" -> Amount(372.00, "GBP"))
       testPayload shouldEqual parsedPayload
 
