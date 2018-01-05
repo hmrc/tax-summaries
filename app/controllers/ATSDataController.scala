@@ -29,18 +29,18 @@ trait ATSDataController extends BaseController {
 
   def odsService: OdsService
 
-  def getATSData(utr: String, tax_year: Int) = Action.async {
-    implicit request => {
-      odsService.getPayload(utr, tax_year)  map {Ok(_)}
-    }
-  }
-
   def hasAts(utr: String) = Action.async {
     implicit request => {
         odsService.getList(utr) map (Ok(_)) recover {
           case error => NotFound
         }
       }
+  }
+
+  def getATSData(utr: String, tax_year: Int) = Action.async {
+    implicit request => {
+      odsService.getPayload(utr, tax_year)  map {Ok(_)}
+    }
   }
 
   def getATSList(utr: String) = Action.async {
