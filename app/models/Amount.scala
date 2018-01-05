@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] 
   def isZeroOrLess: Boolean = {
     amount <= 0
   }
-  
+
   def +(that: Amount): Amount = {
     require(this.currency equals that.currency)
     copy(amount = this.amount + that.amount)
@@ -49,6 +49,11 @@ case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] 
   def divideWithPrecision(that:Amount, scale: Int) = {
     require(this.currency equals that.currency)
     copy(amount = (this.amount / that.amount).setScale(scale, BigDecimal.RoundingMode.DOWN))
+  }
+
+  def multiplyWithPrecision(that:Amount, scale: BigDecimal) = {
+    require(this.currency equals that.currency)
+    copy(amount = (this.amount * that.amount))
   }
 
   def roundAmountUp(): Amount = {

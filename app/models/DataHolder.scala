@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json.Json
 
-case class DataHolder(payload: Option[Map[String, Amount]], rates: Option[Map[String, Rate]])
+case class DataHolder(payload: Option[Map[String, Amount]], rates: Option[Map[String, Rate]], incomeTaxStatus: Option[String])
 
 object DataHolder {
   implicit val formats = Json.format[DataHolder]
