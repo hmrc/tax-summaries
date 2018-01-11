@@ -358,7 +358,8 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
   }
 
   private def getTliSlpString(key: String):String = {
-    jsonValLookupWithErrorHandling[String](key, "tliSlpAtsData")
+    val res = jsonValLookupWithErrorHandlingWithOpt[String](key, "tliSlpAtsData")
+    res.getOrElse("")
   }
 
   private def getTliSlpAmountVal(key: String):Amount = {
@@ -371,6 +372,16 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def getTliSlpBigDecimalVal(key: String):BigDecimal = {
     jsonValLookupWithErrorHandling[BigDecimal](key, "tliSlpAtsData")
+  }
+
+  private def jsonValLookupWithErrorHandlingWithOpt[T: Reads](key: String, topLevelContainer: String):Option[T] = {
+
+    val theOption = (rawJsonFromStub \ topLevelContainer \ key).validate[T]
+
+    theOption match {
+      case s: JsSuccess[T] => Some(s.get)
+      case e: JsError => None
+    }
   }
 
   private def jsonValLookupWithErrorHandling[T: Reads](key: String, topLevelContainer: String):T = {
