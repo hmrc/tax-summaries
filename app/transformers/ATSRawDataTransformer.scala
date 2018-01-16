@@ -84,9 +84,9 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
       "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit))
 
   private def createCapitalGainsTaxRates =
-    Option(Map("cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate,
-          "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate,
-          "cg_upper_rate" -> TaxRateService.cgUpperRate,
+    Option(Map("cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
+          "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate(taxYear),
+          "cg_upper_rate" -> TaxRateService.cgUpperRate(taxYear),
           "total_cg_tax_rate" -> createTotalCgTaxRate))
 
   private def createYourIncomeBeforeTaxBreakdown =
@@ -227,13 +227,13 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createTotalIncomeTaxPageRates =
     Option(Map(
-      "starting_rate_for_savings_rate" -> TaxRateService.startingRateForSavingsRate,
-      "basic_rate_income_tax_rate" -> TaxRateService.basicRateIncomeTaxRate,
-      "higher_rate_income_tax_rate" -> TaxRateService.higherRateIncomeTaxRate,
-      "additional_rate_income_tax_rate" -> TaxRateService.additionalRateIncomeTaxRate,
-      "ordinary_rate_tax_rate" -> TaxRateService.dividendsOrdinaryRate,
-      "upper_rate_rate" -> TaxRateService.dividendUpperRateRate,
-      "additional_rate_rate" -> TaxRateService.dividendAdditionalRate))
+      "starting_rate_for_savings_rate" -> TaxRateService.startingRateForSavingsRate(taxYear),
+      "basic_rate_income_tax_rate" -> TaxRateService.basicRateIncomeTaxRate(taxYear),
+      "higher_rate_income_tax_rate" -> TaxRateService.higherRateIncomeTaxRate(taxYear),
+      "additional_rate_income_tax_rate" -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
+      "ordinary_rate_tax_rate" -> TaxRateService.dividendsOrdinaryRate(taxYear),
+      "upper_rate_rate" -> TaxRateService.dividendUpperRateRate(taxYear),
+      "additional_rate_rate" -> TaxRateService.dividendAdditionalRate(taxYear)))
 
   private def createSelfEmployment = getAmountSum(
     "ctnSummaryTotalScheduleD",

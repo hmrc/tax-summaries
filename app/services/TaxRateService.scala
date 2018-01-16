@@ -19,15 +19,17 @@ package services
 import models.Rate
 
 object TaxRateService {
-  def startingRateForSavingsRate = Rate("10%")
-  def basicRateIncomeTaxRate = Rate("20%")
-  def higherRateIncomeTaxRate = Rate("40%")
-  def additionalRateIncomeTaxRate = Rate("45%")
-  def dividendsOrdinaryRate = Rate("10%")
-  def dividendUpperRateRate = Rate("32.5%")
-  def dividendAdditionalRate = Rate("37.5%")
-  def cgEntrepreneursRate = Rate("10%")
-  def cgOrdinaryRate = Rate("18%")
-  def cgUpperRate = Rate("28%")
-
+  def startingRateForSavingsRate(taxYear: Int): Rate = Rate("10%")
+  def basicRateIncomeTaxRate(taxYear: Int): Rate = Rate("20%")
+  def higherRateIncomeTaxRate(taxYear: Int): Rate = Rate("40%")
+  def additionalRateIncomeTaxRate(taxYear: Int): Rate = Rate("45%")
+  def dividendsOrdinaryRate(taxYear: Int): Rate = taxYear match {
+    case 2017 => Rate("7.5%")
+    case _ => Rate("10%")
+  }
+  def dividendUpperRateRate(taxYear: Int): Rate = Rate("32.5%")
+  def dividendAdditionalRate(taxYear: Int): Rate = Rate("37.5%")
+  def cgEntrepreneursRate(taxYear: Int): Rate  = Rate("10%")
+  def cgOrdinaryRate(taxYear: Int): Rate = Rate("18%")
+  def cgUpperRate(taxYear: Int): Rate = Rate("28%")
 }
