@@ -9,15 +9,15 @@ private object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "6.13.0"
+  private val microserviceBootstrapVersion = "6.15.0"
   private val playUrlBindersVersion = "2.1.0"
-  private val domainVersion = "5.0.0"
+  private val domainVersion = "5.1.0"
   private val json4sJacksonVersion = "3.2.10"
   private val jsonSchemaValidatorVersion = "2.2.6"
   private val json4sNativeVersion = "3.2.10"
   private val jsonEncryptionVersion = "3.2.0"
 
-  private val hmrcTestVersion = "2.3.0"
+  private val hmrcTestVersion = "3.0.0"
   private val scalatestVersion = "2.2.6"
   private val pegdownVersion = "1.6.0"
   private val scalaTestplusPlayVersion = "1.5.1"
