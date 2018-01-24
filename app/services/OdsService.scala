@@ -40,10 +40,10 @@ trait OdsService {
       ) yield jsonHelper.getAllATSData(taxpayer, taxSummariesIn, UTR, TAX_YEAR)
     } recover {
       case parsingError:JsonParseException =>
-        Logger.error("Malformed JSON for UTR:" + UTR + " and tax year: " + TAX_YEAR, parsingError)
+        Logger.error("Malformed JSON for tax year: " + TAX_YEAR, parsingError)
         Json.toJson(AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("JsonParsingError"))))
       case throwable:Throwable =>
-        Logger.error("Generic error UTR:" + UTR + " and tax year: " + TAX_YEAR, throwable)
+        Logger.error("Generic error for tax year: " + TAX_YEAR, throwable)
         Json.toJson(AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("GenericError"))))
     }
   }
@@ -59,13 +59,13 @@ trait OdsService {
       yield jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer)
     } recover {
       case error: JsonParseException =>
-        Logger.error("Malformed JSON for UTR:" + UTR, error)
+        Logger.error("Malformed JSON", error)
         Json.toJson(AtsYearList(UTR, None, None, Some(AtsError("JsonParsingError"))))
       case error: NotFoundException =>
-        Logger.error("No ATS error UTR:" + UTR, error)
+        Logger.error("No ATS error", error)
         Json.toJson(AtsYearList(UTR, None, None, Some(AtsError("NoAtsData"))))
       case error: Throwable =>
-        Logger.error("Generic error UTR:" + UTR, error)
+        Logger.error("Generic error", error)
         Json.toJson(AtsYearList(UTR, None, None, Some(AtsError(error.getMessage()))))
     }
   }
