@@ -299,17 +299,17 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createPersonalTaxFreeAmount = getTliSlpAmountVal("ctnPersonalAllowance")
 
-  private def createMarriageAllowanceTransferredAmount = getTliSlpAmountVal("ctnMarriageAllceOutAmt")
+  private def createMarriageAllowanceTransferredAmount = getTliSlpAmountOptVal("ctnMarriageAllceOutAmt")
 
-  private def createMarriageAllowanceReceivedAmount = getTliSlpAmountVal("ctnMarriageAllceInAmt")
+  private def createMarriageAllowanceReceivedAmount = getTliSlpAmountOptVal("ctnMarriageAllceInAmt")
 
   private def createIncomeTaxStatus = Option(getTliSlpString("incomeTaxStatus"))
 
-  private def createCtnIncomeChgbleBasicRate = getTliSlpAmountVal("ctnIncomeChgbleBasicRate")
+  private def createCtnIncomeChgbleBasicRate = getTliSlpAmountOptVal("ctnIncomeChgbleBasicRate")
 
-  private def createCtnIncomeChgbleHigherRate = getTliSlpAmountVal("ctnIncomeChgbleHigherRate")
+  private def createCtnIncomeChgbleHigherRate = getTliSlpAmountOptVal("ctnIncomeChgbleHigherRate")
 
-  private def createCtnIncomeChgbleAddHRate = getTliSlpAmountVal("ctnIncomeChgbleAddHRate")
+  private def createCtnIncomeChgbleAddHRate = getTliSlpAmountOptVal("ctnIncomeChgbleAddHRate")
 
   private def createScottishIncomeTax = Amount((createCtnIncomeChgbleBasicRate + createCtnIncomeChgbleHigherRate + createCtnIncomeChgbleAddHRate).amount * 0.1,"GBP")
 
@@ -364,6 +364,11 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def getTliSlpAmountVal(key: String):Amount = {
     jsonValLookupWithErrorHandling[Amount](key, "tliSlpAtsData")
+  }
+
+  private def getTliSlpAmountOptVal(key: String):Amount = {
+    val res = jsonValLookupWithErrorHandlingWithOpt[Amount](key, "tliSlpAtsData")
+    res.getOrElse(Amount(0,"GBP"))
   }
 
   private def getSaPayeAmountVal(key: String): Amount = {
