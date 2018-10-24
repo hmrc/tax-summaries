@@ -30,6 +30,6 @@ object TaxRateService {
   def dividendUpperRateRate(taxYear: Int): Rate = Rate("32.5%")
   def dividendAdditionalRate(taxYear: Int): Rate = Rate("37.5%")
   def cgEntrepreneursRate(taxYear: Int): Rate  = Rate("10%")
-  def cgOrdinaryRate(taxYear: Int): Rate = Rate("18%")
-  def cgUpperRate(taxYear: Int): Rate = Rate("28%")
+  def cgOrdinaryRate(taxYear: Int): Rate = Rate("10%")
+  def cgUpperRate(taxYear: Int): Rate = Rate("20%")
 }
