@@ -66,9 +66,6 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
           result shouldBe Rate("20%")
         }
     }
-
-
-
   }
 
 }

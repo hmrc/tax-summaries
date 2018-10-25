@@ -41,8 +41,8 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
       val parsedRates = returnValue.capital_gains_data.get.rates.get
       val testRates =
         Map("cg_entrepreneurs_rate" -> Rate("10%"),
-          "cg_ordinary_rate" -> Rate("10%"),
-          "cg_upper_rate" -> Rate("20%"),
+          "cg_ordinary_rate" -> Rate("18%"),
+          "cg_upper_rate" -> Rate("28%"),
           "total_cg_tax_rate" -> Rate("45.34%")
           )
       testRates shouldEqual parsedRates
@@ -74,8 +74,8 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
       val parsedRates = returnValue.capital_gains_data.get.rates.get
       val testRates =
         Map("cg_entrepreneurs_rate" -> Rate("10%"),
-          "cg_ordinary_rate" -> Rate("10%"),
-          "cg_upper_rate" -> Rate("20%"),
+          "cg_ordinary_rate" -> Rate("18%"),
+          "cg_upper_rate" -> Rate("28%"),
           "total_cg_tax_rate" -> Rate("45.34%"))
       testRates shouldEqual parsedRates
     }

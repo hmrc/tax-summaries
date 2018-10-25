@@ -32,21 +32,11 @@ object TaxRateService {
   def cgEntrepreneursRate(taxYear: Int): Rate  = Rate("10%")
   def cgOrdinaryRate(taxYear: Int): Rate = taxYear match
     {
-    case 2011 =>Rate("18%")
-    case 2012 =>Rate("18%")
-    case 2013 =>Rate("18%")
-    case 2014 =>Rate("18%")
-    case 2015 =>Rate("18%")
+    case year if year>=2011 && year<=2015 => Rate("18%")
     case _ => Rate("10%")
     }
   def cgUpperRate(taxYear: Int):Rate =taxYear match {
-    case 2011 =>Rate("28%")
-    case 2012 =>Rate("28%")
-    case 2013 =>Rate("28%")
-    case 2014 =>Rate("28%")
-    case 2015 =>Rate("28%")
+    case year if year>=2011 && year<=2015 => Rate("28%")
     case _ => Rate("20%")
   }
-
-
 }
