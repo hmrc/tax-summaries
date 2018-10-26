@@ -31,11 +31,11 @@ object TaxRateService {
   def dividendAdditionalRate(taxYear: Int): Rate = Rate("37.5%")
   def cgEntrepreneursRate(taxYear: Int): Rate  = Rate("10%")
   def cgOrdinaryRate(taxYear: Int): Rate = taxYear match {
-    case year if year>=2011 && year<=2016 => Rate("18%")
+    case year if year>=2012 && year<=2016 => Rate("18%")
     case _ => Rate("10%")
     }
   def cgUpperRate(taxYear: Int):Rate =taxYear match {
-    case year if year>=2011 && year<=2016 => Rate("28%")
+    case year if year>=2012 && year<=2016 => Rate("28%")
     case _ => Rate("20%")
   }
 }

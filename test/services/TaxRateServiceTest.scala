@@ -35,7 +35,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       result shouldBe Rate("7.5%")
     }
 
-    Seq(2011,2012,2013,2014,2015,2016).foreach {
+    Seq(2012,2013,2014,2015,2016).foreach {
       year=>
         s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
           val result: Rate=TaxRateService.cgOrdinaryRate(year)
@@ -51,7 +51,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
         }
     }
 
-    Seq(2011,2012,2013,2014,2015,2016).foreach {
+    Seq(2012,2013,2014,2015,2016).foreach {
       year=>
         s"return correct percentage rate for Capital Gains upper rate for $year" in {
           val result: Rate=TaxRateService.cgUpperRate(year)
