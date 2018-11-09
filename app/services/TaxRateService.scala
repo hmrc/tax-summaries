@@ -24,7 +24,7 @@ object TaxRateService {
   def higherRateIncomeTaxRate(taxYear: Int): Rate = Rate("40%")
   def additionalRateIncomeTaxRate(taxYear: Int): Rate = Rate("45%")
   def dividendsOrdinaryRate(taxYear: Int): Rate = taxYear match {
-    case 2017 => Rate("7.5%")
+    case year if year>=2017 => Rate("7.5%")
     case _ => Rate("10%")
   }
   def dividendUpperRateRate(taxYear: Int): Rate = Rate("32.5%")
