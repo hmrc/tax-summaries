@@ -212,7 +212,8 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     "ctnTaxCredForDivs",
     "ctnQualDistnReliefAmt",
     "figTotalTaxCreditRelief",
-    "ctnNonPayableTaxCredits").roundAmountUp
+    "ctnNonPayableTaxCredits",
+    "reliefForFinanceCosts").roundAmountUp
 
   private def createTotalIncomeTaxAmount = createStartingRateForSavingsAmount +
     basicRateIncomeTaxAmount +

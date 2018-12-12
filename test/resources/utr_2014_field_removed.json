@@ -100,6 +100,7 @@
       "ctnLowerRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
       "ctnCGAtHigherRateRPCI":{"amount":0.00, "currency":"GBP"},
       "ctnHigherRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
+      "reliefForFinanceCosts":{"amount":0.00, "currency":"GBP"},
       "incomeTaxStatus":"0002"
     }
 }

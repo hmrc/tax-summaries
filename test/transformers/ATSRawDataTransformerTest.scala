@@ -164,21 +164,21 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val parsedPayload = returnValue.summary_data.get.payload.get
       val testPayload =
         Map("employee_nic_amount" -> Amount(200.0, "GBP"),
-          "total_income_tax_and_nics" -> Amount(572.0, "GBP"),
-          "your_total_tax" -> Amount(6127.00, "GBP"),
+          "total_income_tax_and_nics" -> Amount(562.0, "GBP"),
+          "your_total_tax" -> Amount(6117.00, "GBP"),
           "personal_tax_free_amount" -> Amount(9440.00,"GBP"),
           "total_tax_free_amount" -> Amount(9740.00,"GBP"),
           "total_income_before_tax" -> Amount(11600.00,"GBP"),
-          "total_income_tax" -> Amount(372.00,"GBP"),
+          "total_income_tax" -> Amount(362.00,"GBP"),
           "total_cg_tax" -> Amount(5555.00,"GBP"),
           "taxable_gains" -> Amount(12250.00,"GBP"),
           "cg_tax_per_currency_unit" -> Amount(0.4534,"GBP"),
-          "nics_and_tax_per_currency_unit" -> Amount(0.0493,"GBP"))
+          "nics_and_tax_per_currency_unit" -> Amount(0.0484,"GBP"))
       testPayload shouldEqual parsedPayload
       
       val parsedRates = returnValue.summary_data.get.rates.get
       val testRates = Map("total_cg_tax_rate" -> Rate("45.34%"),
-          "nics_and_tax_rate" -> Rate("4.93%")
+          "nics_and_tax_rate" -> Rate("4.84%")
           )
       testRates shouldEqual parsedRates
     }
@@ -214,9 +214,9 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
           "additional_rate_amount" -> Amount(0.00, "GBP"),
           "other_adjustments_increasing" -> Amount(0.00, "GBP"),
           "marriage_allowance_received_amount" -> Amount(0.00, "GBP"),
-          "other_adjustments_reducing" -> Amount(0.00, "GBP"),
+          "other_adjustments_reducing" -> Amount(10.0, "GBP"),
           "scottish_income_tax" -> Amount(186.00, "GBP"),
-          "total_income_tax" -> Amount(372.00, "GBP"))
+          "total_income_tax" -> Amount(362.00, "GBP"))
       testPayload shouldEqual parsedPayload
 
       val parsedRates = returnValue.income_tax.get.rates.get
