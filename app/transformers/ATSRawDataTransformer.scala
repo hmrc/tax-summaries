@@ -199,7 +199,7 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     "ctnChildBenefitChrgAmt",
     "ctnPensionSavingChrgbleAmt") - getTliSlpAmountVal("ctn4TaxDueAfterAllceRlf")
 
-  private def createOtherAdjustmentsReducing = getAmountSum(
+  private def createOtherAdjustmentsReducing = (getAmountSum(
     "ctnDeficiencyRelief",
     "topSlicingRelief",
     "ctnVctSharesReliefAmt",
@@ -212,7 +212,9 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     "ctnTaxCredForDivs",
     "ctnQualDistnReliefAmt",
     "figTotalTaxCreditRelief",
-    "ctnNonPayableTaxCredits").roundAmountUp
+    "ctnNonPayableTaxCredits") + createReliefForFinanceCosts).roundAmountUp
+
+  private def createReliefForFinanceCosts =  getTliSlpAmountOptVal("reliefForFinanceCosts")
 
   private def createTotalIncomeTaxAmount = createStartingRateForSavingsAmount +
     basicRateIncomeTaxAmount +
