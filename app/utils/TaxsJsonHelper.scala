@@ -22,8 +22,6 @@ import transformers.{ATSTaxpayerDataTransformer, ATSRawDataTransformer}
 
 trait TaxsJsonHelper {
 
-  val endOfTaxYear = JsNumber(BigDecimal(2014))
-
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue = {
     Json.toJson(ATSRawDataTransformer(rawPayloadJson, rawTaxpayerJson, UTR, taxYear).atsDataDTO)
   }
