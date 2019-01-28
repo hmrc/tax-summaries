@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,13 @@ import transformers.{ATSTaxpayerDataTransformer, ATSRawDataTransformer}
 
 trait TaxsJsonHelper {
 
-  val endOfTaxYear = JsNumber(BigDecimal(2014))
-
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue = {
     Json.toJson(ATSRawDataTransformer(rawPayloadJson, rawTaxpayerJson, UTR, taxYear).atsDataDTO)
   }
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
-    hasAtsForTaxYear(endOfTaxYear, rawJson)
-  }
-
-  def hasAtsForTaxYear(year: JsNumber, rawJson: JsValue): Boolean = {
     val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]
-    annualTaxSummaries.exists(item => (item \ "taxYearEnd").as[JsNumber] == year)
+    annualTaxSummaries.flatMap(item => (item \ "taxYearEnd").asOpt[JsNumber]).nonEmpty
   }
 
   def createTaxYearJson(rawJson: JsValue, utr: String, rawTaxpayerJson: JsValue): JsValue = {
