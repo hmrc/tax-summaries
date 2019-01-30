@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ trait OdsService {
       for (taxpayer <- odsConnector.connectToSATaxpayerDetails(UTR);
            taxSummariesIn <- odsConnector.connectToSelfAssessment(UTR, TAX_YEAR)
       ) yield jsonHelper.getAllATSData(taxpayer, taxSummariesIn, UTR, TAX_YEAR)
-    } recover {
+    }  recover {
       case parsingError:JsonParseException =>
         Logger.error("Malformed JSON for tax year: " + TAX_YEAR, parsingError)
         Json.toJson(AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("JsonParsingError"))))

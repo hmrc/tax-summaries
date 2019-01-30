@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,5 +40,11 @@ object TaxRateService {
   def cgUpperRate(taxYear: Int):Rate =taxYear match {
     case year if year>=2012 && year<=2016 => Rate("28%")
     case _ => Rate("20%")
+  }
+  def individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear: Int): Rate = Rate("18%")
+
+  def individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear: Int): Rate = taxYear match {
+    case year if year>=2017 => Rate("28%")
+    case _ => Rate("0%")
   }
 }

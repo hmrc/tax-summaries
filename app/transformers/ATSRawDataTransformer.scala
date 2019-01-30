@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,13 +81,21 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
       "amount_due_at_higher_rate" -> createCtnCgDueHigherRate,
       "adjustments" -> createCapAdjustmentAmt,
       "total_cg_tax" -> createTotalCapitalGainsTax,
-      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit))
+      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,
+      "amount_at_rpci_lower_rate" -> createCtnCGAtLowerRateRPCI,
+      "amount_due_rpci_lower_rate" -> createCtnLowerRateCgtRPCI,
+      "amount_at_rpci_higher_rate" -> createCtnCGAtHigherRateRPCI,
+      "amount_due_rpci_higher_rate" -> cretaeCtnHigherRateCgtRPCI
+    ))
 
   private def createCapitalGainsTaxRates =
     Option(Map("cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
           "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate(taxYear),
           "cg_upper_rate" -> TaxRateService.cgUpperRate(taxYear),
-          "total_cg_tax_rate" -> createTotalCgTaxRate))
+          "total_cg_tax_rate" -> createTotalCgTaxRate,
+          "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
+          "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
+    ))
 
   private def createYourIncomeBeforeTaxBreakdown =
     Option(Map("self_employment_income" -> createSelfEmployment,
@@ -315,6 +323,13 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createScottishIncomeTax = Amount((createCtnIncomeChgbleBasicRate + createCtnIncomeChgbleHigherRate + createCtnIncomeChgbleAddHRate).amount * 0.1,"GBP")
 
+  private def createCtnCGAtLowerRateRPCI = getTliSlpAmountOptVal("ctnCGAtLowerRateRPCI")
+
+  private def createCtnLowerRateCgtRPCI = getTliSlpAmountOptVal("ctnLowerRateCgtRPCI")
+
+  private def createCtnCGAtHigherRateRPCI = getTliSlpAmountOptVal("ctnCGAtHigherRateRPCI")
+
+  private def cretaeCtnHigherRateCgtRPCI = getTliSlpAmountOptVal("ctnHigherRateCgtRPCI")
 
   private def createOtherAllowancesAmount = getAmountSum(
     "ctnEmploymentExpensesAmt",

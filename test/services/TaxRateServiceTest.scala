@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,37 +40,52 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       result shouldBe Rate("7.5%")
     }
 
-    Seq(2012,2013,2014,2015,2016).foreach {
-      year=>
+    Seq(2012, 2013, 2014, 2015, 2016).foreach {
+      year =>
         s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
-          val result: Rate=TaxRateService.cgOrdinaryRate(year)
+          val result: Rate = TaxRateService.cgOrdinaryRate(year)
           result shouldBe Rate("18%")
         }
     }
 
-    Seq(2017,2018).foreach{
-      year=>
+    Seq(2017, 2018).foreach {
+      year =>
         s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
-          val result: Rate=TaxRateService.cgOrdinaryRate(year)
+          val result: Rate = TaxRateService.cgOrdinaryRate(year)
           result shouldBe Rate("10%")
         }
     }
 
-    Seq(2012,2013,2014,2015,2016).foreach {
-      year=>
+    Seq(2012, 2013, 2014, 2015, 2016).foreach {
+      year =>
         s"return correct percentage rate for Capital Gains upper rate for $year" in {
-          val result: Rate=TaxRateService.cgUpperRate(year)
+          val result: Rate = TaxRateService.cgUpperRate(year)
           result shouldBe Rate("28%")
         }
     }
 
-    Seq(2017,2018).foreach{
-      year=>
+    Seq(2017, 2018).foreach {
+      year =>
         s"return correct percentage rate for Capital Gains upper rate for $year" in {
-          val result: Rate=TaxRateService.cgUpperRate(year)
+          val result: Rate = TaxRateService.cgUpperRate(year)
           result shouldBe Rate("20%")
         }
     }
-  }
 
+    Seq(2018).foreach {
+      year =>
+        s"property tax and carried interest lower rate" in {
+          val result: Rate = TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(year)
+          result shouldBe Rate("18%")
+        }
+    }
+
+    Seq(2018).foreach {
+      year =>
+        s"property tax and carried interest higher rate" in {
+          val result: Rate = TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(year)
+          result shouldBe Rate("28%")
+        }
+    }
+  }
 }
