@@ -303,7 +303,7 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
   
   private def createCapAdjustmentAmt = getTliSlpAmountVal("capAdjustmentAmt")
   
-  private def createTotalCapitalGainsTax = createCtnCgDueEntrepreneursRate + createCtnCgDueLowerRate + createCtnCgDueHigherRate - createCapAdjustmentAmt
+  private def createTotalCapitalGainsTax = createCtnCgDueEntrepreneursRate + createCtnCgDueLowerRate + createCtnCgDueHigherRate - createCapAdjustmentAmt + createCtnLowerRateCgtRPCI + cretaeCtnHigherRateCgtRPCI
   
   private def createPayCapitalGainsTaxOn = if (createTaxableGains < createLessTaxFreeAmount) Amount(0.00,"GBP") else createTaxableGains - createLessTaxFreeAmount
 
