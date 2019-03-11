@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
 import uk.gov.hmrc.play.microservice.filters.{ AuditFilter, LoggingFilter }
 
-object ApplicationGlobal extends DefaultMicroserviceGlobal with RunMode {
+object ApplicationGlobal extends DefaultMicroserviceGlobal {
 
   override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig(s"microservice.metrics")
 
