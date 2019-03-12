@@ -13,8 +13,6 @@ private object AppDependencies {
   private val playUrlBindersVersion = "2.1.0"
   private val domainVersion = "5.3.0"
   private val json4sJacksonVersion = "3.2.10"
-  private val jsonSchemaValidatorVersion = "2.2.6"
-  private val json4sNativeVersion = "3.2.10"
   private val jsonEncryptionVersion = "4.1.0"
   private val hmrcTestVersion = "3.6.0-play-25"
   private val scalaTestplusPlayVersion = "2.0.1"
@@ -26,9 +24,6 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
-    "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
-    "org.json4s" %% "json4s-native" % json4sNativeVersion,
-    "com.codahale.metrics" % "metrics-graphite" % "3.0.2",
     "uk.gov.hmrc" %% "time" % "3.3.0",
     "uk.gov.hmrc" %% "json-encryption" % jsonEncryptionVersion
   )
@@ -46,8 +41,6 @@ private object AppDependencies {
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
         "org.jsoup" % "jsoup" % "1.7.3" % scope,
         "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
-        "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
-        "org.json4s" %% "json4s-native" % json4sNativeVersion,
         "org.mockito" % "mockito-all" % mockitoAllVersion
       )
     }.test
