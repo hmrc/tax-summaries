@@ -20,6 +20,7 @@ import config.WSHttp
 import play.api.{Configuration, Play}
 import play.api.Mode.Mode
 import play.api.libs.json.JsValue
+import services.AuditService
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,10 +33,10 @@ object ODSConnector extends ODSConnector with ServicesConfig {
 
   override def http = WSHttp
 
-
 }
 
 trait ODSConnector {
+
 
   protected def mode: Mode = Play.current.mode
 
