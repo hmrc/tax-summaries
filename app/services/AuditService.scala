@@ -33,7 +33,7 @@ object AuditService extends AuditService
 
 trait AuditService extends AuthenticationConnector {
 
-  val taxsAuditSource = "tax-summaries-frontend"
+  val taxsAuditSource = "tax-summaries"
 
   def sendEvent(auditType: String, details: Map[String, String], sessionId: Option[String] = None)(implicit request: Request[_], hc: HeaderCarrier) =
     auditConnector.sendEvent(eventFor(auditType, details, sessionId))
