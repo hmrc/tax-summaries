@@ -16,27 +16,28 @@
 
 package connectors
 
-import config.WSHttp
-import play.api.{Configuration, Play}
+import config.{TaxSummariesAuditConnector, WSHttp}
 import play.api.Mode.Mode
 import play.api.libs.json.JsValue
-import services.AuditService
+import play.api.{Configuration, Play}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
+import utils.AuditLog
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 
 object ODSConnector extends ODSConnector with ServicesConfig {
 
   override val serviceUrl = baseUrl("tax-summaries-hod")
 
   override def http = WSHttp
+  val auditConnector: AuditConnector = TaxSummariesAuditConnector
 
 }
 
-trait ODSConnector {
-
+trait ODSConnector extends AuditLog{
 
   protected def mode: Mode = Play.current.mode
 
@@ -49,14 +50,33 @@ trait ODSConnector {
   def url(path: String) = s"$serviceUrl$path"
 
   def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR))
+    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR)) map{
+      response =>{
+
+        createAuditEvent("tax summaries data received from HODs01", "tax-summaries", "taxSummaries", "N/A", Map("transactionName" -> "tax summaries data received from HODs01", "path" -> s"url"), Map.empty)
+
+        response
+      }
+    }
   }
   
   def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
+    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries")) map {
+      response => {
+        createAuditEvent("tax summaries data received from HODs02", "tax-summaries", "taxSummaries", "N/A", Map("transactionName" -> "tax summaries data received from HODs02", "path" -> s"url"), Map.empty)
+
+        response
+      }
+    }
   }
 
   def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    http.GET[JsValue](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))
+    http.GET[JsValue](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))map {
+      response => {
+        createAuditEvent("tax summaries data received from HODs03", "tax-summaries", "taxSummaries", "N/A", Map("transactionName" -> "tax summaries data received from HODs03", "path" -> s"url"), Map.empty)
+
+        response
+      }
+    }
   }
 }

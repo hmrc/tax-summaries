@@ -17,7 +17,7 @@
 package controllers
 
 import play.api.mvc.Action
-import services.{AuditService, AuditTypes, OdsService}
+import services.OdsService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -46,7 +46,6 @@ trait ATSDataController extends BaseController {
 
   def getATSList(utr: String) = Action.async {
     implicit request => {
-      AuditService.sendEvent(AuditTypes.Tx_TEST,Map.empty,Some("@@@@@@@@@@@Test@@@@@@@@"))
       odsService.getATSList(utr) map {Ok(_)}
 
     }
