@@ -46,9 +46,7 @@ trait ATSDataController extends BaseController {
 
   def getATSList(utr: String) = Action.async {
     implicit request => {
-      AuditService.sendEvent(AuditTypes.Tx_TEST,Map.empty,Some("@@@@@@@@@@@Test@@@@@@@@"))
       odsService.getATSList(utr) map {Ok(_)}
-
     }
   }
 }
