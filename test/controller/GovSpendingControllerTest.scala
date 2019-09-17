@@ -16,21 +16,25 @@
 
 package controller
 
+import config.TaxSummariesAuditConnector
 import connectors.ODSConnector
 import controllers.ATSDataController
 import models.SpendData
+import org.scalatest.mock.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
-import play.api.test.{FakeRequest}
-import play.test.{WithApplication}
+import play.api.test.FakeRequest
+import play.test.WithApplication
 import services.OdsService
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TaxsJsonHelper
 import utils.TestConstants._
-import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet }
 
-class GovSpendingControllerTest extends UnitSpec {
+import scala.concurrent.Future
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+
+class GovSpendingControllerTest extends UnitSpec with MockitoSugar{
 
     val request = FakeRequest()
 
@@ -46,6 +50,8 @@ class GovSpendingControllerTest extends UnitSpec {
         override def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] = MockConnections.connectToMockPayloadService(taxPayerDataPath)
         override def http: HttpGet = null
         override def serviceUrl: String = null
+
+        override val auditConnector: AuditConnector = mock[AuditConnector]
       }
 
       val odsServiceObject = new OdsService {
