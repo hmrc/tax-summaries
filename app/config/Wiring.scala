@@ -29,11 +29,12 @@ import uk.gov.hmrc.play.config.{AppName, ControllerConfig, ServicesConfig}
 import uk.gov.hmrc.play.http.ws._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.hooks.HttpHook
+import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
 import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
 
 
-trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete
+trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete with HttpAuditing with AppName
 {
   protected def appNameConfiguration: Configuration = Play.current.configuration
 
@@ -45,10 +46,12 @@ trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost wi
 
   protected def runModeConfiguration: Configuration = Play.current.configuration
 
+  def auditConnector: AuditConnector = TAXSAuditConnector
+
+  val hooks = Seq(AuditingHook)
+
 }
-object WSHttp extends WSHttp with AppName  {
-  override val hooks: Seq[HttpHook] = NoneRequired
-}
+object WSHttp extends WSHttp with AppName
 
 object TAXSControllerConfig extends ControllerConfig {
   override lazy val controllerConfigs: Config = Play.current.configuration.underlying.getConfig("controllers")
@@ -64,7 +67,6 @@ object TAXSAuditConnector extends AuditConnector  {
 
 object TAXSAuthConnector extends AuthConnector with ServicesConfig with WSHttp {
   override def authBaseUrl: String = baseUrl("auth")
-  override val hooks: Seq[HttpHook] = NoneRequired
 
 }
 
