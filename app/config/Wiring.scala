@@ -51,7 +51,7 @@ trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost wi
   val hooks = Seq(AuditingHook)
 
 }
-object WSHttp extends WSHttp with AppName
+object WSHttp extends WSHttp
 
 object TAXSControllerConfig extends ControllerConfig {
   override lazy val controllerConfigs: Config = Play.current.configuration.underlying.getConfig("controllers")
