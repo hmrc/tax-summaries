@@ -24,6 +24,7 @@ object GovSpendService {
     case 2016 => taxYear2016
     case 2017 => taxYear2017
     case 2018 => taxYear2018
+    case 2019 => taxYear2019
   }
 
   val taxYear2014: Map[String, BigDecimal] = Map(
@@ -116,4 +117,21 @@ object GovSpendService {
     "UkContributionToEuBudget" -> 0.70
   )
 
+  val taxYear2019: Map[String, BigDecimal] = Map(
+    "Welfare" -> 23.50,
+    "Health" -> 20.20,
+    "StatePensions" -> 12.80,
+    "Education" -> 11.80,
+    "Defence" -> 5.30,
+    "NationalDebtInterest" -> 5.10,
+    "Transport" -> 4.30,
+    "PublicOrderAndSafety" -> 4.30,
+    "BusinessAndIndustry" -> 3.60,
+    "GovernmentAdministration" -> 2.10,
+    "HousingAndUtilities" -> 1.60,
+    "Environment" -> 1.50,
+    "Culture" -> 1.50,
+    "OverseasAid" -> 1.20,
+    "UkContributionToEuBudget" -> 1.0
+  )
 }
