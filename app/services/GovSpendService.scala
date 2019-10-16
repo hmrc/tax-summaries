@@ -132,6 +132,6 @@ object GovSpendService {
     "Environment" -> 1.50,
     "Culture" -> 1.50,
     "OverseasAid" -> 1.20,
-    "UkContributionToEuBudget" -> 1.0
+    "UkContributionToEuBudget" -> 1.00
   )
 }
