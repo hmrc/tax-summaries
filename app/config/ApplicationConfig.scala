@@ -27,7 +27,6 @@ import collection.JavaConverters._
 trait ApplicationConfig {
   def taxFields(year:Int):Seq[String]
   def ratePercentages(year:Int): Map[String, Double]
-  def getExample:Seq[String]
 }
 
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
@@ -52,5 +51,4 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
   override def taxFields(year: Int)= taxFieldsDefault ++ taxFieldsByYear(year)
   override def ratePercentages(year: Int) = defaultRatePercentages ++ratePercentagesByYear(year)
 
-  override def getExample=configuration.getStringSeq("example").getOrElse(Seq())
 }

@@ -37,10 +37,6 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
   def atsDataDTO = createATSDataDTO
 
   private def createATSDataDTO = {
-     println(ApplicationConfig.taxFields(2017))
-    println(ApplicationConfig.ratePercentages(2017))
-    println(ApplicationConfig.ratePercentages(2018))
-    println(ApplicationConfig.taxFields(2018))
      try {
       hasIncomeAndCapitalGainsLiability match {
         case true => AtsMiddleTierData(taxYear, Some(UTR), createIncomeTaxData, createSummaryData, createIncomeData, createAllowanceData, createCapitalGainsData, createGovSpendData, createTaxPayerData, None)
