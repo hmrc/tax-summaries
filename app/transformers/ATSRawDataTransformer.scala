@@ -19,6 +19,7 @@ package transformers
 import java.text.NumberFormat
 import java.util.Locale
 
+import config.ApplicationConfig
 import errors.AtsError
 import models._
 import play.api.Logger
@@ -36,7 +37,11 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
   def atsDataDTO = createATSDataDTO
 
   private def createATSDataDTO = {
-    try {
+     println(ApplicationConfig.taxFields(2017))
+    println(ApplicationConfig.ratePercentages(2017))
+    println(ApplicationConfig.ratePercentages(2018))
+    println(ApplicationConfig.taxFields(2018))
+     try {
       hasIncomeAndCapitalGainsLiability match {
         case true => AtsMiddleTierData(taxYear, Some(UTR), createIncomeTaxData, createSummaryData, createIncomeData, createAllowanceData, createCapitalGainsData, createGovSpendData, createTaxPayerData, None)
         case false => noAtsResult
