@@ -22,7 +22,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.test.FakeRequest
 import services.OdsService
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import utils.TestConstants._
@@ -42,11 +42,12 @@ class ATSDataControllerTest extends UnitSpec with MockitoSugar with WithFakeAppl
   "getAtsData" should {
 
     "return a failed future" in new TestController {
-      when(odsService.getPayload(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])).thenReturn(Future.failed(new Exception("failed")))
+      when(odsService.getPayload(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(new Exception("failed")))
       val result = getATSData(testUtr, 2014)(request)
 
       whenReady(result.failed) { exception =>
-        exception shouldBe a [Exception]
+        exception shouldBe a[Exception]
       }
     }
   }
@@ -67,7 +68,7 @@ class ATSDataControllerTest extends UnitSpec with MockitoSugar with WithFakeAppl
       val result = getATSList(testUtr)(request)
 
       whenReady(result.failed) { exception =>
-        exception shouldBe a [Exception]
+        exception shouldBe a[Exception]
       }
     }
   }

@@ -52,15 +52,16 @@ class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnSummaryTotShareOptions" -> Amount(10.0, "GBP"),
+        "ctnSummaryTotShareOptions"  -> Amount(10.0, "GBP"),
         "ctnSummaryTotalUklProperty" -> Amount(20.0, "GBP"),
         "ctnSummaryTotForeignIncome" -> Amount(30.0, "GBP"),
-        "ctnSummaryTotTrustEstates" -> Amount(40.0, "GBP"),
+        "ctnSummaryTotTrustEstates"  -> Amount(40.0, "GBP"),
         "ctnSummaryTotalOtherIncome" -> Amount(50.0, "GBP"),
-        "ctnSummaryTotalUkInterest" -> Amount(60.0, "GBP"),
-        "ctnSummaryTotForeignDiv" -> Amount(70.0, "GBP"),
-        "ctnSummaryTotalUkIntDivs" -> Amount(80.0, "GBP"),
-        "ctn4SumTotLifePolicyGains" -> Amount(90.0, "GBP"))
+        "ctnSummaryTotalUkInterest"  -> Amount(60.0, "GBP"),
+        "ctnSummaryTotForeignDiv"    -> Amount(70.0, "GBP"),
+        "ctnSummaryTotalUkIntDivs"   -> Amount(80.0, "GBP"),
+        "ctn4SumTotLifePolicyGains"  -> Amount(90.0, "GBP")
+      )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 

@@ -51,9 +51,8 @@ class OtherPensionIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate 
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
-      val update = Json.obj(
-        "itfStatePensionLsGrossAmt" -> Amount(100.0, "GBP"),
-        "atsOtherPensionAmt" -> Amount(200.0, "GBP"))
+      val update =
+        Json.obj("itfStatePensionLsGrossAmt" -> Amount(100.0, "GBP"), "atsOtherPensionAmt" -> Amount(200.0, "GBP"))
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 

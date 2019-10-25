@@ -19,18 +19,18 @@ package services
 import com.fasterxml.jackson.core.JsonParseException
 import connectors.ODSConnector
 import errors.AtsError
-import models.{AtsYearList, AtsCheck, AtsMiddleTierData}
+import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.time.{Seconds, Span, Millis}
-import play.api.libs.json.{Json, JsValue}
+import org.scalatest.time.{Millis, Seconds, Span}
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import utils.TaxsJsonHelper
 import utils.TestConstants._
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, NotFoundException }
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
 class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
@@ -55,10 +55,8 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
       val result = getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
-
       whenReady(result) { result =>
-
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
       }
@@ -72,15 +70,25 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, never()).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
         verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
 
         Json.fromJson[AtsMiddleTierData](result).asOpt shouldBe
-          Some(AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("JsonParsingError"))))
+          Some(
+            AtsMiddleTierData(
+              2014,
+              None,
+              None,
+              None,
+              None,
+              None,
+              None,
+              None,
+              None,
+              Option(AtsError("JsonParsingError"))))
       }
     }
 
@@ -94,15 +102,15 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
         verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
 
         Json.fromJson[AtsMiddleTierData](result).asOpt shouldBe
-          Some(AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("GenericError"))))
+          Some(
+            AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("GenericError"))))
       }
     }
   }
@@ -119,7 +127,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         Json.fromJson[AtsCheck](result).asOpt shouldBe Some(AtsCheck(true))
       }
@@ -133,7 +141,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result.failed) { exception =>
-        exception shouldBe a [Exception]
+        exception shouldBe a[Exception]
         verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
       }
     }
@@ -153,8 +161,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getATSList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -170,8 +177,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getATSList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -192,8 +198,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getATSList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -212,8 +217,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getATSList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-
-        result shouldBe a [JsValue]
+        result shouldBe a[JsValue]
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])

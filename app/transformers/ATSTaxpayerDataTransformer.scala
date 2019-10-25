@@ -20,35 +20,34 @@ import models.AtsMiddleTierTaxpayerData
 import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 
-case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue)  {
+case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
 
   def atsTaxpayerDataDTO = createATSDataDTO
 
-  private def createATSDataDTO = {
+  private def createATSDataDTO =
     try {
       hasTaxpayerName match {
-        case true => AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
+        case true  => AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
         case false => throw new ATSParsingException("NoAtsTaxpayerDataError")
       }
-    }
-    catch {
+    } catch {
       case ATSParsingException(message) => throw new ATSParsingException(message)
       case otherError: Throwable =>
         Logger.error("Unexpected error has occurred", otherError)
         throw new ATSParsingException("Other Error")
     }
-  }
 
   private def hasTaxpayerName = createTaxpayerDetailsBreakdown.nonEmpty
 
   private def createTaxpayerDetailsBreakdown =
-    Option(Map("title" -> getTaxpayerNameData("title"),
-      "forename" -> getTaxpayerNameData("forename"),
-      "surname" -> getTaxpayerNameData("surname")))
+    Option(
+      Map(
+        "title"    -> getTaxpayerNameData("title"),
+        "forename" -> getTaxpayerNameData("forename"),
+        "surname"  -> getTaxpayerNameData("surname")))
 
-  private def getTaxpayerNameData(key: String): String = {
+  private def getTaxpayerNameData(key: String): String =
     jsonValLookupWithErrorHandling[String](key, "name")
-  }
 
   private def jsonValLookupWithErrorHandling[T: Reads](key: String, topLevelContainer: String): T = {
     val theOption = (rawJsonFromStub \ topLevelContainer \ key).validate[T]
@@ -56,7 +55,8 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue)  {
     theOption match {
       case s: JsSuccess[T] => s.get
       case e: JsError =>
-        Logger.error("Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer)
+        Logger.error(
+          "Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer)
         throw new ATSParsingException(key)
     }
   }

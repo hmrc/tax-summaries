@@ -33,9 +33,9 @@ import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
 import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter, MicroserviceFilterSupport}
 
-
-trait WSHttp extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete with HttpAuditing with AppName
-{
+trait WSHttp
+    extends HttpGet with WSGet with HttpPut with WSPut with HttpPost with WSPost with HttpDelete with WSDelete
+    with HttpAuditing with AppName {
   protected def appNameConfiguration: Configuration = Play.current.configuration
 
   override protected def actorSystem: ActorSystem = Play.current.actorSystem
@@ -61,7 +61,7 @@ object TAXSAuthControllerConfig extends AuthParamsControllerConfig {
   override lazy val controllerConfigs: Config = TAXSControllerConfig.controllerConfigs
 }
 
-object TAXSAuditConnector extends AuditConnector  {
+object TAXSAuditConnector extends AuditConnector {
   override lazy val auditingConfig: AuditingConfig = LoadAuditingConfig(s"auditing")
 }
 
@@ -75,7 +75,7 @@ object TAXSLoggingFilter extends LoggingFilter with MicroserviceFilterSupport {
     TAXSControllerConfig.paramsForController(controllerName).needsLogging
 }
 
-object TAXSAuditFilter extends AuditFilter with AppName with MicroserviceFilterSupport  {
+object TAXSAuditFilter extends AuditFilter with AppName with MicroserviceFilterSupport {
   override def auditConnector: AuditConnector = TAXSAuditConnector
   // Overriding this globally as no controllers should implicitly audit.
   override def controllerNeedsAuditing(controllerName: String): Boolean = false
@@ -83,7 +83,7 @@ object TAXSAuditFilter extends AuditFilter with AppName with MicroserviceFilterS
   protected def appNameConfiguration: Configuration = Play.current.configuration
 }
 
-object TAXSAuthFilter extends AuthorisationFilter with MicroserviceFilterSupport  {
+object TAXSAuthFilter extends AuthorisationFilter with MicroserviceFilterSupport {
   override def authConnector: AuthConnector = TAXSAuthConnector
   override def authParamsConfig: AuthParamsControllerConfig = TAXSAuthControllerConfig
   override def controllerNeedsAuth(controllerName: String): Boolean =

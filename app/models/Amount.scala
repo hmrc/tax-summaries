@@ -22,14 +22,12 @@ case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] 
 
   //TODO extract constant for default currency
   def this(amount: BigDecimal) = this(amount, "GBP")
-  
-  def isZero: Boolean = {
-    amount.equals(BigDecimal(0))
-  }
 
-  def isZeroOrLess: Boolean = {
+  def isZero: Boolean =
+    amount.equals(BigDecimal(0))
+
+  def isZeroOrLess: Boolean =
     amount <= 0
-  }
 
   def +(that: Amount): Amount = {
     require(this.currency equals that.currency)
@@ -41,24 +39,23 @@ case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] 
     copy(amount = this.amount - that.amount)
   }
 
-  def compare(that:Amount) = {
+  def compare(that: Amount) = {
     require(this.currency equals that.currency)
     this.amount compare that.amount
   }
-  
-  def divideWithPrecision(that:Amount, scale: Int) = {
+
+  def divideWithPrecision(that: Amount, scale: Int) = {
     require(this.currency equals that.currency)
     copy(amount = (this.amount / that.amount).setScale(scale, BigDecimal.RoundingMode.DOWN))
   }
 
-  def multiplyWithPrecision(that:Amount, scale: BigDecimal) = {
+  def multiplyWithPrecision(that: Amount, scale: BigDecimal) = {
     require(this.currency equals that.currency)
     copy(amount = (this.amount * that.amount))
   }
 
-  def roundAmountUp(): Amount = {
+  def roundAmountUp(): Amount =
     copy(amount = this.amount.setScale(0, BigDecimal.RoundingMode.UP))
-  }
 }
 
 object Amount {
