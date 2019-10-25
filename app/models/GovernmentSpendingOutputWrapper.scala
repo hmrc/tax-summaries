@@ -19,7 +19,11 @@ package models
 import errors.AtsError
 import play.api.libs.json.Json
 
-case class GovernmentSpendingOutputWrapper(taxYear: Int, govSpendAmountData: Map[String, SpendData], totalAmount: Amount, errors: Option[AtsError])
+case class GovernmentSpendingOutputWrapper(
+  taxYear: Int,
+  govSpendAmountData: Map[String, SpendData],
+  totalAmount: Amount,
+  errors: Option[AtsError])
 
 object GovernmentSpendingOutputWrapper {
   implicit val formats = Json.format[GovernmentSpendingOutputWrapper]

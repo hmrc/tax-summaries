@@ -16,16 +16,17 @@
 
 package config
 
-import play.api.{Configuration, Application}
+import play.api.{Application, Configuration}
 import play.api.mvc.EssentialFilter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.microservice.bootstrap.DefaultMicroserviceGlobal
-import uk.gov.hmrc.play.microservice.filters.{ AuditFilter, LoggingFilter }
+import uk.gov.hmrc.play.microservice.filters.{AuditFilter, LoggingFilter}
 
 object ApplicationGlobal extends DefaultMicroserviceGlobal {
 
-  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig(s"microservice.metrics")
+  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] =
+    app.configuration.getConfig(s"microservice.metrics")
 
   override lazy val auditConnector: AuditConnector = TAXSAuditConnector
 

@@ -19,10 +19,17 @@ package models
 import errors.AtsError
 import play.api.libs.json.Json
 
-case class AtsMiddleTierData(taxYear: Int, utr: Option[String], income_tax: Option[DataHolder], summary_data: Option[DataHolder],
-                         income_data: Option[DataHolder], allowance_data: Option[DataHolder], capital_gains_data: Option[DataHolder],
-                         gov_spending: Option[GovernmentSpendingOutputWrapper], taxPayerData: Option[AtsMiddleTierTaxpayerData],
-                         errors: Option[AtsError])
+case class AtsMiddleTierData(
+  taxYear: Int,
+  utr: Option[String],
+  income_tax: Option[DataHolder],
+  summary_data: Option[DataHolder],
+  income_data: Option[DataHolder],
+  allowance_data: Option[DataHolder],
+  capital_gains_data: Option[DataHolder],
+  gov_spending: Option[GovernmentSpendingOutputWrapper],
+  taxPayerData: Option[AtsMiddleTierTaxpayerData],
+  errors: Option[AtsError])
 
 object AtsMiddleTierData {
   implicit val formats = Json.format[AtsMiddleTierData]
