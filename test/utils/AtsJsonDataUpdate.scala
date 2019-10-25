@@ -18,7 +18,7 @@ package utils
 
 import java.net.URL
 import scala.io.Source
-import play.api.libs.json.{ JsObject, Json }
+import play.api.libs.json.{JsObject, Json}
 
 trait AtsJsonDataUpdate {
 
@@ -27,8 +27,7 @@ trait AtsJsonDataUpdate {
     val parsedJson = Json.parse(sampleJson)
     val tlData = parsedJson.as[JsObject] \ "tliSlpAtsData"
     val updatedtliSlp = tlData.as[JsObject] ++ tliSlpAtsUpdate
-    val theUpdatedJson = JsObject(Seq(
-      "tliSlpAtsData" -> updatedtliSlp))
+    val theUpdatedJson = JsObject(Seq("tliSlpAtsData" -> updatedtliSlp))
     parsedJson.as[JsObject] ++ theUpdatedJson
   }
 
@@ -37,8 +36,7 @@ trait AtsJsonDataUpdate {
     val parsedJson = Json.parse(sampleJson)
     val tlData = parsedJson.as[JsObject] \ "name"
     val updatedNameField = tlData.as[JsObject] ++ jsonUpdateObject
-    val theUpdatedJson = JsObject(Seq(
-      "name" -> updatedNameField))
+    val theUpdatedJson = JsObject(Seq("name" -> updatedNameField))
     parsedJson.as[JsObject] ++ theUpdatedJson
   }
 }

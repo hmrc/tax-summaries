@@ -52,9 +52,8 @@ class SelfEmploymentTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
-      val update = Json.obj(
-        "ctnSummaryTotalScheduleD" -> Amount(11.0, "GBP"),
-        "ctnSummaryTotalPartnership" -> Amount(11.0, "GBP"))
+      val update =
+        Json.obj("ctnSummaryTotalScheduleD" -> Amount(11.0, "GBP"), "ctnSummaryTotalPartnership" -> Amount(11.0, "GBP"))
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
