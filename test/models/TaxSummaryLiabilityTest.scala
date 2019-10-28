@@ -18,24 +18,22 @@ package models
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
-
-import scala.io.Source
-
+import utils.JsonUtil
 
 class TaxSummaryLiabilityTest extends UnitSpec {
 
-  "TaxSummaryLiablity Reads" should {
+  "TaxSummaryLiability Reads" should {
     "correctly parse the data" in {
-      val source = Source.fromInputStream(getClass.getResourceAsStream("/test_case_5.json"))
-      val json = source.mkString
+      val json = JsonUtil.load("/test_case_5.json")
+
       val result = Json.parse(json).as[TaxSummaryLiablity]
+
       result.taxYear shouldBe 2014
       result.ctnPensionLumpSumTaxRate shouldBe 0.0
       result.incomeTaxStatus shouldBe "0002"
       result.saPayeNicDetails.size shouldBe 3
-      result.tliSlpAtsData.size shouldBe 93
+      result.tliSlpAtsData.size shouldBe 94
 
     }
   }
-
 }
