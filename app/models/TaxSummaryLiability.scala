@@ -149,15 +149,19 @@ object Liability {
 }
 
 
-final case class TaxSummaryLiablity(taxYear: Int, ctnPensionLumpSumTaxRate: Double, incomeTaxStatus: String ,
-                                    saPayeNicDetails: Map[String, Amount], tliSlpAtsData: Map[Liability, Amount])
+final case class TaxSummaryLiability(
+  taxYear: Int,
+  pensionLumpSumTaxRate: Double,
+  incomeTaxStatus: String ,
+  nationalInsuranceData: Map[String, Amount],
+  atsData: Map[Liability, Amount]
+)
 
-  object TaxSummaryLiablity {
+  object TaxSummaryLiability {
 
-    implicit def mapReads[K: Reads, V: Reads]: Reads[Map[K, V]] =
+    implicit def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, V]] =
       Reads[Map[K, V]] {
-        case JsObject(m) => {
-
+        case JsObject(m) =>
           JsSuccess(m.foldLeft(Map.empty[K, V]) {
             case (acc, (key, value)) =>
               val result = for {
@@ -170,20 +174,19 @@ final case class TaxSummaryLiablity(taxYear: Int, ctnPensionLumpSumTaxRate: Doub
                 case _               => acc
               }
           })
-        }
 
         case _ => JsError("error.expected.jsobject")
 
       }
 
-    implicit  val reads: Reads[TaxSummaryLiablity] =
+    implicit  val reads: Reads[TaxSummaryLiability] =
       (
         (JsPath \ "taxYear").read[Int] and
         (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[Double] and
         (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").read[String] and
-        (JsPath \ "saPayeNicDetails").read(mapReads[String, Amount]) and
-        (JsPath \ "tliSlpAtsData").read(mapReads[Liability, Amount])
-        )(TaxSummaryLiablity.apply _)
+        (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[String, Amount]) and
+        (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
+        )(TaxSummaryLiability.apply _)
     }
 
 
