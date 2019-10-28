@@ -209,4 +209,42 @@ val otherAllowances: Operation[Liability, Nothing] = {
     )
   }
 
+  /***
+   * def interpret[A, B](op: Operation[A, B])(implicit values: Map[A, Amount], data: B): Amount =
+    *     op match {
+    *       case Empty()              => Amount.empty
+    *       case Term(value)          => values.getOrElse(value, Amount.empty)
+    *       case Filter(op, pred)     => interpret(interpretFilter(op, pred)(data))
+    *       case Sum(a, b, cs)        => interpret(a) + interpret(b) + cs.map(interpret).foldLeft(Amount.empty)(_+_)
+    *       case Difference(a, b, cs) => interpret(a) - interpret(b) - cs.map(interpret).foldLeft(Amount.empty)(_-_)
+    *       case RoundUp(op)          => interpret(op).roundAmountUp()
+    *       case Positive(op)         =>
+    *         val result = interpret(op)
+    *         if (result < Amount.empty) Amount.empty else result
+    *     }
+    *
+    *   def interpretFilter[A, B](op: Operation[A, B], predicate: (A, B) => Boolean)(implicit data: B): Operation[A, B] = {
+    *
+    *     def filter(
+    *       ops: List[Operation[A, B]],
+    *       apply: (Operation[A, B], Operation[A, B], List[Operation[A, B]]) => Operation[A, B]): Operation[A, B] = {
+    *       ops.filter(x => predicate(x, data)) match {
+    *         case a :: b :: cs => apply(a, b, cs)
+    *         case a :: Nil     => Term(a)
+    *         case Nil          => Empty()
+    *       }
+    *     }
+    *
+    *     op match {
+    *       case term@Term(value)
+    *         if predicate(value, data) => term
+    *       case Term(_)                => Empty()
+    *       case Filter(op, pred)       => interpretFilter(interpretFilter(op, pred), predicate)
+    *       case Sum(a, b, cs)          => filter(a :: b :: cs, Sum[A, B])
+    *       case Difference(a, b, cs)   => filter(a :: b :: cs, Difference[A, B])
+    *       case RoundUp(op)            => RoundUp(interpretFilter(op, predicate))
+    *       case Positive(op)           => Positive(interpretFilter(op, predicate))
+    *     }
+    *   }
+   */
 }
