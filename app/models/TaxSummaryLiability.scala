@@ -16,6 +16,7 @@
 
 package models
 
+import models.Liability.allLiabilities
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -122,6 +123,10 @@ object Liability {
   case object TradeUnionDeathBenefits extends ApiValue("itfTradeUnionDeathBenefits") with Liability
   case object VctSharesRelief extends ApiValue("ctnVctSharesReliefAmt") with Liability
 
+  case object EmployeeClass1NI extends ApiValue("employeeClass1Nic") with Liability
+  case object EmployeeClass2NI extends ApiValue("employeeClass2Nic") with Liability
+  case object EmployerNI extends ApiValue("employerNic") with Liability
+
   val allLiabilities: List[Liability] =
     List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
       CgAnnualExempt, CgAtEntrepreneursRate, CgAtHigherRate, CgAtLowerRate, CgDueEntrepreneursRate, CgDueHigherRate,
@@ -139,7 +144,8 @@ object Liability {
       SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotShareOptions, SummaryTotTrustEstates,
       SummaryTotalDedPpr, SummaryTotalEmployment, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule,
       SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxCharged, TaxCreditsForDivs,
-      TaxDueAfterAllceRlf, TaxExcluded, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief)
+      TaxDueAfterAllceRlf, TaxExcluded, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
+      EmployeeClass1NI,EmployeeClass2NI,EmployerNI)
 
   implicit val reads: Reads[Liability] = Reads[Liability] {
     case JsString(s) =>
@@ -152,12 +158,35 @@ object Liability {
 
 }
 
+//sealed trait NationalInsuranceLiability {
+//  val apiValue: String
+//}
+//
+//object NationalInsuranceLiability {
+//
+//  case object EmployeeClass1NI extends ApiValue("employeeClass1Nic") with NationalInsuranceLiability
+//  case object EmployeeClass2NI extends ApiValue("employeeClass2Nic") with NationalInsuranceLiability
+//  case object EmployerNI extends ApiValue("employerNic") with NationalInsuranceLiability
+//
+//  val allNationalInsuranceLiabilities = List[NationalInsuranceLiability](EmployeeClass1NI,EmployeeClass2NI,EmployerNI)
+//
+//  implicit val reads: Reads[NationalInsuranceLiability] = Reads[NationalInsuranceLiability] {
+//    case JsString(s) =>
+//      allNationalInsuranceLiabilities
+//        .find(l => l.apiValue == s)
+//        .fold[JsResult[NationalInsuranceLiability]](JsError("error.expected.liability"))(JsSuccess(_))
+//
+//    case _ => JsError("error.expected.jsstring")
+//  }
+//}
+//
+
 
 final case class TaxSummaryLiability(
   taxYear: Int,
   pensionLumpSumTaxRate: Double,
   incomeTaxStatus: String ,
-  nationalInsuranceData: Map[String, Amount],
+  nationalInsuranceData: Map[Liability, Amount],
   atsData: Map[Liability, Amount]
 )
 
@@ -188,7 +217,7 @@ final case class TaxSummaryLiability(
         (JsPath \ "taxYear").read[Int] and
         (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[Double] and
         (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").read[String] and
-        (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[String, Amount]) and
+        (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
         (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
         )(TaxSummaryLiability.apply _)
     }

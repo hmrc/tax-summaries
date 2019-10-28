@@ -423,3 +423,4 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     (keys map (key => getTliSlpAmountVal(key))).reduceLeft[Amount](_ + _)
   }
 }
+
