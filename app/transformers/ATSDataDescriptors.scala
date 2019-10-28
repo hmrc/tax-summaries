@@ -19,46 +19,45 @@ package transformers
 import com.sun.xml.internal.bind.v2.TODO
 import models.{ApiValue, Liability}
 import models.Liability._
-import transformers.Operation.{PositiveDifference, sum}
+import transformers.Operation.sum
 
 //sealed trait Operation[A]
 //case class Term[A](value: A) extends Operation[A]
 //case class Sum[A](first: Operation[A], second: Operation[A], others: Operation[A]*) extends Operation[A]
 //case class Difference[A](first: Operation[A], second: Operation[A], others: Operation[A]*) extends Operation[A]
 
+sealed trait Operation[A, +B] {
 
-sealed trait Operation[A, +B]
-case class Term[A](value: A) extends Operation[A, Nothing]
-case class Sum[A](first: Operation[A, Nothing], second: Operation[A, Nothing], others: List[Operation[A, Nothing]]) extends Operation[A, Nothing] {
+  def filter(predicate: (A, B) => Boolean): Operation[A, B] = Filter(this, predicate)
+  def roundedUp[B1 >: B]: RoundUp[A, B1] = RoundUp(this)
+  lazy val positive: Operation[A, B] = Positive(this)
 
-  def filter[B](predicate: (A, B) => Boolean): Operation[A, B] = Filter(this, predicate)
 }
+
+case class Term[A, B](value: A) extends Operation[A, B]
+case class Sum[A, B](first: Operation[A, B], second: Operation[A, B], others: List[Operation[A, B]] = Nil) extends Operation[A, B]
+case class Difference[A, B](first: Operation[A, B], second: Operation[A, B], others: List[Operation[A, B]] = Nil) extends Operation[A, B]
 case class Filter[A, B](op: Operation[A, B], predicate: (A, B) => Boolean) extends Operation[A, B]
-case class Difference[A](first: Operation[A, Nothing], second: Operation[A, Nothing], others: List[Operation[A, Nothing]]) extends Operation[A, Nothing]
-case class Empty[A]() extends Operation[A, Nothing]
+case class Positive[A, B](op: Operation[A, B]) extends Operation[A, B]
+case class RoundUp[A, B](op: Operation[A, B]) extends Operation[A, B]
+case class Empty[A, B]() extends Operation[A, B]
 
 
 
 object Operation {
 
-  def sum[A](first: A, second: A, others: A*): Sum[A] =
+  def sum[A, B](first: A, second: A, others: A*): Sum[A, B] =
     Sum(Term(first), Term(second), others.map(Term(_)).toList)
 
-  case class Difference[A](first: Operation[A, Nothing], second: Operation[A, Nothing], others: List[Operation[A, Nothing]]) extends Operation[A, Nothing] {
-
-    def positive: PositiveDifference[A] = PositiveDifference(first, second, others)
-  }
-  case class PositiveDifference[A](first: Operation[A, Nothing], second: Operation[A, Nothing], others: List[Operation[A, Nothing]]=Nil) extends Operation[A, Nothing]
-
-
-
+  def difference[A, B](first: A, second: A, others: A*): Operation[A, B] =
+    Difference(Term(first), Term(second), others.map(Term(_)).toList)
 
 }
 
 object Descripters {
 
 
-  val taxableGains = {
+  val taxableGains: Operation[Liability, Nothing] = {
     sum(
       CgTotGainsAfterLosses,
       CgGainsAfterLosses
@@ -66,10 +65,10 @@ object Descripters {
   }
 
   val payCgTaxOn: Operation[Liability, Nothing] = {
-    PositiveDifference(
+    Positive(Difference(
       taxableGains,
       Term(CgAnnualExempt)
-    )
+    ))
   }
 
   val totalCapitalGainsTax: Operation[Liability, Nothing] = {
@@ -147,7 +146,7 @@ object Descripters {
 
 
 val otherAllowances: Operation[Liability, Nothing] = {
-  sum(
+  sum[Liability, Nothing](
     EmploymentExpenses,
     SummaryTotalDedPpr,
     SumTotForeignTaxRelief,
@@ -159,7 +158,7 @@ val otherAllowances: Operation[Liability, Nothing] = {
     BpaAllowance,
     BPA,
     ExcludedIncome
-  ) //TODO needs a round up
+  ).roundedUp
 }
 
   val totalTaxFreeAmount : Operation[Liability, Nothing] ={
