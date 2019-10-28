@@ -19,104 +19,108 @@ package models
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-sealed abstract class Liability(val apiValue: String)
+abstract class ApiValue(val apiValue: String)
+
+sealed trait Liability {
+  val apiValue: String
+}
 
 object Liability {
 
-  case object AnnuityPay extends Liability("grossAnnuityPayts")
-  case object BPA extends Liability("itfBpaAmount")
-  case object BpaAllowance extends Liability("ctnBpaAllowanceAmt")
-  case object CGAtHigherRateRPCI extends Liability("ctnCGAtHigherRateRPCI")
-  case object CGAtLowerRateRPCI extends Liability("ctnCGAtLowerRateRPCI")
-  case object CGOtherGainsAfterLoss extends Liability("atsCGOtherGainsAfterLoss")
-  case object CapAdjustment extends Liability("capAdjustmentAmt")
-  case object CgAnnualExempt extends Liability("atsCgAnnualExemptAmt")
-  case object CgAtEntrepreneursRate extends Liability("ctnCgAtEntrepreneursRate")
-  case object CgAtHigherRate extends Liability("ctnCgAtHigherRate")
-  case object CgAtLowerRate extends Liability("ctnCgAtLowerRate")
-  case object CgDueEntrepreneursRate extends Liability("ctnCgDueEntrepreneursRate")
-  case object CgDueHigherRate extends Liability("ctnCgDueHigherRate")
-  case object CgDueLowerRate extends Liability("ctnCgDueLowerRate")
-  case object CgGainsAfterLosses extends Liability("atsCgGainsAfterLossesAmt")
-  case object CgTotGainsAfterLosses extends Liability("atsCgTotGainsAfterLosses")
-  case object ChildBenefitCharge extends Liability("ctnChildBenefitChrgAmt")
-  case object Class4Nic extends Liability("class4Nic")
-  case object CommInvTrustRel extends Liability("ctnCommInvTrustRelAmt")
-  case object DeficiencyRelief extends Liability("ctnDeficiencyRelief")
-  case object DividendChargeableAddHRate extends Liability("ctnDividendChgbleAddHRate")
-  case object DividendChargeableHighRate extends Liability("ctnDividendChgbleHighRate")
-  case object DividendChargeableLowRate extends Liability("ctnDividendChgbleLowRate")
-  case object DividendTaxAddHighRate extends Liability("ctnDividendTaxAddHighRate")
-  case object DividendTaxHighRate extends Liability("ctnDividendTaxHighRate")
-  case object DividendTaxLowRate extends Liability("ctnDividendTaxLowRate")
-  case object EisRelief extends Liability("ctnEisReliefAmt")
-  case object EmploymentBenefits extends Liability("ctnEmploymentBenefitsAmt")
-  case object EmploymentExpenses extends Liability("ctnEmploymentExpensesAmt")
-  case object ExcludedIncome extends Liability("grossExcludedIncome")
-  case object GiftsInvCharities extends Liability("itf4GiftsInvCharitiesAmo")
-  case object HigherRateCgtRPCI extends Liability("ctnHigherRateCgtRPCI")
-  case object IncBenefitSuppAllow extends Liability("atsIncBenefitSuppAllowAmt")
-  case object IncomeChargeableAddHRate extends Liability("ctnIncomeChgbleAddHRate")
-  case object IncomeChargeableBasicRate extends Liability("ctnIncomeChgbleBasicRate")
-  case object IncomeChargeableHigherRate extends Liability("ctnIncomeChgbleHigherRate")
-  case object IncomeTaxAddHighRate extends Liability("ctnIncomeTaxAddHighRate")
-  case object IncomeTaxBasicRate extends Liability("ctnIncomeTaxBasicRate")
-  case object IncomeTaxDue extends Liability("incomeTaxDue")
-  case object IncomeTaxHigherRate extends Liability("ctnIncomeTaxHigherRate")
-  case object JobSeekersAllowance extends Liability("atsJobSeekersAllowanceAmt")
-  case object LowerRateCgtRPCI extends Liability("ctnLowerRateCgtRPCI")
-  case object MarriageAllceIn extends Liability("ctnMarriageAllceInAmt")
-  case object MarriageAllceOut extends Liability("ctnMarriageAllceOutAmt")
-  case object NRGTGainsAfterLoss extends Liability("atsNRGTGainsAfterLoss")
-  case object NetAnnuityPaytsTaxDue extends Liability("netAnnuityPaytsTaxDue")
-  case object NonDomCharge extends Liability("nonDomChargeAmount")
-  case object NonPayableTaxCredits extends Liability("ctnNonPayableTaxCredits")
-  case object NotionalTaxCegs extends Liability("ctnNotionalTaxCegs")
-  case object NotlTaxOtherSource extends Liability("ctnNotlTaxOthrSrceAmo")
-  case object OthStatePenBenefits extends Liability("atsOthStatePenBenefitsAmt")
-  case object OtherPension extends Liability( "atsOtherPensionAmt")
-  case object PensionLsumTaxDue extends Liability("ctnPensionLsumTaxDueAmt")
-  case object PensionSavingChargeable extends Liability("ctnPensionSavingChrgbleAmt")
-  case object PersonalAllowance extends Liability("ctnPersonalAllowance")
-  case object QualDistnRelief extends Liability("ctnQualDistnReliefAmt")
-  case object ReliefForFinanceCosts extends Liability("reliefForFinanceCosts")
-  case object SavingsChargeableAddHRate extends Liability("ctnSavingsChgbleAddHRate")
-  case object SavingsChargeableHigherRate extends Liability("ctnSavingsChgbleHigherRate")
-  case object SavingsChargeableLowerRate extends Liability("ctnSavingsChgbleLowerRate")
-  case object SavingsChargeableStartRate extends Liability("ctnSavingsChgbleStartRate")
-  case object SavingsTaxAddHighRate extends Liability("ctnSavingsTaxAddHighRate")
-  case object SavingsTaxHigherRate extends Liability("ctnSavingsTaxHigherRate")
-  case object SavingsTaxLowerRate extends Liability("ctnSavingsTaxLowerRate")
-  case object SavingsTaxStartingRate extends Liability("ctnSavingsTaxStartingRate")
-  case object SeedEisRelief extends Liability("ctnSeedEisReliefAmt")
-  case object SocialInvTaxRel extends Liability("ctnSocialInvTaxRelAmt")
-  case object StatePension extends Liability( "atsStatePensionAmt")
-  case object StatePensionGross extends Liability( "itfStatePensionLsGrossAmt")
-  case object SumTotForeignTaxRelief extends Liability("ctnSumTotForeignTaxRelief")
-  case object SumTotLifePolicyGains extends Liability("ctn4SumTotLifePolicyGains")
-  case object SumTotLoanRestricted extends Liability("ctnSumTotLoanRestricted")
-  case object SumTotLossRestricted extends Liability("ctnSumTotLossRestricted")
-  case object SummaryTotForeignDiv extends Liability("ctnSummaryTotForeignDiv")
-  case object SummaryTotForeignIncome extends Liability("ctnSummaryTotForeignIncome")
-  case object SummaryTotShareOptions extends Liability("ctnSummaryTotShareOptions")
-  case object SummaryTotTrustEstates extends Liability("ctnSummaryTotTrustEstates")
-  case object SummaryTotalDedPpr extends Liability("ctnSummaryTotalDedPpr")
-  case object SummaryTotalEmployment extends Liability( "ctnSummaryTotalEmployment")
-  case object SummaryTotalOtherIncome extends Liability("ctnSummaryTotalOtherIncome")
-  case object SummaryTotalPartnership extends Liability("ctnSummaryTotalPartnership")
-  case object SummaryTotalSchedule extends Liability("ctnSummaryTotalScheduleD")
-  case object SummaryTotalUkIntDivs extends Liability("ctnSummaryTotalUkIntDivs")
-  case object SummaryTotalUkInterest extends Liability("ctnSummaryTotalUkInterest")
-  case object SummaryTotalUklProperty extends Liability("ctnSummaryTotalUklProperty")
-  case object SurplusMcaAlimonyRel extends Liability("atsSurplusMcaAlimonyRel")
-  case object TaxCharged extends Liability("atsTaxCharged")
-  case object TaxCreditsForDivs extends Liability("ctnTaxCredForDivs")
-  case object TaxDueAfterAllceRlf extends Liability("ctn4TaxDueAfterAllceRlf")
-  case object TaxExcluded extends Liability("taxExcluded")
-  case object TopSlicingRelief extends Liability("topSlicingRelief")
-  case object TotalTaxCreditRelief extends Liability("figTotalTaxCreditRelief")
-  case object TradeUnionDeathBenefits extends Liability("itfTradeUnionDeathBenefits")
-  case object VctSharesRelief extends Liability("ctnVctSharesReliefAmt")
+  case object AnnuityPay extends ApiValue("grossAnnuityPayts") with Liability
+  case object BPA extends ApiValue("itfBpaAmount") with Liability
+  case object BpaAllowance extends ApiValue("ctnBpaAllowanceAmt") with Liability
+  case object CGAtHigherRateRPCI extends ApiValue("ctnCGAtHigherRateRPCI") with Liability
+  case object CGAtLowerRateRPCI extends ApiValue("ctnCGAtLowerRateRPCI") with Liability
+  case object CGOtherGainsAfterLoss extends ApiValue("atsCGOtherGainsAfterLoss") with Liability
+  case object CapAdjustment extends ApiValue("capAdjustmentAmt") with Liability
+  case object CgAnnualExempt extends ApiValue("atsCgAnnualExemptAmt") with Liability
+  case object CgAtEntrepreneursRate extends ApiValue("ctnCgAtEntrepreneursRate") with Liability
+  case object CgAtHigherRate extends ApiValue("ctnCgAtHigherRate") with Liability
+  case object CgAtLowerRate extends ApiValue("ctnCgAtLowerRate") with Liability
+  case object CgDueEntrepreneursRate extends ApiValue("ctnCgDueEntrepreneursRate") with Liability
+  case object CgDueHigherRate extends ApiValue("ctnCgDueHigherRate") with Liability
+  case object CgDueLowerRate extends ApiValue("ctnCgDueLowerRate") with Liability
+  case object CgGainsAfterLosses extends ApiValue("atsCgGainsAfterLossesAmt") with Liability
+  case object CgTotGainsAfterLosses extends ApiValue("atsCgTotGainsAfterLosses") with Liability
+  case object ChildBenefitCharge extends ApiValue("ctnChildBenefitChrgAmt") with Liability
+  case object Class4Nic extends ApiValue("class4Nic") with Liability
+  case object CommInvTrustRel extends ApiValue("ctnCommInvTrustRelAmt") with Liability
+  case object DeficiencyRelief extends ApiValue("ctnDeficiencyRelief") with Liability
+  case object DividendChargeableAddHRate extends ApiValue("ctnDividendChgbleAddHRate") with Liability
+  case object DividendChargeableHighRate extends ApiValue("ctnDividendChgbleHighRate") with Liability
+  case object DividendChargeableLowRate extends ApiValue("ctnDividendChgbleLowRate") with Liability
+  case object DividendTaxAddHighRate extends ApiValue("ctnDividendTaxAddHighRate") with Liability
+  case object DividendTaxHighRate extends ApiValue("ctnDividendTaxHighRate") with Liability
+  case object DividendTaxLowRate extends ApiValue("ctnDividendTaxLowRate") with Liability
+  case object EisRelief extends ApiValue("ctnEisReliefAmt") with Liability
+  case object EmploymentBenefits extends ApiValue("ctnEmploymentBenefitsAmt") with Liability
+  case object EmploymentExpenses extends ApiValue("ctnEmploymentExpensesAmt") with Liability
+  case object ExcludedIncome extends ApiValue("grossExcludedIncome") with Liability
+  case object GiftsInvCharities extends ApiValue("itf4GiftsInvCharitiesAmo") with Liability
+  case object HigherRateCgtRPCI extends ApiValue("ctnHigherRateCgtRPCI") with Liability
+  case object IncBenefitSuppAllow extends ApiValue("atsIncBenefitSuppAllowAmt") with Liability
+  case object IncomeChargeableAddHRate extends ApiValue("ctnIncomeChgbleAddHRate") with Liability
+  case object IncomeChargeableBasicRate extends ApiValue("ctnIncomeChgbleBasicRate") with Liability
+  case object IncomeChargeableHigherRate extends ApiValue("ctnIncomeChgbleHigherRate") with Liability
+  case object IncomeTaxAddHighRate extends ApiValue("ctnIncomeTaxAddHighRate") with Liability
+  case object IncomeTaxBasicRate extends ApiValue("ctnIncomeTaxBasicRate") with Liability
+  case object IncomeTaxDue extends ApiValue("incomeTaxDue") with Liability
+  case object IncomeTaxHigherRate extends ApiValue("ctnIncomeTaxHigherRate") with Liability
+  case object JobSeekersAllowance extends ApiValue("atsJobSeekersAllowanceAmt") with Liability
+  case object LowerRateCgtRPCI extends ApiValue("ctnLowerRateCgtRPCI") with Liability
+  case object MarriageAllceIn extends ApiValue("ctnMarriageAllceInAmt") with Liability
+  case object MarriageAllceOut extends ApiValue("ctnMarriageAllceOutAmt") with Liability
+  case object NRGTGainsAfterLoss extends ApiValue("atsNRGTGainsAfterLoss") with Liability
+  case object NetAnnuityPaytsTaxDue extends ApiValue("netAnnuityPaytsTaxDue") with Liability
+  case object NonDomCharge extends ApiValue("nonDomChargeAmount") with Liability
+  case object NonPayableTaxCredits extends ApiValue("ctnNonPayableTaxCredits") with Liability
+  case object NotionalTaxCegs extends ApiValue("ctnNotionalTaxCegs") with Liability
+  case object NotlTaxOtherSource extends ApiValue("ctnNotlTaxOthrSrceAmo") with Liability
+  case object OthStatePenBenefits extends ApiValue("atsOthStatePenBenefitsAmt") with Liability
+  case object OtherPension extends ApiValue( "atsOtherPensionAmt") with Liability
+  case object PensionLsumTaxDue extends ApiValue("ctnPensionLsumTaxDueAmt") with Liability
+  case object PensionSavingChargeable extends ApiValue("ctnPensionSavingChrgbleAmt") with Liability
+  case object PersonalAllowance extends ApiValue("ctnPersonalAllowance") with Liability
+  case object QualDistnRelief extends ApiValue("ctnQualDistnReliefAmt") with Liability
+  case object ReliefForFinanceCosts extends ApiValue("reliefForFinanceCosts") with Liability
+  case object SavingsChargeableAddHRate extends ApiValue("ctnSavingsChgbleAddHRate") with Liability
+  case object SavingsChargeableHigherRate extends ApiValue("ctnSavingsChgbleHigherRate") with Liability
+  case object SavingsChargeableLowerRate extends ApiValue("ctnSavingsChgbleLowerRate") with Liability
+  case object SavingsChargeableStartRate extends ApiValue("ctnSavingsChgbleStartRate") with Liability
+  case object SavingsTaxAddHighRate extends ApiValue("ctnSavingsTaxAddHighRate") with Liability
+  case object SavingsTaxHigherRate extends ApiValue("ctnSavingsTaxHigherRate") with Liability
+  case object SavingsTaxLowerRate extends ApiValue("ctnSavingsTaxLowerRate") with Liability
+  case object SavingsTaxStartingRate extends ApiValue("ctnSavingsTaxStartingRate") with Liability
+  case object SeedEisRelief extends ApiValue("ctnSeedEisReliefAmt") with Liability
+  case object SocialInvTaxRel extends ApiValue("ctnSocialInvTaxRelAmt") with Liability
+  case object StatePension extends ApiValue( "atsStatePensionAmt") with Liability
+  case object StatePensionGross extends ApiValue( "itfStatePensionLsGrossAmt") with Liability
+  case object SumTotForeignTaxRelief extends ApiValue("ctnSumTotForeignTaxRelief") with Liability
+  case object SumTotLifePolicyGains extends ApiValue("ctn4SumTotLifePolicyGains") with Liability
+  case object SumTotLoanRestricted extends ApiValue("ctnSumTotLoanRestricted") with Liability
+  case object SumTotLossRestricted extends ApiValue("ctnSumTotLossRestricted") with Liability
+  case object SummaryTotForeignDiv extends ApiValue("ctnSummaryTotForeignDiv") with Liability
+  case object SummaryTotForeignIncome extends ApiValue("ctnSummaryTotForeignIncome") with Liability
+  case object SummaryTotShareOptions extends ApiValue("ctnSummaryTotShareOptions") with Liability
+  case object SummaryTotTrustEstates extends ApiValue("ctnSummaryTotTrustEstates") with Liability
+  case object SummaryTotalDedPpr extends ApiValue("ctnSummaryTotalDedPpr") with Liability
+  case object SummaryTotalEmployment extends ApiValue( "ctnSummaryTotalEmployment") with Liability
+  case object SummaryTotalOtherIncome extends ApiValue("ctnSummaryTotalOtherIncome") with Liability
+  case object SummaryTotalPartnership extends ApiValue("ctnSummaryTotalPartnership") with Liability
+  case object SummaryTotalSchedule extends ApiValue("ctnSummaryTotalScheduleD") with Liability
+  case object SummaryTotalUkIntDivs extends ApiValue("ctnSummaryTotalUkIntDivs") with Liability
+  case object SummaryTotalUkInterest extends ApiValue("ctnSummaryTotalUkInterest") with Liability
+  case object SummaryTotalUklProperty extends ApiValue("ctnSummaryTotalUklProperty") with Liability
+  case object SurplusMcaAlimonyRel extends ApiValue("atsSurplusMcaAlimonyRel") with Liability
+  case object TaxCharged extends ApiValue("atsTaxCharged") with Liability
+  case object TaxCreditsForDivs extends ApiValue("ctnTaxCredForDivs") with Liability
+  case object TaxDueAfterAllceRlf extends ApiValue("ctn4TaxDueAfterAllceRlf") with Liability
+  case object TaxExcluded extends ApiValue("taxExcluded") with Liability
+  case object TopSlicingRelief extends ApiValue("topSlicingRelief") with Liability
+  case object TotalTaxCreditRelief extends ApiValue("figTotalTaxCreditRelief") with Liability
+  case object TradeUnionDeathBenefits extends ApiValue("itfTradeUnionDeathBenefits") with Liability
+  case object VctSharesRelief extends ApiValue("ctnVctSharesReliefAmt") with Liability
 
   val allLiabilities: List[Liability] =
     List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
