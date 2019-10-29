@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
+///
+//   Copyright 2019 HM Revenue & Customs
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//  /
+
 package transformers
 
 import com.sun.xml.internal.bind.v2.TODO
-import models.{ApiValue, Liability}
+import models.{Amount, ApiValue, Liability}
 import models.Liability._
 import transformers.Operation.sum
-
-//sealed trait Operation[A]
-//case class Term[A](value: A) extends Operation[A]
-//case class Sum[A](first: Operation[A], second: Operation[A], others: Operation[A]*) extends Operation[A]
-//case class Difference[A](first: Operation[A], second: Operation[A], others: Operation[A]*) extends Operation[A]
 
 sealed trait Operation[A, +B] {
 
@@ -46,10 +57,10 @@ case class Empty[A, B]() extends Operation[A, B]
 
 object Operation {
 
-  def sum[A, B](first: A, second: A, others: A*): Sum[A, B] =
+  def sum[A, B](first: A, second: A, others: A* ): Sum[A, B] =
     Sum(Term(first), Term(second), others.map(Term(_)).toList)
 
-  def difference[A, B](first: A, second: A, others: A*): Operation[A, B] =
+  def difference[A, B](first: A, second: A, others: A* ): Operation[A, B] =
     Difference(Term(first), Term(second), others.map(Term(_)).toList)
 
 }
@@ -83,10 +94,10 @@ object Descripters {
   }
 
   val captialGainsAsPercentage: Operation[Liability, Nothing] = ???
-  /* percentageOf(
+  /*  percentageOf(
   totalCapitalGainsTax
   taxableGains
-  */
+   */
 
   val selfEmploymentIncome: Operation[Liability, Nothing] ={
     sum(
@@ -161,20 +172,14 @@ val otherAllowances: Operation[Liability, Nothing] = {
   ).roundedUp
 }
 
-  val totalTaxFreeAmount : Operation[Liability, Nothing] ={
-    Sum(
-      otherAllowances,
-      Term(PersonalAllowance),
-      List(Term(MarriageAllceOut))
+
+
+  val totalAmountEmployeeNic : Operation[Liability, Nothing] = {
+    sum(
+      EmployeeClass1NI,
+      EmployeeClass2NI
     )
   }
-//
-//  val totalAmountEmployeeNic : Operation[Liability, Nothing] = {
-//    sum(
-//      EmployeeClass1NI,
-//      EmployeeClass2NI
-//    )
-//  }
 
 
   val otherAdjustments: Operation[Liability, Nothing] =
@@ -208,43 +213,14 @@ val otherAllowances: Operation[Liability, Nothing] = {
       PensionLsumTaxDue
     )
   }
+  case class PensionLumpSumRate(value: Int)
 
-  /***
-   * def interpret[A, B](op: Operation[A, B])(implicit values: Map[A, Amount], data: B): Amount =
-    *     op match {
-    *       case Empty()              => Amount.empty
-    *       case Term(value)          => values.getOrElse(value, Amount.empty)
-    *       case Filter(op, pred)     => interpret(interpretFilter(op, pred)(data))
-    *       case Sum(a, b, cs)        => interpret(a) + interpret(b) + cs.map(interpret).foldLeft(Amount.empty)(_+_)
-    *       case Difference(a, b, cs) => interpret(a) - interpret(b) - cs.map(interpret).foldLeft(Amount.empty)(_-_)
-    *       case RoundUp(op)          => interpret(op).roundAmountUp()
-    *       case Positive(op)         =>
-    *         val result = interpret(op)
-    *         if (result < Amount.empty) Amount.empty else result
-    *     }
-    *
-    *   def interpretFilter[A, B](op: Operation[A, B], predicate: (A, B) => Boolean)(implicit data: B): Operation[A, B] = {
-    *
-    *     def filter(
-    *       ops: List[Operation[A, B]],
-    *       apply: (Operation[A, B], Operation[A, B], List[Operation[A, B]]) => Operation[A, B]): Operation[A, B] = {
-    *       ops.filter(x => predicate(x, data)) match {
-    *         case a :: b :: cs => apply(a, b, cs)
-    *         case a :: Nil     => Term(a)
-    *         case Nil          => Empty()
-    *       }
-    *     }
-    *
-    *     op match {
-    *       case term@Term(value)
-    *         if predicate(value, data) => term
-    *       case Term(_)                => Empty()
-    *       case Filter(op, pred)       => interpretFilter(interpretFilter(op, pred), predicate)
-    *       case Sum(a, b, cs)          => filter(a :: b :: cs, Sum[A, B])
-    *       case Difference(a, b, cs)   => filter(a :: b :: cs, Difference[A, B])
-    *       case RoundUp(op)            => RoundUp(interpretFilter(op, predicate))
-    *       case Positive(op)           => Positive(interpretFilter(op, predicate))
-    *     }
-    *   }
-   */
+  val totalTaxFreeAmount : Operation[Liability, PensionLumpSumRate] ={
+    Sum(
+      otherAllowances,
+      Term(PersonalAllowance),
+      List(Term(MarriageAllceOut))
+    )
+  }
+
 }

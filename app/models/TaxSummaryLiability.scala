@@ -16,7 +16,6 @@
 
 package models
 
-import models.Liability.allLiabilities
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -157,30 +156,6 @@ object Liability {
   }
 
 }
-
-//sealed trait NationalInsuranceLiability {
-//  val apiValue: String
-//}
-//
-//object NationalInsuranceLiability {
-//
-//  case object EmployeeClass1NI extends ApiValue("employeeClass1Nic") with NationalInsuranceLiability
-//  case object EmployeeClass2NI extends ApiValue("employeeClass2Nic") with NationalInsuranceLiability
-//  case object EmployerNI extends ApiValue("employerNic") with NationalInsuranceLiability
-//
-//  val allNationalInsuranceLiabilities = List[NationalInsuranceLiability](EmployeeClass1NI,EmployeeClass2NI,EmployerNI)
-//
-//  implicit val reads: Reads[NationalInsuranceLiability] = Reads[NationalInsuranceLiability] {
-//    case JsString(s) =>
-//      allNationalInsuranceLiabilities
-//        .find(l => l.apiValue == s)
-//        .fold[JsResult[NationalInsuranceLiability]](JsError("error.expected.liability"))(JsSuccess(_))
-//
-//    case _ => JsError("error.expected.jsstring")
-//  }
-//}
-//
-
 
 final case class TaxSummaryLiability(
   taxYear: Int,
