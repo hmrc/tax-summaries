@@ -9,13 +9,8 @@ object ATSDataInterpretor {
       case Empty() => Amount.empty
       case Term(value) => values.getOrElse(value, Amount.empty)
       case Filter(op, pred: ((A, B) => Boolean)) => interpret(interpretFilter(op, pred)(data))
-      case Sum(a, b, cs) => { println("there!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        interpret(a) + interpret(b) + cs.map(interpret(_)).foldLeft(Amount.empty)(_ + _)
-      }
-      case Difference(a, b, cs) => {
-        println("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + a)
-        interpret(a) - interpret(b) - cs.map(interpret(_)).foldLeft(Amount.empty)(_ - _)
-      }
+      case Sum(a, b, cs) => interpret(a) + interpret(b) + cs.map(interpret(_)).foldLeft(Amount.empty)(_ + _)
+      case Difference(a, b, cs) => cs.map(interpret(_)).foldLeft(interpret(a) - interpret(b))(_ - _)
       case RoundUp(op) => interpret(op).roundAmountUp()
       case Positive(op) =>
         val result = interpret(op)
