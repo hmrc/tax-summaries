@@ -32,10 +32,10 @@
 
 package transformers
 
-import com.sun.xml.internal.bind.v2.TODO
+
 import models.{Amount, ApiValue, Liability}
 import models.Liability._
-import transformers.Operation.sum
+import transformers.Operation.{sum, difference }
 
 sealed trait Operation[A, +B] {
 
@@ -52,6 +52,7 @@ case class Filter[A, B](op: Operation[A, B], predicate: (A, B) => Boolean) exten
 case class Positive[A, B](op: Operation[A, B]) extends Operation[A, B]
 case class RoundUp[A, B](op: Operation[A, B]) extends Operation[A, B]
 case class Empty[A, B]() extends Operation[A, B]
+case class PercentageOf[A,B](first: Operation[A,B], second: Operation[A,B]) extends Operation[A,B]
 
 
 
@@ -60,7 +61,7 @@ object Operation {
   def sum[A, B](first: A, second: A, others: A* ): Sum[A, B] =
     Sum(Term(first), Term(second), others.map(Term(_)).toList)
 
-  def difference[A, B](first: A, second: A, others: A* ): Operation[A, B] =
+  def difference[A, B](first: A, second: A, others: A* ): Difference[A, B] =
     Difference(Term(first), Term(second), others.map(Term(_)).toList)
 
 }
@@ -68,6 +69,7 @@ object Operation {
 object Descripters {
 
 
+  //createTaxableGains
   val taxableGains: Operation[Liability, Nothing] = {
     sum(
       CgTotGainsAfterLosses,
@@ -75,6 +77,7 @@ object Descripters {
     )
   }
 
+  //createPayCapitalGainsTaxOn
   val payCgTaxOn: Operation[Liability, Nothing] = {
     Positive(Difference(
       taxableGains,
@@ -82,38 +85,47 @@ object Descripters {
     ))
   }
 
-  val totalCapitalGainsTax: Operation[Liability, Nothing] = {
-    sum(
-      CgDueEntrepreneursRate,
-      CgDueLowerRate,
-      CgDueHigherRate,
-      CapAdjustment,
-      LowerRateCgtRPCI,
-      HigherRateCgtRPCI
+  //createTotalCapitalGainsTax
+  val totalCapitalGainsTax: Operation[Liability, Nothing] = { //brackets
+    Sum(
+      Term(CgDueEntrepreneursRate),
+      Term(CgDueLowerRate),
+      List(
+        Difference(
+         Term(CgDueHigherRate),
+         Term(CapAdjustment)
+        ),
+        Term(LowerRateCgtRPCI),
+        Term(HigherRateCgtRPCI)
+      )
     )
   }
 
-  val captialGainsAsPercentage: Operation[Liability, Nothing] = ???
-  /*  percentageOf(
-  totalCapitalGainsTax
-  taxableGains
-   */
+  val captialGainsAsPercentage: Operation[Liability, Nothing] = {
+    PercentageOf(
+      totalCapitalGainsTax,
+        taxableGains
+    )
+  }
 
-  val selfEmploymentIncome: Operation[Liability, Nothing] ={
+  //createSelfEmployment
+  val selfEmployment: Operation[Liability, Nothing] = {
     sum(
       SummaryTotalSchedule,
       SummaryTotalPartnership
     )
   }
 
-  val otherPension: Operation[Liability, Nothing]={
+  //createOtherPension
+  val otherPension: Operation[Liability, Nothing] = {
     sum(
       OtherPension,
       StatePensionGross
     )
   }
 
-  val taxableStateBenefits: Operation[Liability, Nothing]={
+  //createTaxableStateBenefits
+  val taxableStateBenefits: Operation[Liability, Nothing] = {
     sum(
       IncBenefitSuppAllow,
       JobSeekersAllowance,
@@ -121,7 +133,8 @@ object Descripters {
     )
   }
 
-  val otherIncome: Operation[Liability, Nothing]={
+  //createOtherIncome
+  val otherIncome: Operation[Liability, Nothing] = {
     sum(
       SummaryTotShareOptions,
       SummaryTotalUklProperty,
@@ -135,55 +148,114 @@ object Descripters {
     )
   }
 
-  val selfEmployment:  Operation[Liability, Nothing]={
-    sum(
-      SummaryTotalSchedule,
-      SummaryTotalPartnership
+  //createTotalIncomeBeforeTax
+  val totalIncomeBeforeTax: Operation[Liability, Nothing] = {
+    Sum(
+      selfEmployment,
+      Term(SummaryTotalEmployment),
+      List(Term(StatePension),
+        otherPension,
+        taxableStateBenefits,
+        otherIncome,
+        Term(EmploymentBenefits)
+      )
     )
   }
 
-  val totalIncomeBeforeTax:  Operation[Liability, Nothing] = {
+  //createOtherAllowancesAmount
+  val otherAllowances: Operation[Liability, Nothing] = {
+    sum[Liability, Nothing](
+      EmploymentExpenses,
+      SummaryTotalDedPpr,
+      SumTotForeignTaxRelief,
+      SumTotLoanRestricted,
+      SumTotLossRestricted,
+      AnnuityPay,
+      GiftsInvCharities,
+      TradeUnionDeathBenefits,
+      BpaAllowance,
+      BPA,
+      ExcludedIncome
+    ).roundedUp
+  }
+
+  //createTotalTaxFreeAmount
+  val totalTaxFreeAmount: Operation[Liability, Nothing] = { //brackets
     Sum(
-      selfEmploymentIncome,
-      Term(SummaryTotalEmployment),
-      List(Term(StatePension),
-      otherPension,
-      taxableStateBenefits,
-      otherIncome,
-      Term(EmploymentBenefits)
+      otherAllowances,
+      difference(
+        PersonalAllowance,
+        MarriageAllceOut
       )
     )
   }
 
 
-val otherAllowances: Operation[Liability, Nothing] = {
-  sum[Liability, Nothing](
-    EmploymentExpenses,
-    SummaryTotalDedPpr,
-    SumTotForeignTaxRelief,
-    SumTotLoanRestricted,
-    SumTotLossRestricted,
-    AnnuityPay,
-    GiftsInvCharities,
-    TradeUnionDeathBenefits,
-    BpaAllowance,
-    BPA,
-    ExcludedIncome
-  ).roundedUp
-}
-
-
-
-  val totalAmountEmployeeNic : Operation[Liability, Nothing] = {
+  //createTotalAmountEmployeeNic =
+  val totalAmountEmployeeNic: Operation[Liability, Nothing] = {
     sum(
       EmployeeClass1NI,
-      EmployeeClass2NI
+      EmployeeClass2NI,
+      Class4Nic
     )
   }
 
+  //basicRateIncomeTaxAmount
+  val basicRateIncomeTaxAmount: Operation[Liability, BigDecimal] = { //requires predicates TODO
+    sum[Liability,BigDecimal](
+      IncomeTaxBasicRate,
+      SavingsTaxLowerRate,
+      PensionLsumTaxDue
+    ).filter {
+        case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 1 => true
+        case _ => false
+      }
+  }
 
-  val otherAdjustments: Operation[Liability, Nothing] =
-    sum(
+  //createHigherRateIncomeTaxAmount
+  val higherRateIncomeTaxAmount: Operation[Liability, BigDecimal] = { //requires predicates TODO
+    sum[Liability,BigDecimal](
+      IncomeTaxHigherRate,
+      SavingsTaxHigherRate,
+      PensionLsumTaxDue
+    ).filter {
+      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 2 => true
+      case _ => false
+    }
+  }
+
+  //createAdditionalRateIncomeTaxAmount
+  val additionalRateIncomeTaxAmount: Operation[Liability, BigDecimal] = { //requires predicates TODO
+    sum[Liability,BigDecimal](
+      IncomeTaxAddHighRate,
+      SavingsTaxAddHighRate,
+      PensionLsumTaxDue
+    ).filter{
+      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 3 => true
+      case _ => false
+    }
+  }
+
+  //createOtherAdjustmentsIncreasing
+  val otherAdjustmentsIncreasing: Operation[Liability, Nothing] = { //brackets & cannot use helpers.
+    Difference(
+      Sum(
+        Term(NonDomCharge),
+        Term(TaxExcluded),
+        List(
+          Term(IncomeTaxDue),
+          Term(NetAnnuityPaytsTaxDue),
+          Term(ChildBenefitCharge),
+          Term(PensionSavingChargeable)
+        )
+      ),
+      Term(TaxDueAfterAllceRlf)
+    )
+  }
+
+  //createOtherAdjustmentsReducing
+  val otherAdjustmentsReducing: Operation[Liability, Nothing] = {
+    sum[Liability, Nothing](
       DeficiencyRelief,
       TopSlicingRelief,
       VctSharesRelief,
@@ -196,31 +268,79 @@ val otherAllowances: Operation[Liability, Nothing] = {
       TaxCreditsForDivs,
       QualDistnRelief,
       TotalTaxCreditRelief,
-      NonPayableTaxCredits
-    )
+      NonPayableTaxCredits,
+      ReliefForFinanceCosts
+    ).roundedUp
 
-  val basicIncomeRateIncomeTax:Operation[Liability, Nothing] = {
+  }
+
+  // createTotalIncomeTaxAmount
+  val totalIncomeTaxAmount: Operation[Liability, BigDecimal] = {
+    Difference(
+      Sum(
+        Term(SavingsTaxStartingRate),
+        basicRateIncomeTaxAmount,
+        List(higherRateIncomeTaxAmount,
+          Term(DividendTaxLowRate),
+          Term(DividendTaxHighRate),
+          Term(DividendTaxAddHighRate),
+          otherAdjustmentsIncreasing
+        )
+      ),
+      otherAdjustmentsReducing,
+      List(Term(MarriageAllceIn))
+    )
+  }
+
+  //createTotalAmountTaxAndNics
+  val totalAmountTaxAndNics: Operation[Liability, BigDecimal] = {
+    Sum(
+      totalAmountEmployeeNic,
+      totalIncomeTaxAmount
+    )
+  }
+
+  //createYourTotalTax
+  val totalTax: Operation[Liability, BigDecimal] = {
+    Sum(
+      totalAmountTaxAndNics,
+      totalCapitalGainsTax
+    )
+  }
+
+  //createBasicRateIncomeTax
+  val basicIncomeRateIncomeTax: Operation[Liability, Nothing] = {
     sum(
       IncomeChargeableBasicRate,
       SavingsChargeableLowerRate
     )
   }
 
-  val basicRateIncomeTaxAmount:Operation[Liability, Nothing] = {
+  //createHigherRateIncomeTax
+  val higherRateIncomeTax: Operation[Liability, Nothing] = {
     sum(
-      IncomeTaxBasicRate,
-      SavingsTaxLowerRate,
-      PensionLsumTaxDue
+      IncomeChargeableHigherRate,
+      SavingsChargeableHigherRate
     )
   }
-  case class PensionLumpSumRate(value: Int)
 
-  val totalTaxFreeAmount : Operation[Liability, PensionLumpSumRate] ={
-    Sum(
-      otherAllowances,
-      Term(PersonalAllowance),
-      List(Term(MarriageAllceOut))
+  //createAdditionalRateIncomeTax
+  val additionalRateIncomeTax: Operation[Liability, Nothing] = {
+    sum(
+      IncomeChargeableAddHRate,
+      SavingsChargeableAddHRate
     )
   }
+
+  //createScottishIncomeTax
+  val scottishIncomeTax: Operation[Liability, Nothing] = {
+    sum(
+      IncomeChargeableBasicRate,
+      IncomeChargeableHigherRate,
+      IncomeChargeableAddHRate
+    )
+  } //TODO needs to be multiplied by 0.1
+
+ // case class PensionLumpSumRate(value: Int)
 
 }
