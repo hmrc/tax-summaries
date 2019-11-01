@@ -84,7 +84,7 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
       "amount_due_at_higher_rate" -> createCtnCgDueHigherRate, //s
       "adjustments" -> createCapAdjustmentAmt, //s
       "total_cg_tax" -> createTotalCapitalGainsTax, //
-      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,//TODO
+      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,//TODO done
       "amount_at_rpci_lower_rate" -> createCtnCGAtLowerRateRPCI, //s
       "amount_due_rpci_lower_rate" -> createCtnLowerRateCgtRPCI, //s
       "amount_at_rpci_higher_rate" -> createCtnCGAtHigherRateRPCI, //s
@@ -127,8 +127,8 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
       "total_income_tax" -> createTotalIncomeTaxAmount,//
       "total_cg_tax" -> createTotalCapitalGainsTax,//
       "taxable_gains" -> createTaxableGains,//
-      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,//TODO Percentage
-      "nics_and_tax_per_currency_unit" -> createNicsAndTaxPerCurrencyUnit)) //TODO Percentage
+      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,//TODO done
+      "nics_and_tax_per_currency_unit" -> createNicsAndTaxPerCurrencyUnit)) //TODO Percentage done
 
   private def createSummaryPageRates =
     Option(Map("total_cg_tax_rate" -> createTotalCgTaxRate, //TODO
@@ -384,13 +384,16 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   //done
   private def createYourTotalTax = createTotalAmountTaxAndNics + createTotalCapitalGainsTax
-  
+
+  //done
   private def createCgTaxPerCurrencyUnit = taxPerTaxableCurrencyUnit(createTotalCapitalGainsTax, createTaxableGains)
   private def createTotalCgTaxRate = rateFromPerUnitAmount(createCgTaxPerCurrencyUnit)
 
+  //done
   private def createNicsAndTaxPerCurrencyUnit = taxPerTaxableCurrencyUnit(createTotalAmountTaxAndNics, createTotalIncomeBeforeTax)
   private def createNicsAndTaxTaxRate = rateFromPerUnitAmount(createNicsAndTaxPerCurrencyUnit)
 
+  //done
   private def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount) =
     taxable match {
     	case value if value.isZero => taxable

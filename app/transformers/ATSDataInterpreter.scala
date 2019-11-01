@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.Amount
+import models.{Amount}
 
 object ATSDataInterpreter {
 
@@ -28,9 +28,21 @@ object ATSDataInterpreter {
       case Sum(a, b, cs) => interpret(a) + interpret(b) + cs.map(interpret(_)).foldLeft(Amount.empty)(_ + _)
       case Difference(a, b, cs) => cs.map(interpret(_)).foldLeft(interpret(a) - interpret(b))(_ - _)
       case RoundUp(op) => interpret(op).roundAmountUp()
-      case Positive(op) =>
+      case Positive(op) => {
         val result = interpret(op)
         if (result < Amount.empty) Amount.empty else result
+      }
+      case TaxPerCurrency(a, b) => { //taxPerTaxableCurrencyUnit
+        val taxable = interpret(a)
+        val tax = interpret(b)
+        taxable match {
+          case value if value.isZero => taxable
+          case _ => tax.divideWithPrecision(taxable, 4)
+        }
+      }
+      case Multiply(a,b)=>{
+        Amount(interpret(a).amount * b,"GBP")
+      }
     }
 
   def interpretFilter[A, B](op: Operation[A, B], predicate: (A, B) => Boolean)(implicit data: B): Operation[A, B] = {
@@ -61,6 +73,9 @@ object ATSDataInterpreter {
       case Difference(a, b, cs) => filter(a :: b :: cs, Difference[A, B])
       case RoundUp(op) => RoundUp(interpretFilter(op, predicate))
       case Positive(op) => Positive(interpretFilter(op, predicate))
+      case TaxPerCurrency(a, b) => TaxPerCurrency(interpretFilter(a, predicate), interpretFilter(a, predicate))
+      case Multiply(a,b)=>Multiply(interpretFilter(a, predicate),b)
+
     }
   }
 

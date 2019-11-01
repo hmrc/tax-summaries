@@ -35,7 +35,7 @@ package transformers
 
 import models.{Amount, ApiValue, Liability}
 import models.Liability._
-import transformers.Operation.{sum, difference }
+import transformers.Operation.{sum, difference, taxPerCurrency}
 
 sealed trait Operation[A, +B] {
 
@@ -52,8 +52,9 @@ case class Filter[A, B](op: Operation[A, B], predicate: (A, B) => Boolean) exten
 case class Positive[A, B](op: Operation[A, B]) extends Operation[A, B]
 case class RoundUp[A, B](op: Operation[A, B]) extends Operation[A, B]
 case class Empty[A, B]() extends Operation[A, B]
-case class PercentageOf[A,B](first: Operation[A,B], second: Operation[A,B]) extends Operation[A,B]
-
+case class RateFromAmount[A,B](op: Operation[A,B]) extends Operation[A, B]
+case class TaxPerCurrency[A,B](first: Operation[A,B], second: Operation[A,B]) extends Operation[A, B]
+case class Multiply[A,B](first: Operation[A,B], second: Double) extends Operation[A, B]
 
 
 object Operation {
@@ -63,6 +64,10 @@ object Operation {
 
   def difference[A, B](first: A, second: A, others: A* ): Difference[A, B] =
     Difference(Term(first), Term(second), others.map(Term(_)).toList)
+
+  def taxPerCurrency[A, B](first: A, second: A): TaxPerCurrency[A,B] =
+    TaxPerCurrency(Term(first), Term(second))
+
 
 }
 
@@ -98,13 +103,6 @@ object Descripters {
         Term(LowerRateCgtRPCI),
         Term(HigherRateCgtRPCI)
       )
-    )
-  }
-
-  val captialGainsAsPercentage: Operation[Liability, Nothing] = {
-    PercentageOf(
-      totalCapitalGainsTax,
-        taxableGains
     )
   }
 
@@ -334,12 +332,25 @@ object Descripters {
 
   //createScottishIncomeTax
   val scottishIncomeTax: Operation[Liability, Nothing] = {
+    Multiply(
     sum(
       IncomeChargeableBasicRate,
       IncomeChargeableHigherRate,
       IncomeChargeableAddHRate
+    ),
+      0.1
     )
   } //TODO needs to be multiplied by 0.1
+
+  //createCgTaxPerCurrencyUnit
+  val capitalGainsTaxPerCurrency: Operation[Liability, Nothing] = {
+    TaxPerCurrency(totalCapitalGainsTax,taxableGains)
+  }
+
+  //createNicsAndTaxPerCurrencyUnit
+  val nicsAndTaxPerCurrency: Operation[Liability, BigDecimal] = {
+    TaxPerCurrency(totalAmountTaxAndNics, totalIncomeBeforeTax)
+  }
 
  // case class PensionLumpSumRate(value: Int)
 

@@ -16,10 +16,19 @@
 
 package models
 
+import java.text.NumberFormat
+import java.util.Locale
+
 import play.api.libs.json.Json
 
 case class Rate(percent: String)
 
 object Rate {
+
+  def rateFromPerUnitAmount(amountPerUnit:Amount):Rate = {
+    val formatter = NumberFormat.getNumberInstance(Locale.UK)
+    Rate(formatter.format((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN)) + "%")
+  }
+
   implicit val formats = Json.format[Rate]
 }
