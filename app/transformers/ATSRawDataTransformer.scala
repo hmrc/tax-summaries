@@ -342,7 +342,7 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createCtnIncomeChgbleAddHRate = getTliSlpAmountOptVal("ctnIncomeChgbleAddHRate")
 
-  //done sort of
+  //done
   private def createScottishIncomeTax = Amount((createCtnIncomeChgbleBasicRate + createCtnIncomeChgbleHigherRate + createCtnIncomeChgbleAddHRate).amount * 0.1,"GBP")
 
   private def createCtnCGAtLowerRateRPCI = getTliSlpAmountOptVal("ctnCGAtLowerRateRPCI")

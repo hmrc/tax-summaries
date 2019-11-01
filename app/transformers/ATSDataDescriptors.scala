@@ -35,7 +35,7 @@ package transformers
 
 import models.{Amount, ApiValue, Liability}
 import models.Liability._
-import transformers.Operation.{sum, difference, taxPerCurrency}
+import transformers.Operation.{sum, difference}
 
 sealed trait Operation[A, +B] {
 
@@ -65,9 +65,6 @@ object Operation {
   def difference[A, B](first: A, second: A, others: A* ): Difference[A, B] =
     Difference(Term(first), Term(second), others.map(Term(_)).toList)
 
-  def taxPerCurrency[A, B](first: A, second: A): TaxPerCurrency[A,B] =
-    TaxPerCurrency(Term(first), Term(second))
-
 
 }
 
@@ -92,18 +89,22 @@ object Descripters {
 
   //createTotalCapitalGainsTax
   val totalCapitalGainsTax: Operation[Liability, Nothing] = { //brackets
-    Sum(
+   Sum(
+    Difference(
+     Sum(
       Term(CgDueEntrepreneursRate),
       Term(CgDueLowerRate),
       List(
-        Difference(
-         Term(CgDueHigherRate),
-         Term(CapAdjustment)
-        ),
-        Term(LowerRateCgtRPCI),
-        Term(HigherRateCgtRPCI)
+        Term(CgDueHigherRate)
       )
+     ),
+      Term(CapAdjustment)
+    ),
+      Term(LowerRateCgtRPCI),
+      List(Term(HigherRateCgtRPCI)
     )
+   )
+
   }
 
   //createSelfEmployment
@@ -340,7 +341,7 @@ object Descripters {
     ),
       0.1
     )
-  } //TODO needs to be multiplied by 0.1
+  }
 
   //createCgTaxPerCurrencyUnit
   val capitalGainsTaxPerCurrency: Operation[Liability, Nothing] = {
@@ -352,6 +353,6 @@ object Descripters {
     TaxPerCurrency(totalAmountTaxAndNics, totalIncomeBeforeTax)
   }
 
- // case class PensionLumpSumRate(value: Int)
+
 
 }
