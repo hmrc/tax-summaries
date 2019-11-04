@@ -80,7 +80,7 @@ object Descripters {
   }
 
   //createPayCapitalGainsTaxOn
-  val payCgTaxOn: Operation[Liability, Nothing] = {
+  val payCapitalGainsTaxOn: Operation[Liability, Nothing] = {
     Positive(Difference(
       taxableGains,
       Term(CgAnnualExempt)

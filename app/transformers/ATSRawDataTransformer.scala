@@ -21,6 +21,8 @@ import java.util.Locale
 
 import config.ApplicationConfig
 import errors.AtsError
+import models.Liability._
+import models.LiabilityTransformer.{StatePension, _}
 import models._
 import play.api.Logger
 import play.api.libs.json._
@@ -72,24 +74,47 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
 
   private def createTaxPayerData = Option(ATSTaxpayerDataTransformer(rawTaxPayerJson).atsTaxpayerDataDTO)
 
+  //done
+//  private def createCapitalGainsTaxBreakdown =
+//    Option(Map("taxable_gains" -> createTaxableGains, //
+//      "less_tax_free_amount" -> createLessTaxFreeAmount, //s
+//      "pay_cg_tax_on" -> createPayCapitalGainsTaxOn, //
+//      "amount_at_entrepreneurs_rate" -> createCtnCgAtEntrepreneursRate, //s
+//      "amount_due_at_entrepreneurs_rate" -> createCtnCgDueEntrepreneursRate, //s
+//      "amount_at_ordinary_rate" -> createCtnCgAtLowerRate, //s
+//      "amount_due_at_ordinary_rate" -> createCtnCgDueLowerRate, //s
+//      "amount_at_higher_rate" -> createCtnCgAtHigherRate, //s
+//      "amount_due_at_higher_rate" -> createCtnCgDueHigherRate, //s
+//      "adjustments" -> createCapAdjustmentAmt, //s
+//      "total_cg_tax" -> createTotalCapitalGainsTax, //
+//      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,//TODO done
+//      "amount_at_rpci_lower_rate" -> createCtnCGAtLowerRateRPCI, //s
+//      "amount_due_rpci_lower_rate" -> createCtnLowerRateCgtRPCI, //s
+//      "amount_at_rpci_higher_rate" -> createCtnCGAtHigherRateRPCI, //s
+//      "amount_due_rpci_higher_rate" -> cretaeCtnHigherRateCgtRPCI //s
+//    ))
+
+
   private def createCapitalGainsTaxBreakdown =
-    Option(Map("taxable_gains" -> createTaxableGains, //
-      "less_tax_free_amount" -> createLessTaxFreeAmount, //s
-      "pay_cg_tax_on" -> createPayCapitalGainsTaxOn, //
-      "amount_at_entrepreneurs_rate" -> createCtnCgAtEntrepreneursRate, //s
-      "amount_due_at_entrepreneurs_rate" -> createCtnCgDueEntrepreneursRate, //s
-      "amount_at_ordinary_rate" -> createCtnCgAtLowerRate, //s
-      "amount_due_at_ordinary_rate" -> createCtnCgDueLowerRate, //s
-      "amount_at_higher_rate" -> createCtnCgAtHigherRate, //s
-      "amount_due_at_higher_rate" -> createCtnCgDueHigherRate, //s
-      "adjustments" -> createCapAdjustmentAmt, //s
-      "total_cg_tax" -> createTotalCapitalGainsTax, //
-      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,//TODO done
-      "amount_at_rpci_lower_rate" -> createCtnCGAtLowerRateRPCI, //s
-      "amount_due_rpci_lower_rate" -> createCtnLowerRateCgtRPCI, //s
-      "amount_at_rpci_higher_rate" -> createCtnCGAtHigherRateRPCI, //s
-      "amount_due_rpci_higher_rate" -> cretaeCtnHigherRateCgtRPCI //s
-    ))
+      Option(Map(
+        TaxableGains -> taxableGains,
+        LessTaxFreeAmount -> Term(CgAnnualExempt), //s
+        PayCgTaxOn -> payCapitalGainsTaxOn, //
+        AmountAtEntrepreneursRate  -> Term(CgAtEntrepreneursRate), //s
+        AmountDueAtEntrepreneursRate ->Term(CgDueEntrepreneursRate), //s
+        AmountAtOrdinaryRate -> Term(CgAtLowerRate), //s
+        AmountDueAtOrdinaryRate -> Term(CgDueLowerRate), //s
+        AmountAtHigherRate -> Term(CgAtHigherRate), //s
+        AmountDueAtHigherRate ->Term( CgDueHigherRate), //s
+        Adjustments -> Term(CapAdjustment), //s
+        TotalCgTax -> totalCapitalGainsTax, //
+        CgTaxPerCurrencyUnit -> capitalGainsTaxPerCurrency,//
+        AmountAtRPCILowerRate ->Term( CGAtLowerRateRPCI), //s
+        AmountDueRPCILowerRate-> Term(LowerRateCgtRPCI), //s
+        AmountAtRPCIHigheRate -> Term(CGAtHigherRateRPCI), //s
+        AmountDueRPCIHigherRate->Term(HigherRateCgtRPCI) //s
+      ))
+
 
   //TODO RATES
   private def createCapitalGainsTaxRates =
@@ -101,59 +126,120 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
           "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
     ))
 
+  //done
+//  private def createYourIncomeBeforeTaxBreakdown =
+//    Option(Map("self_employment_income" -> createSelfEmployment, //
+//      "income_from_employment" -> createIncomeFromEmployment, //s
+//      "state_pension" -> createStatePension, //s
+//      "other_pension_income" -> createOtherPension, //
+//      "taxable_state_benefits" -> createTaxableStateBenefits,//
+//      "other_income" -> createOtherIncome, //
+//      "benefits_from_employment" -> createBenefitsFromEmployment, //s
+//      "total_income_before_tax" -> createTotalIncomeBeforeTax))//
+
   private def createYourIncomeBeforeTaxBreakdown =
-    Option(Map("self_employment_income" -> createSelfEmployment, //
-      "income_from_employment" -> createIncomeFromEmployment, //s
-      "state_pension" -> createStatePension, //s
-      "other_pension_income" -> createOtherPension, //
-      "taxable_state_benefits" -> createTaxableStateBenefits,//
-      "other_income" -> createOtherIncome, //
-      "benefits_from_employment" -> createBenefitsFromEmployment, //s
-      "total_income_before_tax" -> createTotalIncomeBeforeTax))//
+    Option(Map(
+      SelfEmploymentIncome-> selfEmployment, //
+      IncomeFromEmployment -> Term(SummaryTotalEmployment), //s
+      StatePension -> Term(SummaryTotalEmployment), //s
+      OtherPensionIncome -> otherPension, //
+      TaxableStateBenefits -> taxableStateBenefits,//
+      OtherIncome -> otherIncome, //
+      BenefitsFromEmployment-> Term(EmploymentBenefits), //s
+      TotalIncomeBeforeTax -> totalIncomeBeforeTax))//
+
+//done
+//  private def createYourTaxFreeAmountBreakdown =
+//    Option(Map("personal_tax_free_amount" -> createPersonalTaxFreeAmount, //s
+//      "marriage_allowance_transferred_amount" -> createMarriageAllowanceTransferredAmount,//s
+//      "other_allowances_amount" -> createOtherAllowancesAmount,//
+//      "total_tax_free_amount" -> createTotalTaxFreeAmount))//
 
   private def createYourTaxFreeAmountBreakdown =
-    Option(Map("personal_tax_free_amount" -> createPersonalTaxFreeAmount, //s
-      "marriage_allowance_transferred_amount" -> createMarriageAllowanceTransferredAmount,//s
-      "other_allowances_amount" -> createOtherAllowancesAmount,//
-      "total_tax_free_amount" -> createTotalTaxFreeAmount))//
+    Option(Map(
+      PersonalTaxFreeAmount -> Term(PersonalAllowance), //s
+      MarriageAllowanceTransferredAmount -> Term(MarriageAllceOut),//s
+      OtherAllowancesAmount -> otherAllowances,//
+      TotalTaxFreeAmount-> totalTaxFreeAmount
+    ))//
 
+
+//  private def createSummaryPageBreakdown =
+//    Option(Map("employee_nic_amount" -> createTotalAmountEmployeeNic,
+//      "total_income_tax_and_nics" -> createTotalAmountTaxAndNics,
+//      "your_total_tax" -> createYourTotalTax,
+//      "personal_tax_free_amount" -> createPersonalTaxFreeAmount,
+//      "total_tax_free_amount" -> createTotalTaxFreeAmount,
+//      "total_income_before_tax" -> createTotalIncomeBeforeTax,
+//      "total_income_tax" -> createTotalIncomeTaxAmount,
+//      "total_cg_tax" -> createTotalCapitalGainsTax,
+//      "taxable_gains" -> createTaxableGains,
+//      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,
+//      "nics_and_tax_per_currency_unit" -> createNicsAndTaxPerCurrencyUnit))
+
+  //done
   private def createSummaryPageBreakdown =
-    Option(Map("employee_nic_amount" -> createTotalAmountEmployeeNic, //
-      "total_income_tax_and_nics" -> createTotalAmountTaxAndNics, //
-      "your_total_tax" -> createYourTotalTax, //
-      "personal_tax_free_amount" -> createPersonalTaxFreeAmount,//s
-      "total_tax_free_amount" -> createTotalTaxFreeAmount,//
-      "total_income_before_tax" -> createTotalIncomeBeforeTax,//
-      "total_income_tax" -> createTotalIncomeTaxAmount,//
-      "total_cg_tax" -> createTotalCapitalGainsTax,//
-      "taxable_gains" -> createTaxableGains,//
-      "cg_tax_per_currency_unit" -> createCgTaxPerCurrencyUnit,//TODO done
-      "nics_and_tax_per_currency_unit" -> createNicsAndTaxPerCurrencyUnit)) //TODO Percentage done
+    Option(Map(
+      EmployeeNicAmount -> totalAmountEmployeeNic, //
+      TotalIncomeTaxAndNics -> totalAmountTaxAndNics, //
+      YourTotalTax -> totalTax, //
+      PersonalTaxFreeAmount-> Term(PersonalAllowance),//s
+      TotalTaxFreeAmount -> totalTaxFreeAmount,//
+      TotalIncomeBeforeTax -> totalIncomeBeforeTax,//
+      TotalIncomeTaxAndNics-> totalIncomeTaxAmount,//
+      TotalCgTax -> totalCapitalGainsTax,//
+      TaxableGains -> taxableGains,//
+      CgTaxPerCurrencyUnit -> capitalGainsTaxPerCurrency,
+      NicsAndTaxPerCurrencyUnit -> createNicsAndTaxPerCurrencyUnit)) //TODO Percentage done RATES
 
+  //done
   private def createSummaryPageRates =
-    Option(Map("total_cg_tax_rate" -> createTotalCgTaxRate, //TODO
-      "nics_and_tax_rate" -> createNicsAndTaxTaxRate)) //TODO
-  
+    Option(Map("total_cg_tax_rate" -> createTotalCgTaxRate, //TODO RATES
+      "nics_and_tax_rate" -> createNicsAndTaxTaxRate)) //TODO RATES
+  //done
+//  private def createTotalIncomeTaxPageBreakdown =
+//    Option(Map("starting_rate_for_savings" -> createStartingRateForSavings, //s
+//      "starting_rate_for_savings_amount" -> createStartingRateForSavingsAmount, //s
+//      "basic_rate_income_tax" -> createBasicRateIncomeTax,//
+//      "basic_rate_income_tax_amount" -> basicRateIncomeTaxAmount,//s
+//      "higher_rate_income_tax" -> createHigherRateIncomeTax, //
+//      "higher_rate_income_tax_amount" -> createHigherRateIncomeTaxAmount,//
+//      "additional_rate_income_tax" -> createAdditionalRateIncomeTax,//
+//      "additional_rate_income_tax_amount" -> createAdditionalRateIncomeTaxAmount,//
+//      "ordinary_rate" -> createOrdinaryRateDividends, //s
+//      "ordinary_rate_amount" -> createOrdinaryRateDividendsAmount,//s
+//      "upper_rate" -> createUpperRateDividends, //s
+//      "upper_rate_amount" -> createUpperRateDividendsAmount, //s
+//      "additional_rate" -> createAdditionalRateDividends, //s
+//      "additional_rate_amount" -> createAdditionalRateDividendsAmount, //s
+//      "other_adjustments_increasing" -> createOtherAdjustmentsIncreasing,//
+//      "marriage_allowance_received_amount" -> createMarriageAllowanceReceivedAmount,//
+//      "other_adjustments_reducing" -> createOtherAdjustmentsReducing,//
+//      "total_income_tax" -> createTotalIncomeTaxAmount,//
+//      "scottish_income_tax" -> createScottishIncomeTax))//
+
   private def createTotalIncomeTaxPageBreakdown =
-    Option(Map("starting_rate_for_savings" -> createStartingRateForSavings, //s
-      "starting_rate_for_savings_amount" -> createStartingRateForSavingsAmount, //s
-      "basic_rate_income_tax" -> createBasicRateIncomeTax,//
-      "basic_rate_income_tax_amount" -> basicRateIncomeTaxAmount,//s
-      "higher_rate_income_tax" -> createHigherRateIncomeTax, //
-      "higher_rate_income_tax_amount" -> createHigherRateIncomeTaxAmount,//
-      "additional_rate_income_tax" -> createAdditionalRateIncomeTax,//
-      "additional_rate_income_tax_amount" -> createAdditionalRateIncomeTaxAmount,//
-      "ordinary_rate" -> createOrdinaryRateDividends, //s
-      "ordinary_rate_amount" -> createOrdinaryRateDividendsAmount,//s
-      "upper_rate" -> createUpperRateDividends, //s
-      "upper_rate_amount" -> createUpperRateDividendsAmount, //s
-      "additional_rate" -> createAdditionalRateDividends, //s
-      "additional_rate_amount" -> createAdditionalRateDividendsAmount, //s
-      "other_adjustments_increasing" -> createOtherAdjustmentsIncreasing,//
-      "marriage_allowance_received_amount" -> createMarriageAllowanceReceivedAmount,//
-      "other_adjustments_reducing" -> createOtherAdjustmentsReducing,//
-      "total_income_tax" -> createTotalIncomeTaxAmount,//
-      "scottish_income_tax" -> createScottishIncomeTax))//
+    Option(Map(
+      StartingRateForSavings -> Term(SavingsChargeableStartRate), //s
+      StartingRateForSavingsAmount -> Term(SavingsTaxStartingRate), //s
+      BasicRateIncomeTax -> basicIncomeRateIncomeTax,//
+      BasicRateIncomeTaxAmount -> basicRateIncomeTaxAmount,//s
+      HigherRateIncomeTax -> higherRateIncomeTaxAmount, //
+      HigherRateIncomeTaxAmount -> higherRateIncomeTaxAmount,//
+      AdditionalRateIncomeTax -> additionalRateIncomeTaxAmount,//
+      AdditionalRateIncomeTaxAmount -> additionalRateIncomeTaxAmount,//
+      OrdinaryRate -> Term(DividendChargeableLowRate), //s
+      OrdinaryRateAmount-> Term(DividendTaxLowRate),//s
+      UpperRate -> Term(DividendChargeableHighRate), //s
+      UpperRateAmount ->Term(DividendTaxHighRate), //s
+      AdditionalRate-> Term(DividendChargeableAddHRate), //s
+      AdditionalRateAmount -> Term(DividendTaxAddHighRate), //s
+      OtherAdjustmentsIncreasing -> otherAdjustmentsIncreasing,//
+      MarriageAllowanceReceivedAmount -> Term(MarriageAllceIn),//
+      OtherAdjustmentsReducing-> otherAdjustmentsReducing,//
+      TotalIncomeTax -> totalIncomeTaxAmount,//
+      ScottishIncomeTax -> scottishIncomeTax))//
+
 
   private def createStartingRateForSavings = getTliSlpAmountVal("ctnSavingsChgbleStartRate")
 
@@ -248,6 +334,7 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
     createOtherAdjustmentsReducing - //
     createMarriageAllowanceReceivedAmount //s
 
+  //rates TODO
   private def createTotalIncomeTaxPageRates =
     Option(Map(
       "starting_rate_for_savings_rate" -> TaxRateService.startingRateForSavingsRate(taxYear),
@@ -305,21 +392,21 @@ case class ATSRawDataTransformer(rawJsonFromStub: JsValue, rawTaxPayerJson: JsVa
    private def createTaxableGains = getAmountSum(
     "atsCgTotGainsAfterLosses",
     "atsCgGainsAfterLossesAmt") //
-  
+
   private def createCtnCgAtEntrepreneursRate = getTliSlpAmountVal("ctnCgAtEntrepreneursRate")
-  
+
   private def createCtnCgDueEntrepreneursRate = getTliSlpAmountVal("ctnCgDueEntrepreneursRate")
-  
+
   private def createCtnCgAtLowerRate = getTliSlpAmountVal("ctnCgAtLowerRate")
-  
+
   private def createCtnCgDueLowerRate = getTliSlpAmountVal("ctnCgDueLowerRate")
-  
+
   private def createCtnCgAtHigherRate = getTliSlpAmountVal("ctnCgAtHigherRate")
-  
+
   private def createCtnCgDueHigherRate = getTliSlpAmountVal("ctnCgDueHigherRate")
 
   private def createLessTaxFreeAmount = getTliSlpAmountVal("atsCgAnnualExemptAmt")
-  
+
   private def createCapAdjustmentAmt = getTliSlpAmountVal("capAdjustmentAmt")
 
   //done
