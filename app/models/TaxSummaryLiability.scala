@@ -156,10 +156,22 @@ object Liability {
   }
 
 }
+final case class PensionTaxRate(value: Double)
+
+object PensionTaxRate{
+
+  implicit val reads:Reads[PensionTaxRate]=new Reads[PensionTaxRate] {
+    override def reads(json: JsValue): JsResult[PensionTaxRate] =
+      json match {
+        case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue()))
+        case _ => JsError("Unable to parse PensionTaxRate")
+      }
+  }
+}
 
 final case class TaxSummaryLiability(
   taxYear: Int,
-  pensionLumpSumTaxRate: Double,
+  pensionLumpSumTaxRate: PensionTaxRate,
   incomeTaxStatus: String ,
   nationalInsuranceData: Map[Liability, Amount],
   atsData: Map[Liability, Amount]

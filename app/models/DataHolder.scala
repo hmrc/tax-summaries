@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, Json}
 
-case class DataHolder(payload: Option[Map[String, Amount]], rates: Option[Map[String, Rate]], incomeTaxStatus: Option[String])
+case class DataHolder[A](payload: Option[Map[A, Amount]], rates: Option[Map[String, Rate]], incomeTaxStatus: Option[String])
 
 object DataHolder {
-  implicit val formats = Json.format[DataHolder]
+  implicit def formats[A:Format]:Format[DataHolder[A]] = Json.format[DataHolder[A]]
 }
