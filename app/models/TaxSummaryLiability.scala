@@ -16,8 +16,11 @@
 
 package models
 
+import models.Liability._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import transformers.Operation.sum
+import transformers.{Difference, Positive, TaxPerCurrency, Term}
 
 abstract class ApiValue(val apiValue: String)
 
@@ -121,7 +124,6 @@ object Liability {
   case object TotalTaxCreditRelief extends ApiValue("figTotalTaxCreditRelief") with Liability
   case object TradeUnionDeathBenefits extends ApiValue("itfTradeUnionDeathBenefits") with Liability
   case object VctSharesRelief extends ApiValue("ctnVctSharesReliefAmt") with Liability
-
   case object EmployeeClass1NI extends ApiValue("employeeClass1Nic") with Liability
   case object EmployeeClass2NI extends ApiValue("employeeClass2Nic") with Liability
   case object EmployerNI extends ApiValue("employerNic") with Liability

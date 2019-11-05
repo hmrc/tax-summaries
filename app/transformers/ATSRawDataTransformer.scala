@@ -27,17 +27,13 @@ import models._
 import play.api.Logger
 import play.api.libs.json._
 import services.TaxRateService
-import transformers.Descripters._
 import transformers.ATSDataInterpreter._
 
 case class ATSParsingException(s: String) extends Exception(s)
 
 case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPayerJson: JsValue, UTR: String, taxYear: Int) {
 
-  def interpretHelper(data:  Map[LiabilityTransformer, Operation[Liability, PensionTaxRate]]) ={
-    data.mapValues(interpret(_)(summaryLiability.atsData, summaryLiability.pensionLumpSumTaxRate))
-  }
-
+  val description=Descriptors(summaryLiability)
 
   val formatter = NumberFormat.getNumberInstance(Locale.UK)
 
@@ -68,13 +64,13 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   }
 
   private def createSummaryData = Option(
-    DataHolder(Some(interpretHelper(createSummaryPageBreakdown)), createSummaryPageRates, None))
+    DataHolder(Some(createSummaryPageBreakdown), createSummaryPageRates, None))
 
   private def createIncomeData = Option(
-    DataHolder(Some(interpretHelper(createYourIncomeBeforeTaxBreakdown)), None, None))
+    DataHolder(Some(createYourIncomeBeforeTaxBreakdown), None, None))
 
   private def createIncomeTaxData = Option(
-    DataHolder(Some(interpretHelper(createTotalIncomeTaxPageBreakdown)), createTotalIncomeTaxPageRates, Some(summaryLiability.incomeTaxStatus)))
+    DataHolder(Some(createTotalIncomeTaxPageBreakdown), createTotalIncomeTaxPageRates, Some(summaryLiability.incomeTaxStatus)))
 
   private def createAllowanceData = Option(
     DataHolder(Some(interpretHelper(createYourTaxFreeAmountBreakdown)), None, None))
@@ -104,24 +100,24 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //    ))
 
 
-  private def createCapitalGainsTaxBreakdown: Map[LiabilityTransformer, Operation[Liability, PensionTaxRate]] =
+  private def createCapitalGainsTaxBreakdown =
     Map(
-      TaxableGains -> taxableGains,
-      LessTaxFreeAmount -> Term(CgAnnualExempt), //s
-      PayCgTaxOn -> payCapitalGainsTaxOn, //
-      AmountAtEntrepreneursRate -> Term(CgAtEntrepreneursRate), //s
-      AmountDueAtEntrepreneursRate -> Term(CgDueEntrepreneursRate), //s
-      AmountAtOrdinaryRate -> Term(CgAtLowerRate), //s
-      AmountDueAtOrdinaryRate -> Term(CgDueLowerRate), //s
-      AmountAtHigherRate -> Term(CgAtHigherRate), //s
-      AmountDueAtHigherRate -> Term(CgDueHigherRate), //s
-      Adjustments -> Term(CapAdjustment), //s
-      TotalCgTax -> totalCapitalGainsTax, //
-      CgTaxPerCurrencyUnit -> capitalGainsTaxPerCurrency, //
-      AmountAtRPCILowerRate -> Term(CGAtLowerRateRPCI), //s
-      AmountDueRPCILowerRate -> Term(LowerRateCgtRPCI), //s
-      AmountAtRPCIHigheRate -> Term(CGAtHigherRateRPCI), //s
-      AmountDueRPCIHigherRate -> Term(HigherRateCgtRPCI) //s
+      TaxableGains -> description.taxableGains,
+      LessTaxFreeAmount -> description.get(CgAnnualExempt), //s
+      PayCgTaxOn -> description.payCapitalGainsTaxOn, //
+      AmountAtEntrepreneursRate -> description.get(CgAtEntrepreneursRate), //s
+      AmountDueAtEntrepreneursRate -> description.get(CgDueEntrepreneursRate), //s
+      AmountAtOrdinaryRate -> description.get(CgAtLowerRate), //s
+      AmountDueAtOrdinaryRate -> description.get(CgDueLowerRate), //s
+      AmountAtHigherRate -> description.get(CgAtHigherRate), //s
+      AmountDueAtHigherRate -> description.get(CgDueHigherRate), //s
+      Adjustments -> description.get(CapAdjustment), //s
+      TotalCgTax -> description.totalCapitalGainsTax, //
+      CgTaxPerCurrencyUnit -> description.capitalGainsTaxPerCurrency, //
+      AmountAtRPCILowerRate -> description.get(CGAtLowerRateRPCI), //s
+      AmountDueRPCILowerRate -> description.get(LowerRateCgtRPCI), //s
+      AmountAtRPCIHigheRate -> description.get(CGAtHigherRateRPCI), //s
+      AmountDueRPCIHigherRate -> description.get(HigherRateCgtRPCI) //s
     )
 
 
@@ -146,16 +142,16 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "benefits_from_employment" -> createBenefitsFromEmployment, //s
   //      "total_income_before_tax" -> createTotalIncomeBeforeTax))//
 
-  private def createYourIncomeBeforeTaxBreakdown: Map[LiabilityTransformer, Operation[Liability, Any]] =
+  private def createYourIncomeBeforeTaxBreakdown: Map[ApiValue with LiabilityTransformer, Amount] =
     Map(
-      SelfEmploymentIncome -> selfEmployment, //
-      IncomeFromEmployment -> Term(SummaryTotalEmployment), //s
-      LiabilityTransformer.StatePension -> Term(StatePension), //s
-      OtherPensionIncome -> otherPension, //
-      TaxableStateBenefits -> taxableStateBenefits, //
-      OtherIncome -> otherIncome, //
-      BenefitsFromEmployment -> Term(EmploymentBenefits), //s
-      TotalIncomeBeforeTax -> totalIncomeBeforeTax
+      SelfEmploymentIncome -> description.selfEmployment, //
+      IncomeFromEmployment -> description.get(SummaryTotalEmployment), //s
+      LiabilityTransformer.StatePension ->description.get(StatePension), //s
+      OtherPensionIncome -> description.otherPension, //
+      TaxableStateBenefits -> description.taxableStateBenefits, //
+      OtherIncome -> description.otherIncome, //
+      BenefitsFromEmployment -> description.get(EmploymentBenefits), //s
+      TotalIncomeBeforeTax ->description.totalIncomeBeforeTax
     ) //
 
   //done
@@ -165,12 +161,12 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "other_allowances_amount" -> createOtherAllowancesAmount,//
   //      "total_tax_free_amount" -> createTotalTaxFreeAmount))//
 
-  private def createYourTaxFreeAmountBreakdown: Map[LiabilityTransformer, Operation[Liability, Any]]=
+  private def createYourTaxFreeAmountBreakdown =
     Map(
-      PersonalTaxFreeAmount -> Term(PersonalAllowance), //s
-      MarriageAllowanceTransferredAmount -> Term(MarriageAllceOut), //s
-      OtherAllowancesAmount -> otherAllowances, //
-      TotalTaxFreeAmount -> totalTaxFreeAmount
+      PersonalTaxFreeAmount -> description.get(PersonalAllowance), //s
+      MarriageAllowanceTransferredAmount -> description.get(MarriageAllceOut), //s
+      OtherAllowancesAmount -> description.otherAllowances, //
+      TotalTaxFreeAmount -> description.totalTaxFreeAmount
     ) //
 
 
@@ -188,19 +184,19 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "nics_and_tax_per_currency_unit" -> createNicsAndTaxPerCurrencyUnit))
 
   //done
-  private def createSummaryPageBreakdown:Map[LiabilityTransformer, Operation[Liability, PensionTaxRate]]  =
+  private def createSummaryPageBreakdown =
     Map(
-      EmployeeNicAmount -> totalAmountEmployeeNic, //
-      TotalIncomeTaxAndNics -> totalAmountTaxAndNics, //
-      YourTotalTax -> totalTax, //
-      PersonalTaxFreeAmount -> Term(PersonalAllowance), //s
-      TotalTaxFreeAmount -> totalTaxFreeAmount, //
-      TotalIncomeBeforeTax -> totalIncomeBeforeTax, //
-      TotalIncomeTaxAndNics -> totalIncomeTaxAmount, //
-      TotalCgTax -> totalCapitalGainsTax, //
-      TaxableGains -> taxableGains, //
-      CgTaxPerCurrencyUnit -> capitalGainsTaxPerCurrency,
-      NicsAndTaxPerCurrencyUnit -> nicsAndTaxPerCurrency
+      EmployeeNicAmount -> description.totalAmountEmployeeNic, //
+      TotalIncomeTaxAndNics -> description.totalAmountTaxAndNics, //
+      YourTotalTax -> description.totalTax, //
+      PersonalTaxFreeAmount -> description.get(PersonalAllowance), //s
+      TotalTaxFreeAmount ->description.totalTaxFreeAmount, //
+      TotalIncomeBeforeTax -> description.totalIncomeBeforeTax, //
+      TotalIncomeTaxAndNics -> description.totalIncomeTaxAmount, //
+      TotalCgTax -> description.totalCapitalGainsTax, //
+      TaxableGains -> description.taxableGains, //
+      CgTaxPerCurrencyUnit ->description.capitalGainsTaxPerCurrency,
+      NicsAndTaxPerCurrencyUnit -> description.nicsAndTaxPerCurrency
     ) //TODO Percentage done RATES
 
   //TODO RATES
@@ -230,27 +226,27 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "total_income_tax" -> createTotalIncomeTaxAmount,//
   //      "scottish_income_tax" -> createScottishIncomeTax))//
 
-  private def createTotalIncomeTaxPageBreakdown: Map[LiabilityTransformer, Operation[Liability, PensionTaxRate]] =
+  private def createTotalIncomeTaxPageBreakdown =
     Map(
-      StartingRateForSavings -> Term(SavingsChargeableStartRate), //s
-      StartingRateForSavingsAmount -> Term(SavingsTaxStartingRate), //s
-      BasicRateIncomeTax -> basicIncomeRateIncomeTax, //
-      BasicRateIncomeTaxAmount -> basicRateIncomeTaxAmount, //s
-      HigherRateIncomeTax -> higherRateIncomeTax, //
-      HigherRateIncomeTaxAmount -> higherRateIncomeTaxAmount, //
-      AdditionalRateIncomeTax -> additionalRateIncomeTaxAmount, //
-      AdditionalRateIncomeTaxAmount -> additionalRateIncomeTaxAmount, //
-      OrdinaryRate -> Term(DividendChargeableLowRate), //s
-      OrdinaryRateAmount -> Term(DividendTaxLowRate), //s
-      UpperRate -> Term(DividendChargeableHighRate), //s
-      UpperRateAmount -> Term(DividendTaxHighRate), //s --
-      AdditionalRate -> Term(DividendChargeableAddHRate), //s
-      AdditionalRateAmount -> Term(DividendTaxAddHighRate), //s ---
-      OtherAdjustmentsIncreasing -> otherAdjustmentsIncreasing, //
-      MarriageAllowanceReceivedAmount -> Term(MarriageAllceIn), //
-      OtherAdjustmentsReducing -> otherAdjustmentsReducing, //
-      TotalIncomeTax -> totalIncomeTaxAmount, //
-      ScottishIncomeTax -> scottishIncomeTax
+      StartingRateForSavings -> description.get(SavingsChargeableStartRate), //s
+      StartingRateForSavingsAmount -> description.get(SavingsTaxStartingRate), //s
+      BasicRateIncomeTax -> description.basicIncomeRateIncomeTax, //
+      BasicRateIncomeTaxAmount ->description. basicRateIncomeTaxAmount, //s
+      HigherRateIncomeTax -> description.higherRateIncomeTax, //
+      HigherRateIncomeTaxAmount ->description. higherRateIncomeTaxAmount, //
+      AdditionalRateIncomeTax -> description.additionalRateIncomeTaxAmount, //
+      AdditionalRateIncomeTaxAmount -> description.additionalRateIncomeTaxAmount, //
+      OrdinaryRate -> description.get(DividendChargeableLowRate), //s
+      OrdinaryRateAmount -> description.get(DividendTaxLowRate), //s
+      UpperRate -> description.get(DividendChargeableHighRate), //s
+      UpperRateAmount -> description.get(DividendTaxHighRate), //s --
+      AdditionalRate -> description.get(DividendChargeableAddHRate), //s
+      AdditionalRateAmount -> description.get(DividendTaxAddHighRate), //s ---
+      OtherAdjustmentsIncreasing -> description.otherAdjustmentsIncreasing, //
+      MarriageAllowanceReceivedAmount -> description.get(MarriageAllceIn), //
+      OtherAdjustmentsReducing -> description.otherAdjustmentsReducing, //
+      TotalIncomeTax -> description.totalIncomeTaxAmount, //
+      ScottishIncomeTax -> description.scottishIncomeTax
     ) //
 
 //

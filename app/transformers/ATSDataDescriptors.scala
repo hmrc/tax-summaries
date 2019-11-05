@@ -33,128 +33,597 @@
 package transformers
 
 
-import models.{Amount, ApiValue, Liability}
+import models.{Amount, ApiValue, Liability, TaxSummaryLiability}
 import models.Liability._
-import transformers.Operation.{sum, difference}
+import transformers.Operation.{difference, sum}
 
 sealed trait Operation[A, +B] {
 
   def filter(predicate: (A, B) => Boolean): Operation[A, B] = Filter(this, predicate)
+
   def roundedUp[B1 >: B]: RoundUp[A, B1] = RoundUp(this)
+
   lazy val positive: Operation[A, B] = Positive(this)
 
 }
 
 case class Term[A, B](value: A) extends Operation[A, B]
+
 case class Sum[A, B](first: Operation[A, B], second: Operation[A, B], others: List[Operation[A, B]] = Nil) extends Operation[A, B]
+
 case class Difference[A, B](first: Operation[A, B], second: Operation[A, B], others: List[Operation[A, B]] = Nil) extends Operation[A, B]
+
 case class Filter[A, B](op: Operation[A, B], predicate: (A, B) => Boolean) extends Operation[A, B]
+
 case class Positive[A, B](op: Operation[A, B]) extends Operation[A, B]
+
 case class RoundUp[A, B](op: Operation[A, B]) extends Operation[A, B]
+
 case class Empty[A, B]() extends Operation[A, B]
-case class RateFromAmount[A,B](op: Operation[A,B]) extends Operation[A, B]
-case class TaxPerCurrency[A,B](first: Operation[A,B], second: Operation[A,B]) extends Operation[A, B]
-case class Multiply[A,B](first: Operation[A,B], second: Double) extends Operation[A, B]
+
+case class RateFromAmount[A, B](op: Operation[A, B]) extends Operation[A, B]
+
+case class TaxPerCurrency[A, B](first: Operation[A, B], second: Operation[A, B]) extends Operation[A, B]
+
+case class Multiply[A, B](first: Operation[A, B], second: Double) extends Operation[A, B]
 
 
 object Operation {
 
-  def sum[A, B](first: A, second: A, others: A* ): Sum[A, B] =
+  def sum[A, B](first: A, second: A, others: A*): Sum[A, B] =
     Sum(Term(first), Term(second), others.map(Term(_)).toList)
 
-  def difference[A, B](first: A, second: A, others: A* ): Difference[A, B] =
+  def difference[A, B](first: A, second: A, others: A*): Difference[A, B] =
     Difference(Term(first), Term(second), others.map(Term(_)).toList)
 
 
 }
 
-object Descripters {
+case class Descriptors(summaryData: TaxSummaryLiability) {
 
+
+  //  //createTaxableGains
+  //  def taxableGains: Amount = {
+  //
+  //      CgTotGainsAfterLosses +
+  //      CgGainsAfterLosses
+  ////
+  ////    sum(
+  ////      CgTotGainsAfterLosses +
+  ////      CgGainsAfterLosses
+  ////    )
+  //  }
+  //
+  //  //createPayCapitalGainsTaxOn // TODO
+  //  def payCapitalGainsTaxOn: Amount = {
+  //    Positive(Difference(
+  //      taxableGains,
+  //      Term(CgAnnualExempt)
+  //    ))
+  //  }
+  //
+  //  //createTotalCapitalGainsTax
+  //  def totalCapitalGainsTax: Amount = { //brackets
+  //
+  //          CgDueEntrepreneursRate +
+  //          CgDueLowerRate +
+  //          CgDueHigherRate -
+  //          CapAdjustment +
+  //          LowerRateCgtRPCI +
+  //          HigherRateCgtRPCI
+  //
+  //
+  //
+  ////   Sum(
+  ////    Difference(
+  ////     Sum(
+  ////      Term(CgDueEntrepreneursRate),
+  ////      Term(CgDueLowerRate),
+  ////      List(
+  ////        Term(CgDueHigherRate)
+  ////      )
+  ////     ),
+  ////      Term(CapAdjustment)
+  ////    ),
+  ////      Term(LowerRateCgtRPCI),
+  ////      List(Term(HigherRateCgtRPCI)
+  ////    )
+  ////   )
+  //
+  //  }
+  //
+  //  //createSelfEmployment
+  //  def selfEmployment: Amount= {
+  //   /* sum(
+  //      SummaryTotalSchedule,
+  //      SummaryTotalPartnership
+  //    )*/
+  //
+  //
+  //      SummaryTotalSchedule +
+  //      SummaryTotalPartnership
+  //
+  //  }
+  //
+  //  //createOtherPension
+  //  def otherPension: Amount = {
+  ////    sum(
+  ////      OtherPension,
+  ////      StatePensionGross
+  ////    )
+  //    OtherPension +
+  //    StatePensionGross
+  //
+  //  }
+  //
+  //  //createTaxableStateBenefits
+  //  def taxableStateBenefits: Amount = {
+  // /*   sum(
+  //      IncBenefitSuppAllow,
+  //      JobSeekersAllowance,
+  //      OthStatePenBenefits
+  //    )*/
+  //
+  //
+  //      IncBenefitSuppAllow +
+  //      JobSeekersAllowance +
+  //      OthStatePenBenefits
+  //
+  //  }
+  //
+  //  //createOtherIncome
+  //  def otherIncome: Amount = {
+  ////    sum(
+  ////      SummaryTotShareOptions,
+  ////      SummaryTotalUklProperty,
+  ////      SummaryTotForeignIncome,
+  ////      SummaryTotTrustEstates,
+  ////      SummaryTotalOtherIncome,
+  ////      SummaryTotalUkInterest,
+  ////      SummaryTotForeignDiv,
+  ////      SummaryTotalUkIntDivs,
+  ////      SumTotLifePolicyGains
+  ////    )
+  //
+  //      SummaryTotShareOptions +
+  //      SummaryTotalUklProperty +
+  //      SummaryTotForeignIncome +
+  //      SummaryTotTrustEstates +
+  //      SummaryTotalOtherIncome +
+  //      SummaryTotalUkInterest +
+  //      SummaryTotForeignDiv +
+  //      SummaryTotalUkIntDivs +
+  //      SumTotLifePolicyGains
+  //
+  //  }
+  //
+  //  //createTotalIncomeBeforeTax
+  //  def totalIncomeBeforeTax: Amount = {
+  // /*   Sum(
+  //      selfEmployment,
+  //      Term(SummaryTotalEmployment),
+  //      List(Term(StatePension),
+  //        otherPension,
+  //        taxableStateBenefits,
+  //        otherIncome,
+  //        Term(EmploymentBenefits)
+  //      )
+  //    )*/
+  //
+  //
+  //      selfEmployment +
+  //    SummaryTotalEmployment +
+  //      StatePension +
+  //        otherPension +
+  //        taxableStateBenefits +
+  //        otherIncome +
+  //        EmploymentBenefits
+  //
+  //
+  //  }
+  //
+  //  //createOtherAllowancesAmount
+  //  def otherAllowances: Amount = {
+  ////    sum[Liability, Nothing](
+  ////      EmploymentExpenses,
+  ////      SummaryTotalDedPpr,
+  ////      SumTotForeignTaxRelief,
+  ////      SumTotLoanRestricted,
+  ////      SumTotLossRestricted,
+  ////      AnnuityPay,
+  ////      GiftsInvCharities,
+  ////      TradeUnionDeathBenefits,
+  ////      BpaAllowance,
+  ////      BPA,
+  ////      ExcludedIncome
+  ////    ).roundedUp
+  //
+  //    (
+  //      EmploymentExpenses +
+  //      SummaryTotalDedPpr +
+  //      SumTotForeignTaxRelief +
+  //      SumTotLoanRestricted +
+  //      SumTotLossRestricted +
+  //      AnnuityPay +
+  //      GiftsInvCharities +
+  //      TradeUnionDeathBenefits +
+  //      BpaAllowance +
+  //      BPA +
+  //      ExcludedIncome
+  //      )
+  //    .roundedUp
+  //  }
+  //
+  //  //createTotalTaxFreeAmount
+  //  def totalTaxFreeAmount: Amount = { //brackets
+  //   /* Sum(
+  //      otherAllowances,
+  //      difference(
+  //        PersonalAllowance,
+  //        MarriageAllceOut
+  //      )
+  //    )*/
+  //
+  //
+  //      otherAllowances +
+  //      PersonalAllowance -
+  //      MarriageAllceOut
+  //
+  //  }
+  //
+  //
+  //  //createTotalAmountEmployeeNic =
+  //  def totalAmountEmployeeNic: Amount = {
+  ///*    sum(
+  //      EmployeeClass1NI,
+  //      EmployeeClass2NI,
+  //      Class4Nic
+  //    )*/
+  //
+  //
+  //      EmployeeClass1NI +
+  //      EmployeeClass2NI +
+  //      Class4Nic
+  //
+  //  }
+  //
+  //  //basicRateIncomeTaxAmount
+  //  def basicRateIncomeTaxAmount: Amount = { //requires predicates TODO
+  ///*    sum[Liability,BigDecimal](
+  //      IncomeTaxBasicRate,
+  //      SavingsTaxLowerRate,
+  //      PensionLsumTaxDue
+  //    ).filter {
+  //        case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 1 => true
+  //        case _ => false
+  //      }*/
+  //
+  //    sum[Liability,BigDecimal](
+  //      IncomeTaxBasicRate +
+  //      SavingsTaxLowerRate +
+  //      PensionLsumTaxDue
+  //    ).filter {
+  //      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 1 => true
+  //      case _ => false
+  //    }
+  //  }
+  //
+  //  //createHigherRateIncomeTaxAmount
+  //  def higherRateIncomeTaxAmount: Amount = { //requires predicates TODO
+  ////    sum[Liability,BigDecimal](
+  ////      IncomeTaxHigherRate,
+  ////      SavingsTaxHigherRate,
+  ////      PensionLsumTaxDue
+  ////    ).filter {
+  ////      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 2 => true
+  ////      case _ => false
+  ////    }
+  //
+  //    sum[Liability,BigDecimal](
+  //      IncomeTaxHigherRate +
+  //      SavingsTaxHigherRate +
+  //      PensionLsumTaxDue
+  //    ).filter {
+  //      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 2 => true
+  //      case _ => false
+  //    }
+  //  }
+  //
+  //  //createAdditionalRateIncomeTaxAmount
+  //  def additionalRateIncomeTaxAmount: Amount = { //requires predicates TODO
+  //
+  //    sum[Liability,BigDecimal](
+  //      IncomeTaxAddHighRate +
+  //      SavingsTaxAddHighRate +
+  //      PensionLsumTaxDue
+  //    ).filter{
+  //      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 3 => true
+  //      case _ => false
+  //    }
+  //  /*  sum[Liability,BigDecimal](
+  //      IncomeTaxAddHighRate,
+  //      SavingsTaxAddHighRate,
+  //      PensionLsumTaxDue
+  //    ).filter{
+  //      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 3 => true
+  //      case _ => false
+  //    }*/
+  //  }
+  //
+  //  //createOtherAdjustmentsIncreasing
+  //  def otherAdjustmentsIncreasing: Amount = { //brackets & cannot use helpers.
+  ////    Difference(
+  ////      Sum(
+  ////        Term(NonDomCharge),
+  ////        Term(TaxExcluded),
+  ////        List(
+  ////          Term(IncomeTaxDue),
+  ////          Term(NetAnnuityPaytsTaxDue),
+  ////          Term(ChildBenefitCharge),
+  ////          Term(PensionSavingChargeable)
+  ////        )
+  ////      ),
+  ////      Term(TaxDueAfterAllceRlf)
+  ////    )
+  //
+  //   (
+  //        NonDomCharge +
+  //        TaxExcluded +
+  //          IncomeTaxDue +
+  //          NetAnnuityPaytsTaxDue +
+  //          ChildBenefitCharge +
+  //          PensionSavingChargeable
+  //
+  //      ) - TaxDueAfterAllceRlf
+  //    )
+  //  }
+  //
+  //  //createOtherAdjustmentsReducing
+  //  def otherAdjustmentsReducing: Amount = {
+  ///*    sum[Liability, Nothing](
+  //      DeficiencyRelief,
+  //      TopSlicingRelief,
+  //      VctSharesRelief,
+  //      EisRelief,
+  //      SeedEisRelief,
+  //      CommInvTrustRel,
+  //      SurplusMcaAlimonyRel,
+  //      NotionalTaxCegs,
+  //      NotlTaxOtherSource,
+  //      TaxCreditsForDivs,
+  //      QualDistnRelief,
+  //      TotalTaxCreditRelief,
+  //      NonPayableTaxCredits,
+  //      ReliefForFinanceCosts
+  //    ).roundedUp*/
+  //
+  //(
+  //      DeficiencyRelief +
+  //      TopSlicingRelief +
+  //      VctSharesRelief +
+  //      EisRelief +
+  //      SeedEisRelief +
+  //      CommInvTrustRel +
+  //      SurplusMcaAlimonyRel +
+  //      NotionalTaxCegs +
+  //      NotlTaxOtherSource +
+  //      TaxCreditsForDivs +
+  //      QualDistnRelief +
+  //      TotalTaxCreditRelief +
+  //      NonPayableTaxCredits +
+  //      ReliefForFinanceCosts
+  //    ).roundedUp
+  //  }
+  //
+  //  // createTotalIncomeTaxAmount
+  //  def totalIncomeTaxAmount: Amount = {
+  // /*   Difference(
+  //      Sum(
+  //        Term(SavingsTaxStartingRate),
+  //        basicRateIncomeTaxAmount,
+  //        List(higherRateIncomeTaxAmount,
+  //          Term(DividendTaxLowRate),
+  //          Term(DividendTaxHighRate),
+  //          Term(DividendTaxAddHighRate),
+  //          otherAdjustmentsIncreasing
+  //        )
+  //      ),
+  //      otherAdjustmentsReducing,
+  //      List(Term(MarriageAllceIn))
+  //    )*/
+  //
+  //
+  //        SavingsTaxStartingRate +
+  //        basicRateIncomeTaxAmount +
+  //        higherRateIncomeTaxAmount +
+  //        DividendTaxLowRate +
+  //        DividendTaxHighRate +
+  //        DividendTaxAddHighRate +
+  //        otherAdjustmentsIncreasing -
+  //        otherAdjustmentsReducing -
+  //        MarriageAllceIn
+  //    )
+  //  }
+  //
+  //  //createTotalAmountTaxAndNics
+  //  def totalAmountTaxAndNics: Amount= {
+  //
+  ////
+  ////    Sum(
+  ////      totalAmountEmployeeNic,
+  ////      totalIncomeTaxAmount
+  ////    )
+  //
+  //      totalAmountEmployeeNic +
+  //      totalIncomeTaxAmount
+  //
+  //  }
+  //
+  //  //createYourTotalTax
+  //  def totalTax: Amount = {
+  ////    Sum(
+  ////      totalAmountTaxAndNics,
+  ////      totalCapitalGainsTax
+  ////    )
+  //
+  //      totalAmountTaxAndNics +
+  //      totalCapitalGainsTax
+  //
+  //  }
+  //
+  //  //createBasicRateIncomeTax
+  //  def basicIncomeRateIncomeTax:Amount = {
+  ////    sum(
+  ////      IncomeChargeableBasicRate,
+  ////      SavingsChargeableLowerRate
+  ////    )
+  //
+  //
+  //      IncomeChargeableBasicRate +
+  //      SavingsChargeableLowerRate
+  //
+  //  }
+  //
+  //  //createHigherRateIncomeTax
+  //  def higherRateIncomeTax: Amount = {
+  ////    sum(
+  ////      IncomeChargeableHigherRate,
+  ////      SavingsChargeableHigherRate
+  ////    )
+  //
+  //      IncomeChargeableHigherRate +
+  //      SavingsChargeableHigherRate
+  //
+  //  }
+  //
+  //  //createAdditionalRateIncomeTax
+  //  def additionalRateIncomeTax: Amount= {
+  ////    sum(
+  ////      IncomeChargeableAddHRate +
+  ////      SavingsChargeableAddHRate
+  ////    )
+  //
+  //
+  //      IncomeChargeableAddHRate +
+  //        SavingsChargeableAddHRate
+  //  }
+  //
+  //  //createScottishIncomeTax
+  //  def scottishIncomeTax: Amount = {
+  ////      Multiply(
+  //      //    sum(
+  //      //      IncomeChargeableBasicRate,
+  //      //      IncomeChargeableHigherRate,
+  //      //      IncomeChargeableAddHRate
+  //      //    ),
+  //      //      0.1
+  //      //    )
+  //    val scottishRate=0.1
+  //
+  //    (
+  //      IncomeChargeableBasicRate +
+  //        IncomeChargeableHigherRate +
+  //        IncomeChargeableAddHRate
+  //      ) * scottishRate
+  //
+  //
+  //
+  //  }
+  //
+  //  //createCgTaxPerCurrencyUnit
+  //  def capitalGainsTaxPerCurrency: Amount = {
+  //    TaxPerCurrency(totalCapitalGainsTax,taxableGains)
+  //  }
+  //
+  //  //createNicsAndTaxPerCurrencyUnit
+  //  def nicsAndTaxPerCurrency: Amount = {
+  //    TaxPerCurrency(totalAmountTaxAndNics, totalIncomeBeforeTax)
+  //  }
+  //
+  //
 
   //createTaxableGains
-  def taxableGains: Amount = {
-
-      CgTotGainsAfterLosses +
-      CgGainsAfterLosses
-//
-//    sum(
-//      CgTotGainsAfterLosses +
-//      CgGainsAfterLosses
-//    )
+  implicit def get(liability: Liability) = {
+    summaryData.atsData.getOrElse(liability, Amount.empty)
   }
 
-  //createPayCapitalGainsTaxOn // TODO
+  def taxableGains(): Amount = {
+    CgTotGainsAfterLosses +
+      CgGainsAfterLosses
+  }
+
+  //createPayCapitalGainsTaxOn
   def payCapitalGainsTaxOn: Amount = {
-    Positive(Difference(
-      taxableGains,
-      Term(CgAnnualExempt)
-    ))
+
+    if (taxableGains < CgAnnualExempt) Amount.empty
+    else taxableGains - CgAnnualExempt
+
   }
 
   //createTotalCapitalGainsTax
   def totalCapitalGainsTax: Amount = { //brackets
 
-          CgDueEntrepreneursRate +
-          CgDueLowerRate +
-          CgDueHigherRate -
-          CapAdjustment +
-          LowerRateCgtRPCI +
-          HigherRateCgtRPCI
+    CgDueEntrepreneursRate +
+      CgDueLowerRate +
+      CgDueHigherRate -
+      CapAdjustment +
+      LowerRateCgtRPCI +
+      HigherRateCgtRPCI
 
 
 
-//   Sum(
-//    Difference(
-//     Sum(
-//      Term(CgDueEntrepreneursRate),
-//      Term(CgDueLowerRate),
-//      List(
-//        Term(CgDueHigherRate)
-//      )
-//     ),
-//      Term(CapAdjustment)
-//    ),
-//      Term(LowerRateCgtRPCI),
-//      List(Term(HigherRateCgtRPCI)
-//    )
-//   )
+    //   Sum(
+    //    Difference(
+    //     Sum(
+    //      Term(CgDueEntrepreneursRate),
+    //      Term(CgDueLowerRate),
+    //      List(
+    //        Term(CgDueHigherRate)
+    //      )
+    //     ),
+    //      Term(CapAdjustment)
+    //    ),
+    //      Term(LowerRateCgtRPCI),
+    //      List(Term(HigherRateCgtRPCI)
+    //    )
+    //   )
 
   }
 
   //createSelfEmployment
-  def selfEmployment: Amount= {
-   /* sum(
-      SummaryTotalSchedule,
-      SummaryTotalPartnership
-    )*/
+  def selfEmployment: Amount = {
+    /* sum(
+       SummaryTotalSchedule,
+       SummaryTotalPartnership
+     )*/
 
 
-      SummaryTotalSchedule +
+    SummaryTotalSchedule +
       SummaryTotalPartnership
 
   }
 
   //createOtherPension
   def otherPension: Amount = {
-//    sum(
-//      OtherPension,
-//      StatePensionGross
-//    )
+    //    sum(
+    //      OtherPension,
+    //      StatePensionGross
+    //    )
     OtherPension +
-    StatePensionGross
+      StatePensionGross
 
   }
 
   //createTaxableStateBenefits
   def taxableStateBenefits: Amount = {
- /*   sum(
-      IncBenefitSuppAllow,
-      JobSeekersAllowance,
-      OthStatePenBenefits
-    )*/
+    /*   sum(
+         IncBenefitSuppAllow,
+         JobSeekersAllowance,
+         OthStatePenBenefits
+       )*/
 
 
-      IncBenefitSuppAllow +
+    IncBenefitSuppAllow +
       JobSeekersAllowance +
       OthStatePenBenefits
 
@@ -162,19 +631,19 @@ object Descripters {
 
   //createOtherIncome
   def otherIncome: Amount = {
-//    sum(
-//      SummaryTotShareOptions,
-//      SummaryTotalUklProperty,
-//      SummaryTotForeignIncome,
-//      SummaryTotTrustEstates,
-//      SummaryTotalOtherIncome,
-//      SummaryTotalUkInterest,
-//      SummaryTotForeignDiv,
-//      SummaryTotalUkIntDivs,
-//      SumTotLifePolicyGains
-//    )
+    //    sum(
+    //      SummaryTotShareOptions,
+    //      SummaryTotalUklProperty,
+    //      SummaryTotForeignIncome,
+    //      SummaryTotTrustEstates,
+    //      SummaryTotalOtherIncome,
+    //      SummaryTotalUkInterest,
+    //      SummaryTotForeignDiv,
+    //      SummaryTotalUkIntDivs,
+    //      SumTotLifePolicyGains
+    //    )
 
-      SummaryTotShareOptions +
+    SummaryTotShareOptions +
       SummaryTotalUklProperty +
       SummaryTotForeignIncome +
       SummaryTotTrustEstates +
@@ -188,73 +657,72 @@ object Descripters {
 
   //createTotalIncomeBeforeTax
   def totalIncomeBeforeTax: Amount = {
- /*   Sum(
-      selfEmployment,
-      Term(SummaryTotalEmployment),
-      List(Term(StatePension),
-        otherPension,
-        taxableStateBenefits,
-        otherIncome,
-        Term(EmploymentBenefits)
-      )
-    )*/
+    /*   Sum(
+         selfEmployment,
+         Term(SummaryTotalEmployment),
+         List(Term(StatePension),
+           otherPension,
+           taxableStateBenefits,
+           otherIncome,
+           Term(EmploymentBenefits)
+         )
+       )*/
 
 
-      selfEmployment +
-    SummaryTotalEmployment +
+    selfEmployment +
+      SummaryTotalEmployment +
       StatePension +
-        otherPension +
-        taxableStateBenefits +
-        otherIncome +
-        EmploymentBenefits
+      otherPension +
+      taxableStateBenefits +
+      otherIncome +
+      EmploymentBenefits
 
 
   }
 
   //createOtherAllowancesAmount
   def otherAllowances: Amount = {
-//    sum[Liability, Nothing](
-//      EmploymentExpenses,
-//      SummaryTotalDedPpr,
-//      SumTotForeignTaxRelief,
-//      SumTotLoanRestricted,
-//      SumTotLossRestricted,
-//      AnnuityPay,
-//      GiftsInvCharities,
-//      TradeUnionDeathBenefits,
-//      BpaAllowance,
-//      BPA,
-//      ExcludedIncome
-//    ).roundedUp
+    //    sum[Liability, Nothing](
+    //      EmploymentExpenses,
+    //      SummaryTotalDedPpr,
+    //      SumTotForeignTaxRelief,
+    //      SumTotLoanRestricted,
+    //      SumTotLossRestricted,
+    //      AnnuityPay,
+    //      GiftsInvCharities,
+    //      TradeUnionDeathBenefits,
+    //      BpaAllowance,
+    //      BPA,
+    //      ExcludedIncome
+    //    ).roundedUp
 
     (
       EmploymentExpenses +
-      SummaryTotalDedPpr +
-      SumTotForeignTaxRelief +
-      SumTotLoanRestricted +
-      SumTotLossRestricted +
-      AnnuityPay +
-      GiftsInvCharities +
-      TradeUnionDeathBenefits +
-      BpaAllowance +
-      BPA +
-      ExcludedIncome
-      )
-    .roundedUp
+        SummaryTotalDedPpr +
+        SumTotForeignTaxRelief +
+        SumTotLoanRestricted +
+        SumTotLossRestricted +
+        AnnuityPay +
+        GiftsInvCharities +
+        TradeUnionDeathBenefits +
+        BpaAllowance +
+        BPA +
+        ExcludedIncome
+      ).roundAmountUp()
   }
 
   //createTotalTaxFreeAmount
   def totalTaxFreeAmount: Amount = { //brackets
-   /* Sum(
-      otherAllowances,
-      difference(
-        PersonalAllowance,
-        MarriageAllceOut
-      )
-    )*/
+    /* Sum(
+       otherAllowances,
+       difference(
+         PersonalAllowance,
+         MarriageAllceOut
+       )
+     )*/
 
 
-      otherAllowances +
+    otherAllowances +
       PersonalAllowance -
       MarriageAllceOut
 
@@ -263,272 +731,264 @@ object Descripters {
 
   //createTotalAmountEmployeeNic =
   def totalAmountEmployeeNic: Amount = {
-/*    sum(
-      EmployeeClass1NI,
-      EmployeeClass2NI,
-      Class4Nic
-    )*/
+    /*    sum(
+          EmployeeClass1NI,
+          EmployeeClass2NI,
+          Class4Nic
+        )*/
 
 
-      EmployeeClass1NI +
+    (EmployeeClass1NI +
       EmployeeClass2NI +
-      Class4Nic
+      Class4Nic).roundAmountUp()
 
   }
 
   //basicRateIncomeTaxAmount
   def basicRateIncomeTaxAmount: Amount = { //requires predicates TODO
-/*    sum[Liability,BigDecimal](
-      IncomeTaxBasicRate,
-      SavingsTaxLowerRate,
-      PensionLsumTaxDue
-    ).filter {
-        case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 1 => true
-        case _ => false
-      }*/
+    /*    sum[Liability,BigDecimal](
+          IncomeTaxBasicRate,
+          SavingsTaxLowerRate,
+          PensionLsumTaxDue
+        ).filter {
+            case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 1 => true
+            case _ => false
+          }*/
 
-    sum[Liability,BigDecimal](
-      IncomeTaxBasicRate +
-      SavingsTaxLowerRate +
-      PensionLsumTaxDue
-    ).filter {
-      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 1 => true
-      case _ => false
+
+    IncomeTaxBasicRate + SavingsTaxLowerRate + {
+      if (summaryData.pensionLumpSumTaxRate.value == Double(0.20)) PensionLsumTaxDue //rates TODO
+      else Amount.empty
     }
   }
 
   //createHigherRateIncomeTaxAmount
   def higherRateIncomeTaxAmount: Amount = { //requires predicates TODO
-//    sum[Liability,BigDecimal](
-//      IncomeTaxHigherRate,
-//      SavingsTaxHigherRate,
-//      PensionLsumTaxDue
-//    ).filter {
-//      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 2 => true
-//      case _ => false
-//    }
+    //    sum[Liability,BigDecimal](
+    //      IncomeTaxHigherRate,
+    //      SavingsTaxHigherRate,
+    //      PensionLsumTaxDue
+    //    ).filter {
+    //      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 2 => true
+    //      case _ => false
+    //    }
 
-    sum[Liability,BigDecimal](
-      IncomeTaxHigherRate +
-      SavingsTaxHigherRate +
-      PensionLsumTaxDue
-    ).filter {
-      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 2 => true
-      case _ => false
+    IncomeTaxHigherRate +
+      SavingsTaxHigherRate + {
+      if (summaryData.pensionLumpSumTaxRate.value == Double(0.40)) PensionLsumTaxDue //rates TODO
+      else Amount.empty
     }
   }
 
   //createAdditionalRateIncomeTaxAmount
   def additionalRateIncomeTaxAmount: Amount = { //requires predicates TODO
 
-    sum[Liability,BigDecimal](
-      IncomeTaxAddHighRate +
-      SavingsTaxAddHighRate +
-      PensionLsumTaxDue
-    ).filter{
-      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 3 => true
-      case _ => false
+
+    IncomeTaxAddHighRate +
+      SavingsTaxAddHighRate + {
+      if (summaryData.pensionLumpSumTaxRate.value == Double(0.45)) PensionLsumTaxDue //rates TODO
+      else Amount.empty
     }
-  /*  sum[Liability,BigDecimal](
-      IncomeTaxAddHighRate,
-      SavingsTaxAddHighRate,
-      PensionLsumTaxDue
-    ).filter{
-      case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 3 => true
-      case _ => false
-    }*/
+    /*  sum[Liability,BigDecimal](
+        IncomeTaxAddHighRate,
+        SavingsTaxAddHighRate,
+        PensionLsumTaxDue
+      ).filter{
+        case (PensionLsumTaxDue, pensionLumpSumRate) if pensionLumpSumRate == 3 => true
+        case _ => false
+      }*/
   }
 
   //createOtherAdjustmentsIncreasing
   def otherAdjustmentsIncreasing: Amount = { //brackets & cannot use helpers.
-//    Difference(
-//      Sum(
-//        Term(NonDomCharge),
-//        Term(TaxExcluded),
-//        List(
-//          Term(IncomeTaxDue),
-//          Term(NetAnnuityPaytsTaxDue),
-//          Term(ChildBenefitCharge),
-//          Term(PensionSavingChargeable)
-//        )
-//      ),
-//      Term(TaxDueAfterAllceRlf)
-//    )
+    //    Difference(
+    //      Sum(
+    //        Term(NonDomCharge),
+    //        Term(TaxExcluded),
+    //        List(
+    //          Term(IncomeTaxDue),
+    //          Term(NetAnnuityPaytsTaxDue),
+    //          Term(ChildBenefitCharge),
+    //          Term(PensionSavingChargeable)
+    //        )
+    //      ),
+    //      Term(TaxDueAfterAllceRlf)
+    //    )
 
-   (
-        NonDomCharge +
+    (
+      NonDomCharge +
         TaxExcluded +
-          IncomeTaxDue +
-          NetAnnuityPaytsTaxDue +
-          ChildBenefitCharge +
-          PensionSavingChargeable
+        IncomeTaxDue +
+        NetAnnuityPaytsTaxDue +
+        ChildBenefitCharge +
+        PensionSavingChargeable
 
       ) - TaxDueAfterAllceRlf
-    )
+
   }
 
   //createOtherAdjustmentsReducing
   def otherAdjustmentsReducing: Amount = {
-/*    sum[Liability, Nothing](
-      DeficiencyRelief,
-      TopSlicingRelief,
-      VctSharesRelief,
-      EisRelief,
-      SeedEisRelief,
-      CommInvTrustRel,
-      SurplusMcaAlimonyRel,
-      NotionalTaxCegs,
-      NotlTaxOtherSource,
-      TaxCreditsForDivs,
-      QualDistnRelief,
-      TotalTaxCreditRelief,
-      NonPayableTaxCredits,
-      ReliefForFinanceCosts
-    ).roundedUp*/
+    /*    sum[Liability, Nothing](
+          DeficiencyRelief,
+          TopSlicingRelief,
+          VctSharesRelief,
+          EisRelief,
+          SeedEisRelief,
+          CommInvTrustRel,
+          SurplusMcaAlimonyRel,
+          NotionalTaxCegs,
+          NotlTaxOtherSource,
+          TaxCreditsForDivs,
+          QualDistnRelief,
+          TotalTaxCreditRelief,
+          NonPayableTaxCredits,
+          ReliefForFinanceCosts
+        ).roundedUp*/
 
-(
+    (
       DeficiencyRelief +
-      TopSlicingRelief +
-      VctSharesRelief +
-      EisRelief +
-      SeedEisRelief +
-      CommInvTrustRel +
-      SurplusMcaAlimonyRel +
-      NotionalTaxCegs +
-      NotlTaxOtherSource +
-      TaxCreditsForDivs +
-      QualDistnRelief +
-      TotalTaxCreditRelief +
-      NonPayableTaxCredits +
-      ReliefForFinanceCosts
-    ).roundedUp
+        TopSlicingRelief +
+        VctSharesRelief +
+        EisRelief +
+        SeedEisRelief +
+        CommInvTrustRel +
+        SurplusMcaAlimonyRel +
+        NotionalTaxCegs +
+        NotlTaxOtherSource +
+        TaxCreditsForDivs +
+        QualDistnRelief +
+        TotalTaxCreditRelief +
+        NonPayableTaxCredits +
+        ReliefForFinanceCosts
+      ).roundAmountUp()
   }
 
   // createTotalIncomeTaxAmount
   def totalIncomeTaxAmount: Amount = {
- /*   Difference(
-      Sum(
-        Term(SavingsTaxStartingRate),
-        basicRateIncomeTaxAmount,
-        List(higherRateIncomeTaxAmount,
-          Term(DividendTaxLowRate),
-          Term(DividendTaxHighRate),
-          Term(DividendTaxAddHighRate),
-          otherAdjustmentsIncreasing
-        )
-      ),
-      otherAdjustmentsReducing,
-      List(Term(MarriageAllceIn))
-    )*/
+    /*   Difference(
+         Sum(
+           Term(SavingsTaxStartingRate),
+           basicRateIncomeTaxAmount,
+           List(higherRateIncomeTaxAmount,
+             Term(DividendTaxLowRate),
+             Term(DividendTaxHighRate),
+             Term(DividendTaxAddHighRate),
+             otherAdjustmentsIncreasing
+           )
+         ),
+         otherAdjustmentsReducing,
+         List(Term(MarriageAllceIn))
+       )*/
 
 
-        SavingsTaxStartingRate +
-        basicRateIncomeTaxAmount +
-        higherRateIncomeTaxAmount +
-        DividendTaxLowRate +
-        DividendTaxHighRate +
-        DividendTaxAddHighRate +
-        otherAdjustmentsIncreasing -
-        otherAdjustmentsReducing -
-        MarriageAllceIn
-    )
+    SavingsTaxStartingRate +
+      basicRateIncomeTaxAmount +
+      higherRateIncomeTaxAmount +
+      DividendTaxLowRate +
+      DividendTaxHighRate +
+      DividendTaxAddHighRate +
+      otherAdjustmentsIncreasing -
+      otherAdjustmentsReducing -
+      MarriageAllceIn
+
   }
 
   //createTotalAmountTaxAndNics
-  def totalAmountTaxAndNics: Amount= {
+  def totalAmountTaxAndNics: Amount = {
 
-//
-//    Sum(
-//      totalAmountEmployeeNic,
-//      totalIncomeTaxAmount
-//    )
+    //
+    //    Sum(
+    //      totalAmountEmployeeNic,
+    //      totalIncomeTaxAmount
+    //    )
 
-      totalAmountEmployeeNic +
+    totalAmountEmployeeNic +
       totalIncomeTaxAmount
 
   }
 
   //createYourTotalTax
   def totalTax: Amount = {
-//    Sum(
-//      totalAmountTaxAndNics,
-//      totalCapitalGainsTax
-//    )
+    //    Sum(
+    //      totalAmountTaxAndNics,
+    //      totalCapitalGainsTax
+    //    )
 
-      totalAmountTaxAndNics +
+    totalAmountTaxAndNics +
       totalCapitalGainsTax
 
   }
 
   //createBasicRateIncomeTax
-  def basicIncomeRateIncomeTax:Amount = {
-//    sum(
-//      IncomeChargeableBasicRate,
-//      SavingsChargeableLowerRate
-//    )
+  def basicIncomeRateIncomeTax: Amount = {
+    //    sum(
+    //      IncomeChargeableBasicRate,
+    //      SavingsChargeableLowerRate
+    //    )
 
 
-      IncomeChargeableBasicRate +
+    IncomeChargeableBasicRate +
       SavingsChargeableLowerRate
 
   }
 
   //createHigherRateIncomeTax
   def higherRateIncomeTax: Amount = {
-//    sum(
-//      IncomeChargeableHigherRate,
-//      SavingsChargeableHigherRate
-//    )
+    //    sum(
+    //      IncomeChargeableHigherRate,
+    //      SavingsChargeableHigherRate
+    //    )
 
-      IncomeChargeableHigherRate +
+    IncomeChargeableHigherRate +
       SavingsChargeableHigherRate
-
   }
 
   //createAdditionalRateIncomeTax
-  def additionalRateIncomeTax: Amount= {
-//    sum(
-//      IncomeChargeableAddHRate +
-//      SavingsChargeableAddHRate
-//    )
+  def additionalRateIncomeTax: Amount = {
+    //    sum(
+    //      IncomeChargeableAddHRate +
+    //      SavingsChargeableAddHRate
+    //    )
 
 
-      IncomeChargeableAddHRate +
-        SavingsChargeableAddHRate
+    IncomeChargeableAddHRate +
+      SavingsChargeableAddHRate
   }
 
   //createScottishIncomeTax
-  def scottishIncomeTax: Amount = {
-//      Multiply(
-      //    sum(
-      //      IncomeChargeableBasicRate,
-      //      IncomeChargeableHigherRate,
-      //      IncomeChargeableAddHRate
-      //    ),
-      //      0.1
-      //    )
-    val scottishRate=0.1
+  def scottishIncomeTax = {
+    //      Multiply(
+    //    sum(
+    //      IncomeChargeableBasicRate,
+    //      IncomeChargeableHigherRate,
+    //      IncomeChargeableAddHRate
+    //    ),
+    //      0.1
+    //    )
+    val scottishRate = 0.1
 
     (
       IncomeChargeableBasicRate +
         IncomeChargeableHigherRate +
         IncomeChargeableAddHRate
-      ) * scottishRate
-
-
+      ).amount * scottishRate
 
   }
 
   //createCgTaxPerCurrencyUnit
   def capitalGainsTaxPerCurrency: Amount = {
-    TaxPerCurrency(totalCapitalGainsTax,taxableGains)
+    taxPerTaxableCurrencyUnit(totalCapitalGainsTax,taxableGains)
   }
 
   //createNicsAndTaxPerCurrencyUnit
   def nicsAndTaxPerCurrency: Amount = {
-    TaxPerCurrency(totalAmountTaxAndNics, totalIncomeBeforeTax)
+    taxPerTaxableCurrencyUnit(totalAmountTaxAndNics, totalIncomeBeforeTax)
   }
 
-
-
+  private def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount) =
+    taxable match {
+      case value if value.isZero => taxable
+      case _ => tax.divideWithPrecision(taxable, 4)
+    }
 }
