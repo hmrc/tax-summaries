@@ -16,7 +16,6 @@
 
 package transformers
 
-import transformers.Descripters._
 import transformers.Operation._
 import models.{Amount, Liability}
 import models.Liability.{CgGainsAfterLosses, CgTotGainsAfterLosses}

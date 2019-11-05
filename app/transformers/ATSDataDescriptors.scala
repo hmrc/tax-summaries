@@ -33,7 +33,10 @@
 package transformers
 
 
-import models.{Amount, ApiValue, Liability, TaxSummaryLiability}
+import java.text.NumberFormat
+import java.util.Locale
+
+import models._
 import models.Liability._
 import transformers.Operation.{difference, sum}
 
@@ -81,6 +84,7 @@ object Operation {
 
 case class Descriptors(summaryData: TaxSummaryLiability) {
 
+  val formatter = NumberFormat.getNumberInstance(Locale.UK)
 
   //  //createTaxableGains
   //  def taxableGains: Amount = {
@@ -757,7 +761,7 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
 
 
     IncomeTaxBasicRate + SavingsTaxLowerRate + {
-      if (summaryData.pensionLumpSumTaxRate.value == Double(0.20)) PensionLsumTaxDue //rates TODO
+      if (summaryData.pensionLumpSumTaxRate.value == 0.20) PensionLsumTaxDue //rates TODO
       else Amount.empty
     }
   }
@@ -775,7 +779,7 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
 
     IncomeTaxHigherRate +
       SavingsTaxHigherRate + {
-      if (summaryData.pensionLumpSumTaxRate.value == Double(0.40)) PensionLsumTaxDue //rates TODO
+      if (summaryData.pensionLumpSumTaxRate.value == 0.40) PensionLsumTaxDue //rates TODO
       else Amount.empty
     }
   }
@@ -786,7 +790,7 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
 
     IncomeTaxAddHighRate +
       SavingsTaxAddHighRate + {
-      if (summaryData.pensionLumpSumTaxRate.value == Double(0.45)) PensionLsumTaxDue //rates TODO
+      if (summaryData.pensionLumpSumTaxRate.value == 0.45) PensionLsumTaxDue //rates TODO
       else Amount.empty
     }
     /*  sum[Liability,BigDecimal](
@@ -968,14 +972,17 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
     //    )
     val scottishRate = 0.1
 
-    (
+   Amount((
       IncomeChargeableBasicRate +
         IncomeChargeableHigherRate +
         IncomeChargeableAddHRate
-      ).amount * scottishRate
+      ).amount * scottishRate,"GBP")
 
   }
 
+  def hasLiability:Boolean={
+    !totalTax.isZeroOrLess
+  }
   //createCgTaxPerCurrencyUnit
   def capitalGainsTaxPerCurrency: Amount = {
     taxPerTaxableCurrencyUnit(totalCapitalGainsTax,taxableGains)
@@ -991,4 +998,15 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
       case value if value.isZero => taxable
       case _ => tax.divideWithPrecision(taxable, 4)
     }
+
+  //createNicsAndTaxTaxRate
+  def totalNicsAndTaxLiabilityAsPercentage:Rate = liabilityAsPercentage(nicsAndTaxPerCurrency)
+
+  //createTotalCgTaxRate
+  def totalCgTaxLiabilityAsPercentage:Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
+
+  //rateFromPerUnitAmount
+  private def liabilityAsPercentage(amountPerUnit: Amount) = {
+    Rate(formatter.format((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN)) + "%")
+  }
 }

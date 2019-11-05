@@ -204,11 +204,11 @@ final case class TaxSummaryLiability(
     implicit  val reads: Reads[TaxSummaryLiability] =
       (
         (JsPath \ "taxYear").read[Int] and
-        (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[Double] and
+        (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
         (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").read[String] and
         (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
         (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
-        )(TaxSummaryLiability.apply _)
+      )(TaxSummaryLiability.apply _)
     }
 
 

@@ -17,7 +17,7 @@
 package transformers
 
 import errors.AtsError
-import models.Amount
+import models.{Amount, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -42,7 +42,8 @@ class NoAtsErrorTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
-      val returnValue = ATSRawDataTransformer(transformedJson, parsedTaxpayerDetailsJson, "", 2014).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2014).atsDataDTO
 
       returnValue.errors shouldBe Some(AtsError("NoAtsError"))
     }

@@ -17,6 +17,7 @@
 package transformers
 
 import errors.AtsError
+import models.TaxSummaryLiability
 import play.api.libs.json.{JsNull, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AtsJsonDataUpdate
@@ -40,7 +41,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
 
       val transformedJson = transformTaxpayerData(sourceJson = originalJson, jsonUpdateObject = update)
 
-      val returnValue = ATSRawDataTransformer(dataJson, transformedJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(dataJson.as[TaxSummaryLiability], transformedJson, "", taxYear).atsDataDTO
       returnValue.taxPayerData shouldBe None
       returnValue.errors shouldBe Some(AtsError("title"))
     }
@@ -51,7 +53,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
 
       val parsedJson = Json.parse(originalJson)
 
-      val returnValue = ATSRawDataTransformer(dataJson, parsedJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
       returnValue.taxPayerData shouldBe None
 
       returnValue.errors shouldBe Some(AtsError("forename"))
@@ -62,7 +65,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
       val originalJson = Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
 
       val parsedJson = Json.parse(originalJson)
-      val returnValue = ATSRawDataTransformer(dataJson, parsedJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
 
       returnValue.taxPayerData shouldBe None
       returnValue.errors shouldBe Some(AtsError("surname"))

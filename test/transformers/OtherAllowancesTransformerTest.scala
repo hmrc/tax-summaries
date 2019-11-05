@@ -16,7 +16,8 @@
 
 package transformers
 
-import models.{Amount, AtsMiddleTierData}
+import models.LiabilityTransformer.OtherAllowancesAmount
+import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -35,7 +36,8 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_3.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue: AtsMiddleTierData = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -59,7 +61,8 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -67,7 +70,7 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload("other_allowances_amount") should equal(new Amount(300.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) should equal(new Amount(300.0, "GBP"))
     }
 
     "have the correct summed other allowances data" in {
@@ -89,10 +92,11 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
-      val returnValue = ATSRawDataTransformer(transformedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload("other_allowances_amount") should equal(new Amount(660.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) should equal(new Amount(660.0, "GBP"))
     }
     
     "have the correct summed other allowances data (with 'other_allowances_amount' roundup)" in {
@@ -114,10 +118,11 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
-      val returnValue = ATSRawDataTransformer(transformedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload("other_allowances_amount") should equal(new Amount(660.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) should equal(new Amount(660.0, "GBP"))
     }
   }
 }

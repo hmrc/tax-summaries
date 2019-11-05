@@ -16,7 +16,8 @@
 
 package transformers
 
-import models.Amount
+import models.LiabilityTransformer.SelfEmploymentIncome
+import models.{Amount, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -37,15 +38,15 @@ class SelfEmploymentTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
-
+      val returnValue =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
       testYear shouldEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload("self_employment_income") should equal(new Amount(1100.0, "GBP"))
+      parsedPayload(SelfEmploymentIncome) should equal(new Amount(1100.0, "GBP"))
     }
 
     "have the correct summed self employment income data" in {
@@ -58,7 +59,8 @@ class SelfEmploymentTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
-      val returnValue = ATSRawDataTransformer(transformedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -66,7 +68,7 @@ class SelfEmploymentTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload("self_employment_income") should equal(new Amount(22.0, "GBP"))
+      parsedPayload(SelfEmploymentIncome) should equal(new Amount(22.0, "GBP"))
     }
   }
 }

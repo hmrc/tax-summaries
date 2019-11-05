@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.{Amount, AtsMiddleTierData, Rate}
+import models.{Amount, AtsMiddleTierData, Rate, TaxSummaryLiability}
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
 import utils._
@@ -36,7 +36,8 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue: AtsMiddleTierData = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
       val testRates =
@@ -55,7 +56,8 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue: AtsMiddleTierData = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       val testPayload =
@@ -93,7 +95,8 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_6.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue: AtsMiddleTierData = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014

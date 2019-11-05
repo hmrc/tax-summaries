@@ -16,7 +16,8 @@
 
 package transformers
 
-import models.Amount
+import models.LiabilityTransformer.OtherPensionIncome
+import models.{Amount, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -37,14 +38,15 @@ class OtherPensionIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate 
       val sampleJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       taxYear shouldEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload("other_pension_income") should equal(new Amount(0.0, "GBP"))
+      parsedPayload(OtherPensionIncome) should equal(new Amount(0.0, "GBP"))
     }
 
     "have the correct summed other pension income data" in {
@@ -57,14 +59,15 @@ class OtherPensionIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate 
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
-      val returnValue = ATSRawDataTransformer(transformedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       taxYear shouldEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload("other_pension_income") should equal(new Amount(300.0, "GBP"))
+      parsedPayload(OtherPensionIncome) should equal(new Amount(300.0, "GBP"))
     }
   }
 }

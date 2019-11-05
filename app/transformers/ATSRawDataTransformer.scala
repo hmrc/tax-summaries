@@ -35,15 +35,15 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
 
   val description=Descriptors(summaryLiability)
 
-  val formatter = NumberFormat.getNumberInstance(Locale.UK)
+  //val formatter = NumberFormat.getNumberInstance(Locale.UK)
 
-  private def noAtsResult[A]: AtsMiddleTierData[A] = AtsMiddleTierData[A](taxYear, None, None, None, None, None, None, None, None, Option(AtsError("NoAtsError")))
+  private val noAtsResult: AtsMiddleTierData = AtsMiddleTierData(taxYear, None, None, None, None, None, None, None, None, Option(AtsError("NoAtsError")))
 
   def atsDataDTO = createATSDataDTO
 
   private def createATSDataDTO = {
     try {
-      hasIncomeAndCapitalGainsLiability match {
+      description.hasLiability match {
         case true => AtsMiddleTierData(taxYear, Some(UTR), createIncomeTaxData, createSummaryData, createIncomeData, createAllowanceData, createCapitalGainsData, createGovSpendData, createTaxPayerData, None)
         case false => noAtsResult
       }
@@ -56,10 +56,8 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
     }
   }
 
-  private def hasIncomeAndCapitalGainsLiability = !interpret(totalIncomeAndCapitalGainsLiablity)(summaryLiability.atsData, summaryLiability.pensionLumpSumTaxRate).isZeroOrLess
-
   private def createGovSpendData = {
-    val transform = new GovSpendingDataTransformer(interpret(totalTax)(summaryLiability.atsData, summaryLiability.pensionLumpSumTaxRate), taxYear)
+    val transform = new GovSpendingDataTransformer(description.totalTax, taxYear)
     Option(transform.govSpendReferenceDTO)
   }
 
@@ -73,9 +71,9 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
     DataHolder(Some(createTotalIncomeTaxPageBreakdown), createTotalIncomeTaxPageRates, Some(summaryLiability.incomeTaxStatus)))
 
   private def createAllowanceData = Option(
-    DataHolder(Some(interpretHelper(createYourTaxFreeAmountBreakdown)), None, None))
+    DataHolder(Some(createYourTaxFreeAmountBreakdown), None, None))
 
-  private def createCapitalGainsData = Option(DataHolder(Some(interpretHelper(createCapitalGainsTaxBreakdown)), createCapitalGainsTaxRates, None))
+  private def createCapitalGainsData = Option(DataHolder(Some(createCapitalGainsTaxBreakdown), createCapitalGainsTaxRates, None))
 
   private def createTaxPayerData = Option(ATSTaxpayerDataTransformer(rawTaxPayerJson).atsTaxpayerDataDTO)
 
@@ -100,7 +98,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //    ))
 
 
-  private def createCapitalGainsTaxBreakdown =
+  private def createCapitalGainsTaxBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
       TaxableGains -> description.taxableGains,
       LessTaxFreeAmount -> description.get(CgAnnualExempt), //s
@@ -126,7 +124,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
     Option(Map("cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
       "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate(taxYear),
       "cg_upper_rate" -> TaxRateService.cgUpperRate(taxYear),
-      "total_cg_tax_rate" -> createTotalCgTaxRate,
+      "total_cg_tax_rate" -> description.totalCgTaxLiabilityAsPercentage,
       "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
       "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
     ))
@@ -142,7 +140,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "benefits_from_employment" -> createBenefitsFromEmployment, //s
   //      "total_income_before_tax" -> createTotalIncomeBeforeTax))//
 
-  private def createYourIncomeBeforeTaxBreakdown: Map[ApiValue with LiabilityTransformer, Amount] =
+  private def createYourIncomeBeforeTaxBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
       SelfEmploymentIncome -> description.selfEmployment, //
       IncomeFromEmployment -> description.get(SummaryTotalEmployment), //s
@@ -161,7 +159,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "other_allowances_amount" -> createOtherAllowancesAmount,//
   //      "total_tax_free_amount" -> createTotalTaxFreeAmount))//
 
-  private def createYourTaxFreeAmountBreakdown =
+  private def createYourTaxFreeAmountBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
       PersonalTaxFreeAmount -> description.get(PersonalAllowance), //s
       MarriageAllowanceTransferredAmount -> description.get(MarriageAllceOut), //s
@@ -184,7 +182,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "nics_and_tax_per_currency_unit" -> createNicsAndTaxPerCurrencyUnit))
 
   //done
-  private def createSummaryPageBreakdown =
+  private def createSummaryPageBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
       EmployeeNicAmount -> description.totalAmountEmployeeNic, //
       TotalIncomeTaxAndNics -> description.totalAmountTaxAndNics, //
@@ -201,8 +199,9 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
 
   //TODO RATES
   private def createSummaryPageRates =
-    Option(Map("total_cg_tax_rate" -> createTotalCgTaxRate, //TODO RATES
-      "nics_and_tax_rate" -> createNicsAndTaxTaxRate)) //TODO RATES
+    Option(Map("total_cg_tax_rate" -> description.totalCgTaxLiabilityAsPercentage, //TODO RATES
+      "nics_and_tax_rate" -> description.totalNicsAndTaxLiabilityAsPercentage)
+    ) //TODO RATES
 
   //one
   //  private def createTotalIncomeTaxPageBreakdown =
@@ -226,7 +225,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //      "total_income_tax" -> createTotalIncomeTaxAmount,//
   //      "scottish_income_tax" -> createScottishIncomeTax))//
 
-  private def createTotalIncomeTaxPageBreakdown =
+  private def createTotalIncomeTaxPageBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
       StartingRateForSavings -> description.get(SavingsChargeableStartRate), //s
       StartingRateForSavingsAmount -> description.get(SavingsTaxStartingRate), //s
@@ -487,26 +486,29 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //private def createYourTotalTax = totalAmountTaxAndNics + totalCapitalGainsTax
 
   //done
-  private def createCgTaxPerCurrencyUnit = taxPerTaxableCurrencyUnit(createTotalCapitalGainsTax, createTaxableGains)
-//
-  private def createTotalCgTaxRate = rateFromPerUnitAmount(createCgTaxPerCurrencyUnit)
+  //private def createCgTaxPerCurrencyUnit = taxPerTaxableCurrencyUnit(createTotalCapitalGainsTax, createTaxableGains)
 //
 //  //done
-  private def createNicsAndTaxPerCurrencyUnit = taxPerTaxableCurrencyUnit(createTotalAmountTaxAndNics, createTotalIncomeBeforeTax)
-//
-  private def createNicsAndTaxTaxRate = rateFromPerUnitAmount(createNicsAndTaxPerCurrencyUnit)
-//
+//  private def createTotalCgTaxRate = rateFromPerUnitAmount(createCgTaxPerCurrencyUnit)
+////
+////  //done
+// // private def createNicsAndTaxPerCurrencyUnit = taxPerTaxableCurrencyUnit(createTotalAmountTaxAndNics, createTotalIncomeBeforeTax)
+////
 //  //done
-  private def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount) =
-    taxable match {
-      case value if value.isZero => taxable
-      case _ => tax.divideWithPrecision(taxable, 4)
-    }
-//
-  private def rateFromPerUnitAmount(amountPerUnit: Amount) = {
-    Rate(formatter.format((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN)) + "%")
-  }
-//
+//  private def createNicsAndTaxTaxRate = rateFromPerUnitAmount(createNicsAndTaxPerCurrencyUnit)
+////
+////  //done
+//  private def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount) =
+//    taxable match {
+//      case value if value.isZero => taxable
+//      case _ => tax.divideWithPrecision(taxable, 4)
+//    }
+////
+//  //done
+//  private def rateFromPerUnitAmount(amountPerUnit: Amount) = {
+//    Rate(formatter.format((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN)) + "%")
+//  }
+////
 //  private def getTliSlpString(key: String): String = {
 //    val res = jsonValLookupWithErrorHandlingWithOpt[String](key, "tliSlpAtsData")
 //    res.getOrElse("")
