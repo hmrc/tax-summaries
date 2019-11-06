@@ -27,10 +27,9 @@ class TaxSummaryLiabilityTest extends UnitSpec {
       val json = JsonUtil.load("/test_case_5.json")
 
       val result = Json.parse(json).as[TaxSummaryLiability]
-   println(result)
       result.taxYear shouldBe 2014
-      result.pensionLumpSumTaxRate shouldBe 0.0
-      result.incomeTaxStatus shouldBe "0002"
+      result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
+      result.incomeTaxStatus shouldBe Some("0002")
       result.nationalInsuranceData.size shouldBe 3
       result.atsData.size shouldBe 94
 

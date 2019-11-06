@@ -68,7 +68,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
     DataHolder(Some(createYourIncomeBeforeTaxBreakdown), None, None))
 
   private def createIncomeTaxData = Option(
-    DataHolder(Some(createTotalIncomeTaxPageBreakdown), createTotalIncomeTaxPageRates, Some(summaryLiability.incomeTaxStatus)))
+    DataHolder(Some(createTotalIncomeTaxPageBreakdown), createTotalIncomeTaxPageRates, summaryLiability.incomeTaxStatus))
 
   private def createAllowanceData = Option(
     DataHolder(Some(createYourTaxFreeAmountBreakdown), None, None))
@@ -190,7 +190,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       PersonalTaxFreeAmount -> description.get(PersonalAllowance), //s
       TotalTaxFreeAmount ->description.totalTaxFreeAmount, //
       TotalIncomeBeforeTax -> description.totalIncomeBeforeTax, //
-      TotalIncomeTaxAndNics -> description.totalIncomeTaxAmount, //
+      TotalIncomeTax -> description.totalIncomeTaxAmount, //
       TotalCgTax -> description.totalCapitalGainsTax, //
       TaxableGains -> description.taxableGains, //
       CgTaxPerCurrencyUnit ->description.capitalGainsTaxPerCurrency,
@@ -233,7 +233,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       BasicRateIncomeTaxAmount ->description. basicRateIncomeTaxAmount, //s
       HigherRateIncomeTax -> description.higherRateIncomeTax, //
       HigherRateIncomeTaxAmount ->description. higherRateIncomeTaxAmount, //
-      AdditionalRateIncomeTax -> description.additionalRateIncomeTaxAmount, //
+      AdditionalRateIncomeTax -> description.additionalRateIncomeTax, //
       AdditionalRateIncomeTaxAmount -> description.additionalRateIncomeTaxAmount, //
       OrdinaryRate -> description.get(DividendChargeableLowRate), //s
       OrdinaryRateAmount -> description.get(DividendTaxLowRate), //s

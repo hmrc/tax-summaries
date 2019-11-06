@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityTransformer.OtherAllowancesAmount
+import models.LiabilityTransformer._
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
@@ -46,10 +46,10 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload =
-        Map("personal_tax_free_amount" -> Amount(9440.0, "GBP"),
-          "marriage_allowance_transferred_amount" -> Amount(0.00, "GBP"),
-          "other_allowances_amount" -> Amount(300.0, "GBP"),
-          "total_tax_free_amount" -> Amount(9740.0, "GBP"))
+        Map(PersonalTaxFreeAmount -> Amount(9440.0, "GBP"),
+          MarriageAllowanceTransferredAmount -> Amount(0.00, "GBP"),
+          OtherAllowancesAmount -> Amount(300.0, "GBP"),
+          TotalTaxFreeAmount-> Amount(9740.0, "GBP"))
       testPayload shouldEqual parsedPayload
     }
   }

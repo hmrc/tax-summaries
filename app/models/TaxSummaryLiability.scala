@@ -174,7 +174,7 @@ object PensionTaxRate{
 final case class TaxSummaryLiability(
   taxYear: Int,
   pensionLumpSumTaxRate: PensionTaxRate,
-  incomeTaxStatus: String ,
+  incomeTaxStatus: Option[String] ,
   nationalInsuranceData: Map[Liability, Amount],
   atsData: Map[Liability, Amount]
 )
@@ -205,7 +205,7 @@ final case class TaxSummaryLiability(
       (
         (JsPath \ "taxYear").read[Int] and
         (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
-        (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").read[String] and
+        (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullable[String] and
         (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
         (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
       )(TaxSummaryLiability.apply _)

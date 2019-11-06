@@ -16,6 +16,7 @@
 
 package transformers
 
+import models.LiabilityTransformer._
 import models.{Amount, AtsMiddleTierData, Rate, TaxSummaryLiability}
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
@@ -61,22 +62,22 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       val testPayload =
-        Map("taxable_gains" -> Amount(12250.00, "GBP"),
-          "less_tax_free_amount" -> Amount(10600.00, "GBP"),
-          "pay_cg_tax_on" -> Amount(1650.00, "GBP"),
-          "amount_at_entrepreneurs_rate" -> Amount(1111.00, "GBP"),
-          "amount_due_at_entrepreneurs_rate" -> Amount(2222.00, "GBP"),
-          "amount_at_ordinary_rate" -> Amount(3333.00, "GBP"),
-          "amount_due_at_ordinary_rate" -> Amount(4444.00, "GBP"),
-          "amount_at_higher_rate" -> Amount(5555.00, "GBP"),
-          "amount_due_at_higher_rate" -> Amount(6666.00, "GBP"),
-          "adjustments" -> Amount(7777.00, "GBP"),
-          "total_cg_tax" -> Amount(5555.00, "GBP"),
-          "cg_tax_per_currency_unit" -> Amount(0.4534, "GBP"),
-          "amount_at_rpci_lower_rate" -> Amount(0.00, "GBP"),
-          "amount_due_rpci_lower_rate" -> Amount(0.00, "GBP"),
-          "amount_at_rpci_higher_rate" -> Amount(0.00, "GBP"),
-          "amount_due_rpci_higher_rate" -> Amount(0.00, "GBP"))
+        Map(TaxableGains -> Amount(12250.00, "GBP"),
+           LessTaxFreeAmount-> Amount(10600.00, "GBP"),
+          PayCgTaxOn -> Amount(1650.00, "GBP"),
+          AmountAtEntrepreneursRate -> Amount(1111.00, "GBP"),
+          AmountDueAtEntrepreneursRate -> Amount(2222.00, "GBP"),
+          AmountAtOrdinaryRate -> Amount(3333.00, "GBP"),
+          AmountDueAtOrdinaryRate -> Amount(4444.00, "GBP"),
+          AmountAtHigherRate -> Amount(5555.00, "GBP"),
+          AmountDueAtHigherRate -> Amount(6666.00, "GBP"),
+          Adjustments-> Amount(7777.00, "GBP"),
+          TotalCgTax-> Amount(5555.00, "GBP"),
+          CgTaxPerCurrencyUnit -> Amount(0.4534, "GBP"),
+          AmountAtRPCILowerRate -> Amount(0.00, "GBP"),
+          AmountDueRPCILowerRate -> Amount(0.00, "GBP"),
+          AmountAtRPCIHigheRate -> Amount(0.00, "GBP"),
+          AmountDueRPCIHigherRate -> Amount(0.00, "GBP"))
       testPayload shouldEqual parsedPayload
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
@@ -104,22 +105,22 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       val testPayload =
-        Map("taxable_gains" -> Amount(20000.00, "GBP"),
-          "less_tax_free_amount" -> Amount(10600.00, "GBP"),
-          "pay_cg_tax_on" -> Amount(9400.00, "GBP"),
-          "amount_at_entrepreneurs_rate" -> Amount(0.00, "GBP"),
-          "amount_due_at_entrepreneurs_rate" -> Amount(0.00, "GBP"),
-          "amount_at_ordinary_rate" -> Amount(0.00, "GBP"),
-          "amount_due_at_ordinary_rate" -> Amount(0.00, "GBP"),
-          "amount_at_higher_rate" -> Amount(0.00, "GBP"),
-          "amount_due_at_higher_rate" -> Amount(0.00, "GBP"),
-          "adjustments" -> Amount(0.00, "GBP"),
-          "total_cg_tax" -> Amount(0.00, "GBP"),
-          "cg_tax_per_currency_unit" -> Amount(0.00, "GBP"),
-          "amount_at_rpci_lower_rate" -> Amount(0.00, "GBP"),
-          "amount_due_rpci_lower_rate" -> Amount(0.00, "GBP"),
-          "amount_at_rpci_higher_rate" -> Amount(0.00, "GBP"),
-          "amount_due_rpci_higher_rate" -> Amount(0.00, "GBP")
+        Map(TaxableGains -> Amount(20000.00, "GBP"),
+          LessTaxFreeAmount -> Amount(10600.00, "GBP"),
+          PayCgTaxOn -> Amount(9400.00, "GBP"),
+          AmountAtEntrepreneursRate -> Amount(0.00, "GBP"),
+          AmountDueAtEntrepreneursRate -> Amount(0.00, "GBP"),
+          AmountAtOrdinaryRate -> Amount(0.00, "GBP"),
+          AmountDueAtOrdinaryRate -> Amount(0.00, "GBP"),
+          AmountAtHigherRate -> Amount(0.00, "GBP"),
+          AmountDueAtHigherRate-> Amount(0.00, "GBP"),
+          Adjustments -> Amount(0.00, "GBP"),
+          TotalCgTax -> Amount(0.00, "GBP"),
+          CgTaxPerCurrencyUnit -> Amount(0.00, "GBP"),
+          AmountAtRPCILowerRate -> Amount(0.00, "GBP"),
+          AmountDueRPCILowerRate -> Amount(0.00, "GBP"),
+          AmountAtRPCIHigheRate -> Amount(0.00, "GBP"),
+          AmountDueRPCIHigherRate -> Amount(0.00, "GBP")
         )
       testPayload shouldEqual parsedPayload
     }

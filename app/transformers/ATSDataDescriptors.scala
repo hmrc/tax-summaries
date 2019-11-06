@@ -547,8 +547,12 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
   //
 
   //createTaxableGains
-  implicit def get(liability: Liability) = {
-    summaryData.atsData.getOrElse(liability, Amount.empty)
+  implicit def get(liability: Liability): Amount = {
+    summaryData.atsData.get(liability).getOrElse(throw ATSParsingException(liability.apiValue))
+  }
+
+  def getNicsData(liability: Liability)={
+    summaryData.nationalInsuranceData.getOrElse(liability, Amount.empty)
   }
 
   def taxableGains(): Amount = {
@@ -742,9 +746,11 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
         )*/
 
 
-    (EmployeeClass1NI +
-      EmployeeClass2NI +
-      Class4Nic).roundAmountUp()
+    (
+      getNicsData(EmployeeClass1NI) +
+        getNicsData(EmployeeClass2NI) +
+      Class4Nic
+      ).roundAmountUp()
 
   }
 
