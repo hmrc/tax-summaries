@@ -13,8 +13,12 @@ val x= 0
 10+20+30-90+100+200+300
 
 
-case class y(x: Int) extends y
+val cx=Map("aa" ->2,"bb"->4)
+val y=Map("ff" ->5, "gg"->6)
 
-object y {
-  def mulitply * 2
+def get(f: String)={
+  cx.getOrElse(f, "NONE!")
 }
+
+get("aa")
+
