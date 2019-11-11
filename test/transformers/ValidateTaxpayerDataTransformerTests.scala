@@ -18,13 +18,14 @@ package transformers
 
 import errors.AtsError
 import models.TaxSummaryLiability
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsNull, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AtsJsonDataUpdate
 
 import scala.io.Source
 
-class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpdate {
+class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest  {
 
   val dataJson = Json.parse(Source.fromURL(getClass.getResource("/utr_2014.json")).mkString)
   val taxYear: Int = 2014

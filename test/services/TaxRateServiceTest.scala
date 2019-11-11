@@ -20,56 +20,57 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.play.test.UnitSpec
 import models.Rate
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 
-class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
+class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerTest {
 
   "taxRateService" should {
 
     Seq(2014, 2015, 2016).foreach {
       year =>
         s"return correct amounts for Dividends Ordinary Rate for $year" in {
-          val result: Rate = TaxRateService.dividendsOrdinaryRate(year)
-          result shouldBe Rate("10%")
+          val result = TaxRateService.dividendsOrdinaryRate(year)
+          result shouldBe Some(Rate("10%"))
         }
     }
 
     Seq(2017, 2018, 2019).foreach {
       year =>
         s"return correct amounts for Dividends Ordinary Rate for $year" in {
-          val result: Rate = TaxRateService.dividendsOrdinaryRate(year)
-          result shouldBe Rate("7.5%")
+          val result = TaxRateService.dividendsOrdinaryRate(year)
+          result shouldBe Some(Rate("7.5%"))
         }
     }
 
     Seq(2012, 2013, 2014, 2015, 2016).foreach {
       year =>
         s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
-          val result: Rate = TaxRateService.cgOrdinaryRate(year)
-          result shouldBe Rate("18%")
+          val result = TaxRateService.cgOrdinaryRate(year)
+          result shouldBe Some(Rate("18%"))
         }
     }
 
     Seq(2017, 2018, 2019).foreach {
       year =>
         s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
-          val result: Rate = TaxRateService.cgOrdinaryRate(year)
-          result shouldBe Rate("10%")
+          val result = TaxRateService.cgOrdinaryRate(year)
+          result shouldBe Some(Rate("10%"))
         }
     }
 
     Seq(2012, 2013, 2014, 2015, 2016).foreach {
       year =>
         s"return correct percentage rate for Capital Gains upper rate for $year" in {
-          val result: Rate = TaxRateService.cgUpperRate(year)
-          result shouldBe Rate("28%")
+          val result = TaxRateService.cgUpperRate(year)
+          result shouldBe Some(Rate("28%"))
         }
     }
 
     Seq(2017, 2018, 2019).foreach {
       year =>
         s"return correct percentage rate for Capital Gains upper rate for $year" in {
-          val result: Rate = TaxRateService.cgUpperRate(year)
-          result shouldBe Rate("20%")
+          val result = TaxRateService.cgUpperRate(year)
+          result shouldBe Some(Rate("20%"))
         }
     }
 
@@ -77,33 +78,39 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     Seq(2017, 2018, 2019).foreach {
       year =>
         s"property tax and carried interest lower rate for $year" in {
-          val result: Rate = TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(year)
-          result shouldBe Rate("18%")
+          val result = TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(year)
+          result shouldBe Some(Rate("18%"))
         }
     }
 
     Seq(2014, 2015, 2016).foreach {
       year =>
         s"property tax and carried interest lower rate for $year" in {
-          val result: Rate = TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(year)
-          result shouldBe Rate("0%")
+          val result = TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(year)
+          result shouldBe None
         }
     }
 
     Seq(2017, 2018, 2019).foreach {
       year =>
         s"property tax and carried interest higher rate for $year" in {
-          val result: Rate = TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(year)
-          result shouldBe Rate("28%")
+          val result = TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(year)
+          result shouldBe Some(Rate("28%"))
         }
     }
 
     Seq(2014, 2015, 2016).foreach {
       year =>
         s"property tax and carried interest higher rate for $year" in {
-          val result: Rate = TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(year)
-          result shouldBe Rate("0%")
+          val result  = TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(year)
+          result shouldBe None
         }
     }
+
+//    "Calling getRate" should {
+//      "return a map" in {
+//        TaxRateService.getRate(2014) shouldBe true
+//      }
+//    }
   }
 }

@@ -49,7 +49,9 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       }
     }
     catch {
-      case ATSParsingException(message) => AtsMiddleTierData(taxYear, None, None, None, None, None, None, None, None, Option(AtsError(message)))
+      case ATSParsingException(message) => {
+        AtsMiddleTierData(taxYear, None, None, None, None, None, None, None, None, Option(AtsError(message)))
+      }
       case otherError: Throwable =>
         Logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData(taxYear, None, None, None, None, None, None, None, None, Option(AtsError("Other Error")))
@@ -120,14 +122,17 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
 
 
   //TODO RATES
-  private def createCapitalGainsTaxRates =
+  private def createCapitalGainsTaxRates: Option[Map[String, Rate]] =
     Option(Map("cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
       "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate(taxYear),
       "cg_upper_rate" -> TaxRateService.cgUpperRate(taxYear),
-      "total_cg_tax_rate" -> description.totalCgTaxLiabilityAsPercentage,
+      "total_cg_tax_rate" -> Some(description.totalCgTaxLiabilityAsPercentage),
       "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
       "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
-    ))
+    ).collect{
+      case (k,Some(v))=>(k,v)
+    }
+    )
 
   //done
   //  private def createYourIncomeBeforeTaxBreakdown =
@@ -200,8 +205,8 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //TODO RATES
   private def createSummaryPageRates =
     Option(Map("total_cg_tax_rate" -> description.totalCgTaxLiabilityAsPercentage, //TODO RATES
-      "nics_and_tax_rate" -> description.totalNicsAndTaxLiabilityAsPercentage)
-    ) //TODO RATES
+      "nics_and_tax_rate" -> description.totalNicsAndTaxLiabilityAsPercentage))
+
 
   //one
   //  private def createTotalIncomeTaxPageBreakdown =
@@ -346,7 +351,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //    createMarriageAllowanceReceivedAmount //s
 
   //rates TODO
-  private def createTotalIncomeTaxPageRates =
+  private def createTotalIncomeTaxPageRates: Option[Map[String, Rate]] =
     Option(Map(
       "starting_rate_for_savings_rate" -> TaxRateService.startingRateForSavingsRate(taxYear),
       "basic_rate_income_tax_rate" -> TaxRateService.basicRateIncomeTaxRate(taxYear),
@@ -354,7 +359,8 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       "additional_rate_income_tax_rate" -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
       "ordinary_rate_tax_rate" -> TaxRateService.dividendsOrdinaryRate(taxYear),
       "upper_rate_rate" -> TaxRateService.dividendUpperRateRate(taxYear),
-      "additional_rate_rate" -> TaxRateService.dividendAdditionalRate(taxYear)))
+      "additional_rate_rate" -> TaxRateService.dividendAdditionalRate(taxYear)).collect{case (k,Some(v))=>(k,v)}
+    )
 
   //done
 //  private def createSelfEmployment = getAmountSum(

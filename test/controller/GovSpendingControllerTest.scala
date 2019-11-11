@@ -19,18 +19,20 @@ package controller
 import connectors.ODSConnector
 import controllers.ATSDataController
 import models.SpendData
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
-import play.api.test.{FakeRequest}
-import play.test.{WithApplication}
+import play.api.test.FakeRequest
+import play.test.WithApplication
 import services.OdsService
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TaxsJsonHelper
 import utils.TestConstants._
-import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet }
 
-class GovSpendingControllerTest extends UnitSpec {
+import scala.concurrent.Future
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
+
+class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest  {
 
     val request = FakeRequest()
 

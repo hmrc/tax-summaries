@@ -18,6 +18,7 @@ package transformers
 
 import models.LiabilityTransformer.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount}
 import models.{Amount, TaxSummaryLiability}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -25,7 +26,7 @@ import utils._
 
 import scala.io.Source
 
-class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate {
+class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)

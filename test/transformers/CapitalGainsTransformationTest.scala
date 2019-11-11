@@ -18,13 +18,14 @@ package transformers
 
 import models.LiabilityTransformer._
 import models.{Amount, AtsMiddleTierData, Rate, TaxSummaryLiability}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
 import scala.io.Source
 
-class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
+class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest  {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -45,9 +46,7 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
         Map("cg_entrepreneurs_rate" -> Rate("10%"),
           "cg_ordinary_rate" -> Rate("18%"),
           "cg_upper_rate" -> Rate("28%"),
-          "total_cg_tax_rate" -> Rate("45.34%"),
-          "prop_interest_rate_lower_rate" -> Rate("18%"),
-          "prop_interest_rate_higher_rate" -> Rate("0%")
+          "total_cg_tax_rate" -> Rate("45.34%")
         )
       testRates shouldEqual parsedRates
     }
@@ -85,9 +84,7 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
         Map("cg_entrepreneurs_rate" -> Rate("10%"),
           "cg_ordinary_rate" -> Rate("18%"),
           "cg_upper_rate" -> Rate("28%"),
-          "total_cg_tax_rate" -> Rate("45.34%"),
-          "prop_interest_rate_lower_rate" -> Rate("18%"),
-          "prop_interest_rate_higher_rate" -> Rate("0%"))
+          "total_cg_tax_rate" -> Rate("45.34%"))
       testRates shouldEqual parsedRates
     }
 
@@ -103,6 +100,7 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate {
       val testYear: Int = 2014
       testYear shouldEqual parsedYear
 
+      println("\n\n\n\n\n\n + " + returnValue)
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       val testPayload =
         Map(TaxableGains -> Amount(20000.00, "GBP"),

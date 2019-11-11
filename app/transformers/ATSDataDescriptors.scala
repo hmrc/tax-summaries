@@ -94,6 +94,15 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
     )
   }
 
+  def getWithDefaultAmount(liability: Liability): Amount ={
+    try {
+      get(liability)
+    } catch {
+      case e : ATSParsingException => Amount(0.0, "GBP")
+      case e => throw new Exception(e)
+    }
+  }
+
   def taxableGains(): Amount = {
     get(CgTotGainsAfterLosses) +
       get(CgGainsAfterLosses)
@@ -409,7 +418,7 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
         get(QualDistnRelief) +
         get(TotalTaxCreditRelief) +
         get(NonPayableTaxCredits) +
-        get(ReliefForFinanceCosts)
+        getWithDefaultAmount(ReliefForFinanceCosts)
       ).roundAmountUp()
   }
 

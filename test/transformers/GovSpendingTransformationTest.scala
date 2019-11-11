@@ -17,10 +17,11 @@
 package transformers
 
 import models.{Amount, GovernmentSpendingOutputWrapper}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
-class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate {
+class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest  {
 
   "The Gov spending data" should {
 

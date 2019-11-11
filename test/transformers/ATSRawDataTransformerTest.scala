@@ -18,13 +18,14 @@ package transformers
 
 import models.LiabilityTransformer._
 import models.{Amount, AtsMiddleTierData, Rate, TaxSummaryLiability}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AtsJsonDataUpdate
 
 import scala.io.Source
 
-class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
+class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)

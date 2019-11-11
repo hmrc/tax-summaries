@@ -13,12 +13,21 @@ val x= 0
 10+20+30-90+100+200+300
 
 
-val cx=Map("aa" ->2,"bb"->4)
-val y=Map("ff" ->5, "gg"->6)
+val cx: Map[String, Option[String]] =Map("aa" ->Some("2"), "bb"-> Some("4"),"cc" -> None)
 
-def get(f: String)={
-  cx.getOrElse(f, "NONE!")
+cx.collect{
+  case (k,Some(v))=>(k,v)
 }
 
-get("aa")
+
+cx.get("afa")
+
+val qq=Map("a" -> 2, "b" -> 3)
+val zz=Map("c" ->3)
+
+qq ++ zz
+
+'a'.isDigit
+
+
 

@@ -18,6 +18,7 @@ package transformers
 
 import models.LiabilityTransformer.SelfEmploymentIncome
 import models.{Amount, TaxSummaryLiability}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -25,7 +26,7 @@ import utils._
 
 import scala.io.Source
 
-class SelfEmploymentTransformerTest extends UnitSpec with AtsJsonDataUpdate {
+class SelfEmploymentTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -40,6 +41,7 @@ class SelfEmploymentTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val parsedJson = Json.parse(sampleJson)
       val returnValue =
         ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
       testYear shouldEqual parsedYear
