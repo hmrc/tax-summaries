@@ -126,11 +126,11 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
     Option(Map("cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
       "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate(taxYear),
       "cg_upper_rate" -> TaxRateService.cgUpperRate(taxYear),
-      "total_cg_tax_rate" -> Some(description.totalCgTaxLiabilityAsPercentage),
+      "total_cg_tax_rate" -> description.totalCgTaxLiabilityAsPercentage,
       "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
       "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
     ).collect{
-      case (k,Some(v))=>(k,v.apiValue)
+      case (k,v)=>(k,v.apiValue)
     }
     )
 
@@ -363,7 +363,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       "upper_rate_rate" -> TaxRateService.dividendUpperRateRate(taxYear),
       "additional_rate_rate" -> TaxRateService.dividendAdditionalRate(taxYear)
     ).collect{
-      case (k,Some(v))=>(k,v.apiValue)
+      case (k,v)=>(k,v.apiValue)
     }
     )
 

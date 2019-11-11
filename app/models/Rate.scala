@@ -36,6 +36,8 @@ object Rate {
     Rate((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN).doubleValue())
   }
 
+  val empty = 0.0
+
   implicit val formats = Json.format[Rate]
 }
 

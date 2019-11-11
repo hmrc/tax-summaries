@@ -21,9 +21,9 @@ import models.Rate
 
 object TaxRateService {
 
-  def getRate(taxYear: Int, rate:String): Option[Rate] = {
+  def getRate(taxYear: Int, rate:String): Rate = {
     val result=ApplicationConfig.ratePercentages(taxYear)
-    result.get(rate).map(Rate(_))
+    Rate(result.getOrElse(rate, Rate.empty))
   }
 
 //  de37f startingRateForSavingsRate(taxYear: Int): Rate = Rate("10%")
@@ -72,27 +72,27 @@ object TaxRateService {
 //    }
 
 
-    def startingRateForSavingsRate(taxYear: Int): Option[Rate] = getRate(taxYear,"startingRateForSavingsRate")
+    def startingRateForSavingsRate(taxYear: Int): Rate = getRate(taxYear,"startingRateForSavingsRate")
 
-    def basicRateIncomeTaxRate(taxYear: Int): Option[Rate] = getRate(taxYear,"basicRateIncomeTaxRate")
+    def basicRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear,"basicRateIncomeTaxRate")
 
-    def higherRateIncomeTaxRate(taxYear: Int): Option[Rate] = getRate(taxYear,"higherRateIncomeTaxRate")
+    def higherRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear,"higherRateIncomeTaxRate")
 
-    def additionalRateIncomeTaxRate(taxYear: Int): Option[Rate] = getRate(taxYear,"additionalRateIncomeTaxRate")
+    def additionalRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear,"additionalRateIncomeTaxRate")
 
-    def dividendsOrdinaryRate(taxYear: Int): Option[Rate] = getRate(taxYear,"dividendsOrdinaryRate")
+    def dividendsOrdinaryRate(taxYear: Int): Rate = getRate(taxYear,"dividendsOrdinaryRate")
 
-    def dividendUpperRateRate(taxYear: Int): Option[Rate] = getRate(taxYear,"dividendUpperRateRate")
+    def dividendUpperRateRate(taxYear: Int): Rate = getRate(taxYear,"dividendUpperRateRate")
 
-    def dividendAdditionalRate(taxYear: Int): Option[Rate] = getRate(taxYear,"dividendAdditionalRate")
+    def dividendAdditionalRate(taxYear: Int): Rate = getRate(taxYear,"dividendAdditionalRate")
 
-    def cgEntrepreneursRate(taxYear: Int): Option[Rate] = getRate(taxYear,"cgEntrepreneursRate")
+    def cgEntrepreneursRate(taxYear: Int): Rate = getRate(taxYear,"cgEntrepreneursRate")
 
-    def cgOrdinaryRate(taxYear: Int): Option[Rate] = getRate(taxYear,"cgOrdinaryRate")
+    def cgOrdinaryRate(taxYear: Int): Rate = getRate(taxYear,"cgOrdinaryRate")
 
-    def cgUpperRate(taxYear: Int): Option[Rate] = getRate(taxYear,"cgUpperRate")
+    def cgUpperRate(taxYear: Int): Rate = getRate(taxYear,"cgUpperRate")
 
-    def individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear: Int): Option[Rate] = getRate(taxYear,"RCPILowerRate")
+    def individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear: Int): Rate = getRate(taxYear,"RCPILowerRate")
 
-    def individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear: Int): Option[Rate] = getRate(taxYear,"RCPIHigherRate")
+    def individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear: Int): Rate = getRate(taxYear,"RCPIHigherRate")
 }

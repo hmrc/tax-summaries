@@ -30,7 +30,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"return correct amounts for Dividends Ordinary Rate for $year" in {
           val result = TaxRateService.dividendsOrdinaryRate(year)
-          result shouldBe Some(Rate(10))
+          result shouldBe Rate(10)
         }
     }
 
@@ -38,7 +38,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"return correct amounts for Dividends Ordinary Rate for $year" in {
           val result = TaxRateService.dividendsOrdinaryRate(year)
-          result shouldBe Some(Rate(7.5))
+          result shouldBe Rate(7.5)
         }
     }
 
@@ -46,7 +46,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
           val result = TaxRateService.cgOrdinaryRate(year)
-          result shouldBe Some(Rate(18))
+          result shouldBe Rate(18)
         }
     }
 
@@ -54,7 +54,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
           val result = TaxRateService.cgOrdinaryRate(year)
-          result shouldBe Some(Rate(10))
+          result shouldBe Rate(10)
         }
     }
 
@@ -62,7 +62,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"return correct percentage rate for Capital Gains upper rate for $year" in {
           val result = TaxRateService.cgUpperRate(year)
-          result shouldBe Some(Rate(28))
+          result shouldBe Rate(28)
         }
     }
 
@@ -70,7 +70,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"return correct percentage rate for Capital Gains upper rate for $year" in {
           val result = TaxRateService.cgUpperRate(year)
-          result shouldBe Some(Rate(20))
+          result shouldBe Rate(20)
         }
     }
 
@@ -79,7 +79,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"property tax and carried interest lower rate for $year" in {
           val result = TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(year)
-          result shouldBe Some(Rate(18))
+          result shouldBe Rate(18)
         }
     }
 
@@ -87,7 +87,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"property tax and carried interest lower rate for $year" in {
           val result = TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(year)
-          result shouldBe None
+          result shouldBe Rate(0)
         }
     }
 
@@ -95,7 +95,7 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"property tax and carried interest higher rate for $year" in {
           val result = TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(year)
-          result shouldBe Some(Rate(28))
+          result shouldBe Rate(28)
         }
     }
 
@@ -103,14 +103,9 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       year =>
         s"property tax and carried interest higher rate for $year" in {
           val result  = TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(year)
-          result shouldBe None
+          result shouldBe Rate(0)
         }
     }
 
-//    "Calling getRate" should {
-//      "return a map" in {
-//        TaxRateService.getRate(2014) shouldBe true
-//      }
-//    }
   }
 }
