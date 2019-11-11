@@ -17,7 +17,7 @@
 package transformers
 
 import models.LiabilityTransformer._
-import models.{Amount, AtsMiddleTierData, Rate, TaxSummaryLiability}
+import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
@@ -112,8 +112,8 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       testPayload shouldEqual parsedPayload
       
       val parsedRates = returnValue.summary_data.get.rates.get
-      val testRates = Map("total_cg_tax_rate" -> Rate("0%"),
-          "nics_and_tax_rate" -> Rate("4.93%")
+      val testRates = Map("total_cg_tax_rate" -> ApiRate("0%"),
+          "nics_and_tax_rate" -> ApiRate("4.93%")
           )
       testRates shouldEqual parsedRates
     }
@@ -150,8 +150,8 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       testPayload shouldEqual parsedPayload
       
       val parsedRates = returnValue.summary_data.get.rates.get
-      val testRates = Map("total_cg_tax_rate" -> Rate("0%"),
-          "nics_and_tax_rate" -> Rate("4.92%")
+      val testRates = Map("total_cg_tax_rate" -> ApiRate("0%"),
+          "nics_and_tax_rate" -> ApiRate("4.92%")
           )
       testRates shouldEqual parsedRates
     }
@@ -184,8 +184,8 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       testPayload shouldEqual parsedPayload
       
       val parsedRates = returnValue.summary_data.get.rates.get
-      val testRates = Map("total_cg_tax_rate" -> Rate("45.34%"),
-          "nics_and_tax_rate" -> Rate("4.84%")
+      val testRates = Map("total_cg_tax_rate" -> ApiRate("45.34%"),
+          "nics_and_tax_rate" -> ApiRate("4.84%")
           )
       testRates shouldEqual parsedRates
     }
@@ -229,13 +229,14 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       val parsedRates = returnValue.income_tax.get.rates.get
       val testRates =
-        Map("starting_rate_for_savings_rate" -> Rate("10%"),
-          "basic_rate_income_tax_rate" -> Rate("20%"),
-          "higher_rate_income_tax_rate" -> Rate("40%"),
-          "additional_rate_income_tax_rate" -> Rate("45%"),
-          "ordinary_rate_tax_rate" -> Rate("10%"),
-          "upper_rate_rate" -> Rate("32.5%"),
-          "additional_rate_rate" -> Rate("37.5%"))
+        Map("starting_rate_for_savings_rate" -> ApiRate("10%"),
+          "basic_rate_income_tax_rate" -> ApiRate("20%"),
+          "higher_rate_income_tax_rate" ->ApiRate("40%"),
+          "additional_rate_income_tax_rate" ->ApiRate( "45%"),
+          "ordinary_rate_tax_rate" -> ApiRate("10%"),
+          "upper_rate_rate" -> ApiRate("32.5%"),
+          "additional_rate_rate" -> ApiRate("37.5%")
+        )
       testRates shouldEqual parsedRates
     }
 

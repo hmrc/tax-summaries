@@ -562,6 +562,6 @@ case class Descriptors(summaryData: TaxSummaryLiability) {
 
   //rateFromPerUnitAmount
   private def liabilityAsPercentage(amountPerUnit: Amount) = {
-    Rate(formatter.format((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN)) + "%")
+    Rate.rateFromPerUnitAmount(amountPerUnit)
   }
 }

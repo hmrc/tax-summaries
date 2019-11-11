@@ -17,7 +17,7 @@
 package transformers
 
 import models.LiabilityTransformer._
-import models.{Amount, AtsMiddleTierData, Rate, TaxSummaryLiability}
+import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
@@ -43,10 +43,10 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
       val testRates =
-        Map("cg_entrepreneurs_rate" -> Rate("10%"),
-          "cg_ordinary_rate" -> Rate("18%"),
-          "cg_upper_rate" -> Rate("28%"),
-          "total_cg_tax_rate" -> Rate("45.34%")
+        Map("cg_entrepreneurs_rate" -> ApiRate("10%"),
+          "cg_ordinary_rate" -> ApiRate("18%"),
+          "cg_upper_rate" -> ApiRate("28%"),
+          "total_cg_tax_rate" -> ApiRate("45.34%")
         )
       testRates shouldEqual parsedRates
     }
@@ -81,10 +81,11 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
       val testRates =
-        Map("cg_entrepreneurs_rate" -> Rate("10%"),
-          "cg_ordinary_rate" -> Rate("18%"),
-          "cg_upper_rate" -> Rate("28%"),
-          "total_cg_tax_rate" -> Rate("45.34%"))
+        Map("cg_entrepreneurs_rate" -> ApiRate("10%"),
+          "cg_ordinary_rate" ->ApiRate("18%"),
+          "cg_upper_rate" ->ApiRate("28%"),
+          "total_cg_tax_rate" -> ApiRate("45.34%")
+        )
       testRates shouldEqual parsedRates
     }
 
@@ -100,7 +101,6 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
       val testYear: Int = 2014
       testYear shouldEqual parsedYear
 
-      println("\n\n\n\n\n\n + " + returnValue)
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       val testPayload =
         Map(TaxableGains -> Amount(20000.00, "GBP"),

@@ -39,7 +39,10 @@ trait ATSDataController extends BaseController {
 
   def getATSData(utr: String, tax_year: Int) = Action.async {
     implicit request => {
-      odsService.getPayload(utr, tax_year)  map {Ok(_)}
+      odsService.getPayload(utr, tax_year)  map {x=>{
+        println("\n\n\n\n\n\n\n\n\n\n hhhhhhh" + x)
+        Ok(x)
+      }}
     }
   }
 

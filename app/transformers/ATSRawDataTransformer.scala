@@ -122,7 +122,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
 
 
   //TODO RATES
-  private def createCapitalGainsTaxRates: Option[Map[String, Rate]] =
+  private def createCapitalGainsTaxRates: Option[Map[String, ApiRate]] =
     Option(Map("cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
       "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate(taxYear),
       "cg_upper_rate" -> TaxRateService.cgUpperRate(taxYear),
@@ -130,7 +130,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
       "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
     ).collect{
-      case (k,Some(v))=>(k,v)
+      case (k,Some(v))=>(k,v.apiValue)
     }
     )
 
@@ -203,9 +203,11 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
     ) //TODO Percentage done RATES
 
   //TODO RATES
-  private def createSummaryPageRates =
-    Option(Map("total_cg_tax_rate" -> description.totalCgTaxLiabilityAsPercentage, //TODO RATES
-      "nics_and_tax_rate" -> description.totalNicsAndTaxLiabilityAsPercentage))
+  private def createSummaryPageRates: Option[Map[String, ApiRate]] =
+    Option(Map("total_cg_tax_rate" -> description.totalCgTaxLiabilityAsPercentage.apiValue, //TODO RATES
+      "nics_and_tax_rate" -> description.totalNicsAndTaxLiabilityAsPercentage.apiValue
+    )
+    )
 
 
   //one
@@ -351,7 +353,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //    createMarriageAllowanceReceivedAmount //s
 
   //rates TODO
-  private def createTotalIncomeTaxPageRates: Option[Map[String, Rate]] =
+  private def createTotalIncomeTaxPageRates: Option[Map[String, ApiRate]] =
     Option(Map(
       "starting_rate_for_savings_rate" -> TaxRateService.startingRateForSavingsRate(taxYear),
       "basic_rate_income_tax_rate" -> TaxRateService.basicRateIncomeTaxRate(taxYear),
@@ -359,7 +361,10 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       "additional_rate_income_tax_rate" -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
       "ordinary_rate_tax_rate" -> TaxRateService.dividendsOrdinaryRate(taxYear),
       "upper_rate_rate" -> TaxRateService.dividendUpperRateRate(taxYear),
-      "additional_rate_rate" -> TaxRateService.dividendAdditionalRate(taxYear)).collect{case (k,Some(v))=>(k,v)}
+      "additional_rate_rate" -> TaxRateService.dividendAdditionalRate(taxYear)
+    ).collect{
+      case (k,Some(v))=>(k,v.apiValue)
+    }
     )
 
   //done

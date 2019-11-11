@@ -21,14 +21,27 @@ import java.util.Locale
 
 import play.api.libs.json.Json
 
-case class Rate(percent: String)
+case class Rate(percent: Double) {
+
+  val apiValue: ApiRate = {
+    val formatter = NumberFormat.getNumberInstance(Locale.UK)
+    ApiRate(formatter.format(percent) + "%")
+  }
+}
+
 
 object Rate {
 
-  def rateFromPerUnitAmount(amountPerUnit:Amount):Rate = {
-    val formatter = NumberFormat.getNumberInstance(Locale.UK)
-    Rate(formatter.format((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN)) + "%")
+  def rateFromPerUnitAmount(amountPerUnit: Amount): Rate = {
+    Rate((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN).doubleValue())
   }
 
   implicit val formats = Json.format[Rate]
+}
+
+sealed case class ApiRate(percent: String)
+
+object ApiRate {
+
+  implicit val formats = Json.format[ApiRate]
 }
