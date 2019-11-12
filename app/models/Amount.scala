@@ -20,9 +20,6 @@ import play.api.libs.json.Json
 
 case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] {
 
-  //TODO extract constant for default currency
-  def this(amount: BigDecimal) = this(amount, "GBP")
-  
   def isZero: Boolean = {
     amount.equals(BigDecimal(0))
   }
@@ -66,4 +63,6 @@ object Amount {
   implicit val formats = Json.format[Amount]
 
   val empty = Amount(0, "GBP")
+
+  def gbp(amount: BigDecimal) = Amount(amount, "GBP")
 }

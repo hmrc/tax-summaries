@@ -22,4 +22,13 @@ case class DataHolder(payload: Option[Map[LiabilityTransformer, Amount]], rates:
 
 object DataHolder {
   implicit val formats:Format[DataHolder] = Json.format[DataHolder]
+
+  def make(payload: Map[LiabilityTransformer, Amount]): DataHolder =
+    DataHolder(Some(payload), None, None)
+
+  def make(payload: Map[LiabilityTransformer, Amount], rates: Map[String, ApiRate]): DataHolder =
+    DataHolder(Some(payload), Some(rates), None)
+
+  def make(payload: Map[LiabilityTransformer, Amount], rates: Map[String, ApiRate], incomeTaxStatus: Option[String]): DataHolder =
+    DataHolder(Some(payload), Some(rates), incomeTaxStatus)
 }

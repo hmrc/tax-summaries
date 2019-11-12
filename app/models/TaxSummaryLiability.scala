@@ -16,11 +16,8 @@
 
 package models
 
-import models.Liability._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import transformers.Operation.sum
-import transformers.{Difference, Positive, TaxPerCurrency, Term}
 
 abstract class ApiValue(val apiValue: String)
 
@@ -158,6 +155,7 @@ object Liability {
   }
 
 }
+
 final case class PensionTaxRate(value: Double)
 
 object PensionTaxRate{
@@ -179,37 +177,37 @@ final case class TaxSummaryLiability(
   atsData: Map[Liability, Amount]
 )
 
-  object TaxSummaryLiability {
+object TaxSummaryLiability {
 
-    implicit def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, V]] =
-      Reads[Map[K, V]] {
-        case JsObject(m) =>
-          JsSuccess(m.foldLeft(Map.empty[K, V]) {
-            case (acc, (key, value)) =>
-              val result = for {
-                rv <- value.validate[V]
-                rk <- JsString(key).validate[K]
-              } yield rk -> rv
+  implicit def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, V]] =
+    Reads[Map[K, V]] {
+      case JsObject(m) =>
+        JsSuccess(m.foldLeft(Map.empty[K, V]) {
+          case (acc, (key, value)) =>
+            val result = for {
+              rv <- value.validate[V]
+              rk <- JsString(key).validate[K]
+            } yield rk -> rv
 
-              result match {
-                case JsSuccess(v, _) => acc + v
-                case _               => acc
-              }
-          })
+            result match {
+              case JsSuccess(v, _) => acc + v
+              case _               => acc
+            }
+        })
 
-        case _ => JsError("error.expected.jsobject")
+      case _ => JsError("error.expected.jsobject")
 
-      }
-
-    implicit  val reads: Reads[TaxSummaryLiability] =
-      (
-        (JsPath \ "taxYear").read[Int] and
-        (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
-        (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullable[String] and
-        (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
-        (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
-      )(TaxSummaryLiability.apply _)
     }
+
+  implicit  val reads: Reads[TaxSummaryLiability] =
+    (
+      (JsPath \ "taxYear").read[Int] and
+      (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
+      (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullable[String] and
+      (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
+      (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
+    )(TaxSummaryLiability.apply _)
+}
 
 
 

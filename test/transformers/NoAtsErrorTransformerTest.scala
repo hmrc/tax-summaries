@@ -37,7 +37,7 @@ class NoAtsErrorTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val originalJson = getClass.getResource("/test_case_2.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxBasicRate" -> new Amount(0.0)
+        "ctnIncomeTaxBasicRate" -> Amount.gbp(0.0)
       )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
