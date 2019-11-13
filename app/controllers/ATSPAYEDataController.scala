@@ -24,17 +24,16 @@ import uk.gov.hmrc.play.microservice.controller.BaseController
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object ATSPAYEDataController extends ATSPAYEDataController {
-  override val npsService = ???
+  override val npsService = NpsService
 }
 
 trait ATSPAYEDataController extends BaseController {
 
   def npsService: NpsService
 
-  def getATSData(nino: String, tax_year: Int) = Action.async { implicit request =>
+  def getRawATSData(nino: String, tax_year: Int) = Action.async { implicit request =>
     {
-      npsService.getPayload(nino, tax_year) map { Ok(_) }
+      npsService.getRawPayload(nino, tax_year) map { Ok(_) }
     }
   }
-
 }
