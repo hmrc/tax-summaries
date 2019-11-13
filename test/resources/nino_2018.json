@@ -1,0 +1,77 @@
+{
+  "taxableStateBenefits": 500.00,
+  "averageRateTax": 25,
+  "adjustments": {
+    "taxFreeAmount": 12500.00,
+    "marriageAllowanceReceived": 1250.00,
+    "marriageAllowanceTransferred": 1250.00,
+    "marriedCouplesAllowanceAdjustment": 500.00,
+    "lessTaxAdjustmentPreviousYear": 200.00,
+    "taxUnderpaidPreviousYear": 200.00
+  },
+  "income": {
+    "incomeFromEmployment": 25000.00,
+    "statePension": 1000.00,
+    "otherPensionIncome": 500.00,
+    "otherIncome": 3000.00,
+    "incomeBeforeTax": 28000.00,
+    "taxableIncome": 25500.00,
+    "otherAllowancesDeductionsExpenses": 6000.00,
+    "employmentBenefits": 200.00
+  },
+  "nationalInsurance": {
+    "employerContributions": 100.00,
+    "employeeContributions": 200.00
+  },
+  "calculatedTotals": {
+    "totalIncomeTax": 4000.00,
+    "totalIncomeTaxNics": 4200.00,
+    "totalScottishIncomeTax": 2000.00,
+    "totalIncomeTax2": 4000.00,
+    "totalUKIncomeTax": 2000.00,
+    "totalIncomeTax2Nics": 2500.00,
+    "incomeAfterTaxNics": 5000.00,
+    "liableTaxAmount": 15000.00,
+    "incomeAfterTax2Nics": 5000.00
+  },
+  "basicRateBand": {
+    "basicRateTaxAmount": 10000.00,
+    "basicRateTax": 2000.00,
+    "basicRate": 20.00
+  },
+  "higherRateBand": {
+    "higherRateTaxAmount": 10000.00,
+    "higherRateTax": 2000.00,
+    "higherRate": 40.00
+  },
+  "dividendLowerBand": {
+    "dividendLowRateAmount": 2000.00,
+    "dividendLowRateTax": 200.00,
+    "dividendLowRate": 7.50
+  },
+  "dividendHigherBand": {
+    "dividendHigherRateAmount": 2000.00,
+    "dividendHigherRateTax": 200.00,
+    "dividendHigherRate": 32.5
+  },
+  "scottishStarterBand": {
+    "scottishStarterRateTaxAmount": 2000.00,
+    "scottishStarterRateTax": 380.00,
+    "scottishStarterRate": 19.00
+  },
+  "scottishBasicBand": {
+    "scottishBasicRateTaxAmount": 10150.00,
+    "scottishBasicRateTax": 2030.00,
+    "scottishBasicRate": 20.00
+  },
+  "scottishIntermediateBand": {
+    "scottishIntermediateRateTaxAmount": 19430.00,
+    "scottishIntermediateRateTax": 4080.30,
+    "scottishIntermediateRate": 21.00
+  },
+  "scottishHigherBand": {
+    "scottishHigherRateTaxAmount": 31570.00,
+    "scottishHigherRateTax": 12943.70,
+    "scottishHigherRate": 41.00
+  }
+}
