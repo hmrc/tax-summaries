@@ -14,41 +14,43 @@
  * limitations under the License.
  */
 
-package controller
+package services
 
-import controllers.ATSPAYEDataController
-import org.mockito.Matchers.{eq => eqTo, _}
-import org.mockito.Mockito._
+import connectors.NPSConnector
+import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.test.FakeRequest
-import services.NpsService
+import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants._
 
 import scala.concurrent.Future
 
-class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
+class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
-  class TestController extends ATSPAYEDataController {
-    val request = FakeRequest()
-    override lazy val npsService: NpsService = mock[NpsService]
+  trait TestService extends NpsService {
+    override lazy val npsConnector: NPSConnector = mock[NPSConnector]
   }
 
-  "getAtsData" should {
+  private val CURRENT_YEAR = 2018
 
-    "return a failed future" in new TestController {
-      when(npsService.getRawPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new Exception("failed")))
-      val result = getRawATSData(testNino, 2018)(request)
+  "getPayload" should {
 
-      whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
+    "return a successful future" in new TestService {
+
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(CURRENT_YEAR))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(mock[JsValue]))
+
+      val result = getRawPayload(testNino, CURRENT_YEAR)(mock[HeaderCarrier])
+
+      whenReady(result) { result =>
+        result shouldBe a[JsValue]
       }
     }
   }

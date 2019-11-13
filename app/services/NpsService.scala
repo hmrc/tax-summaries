@@ -16,13 +16,19 @@
 
 package services
 
+import connectors.NPSConnector
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.concurrent.Future
-
 trait NpsService {
-  def getPayload(nino: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-    Future { Json.parse("") }
+  def npsConnector: NPSConnector
+
+  def getRawPayload(nino: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
+    npsConnector.connectToPayeTaxSummary(nino, TAX_YEAR)
+}
+
+object NpsService extends NpsService {
+  override val npsConnector = NPSConnector
 }
