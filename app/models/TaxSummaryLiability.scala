@@ -203,7 +203,7 @@ object TaxSummaryLiability {
     (
       (JsPath \ "taxYear").read[Int] and
       (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
-      (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullable[String] and
+      (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullableWithDefault(Some("")) and
       (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
       (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
     )(TaxSummaryLiability.apply _)

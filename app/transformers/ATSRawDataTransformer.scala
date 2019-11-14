@@ -32,6 +32,23 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   def atsDataDTO: AtsMiddleTierData = {
     try {
       if(calculations.hasLiability) {
+
+        println("*" * 50)
+        println(calculations.hasLiability)
+        println(calculations.get(EmployeeClass1NI))
+        println(calculations.get(EmployeeClass2NI))
+        println(calculations.get(Class4Nic))
+        println(calculations.get(SavingsTaxStartingRate))
+        println(calculations.get(DividendTaxLowRate))
+        println(calculations.get(DividendTaxHighRate))
+        println(calculations.get(DividendTaxAddHighRate))
+        println(calculations.getWithDefaultAmount(MarriageAllceIn))
+        println(calculations.basicRateIncomeTaxAmount)
+        println(calculations.higherRateIncomeTaxAmount)
+        println(calculations.otherAdjustmentsIncreasing)
+        println(calculations.otherAdjustmentsReducing)
+        println("*" * 50)
+
         AtsMiddleTierData.make(
           taxYear,
           UTR,
@@ -80,10 +97,10 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       Adjustments -> calculations.get(CapAdjustment),
       TotalCgTax -> calculations.totalCapitalGainsTax,
       CgTaxPerCurrencyUnit -> calculations.capitalGainsTaxPerCurrency,
-      AmountAtRPCILowerRate -> calculations.get(CGAtLowerRateRPCI),
-      AmountDueRPCILowerRate -> calculations.get(LowerRateCgtRPCI),
-      AmountAtRPCIHigheRate -> calculations.get(CGAtHigherRateRPCI),
-      AmountDueRPCIHigherRate -> calculations.get(HigherRateCgtRPCI)
+      AmountAtRPCILowerRate -> calculations.getWithDefaultAmount(CGAtLowerRateRPCI),
+      AmountDueRPCILowerRate -> calculations.getWithDefaultAmount(LowerRateCgtRPCI),
+      AmountAtRPCIHigheRate -> calculations.getWithDefaultAmount(CGAtHigherRateRPCI),
+      AmountDueRPCIHigherRate -> calculations.getWithDefaultAmount(HigherRateCgtRPCI)
     )
 
   private def createYourIncomeBeforeTaxBreakdown: Map[LiabilityTransformer, Amount] =
@@ -101,7 +118,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   private def createYourTaxFreeAmountBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
       PersonalTaxFreeAmount -> calculations.get(PersonalAllowance),
-      MarriageAllowanceTransferredAmount -> calculations.get(MarriageAllceOut),
+      MarriageAllowanceTransferredAmount -> calculations.getWithDefaultAmount(MarriageAllceOut),
       OtherAllowancesAmount -> calculations.otherAllowances,
       TotalTaxFreeAmount -> calculations.totalTaxFreeAmount
     )
@@ -119,7 +136,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       TaxableGains -> calculations.taxableGains,
       CgTaxPerCurrencyUnit -> calculations.capitalGainsTaxPerCurrency,
       NicsAndTaxPerCurrencyUnit -> calculations.nicsAndTaxPerCurrency
-    ) //TODO Percentage done RATES
+    )
 
   private def createTotalIncomeTaxPageBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
@@ -138,7 +155,7 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       AdditionalRate -> calculations.get(DividendChargeableAddHRate),
       AdditionalRateAmount -> calculations.get(DividendTaxAddHighRate),
       OtherAdjustmentsIncreasing -> calculations.otherAdjustmentsIncreasing,
-      MarriageAllowanceReceivedAmount -> calculations.get(MarriageAllceIn),
+      MarriageAllowanceReceivedAmount -> calculations.getWithDefaultAmount(MarriageAllceIn),
       OtherAdjustmentsReducing -> calculations.otherAdjustmentsReducing,
       TotalIncomeTax -> calculations.totalIncomeTaxAmount,
       ScottishIncomeTax -> calculations.scottishIncomeTax

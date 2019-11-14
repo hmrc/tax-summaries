@@ -67,8 +67,8 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
       get(CgDueLowerRate) +
       get(CgDueHigherRate) -
       get(CapAdjustment) +
-      get(LowerRateCgtRPCI) +
-      get(HigherRateCgtRPCI)
+      getWithDefaultAmount(LowerRateCgtRPCI) +
+      getWithDefaultAmount(HigherRateCgtRPCI)
   }
 
   def selfEmployment: Amount = {
@@ -128,7 +128,7 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
   def totalTaxFreeAmount: Amount = {
     otherAllowances +
     get(PersonalAllowance) -
-    get(MarriageAllceOut)
+    getWithDefaultAmount(MarriageAllceOut)
   }
 
   def totalAmountEmployeeNic: Amount = {
@@ -197,15 +197,29 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
   }
 
   def totalIncomeTaxAmount: Amount = {
+
+    println("-" * 50)
+    println(get(SavingsTaxStartingRate))
+    println(  basicRateIncomeTaxAmount)
+    println(higherRateIncomeTaxAmount)
+    println(  get(DividendTaxLowRate))
+    println(get(DividendTaxHighRate))
+    println(get(DividendTaxAddHighRate))
+    println(otherAdjustmentsIncreasing)
+    println(otherAdjustmentsReducing)
+    println(getWithDefaultAmount(MarriageAllceIn))
+
+
     get(SavingsTaxStartingRate) +
     basicRateIncomeTaxAmount +
     higherRateIncomeTaxAmount +
+    additionalRateIncomeTaxAmount +
     get(DividendTaxLowRate) +
     get(DividendTaxHighRate) +
     get(DividendTaxAddHighRate) +
     otherAdjustmentsIncreasing -
     otherAdjustmentsReducing -
-    get(MarriageAllceIn)
+    getWithDefaultAmount(MarriageAllceIn)
   }
 
   def totalAmountTaxAndNics: Amount = {
@@ -219,17 +233,17 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
   }
 
   def basicIncomeRateIncomeTax: Amount = {
-    get(IncomeChargeableBasicRate) +
+    getWithDefaultAmount(IncomeChargeableBasicRate) +
     get(SavingsChargeableLowerRate)
   }
 
   def higherRateIncomeTax: Amount = {
-    get(IncomeChargeableHigherRate) +
+    getWithDefaultAmount(IncomeChargeableHigherRate) +
     get(SavingsChargeableHigherRate)
   }
 
   def additionalRateIncomeTax: Amount = {
-    get(IncomeChargeableAddHRate) +
+    getWithDefaultAmount(IncomeChargeableAddHRate) +
     get(SavingsChargeableAddHRate)
   }
 
@@ -237,14 +251,14 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
     val scottishRate = 0.1
 
     Amount.gbp((
-      get(IncomeChargeableBasicRate) +
-      get(IncomeChargeableHigherRate) +
-      get(IncomeChargeableAddHRate)
+      getWithDefaultAmount(IncomeChargeableBasicRate) +
+      getWithDefaultAmount(IncomeChargeableHigherRate) +
+      getWithDefaultAmount(IncomeChargeableAddHRate)
     ).amount * scottishRate)
   }
 
   def hasLiability: Boolean = {
-    !totalTax.isZeroOrLess
+    !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
   }
 
   def capitalGainsTaxPerCurrency: Amount = {
