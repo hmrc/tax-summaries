@@ -28,7 +28,7 @@ object TaxRateService {
 
   def startingRateForSavingsRate(taxYear: Int): Rate = getRate(taxYear,"startingRateForSavingsRate")
 
-  def basicRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear,"basicRateIncomeTaxRate")
+  def basicRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear, "basicRateIncomeTaxRate")
 
   def higherRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear,"higherRateIncomeTaxRate")
 

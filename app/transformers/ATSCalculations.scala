@@ -34,8 +34,9 @@ package transformers
 
 import models._
 import models.Liability._
+import services._
 
-class ATSCalculations(summaryData: TaxSummaryLiability) {
+class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int) {
 
   def get(liability: Liability): Amount = {
     summaryData.atsData.getOrElse(liability,
@@ -140,19 +141,19 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
   }
 
   def basicRateIncomeTaxAmount: Amount = {
-    get(IncomeTaxBasicRate) +
-    get(SavingsTaxLowerRate) +
-    {
-      if (summaryData.pensionLumpSumTaxRate.value == 0.20) get(PensionLsumTaxDue) //rates TODO
-      else Amount.empty
+      get(IncomeTaxBasicRate) +
+        get(SavingsTaxLowerRate) + {
+        if (addPensionSum(TaxRateService.basicRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
+        else Amount.empty
+      }
     }
-  }
+
 
   def higherRateIncomeTaxAmount: Amount = {
     get(IncomeTaxHigherRate) +
     get(SavingsTaxHigherRate) +
     {
-      if (summaryData.pensionLumpSumTaxRate.value == 0.40) get(PensionLsumTaxDue) //rates TODO
+      if (addPensionSum(TaxRateService.higherRateIncomeTaxRate(taxYear)))  get(PensionLsumTaxDue)
       else Amount.empty
     }
   }
@@ -161,7 +162,7 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
     get(IncomeTaxAddHighRate) +
     get(SavingsTaxAddHighRate) +
     {
-      if (summaryData.pensionLumpSumTaxRate.value == 0.45) get(PensionLsumTaxDue) //rates TODO
+      if (addPensionSum(TaxRateService.additionalRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
       else Amount.empty
     }
   }
@@ -247,7 +248,7 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
     get(SavingsChargeableAddHRate)
   }
 
-  def scottishIncomeTax = {
+  def scottishIncomeTax:Amount = {
     val scottishRate = 0.1
 
     Amount.gbp((
@@ -278,6 +279,12 @@ class ATSCalculations(summaryData: TaxSummaryLiability) {
   def totalNicsAndTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(nicsAndTaxPerCurrency)
 
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
+
+
+  private def addPensionSum(taxRate : Rate):Boolean={
+    val convertedRate=summaryData.pensionLumpSumTaxRate.value*100
+    convertedRate equals taxRate.percent
+  }
 
   private def liabilityAsPercentage(amountPerUnit: Amount) =
     Rate.rateFromPerUnitAmount(amountPerUnit)

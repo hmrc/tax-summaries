@@ -27,7 +27,7 @@ case class ATSParsingException(s: String) extends Exception(s)
 
 case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPayerJson: JsValue, UTR: String, taxYear: Int) {
 
-  val calculations = new ATSCalculations(summaryLiability)
+  val calculations = new ATSCalculations(summaryLiability, taxYear)
 
   def atsDataDTO: AtsMiddleTierData = {
     try {
