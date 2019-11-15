@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 
 object NPSConnector extends NPSConnector with ServicesConfig {
 
-  override val serviceUrl = baseUrl("tax-summaries-paye")
+  override val serviceUrl = baseUrl("tax-summaries-hod")
 
   override def http = WSHttp
 
@@ -47,5 +47,5 @@ trait NPSConnector {
   def url(path: String) = s"$serviceUrl$path"
 
   def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-    http.GET[JsValue](url("/annual-tax-summary/summary/" + NINO + "/" + TAX_YEAR))
+    http.GET[JsValue](url("/individuals/annual-tax-summary/" + NINO + "/" + TAX_YEAR))
 }
