@@ -18,7 +18,6 @@ package models
 
 import uk.gov.hmrc.play.test.UnitSpec
 
-
 class RateTest extends UnitSpec {
   "Rate class" should {
     "not change given value" in {

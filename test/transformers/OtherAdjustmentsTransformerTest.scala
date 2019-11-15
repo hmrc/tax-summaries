@@ -51,8 +51,8 @@ class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate wi
       parsedPayload(OtherAdjustmentsIncreasing) should equal(new Amount(0.0, "GBP"))
       parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
     }
-    
-   "have a correct 'other_adjustments_reducing' roundup data" in {
+
+    "have a correct 'other_adjustments_reducing' roundup data" in {
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
@@ -77,13 +77,14 @@ class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate wi
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "nonDomChargeAmount" -> Amount(11.0, "GBP"),
-        "taxExcluded" -> Amount(11.0, "GBP"),
-        "incomeTaxDue" -> Amount(12.0, "GBP"),
-        "ctn4TaxDueAfterAllceRlf" -> Amount(11.0, "GBP"),
-        "netAnnuityPaytsTaxDue" -> Amount(11.0, "GBP"),
-        "ctnChildBenefitChrgAmt" -> Amount(11.0, "GBP"),
-        "ctnPensionSavingChrgbleAmt" -> Amount(11.0, "GBP"))
+        "nonDomChargeAmount"         -> Amount(11.0, "GBP"),
+        "taxExcluded"                -> Amount(11.0, "GBP"),
+        "incomeTaxDue"               -> Amount(12.0, "GBP"),
+        "ctn4TaxDueAfterAllceRlf"    -> Amount(11.0, "GBP"),
+        "netAnnuityPaytsTaxDue"      -> Amount(11.0, "GBP"),
+        "ctnChildBenefitChrgAmt"     -> Amount(11.0, "GBP"),
+        "ctnPensionSavingChrgbleAmt" -> Amount(11.0, "GBP")
+      )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 

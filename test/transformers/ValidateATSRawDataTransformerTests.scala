@@ -74,7 +74,8 @@ class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate
 
     "return a JSON containing taxpayer name errors" in {
 
-      val taxpayerJson = Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
+      val taxpayerJson =
+        Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
       val originalJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
 
       val parsedJson = Json.parse(originalJson)

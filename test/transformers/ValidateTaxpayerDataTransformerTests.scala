@@ -50,7 +50,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
 
     "gracefully handle a missing field" in {
 
-      val originalJson = Source.fromURL(getClass.getResource("/taxpayerData/missing_field_taxpayer_json_utr.json")).mkString
+      val originalJson =
+        Source.fromURL(getClass.getResource("/taxpayerData/missing_field_taxpayer_json_utr.json")).mkString
 
       val parsedJson = Json.parse(originalJson)
 
@@ -63,7 +64,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
 
     "gracefully handle incorrect value type" in {
 
-      val originalJson = Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
+      val originalJson =
+        Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
 
       val parsedJson = Json.parse(originalJson)
       val returnValue =

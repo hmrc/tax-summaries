@@ -27,7 +27,7 @@ class AmountTest extends UnitSpec {
       val testCurrency: String = "GBP"
       val testAmount: Amount = new Amount(1.0, "GBP")
       testValue shouldEqual testAmount.amount
-      testCurrency shouldEqual  testAmount.currency
+      testCurrency shouldEqual testAmount.currency
     }
 
     "calculate this : £1.00 + £2.00 = £3.00" in {
@@ -51,23 +51,23 @@ class AmountTest extends UnitSpec {
     }
 
     "properly divide amounts, (with 4 digit precision 1/3 = 0.3333)" in {
-      Amount(1.0, "GBP").divideWithPrecision(Amount(3.0, "GBP"), 4) should be (Amount(0.3333, "GBP"))
+      Amount(1.0, "GBP").divideWithPrecision(Amount(3.0, "GBP"), 4) should be(Amount(0.3333, "GBP"))
     }
 
     "throw IllegalArgumentException when summing different currencies (£1 + €1)" in {
-      an [IllegalArgumentException] should be thrownBy {
-         Amount(1.0, "GBP") + Amount(1.0, "EUR")
+      an[IllegalArgumentException] should be thrownBy {
+        Amount(1.0, "GBP") + Amount(1.0, "EUR")
       }
     }
 
     "throw IllegalArgumentException when subtracting different currencies (£1 - €1)" in {
-      an [IllegalArgumentException] should be thrownBy {
+      an[IllegalArgumentException] should be thrownBy {
         Amount(1.0, "GBP") - Amount(1.0, "EUR")
       }
     }
 
     "throw IllegalArgumentException when comparing different currencies (£1 < €1)" in {
-      an [IllegalArgumentException] should be thrownBy {
+      an[IllegalArgumentException] should be thrownBy {
         Amount(1.0, "GBP") < Amount(1.0, "EUR")
       }
     }

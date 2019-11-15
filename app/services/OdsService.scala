@@ -19,14 +19,14 @@ package services
 import com.fasterxml.jackson.core.JsonParseException
 import connectors.ODSConnector
 import errors.AtsError
-import models.{AtsYearList, AtsCheck, AtsMiddleTierData}
+import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsValue, Json}
 import utils.TaxsJsonHelper
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, NotFoundException }
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
 trait OdsService {
 
