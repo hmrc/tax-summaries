@@ -39,7 +39,7 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeChgbleBasicRate" -> Amount(100.0, "GBP"),
+        "ctnIncomeChgbleBasicRate"  -> Amount(100.0, "GBP"),
         "ctnSavingsChgbleLowerRate" -> Amount(200.0, "GBP")
       )
 
@@ -57,7 +57,7 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxBasicRate" -> Amount(300.0, "GBP"),
+        "ctnIncomeTaxBasicRate"  -> Amount(300.0, "GBP"),
         "ctnSavingsTaxLowerRate" -> Amount(400.0, "GBP")
       )
 
@@ -75,7 +75,7 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeChgbleHigherRate" -> Amount(500.0, "GBP"),
+        "ctnIncomeChgbleHigherRate"  -> Amount(500.0, "GBP"),
         "ctnSavingsChgbleHigherRate" -> Amount(600.0, "GBP")
       )
 
@@ -93,7 +93,7 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxHigherRate" -> Amount(600.0, "GBP"),
+        "ctnIncomeTaxHigherRate"  -> Amount(600.0, "GBP"),
         "ctnSavingsTaxHigherRate" -> Amount(700.0, "GBP")
       )
 
@@ -111,7 +111,7 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeChgbleAddHRate" -> Amount(10.0, "GBP"),
+        "ctnIncomeChgbleAddHRate"  -> Amount(10.0, "GBP"),
         "ctnSavingsChgbleAddHRate" -> Amount(20.0, "GBP")
       )
 
@@ -123,13 +123,13 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
 
       parsedPayload(AdditionalRateIncomeTax) should equal(new Amount(30.0, "GBP"))
     }
-    
+
     "have the correct additional rate amount" in {
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxAddHighRate" -> Amount(99.0, "GBP"),
+        "ctnIncomeTaxAddHighRate"  -> Amount(99.0, "GBP"),
         "ctnSavingsTaxAddHighRate" -> Amount(99.0, "GBP")
       )
 
@@ -147,50 +147,50 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxBasicRate" -> Amount(300.0, "GBP"),
-        "ctnSavingsTaxLowerRate" -> Amount(400.0, "GBP"),
-        "ctnIncomeTaxHigherRate" -> Amount(600.0, "GBP"),
-        "ctnSavingsTaxHigherRate" -> Amount(700.0, "GBP"),
-        "ctnIncomeTaxAddHighRate" -> Amount(100.0, "GBP"),
+        "ctnIncomeTaxBasicRate"    -> Amount(300.0, "GBP"),
+        "ctnSavingsTaxLowerRate"   -> Amount(400.0, "GBP"),
+        "ctnIncomeTaxHigherRate"   -> Amount(600.0, "GBP"),
+        "ctnSavingsTaxHigherRate"  -> Amount(700.0, "GBP"),
+        "ctnIncomeTaxAddHighRate"  -> Amount(100.0, "GBP"),
         "ctnSavingsTaxAddHighRate" -> Amount(200.0, "GBP"),
         "ctnPensionLumpSumTaxRate" -> BigDecimal(0.20),
-        "ctnPensionLsumTaxDueAmt" -> Amount(50.00, "GBP")
+        "ctnPensionLsumTaxDueAmt"  -> Amount(50.00, "GBP")
       )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
         ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
-      
+
       val parsedPayload = returnValue.income_tax.get.payload.get
-      
+
       parsedPayload(BasicRateIncomeTaxAmount) should equal(new Amount(750.0, "GBP"))
       parsedPayload(HigherRateIncomeTaxAmount) should equal(new Amount(1300.0, "GBP"))
       parsedPayload(AdditionalRateIncomeTaxAmount) should equal(new Amount(300.0, "GBP"))
     }
-    
+
     "have the correct basic, higher and additional rate amount at ctnPensionLumpSumTaxRate = 40%" in {
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxBasicRate" -> Amount(300.0, "GBP"),
-        "ctnSavingsTaxLowerRate" -> Amount(400.0, "GBP"),
-        "ctnIncomeTaxHigherRate" -> Amount(600.0, "GBP"),
-        "ctnSavingsTaxHigherRate" -> Amount(700.0, "GBP"),
-        "ctnIncomeTaxAddHighRate" -> Amount(100.0, "GBP"),
+        "ctnIncomeTaxBasicRate"    -> Amount(300.0, "GBP"),
+        "ctnSavingsTaxLowerRate"   -> Amount(400.0, "GBP"),
+        "ctnIncomeTaxHigherRate"   -> Amount(600.0, "GBP"),
+        "ctnSavingsTaxHigherRate"  -> Amount(700.0, "GBP"),
+        "ctnIncomeTaxAddHighRate"  -> Amount(100.0, "GBP"),
         "ctnSavingsTaxAddHighRate" -> Amount(200.0, "GBP"),
         "ctnPensionLumpSumTaxRate" -> BigDecimal(0.40),
-        "ctnPensionLsumTaxDueAmt" -> Amount(50.00, "GBP")
+        "ctnPensionLsumTaxDueAmt"  -> Amount(50.00, "GBP")
       )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
         ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
-      
+
       val parsedPayload = returnValue.income_tax.get.payload.get
-      
+
       parsedPayload(BasicRateIncomeTaxAmount) should equal(new Amount(700.0, "GBP"))
       parsedPayload(HigherRateIncomeTaxAmount) should equal(new Amount(1350.0, "GBP"))
       parsedPayload(AdditionalRateIncomeTaxAmount) should equal(new Amount(300.0, "GBP"))
@@ -201,23 +201,23 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxBasicRate" -> Amount(300.0, "GBP"),
-        "ctnSavingsTaxLowerRate" -> Amount(400.0, "GBP"),
-        "ctnIncomeTaxHigherRate" -> Amount(600.0, "GBP"),
-        "ctnSavingsTaxHigherRate" -> Amount(700.0, "GBP"),
-        "ctnIncomeTaxAddHighRate" -> Amount(100.0, "GBP"),
+        "ctnIncomeTaxBasicRate"    -> Amount(300.0, "GBP"),
+        "ctnSavingsTaxLowerRate"   -> Amount(400.0, "GBP"),
+        "ctnIncomeTaxHigherRate"   -> Amount(600.0, "GBP"),
+        "ctnSavingsTaxHigherRate"  -> Amount(700.0, "GBP"),
+        "ctnIncomeTaxAddHighRate"  -> Amount(100.0, "GBP"),
         "ctnSavingsTaxAddHighRate" -> Amount(200.0, "GBP"),
         "ctnPensionLumpSumTaxRate" -> BigDecimal(0.45),
-        "ctnPensionLsumTaxDueAmt" -> Amount(50.00, "GBP")
+        "ctnPensionLsumTaxDueAmt"  -> Amount(50.00, "GBP")
       )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
         ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
-      
+
       val parsedPayload = returnValue.income_tax.get.payload.get
-      
+
       parsedPayload(BasicRateIncomeTaxAmount) should equal(new Amount(700.0, "GBP"))
       parsedPayload(HigherRateIncomeTaxAmount) should equal(new Amount(1300.0, "GBP"))
       parsedPayload(AdditionalRateIncomeTaxAmount) should equal(new Amount(350.0, "GBP"))

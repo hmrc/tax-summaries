@@ -27,13 +27,16 @@ class ApplicationConfigSpec extends UnitSpec with GuiceOneAppPerTest {
 
   override def newAppForTest(testData: TestData): Application = {
 
-    def appWithConfig(config: Map[String, Any]): Application = {
+    def appWithConfig(config: Map[String, Any]): Application =
       new GuiceApplicationBuilder().configure(Map("taxRates" -> "")).configure(config).build()
-    }
 
-    val taxRates = Map("taxRates.default.whitelist" -> Seq("TaxField1", "TaxField2"), "taxRates.2017.whitelist" -> Seq("TaxField3"))
+    val taxRates =
+      Map("taxRates.default.whitelist" -> Seq("TaxField1", "TaxField2"), "taxRates.2017.whitelist" -> Seq("TaxField3"))
 
-    val percentageRates = Map("taxRates.default.percentages" -> Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30), "taxRates.2017.percentages" -> Map("percentageRate2" -> 60))
+    val percentageRates = Map(
+      "taxRates.default.percentages" -> Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30),
+      "taxRates.2017.percentages"    -> Map("percentageRate2" -> 60)
+    )
 
     appWithConfig(taxRates ++ percentageRates)
   }
@@ -51,11 +54,17 @@ class ApplicationConfigSpec extends UnitSpec with GuiceOneAppPerTest {
 
   "calling ratePercentages" should {
     "return default percentage rates when no overriding year" in {
-      ApplicationConfig.ratePercentages(2016) shouldBe Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30)
+      ApplicationConfig.ratePercentages(2016) shouldBe Map(
+        "percentageRate1" -> 10,
+        "percentageRate2" -> 20,
+        "percentageRate3" -> 30)
     }
 
     "return default percentage but override where later year uprates" in {
-      ApplicationConfig.ratePercentages(2017) shouldBe Map("percentageRate1" -> 10, "percentageRate2" -> 60, "percentageRate3" -> 30)
+      ApplicationConfig.ratePercentages(2017) shouldBe Map(
+        "percentageRate1" -> 10,
+        "percentageRate2" -> 60,
+        "percentageRate3" -> 30)
     }
   }
 }

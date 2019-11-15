@@ -37,22 +37,6 @@ case class ATSRawDataTransformer(
     try {
       if (calculations.hasLiability) {
 
-        println("*" * 50)
-        println(calculations.hasLiability)
-        println(calculations.get(EmployeeClass1NI))
-        println(calculations.get(EmployeeClass2NI))
-        println(calculations.get(Class4Nic))
-        println(calculations.get(SavingsTaxStartingRate))
-        println(calculations.get(DividendTaxLowRate))
-        println(calculations.get(DividendTaxHighRate))
-        println(calculations.get(DividendTaxAddHighRate))
-        println(calculations.getWithDefaultAmount(MarriageAllceIn))
-        println(calculations.basicRateIncomeTaxAmount)
-        println(calculations.higherRateIncomeTaxAmount)
-        println(calculations.otherAdjustmentsIncreasing)
-        println(calculations.otherAdjustmentsReducing)
-        println("*" * 50)
-
         AtsMiddleTierData.make(
           taxYear,
           UTR,

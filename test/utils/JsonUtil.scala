@@ -27,15 +27,13 @@ trait JsonUtil {
 
   lazy val dummyDataMap = Map("$utr" -> testUtr)
 
-  def load(path: String): String = {
+  def load(path: String): String =
     bracket(Source.fromInputStream(getClass.getResourceAsStream(path)))(_.close())(_.mkString)
-  }
 
-  def loadAndParseJsonWithDummyData(path: String): JsValue = {
+  def loadAndParseJsonWithDummyData(path: String): JsValue =
     Json.parse(loadAndReplace(path, dummyDataMap))
-  }
 
-  def loadAndReplace(path: String, replaceMap: Map[String, String]): String = {
+  def loadAndReplace(path: String, replaceMap: Map[String, String]): String =
     bracket(Source.fromURL(getClass.getResource(path)))(_.close()) { json =>
       var jsonString = json.mkString
       for ((key, value) <- replaceMap) {
@@ -43,7 +41,6 @@ trait JsonUtil {
       }
       jsonString
     }
-  }
 
   def bracket[A, B](acquire: => A)(release: A => Unit)(use: A => B): B = {
     var a: Any = null

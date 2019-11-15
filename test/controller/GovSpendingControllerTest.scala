@@ -32,7 +32,7 @@ import utils.TestConstants._
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 
-class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest  {
+class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
 
   val request = FakeRequest()
 

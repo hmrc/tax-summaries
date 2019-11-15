@@ -26,7 +26,7 @@ import utils._
 
 import scala.io.Source
 
-class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest  {
+class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -47,10 +47,12 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload =
-        Map(PersonalTaxFreeAmount -> Amount(9440.0, "GBP"),
+        Map(
+          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP"),
           MarriageAllowanceTransferredAmount -> Amount(0.00, "GBP"),
-          OtherAllowancesAmount -> Amount(300.0, "GBP"),
-          TotalTaxFreeAmount-> Amount(9740.0, "GBP"))
+          OtherAllowancesAmount              -> Amount(300.0, "GBP"),
+          TotalTaxFreeAmount                 -> Amount(9740.0, "GBP")
+        )
       testPayload shouldEqual parsedPayload
     }
   }
@@ -79,17 +81,18 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnEmploymentExpensesAmt" -> Amount(10.0, "GBP"),
-        "ctnSummaryTotalDedPpr" -> Amount(20.0, "GBP"),
-        "ctnSumTotForeignTaxRelief" -> Amount(30.0, "GBP"),
-        "ctnSumTotLoanRestricted" -> Amount(40.0, "GBP"),
-        "ctnSumTotLossRestricted" -> Amount(50.0, "GBP"),
-        "grossAnnuityPayts" -> Amount(60.0, "GBP"),
-        "itf4GiftsInvCharitiesAmo" -> Amount(70.0, "GBP"),
+        "ctnEmploymentExpensesAmt"   -> Amount(10.0, "GBP"),
+        "ctnSummaryTotalDedPpr"      -> Amount(20.0, "GBP"),
+        "ctnSumTotForeignTaxRelief"  -> Amount(30.0, "GBP"),
+        "ctnSumTotLoanRestricted"    -> Amount(40.0, "GBP"),
+        "ctnSumTotLossRestricted"    -> Amount(50.0, "GBP"),
+        "grossAnnuityPayts"          -> Amount(60.0, "GBP"),
+        "itf4GiftsInvCharitiesAmo"   -> Amount(70.0, "GBP"),
         "itfTradeUnionDeathBenefits" -> Amount(80.0, "GBP"),
-        "ctnBpaAllowanceAmt" -> Amount(90.0, "GBP"),
-        "itfBpaAmount" -> Amount(100.0, "GBP"),
-        "grossExcludedIncome" -> Amount(110.0, "GBP"))
+        "ctnBpaAllowanceAmt"         -> Amount(90.0, "GBP"),
+        "itfBpaAmount"               -> Amount(100.0, "GBP"),
+        "grossExcludedIncome"        -> Amount(110.0, "GBP")
+      )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
@@ -99,23 +102,24 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
       parsedPayload(OtherAllowancesAmount) should equal(new Amount(660.0, "GBP"))
     }
-    
+
     "have the correct summed other allowances data (with 'other_allowances_amount' roundup)" in {
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
-        "ctnEmploymentExpensesAmt" -> Amount(10.0, "GBP"),
-        "ctnSummaryTotalDedPpr" -> Amount(20.0, "GBP"),
-        "ctnSumTotForeignTaxRelief" -> Amount(30.0, "GBP"),
-        "ctnSumTotLoanRestricted" -> Amount(40.0, "GBP"),
-        "ctnSumTotLossRestricted" -> Amount(50.0, "GBP"),
-        "grossAnnuityPayts" -> Amount(59.01, "GBP"),
-        "itf4GiftsInvCharitiesAmo" -> Amount(70.0, "GBP"),
+        "ctnEmploymentExpensesAmt"   -> Amount(10.0, "GBP"),
+        "ctnSummaryTotalDedPpr"      -> Amount(20.0, "GBP"),
+        "ctnSumTotForeignTaxRelief"  -> Amount(30.0, "GBP"),
+        "ctnSumTotLoanRestricted"    -> Amount(40.0, "GBP"),
+        "ctnSumTotLossRestricted"    -> Amount(50.0, "GBP"),
+        "grossAnnuityPayts"          -> Amount(59.01, "GBP"),
+        "itf4GiftsInvCharitiesAmo"   -> Amount(70.0, "GBP"),
         "itfTradeUnionDeathBenefits" -> Amount(80.0, "GBP"),
-        "ctnBpaAllowanceAmt" -> Amount(90.0, "GBP"),
-        "itfBpaAmount" -> Amount(100.0, "GBP"),
-        "grossExcludedIncome" -> Amount(110.0, "GBP"))
+        "ctnBpaAllowanceAmt"         -> Amount(90.0, "GBP"),
+        "itfBpaAmount"               -> Amount(100.0, "GBP"),
+        "grossExcludedIncome"        -> Amount(110.0, "GBP")
+      )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 

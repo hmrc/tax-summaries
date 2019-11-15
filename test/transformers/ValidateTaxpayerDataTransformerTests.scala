@@ -25,7 +25,7 @@ import utils.AtsJsonDataUpdate
 
 import scala.io.Source
 
-class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest  {
+class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val dataJson = Json.parse(Source.fromURL(getClass.getResource("/utr_2014.json")).mkString)
   val taxYear: Int = 2014

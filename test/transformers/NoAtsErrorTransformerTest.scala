@@ -42,7 +42,6 @@ class NoAtsErrorTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
-      println(transformedJson)
 
       val returnValue =
         ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2014).atsDataDTO

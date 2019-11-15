@@ -175,19 +175,7 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int) {
         getWithDefaultAmount(ReliefForFinanceCosts)
     ).roundAmountUp()
 
-  def totalIncomeTaxAmount: Amount = {
-
-    println("-" * 50)
-    println(get(SavingsTaxStartingRate))
-    println(basicRateIncomeTaxAmount)
-    println(higherRateIncomeTaxAmount)
-    println(get(DividendTaxLowRate))
-    println(get(DividendTaxHighRate))
-    println(get(DividendTaxAddHighRate))
-    println(otherAdjustmentsIncreasing)
-    println(otherAdjustmentsReducing)
-    println(getWithDefaultAmount(MarriageAllceIn))
-
+  def totalIncomeTaxAmount: Amount =
     get(SavingsTaxStartingRate) +
       basicRateIncomeTaxAmount +
       higherRateIncomeTaxAmount +
@@ -198,7 +186,6 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int) {
       otherAdjustmentsIncreasing -
       otherAdjustmentsReducing -
       getWithDefaultAmount(MarriageAllceIn)
-  }
 
   def totalAmountTaxAndNics: Amount =
     totalAmountEmployeeNic +

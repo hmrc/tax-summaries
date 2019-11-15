@@ -26,7 +26,7 @@ import utils._
 
 import scala.io.Source
 
-class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest  {
+class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
