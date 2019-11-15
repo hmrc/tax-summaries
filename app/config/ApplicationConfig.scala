@@ -23,32 +23,39 @@ import play.api.Play.{configuration, current}
 import uk.gov.hmrc.play.config.ServicesConfig
 import collection.JavaConverters._
 
-
 trait ApplicationConfig {
-  def taxFields(year:Int):Seq[String]
-  def ratePercentages(year:Int): Map[String, Double]
+  def taxFields(year: Int): Seq[String]
+  def ratePercentages(year: Int): Map[String, Double]
 }
 
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
 
   override protected def mode: Mode = Play.current.mode
   override protected def runModeConfiguration: Configuration = Play.current.configuration
-  private def taxFieldsDefault=configuration.getStringSeq("taxRates.default.whitelist").getOrElse(Seq())
-  private def taxFieldsByYear(year:Int)= configuration.getStringSeq(s"taxRates.$year.whitelist").getOrElse(Seq())
+  private def taxFieldsDefault = configuration.getStringSeq("taxRates.default.whitelist").getOrElse(Seq())
+  private def taxFieldsByYear(year: Int) = configuration.getStringSeq(s"taxRates.$year.whitelist").getOrElse(Seq())
 
   private def defaultRatePercentages: Map[String, Double] =
-    configuration.getObject("taxRates.default.percentages")
-      .map(_.unwrapped().asScala.map { case (key, value) =>
-        (key.toString, value.toString.toDouble)
-      }).getOrElse(Map()).toMap
+    configuration
+      .getObject("taxRates.default.percentages")
+      .map(_.unwrapped().asScala.map {
+        case (key, value) =>
+          (key.toString, value.toString.toDouble)
+      })
+      .getOrElse(Map())
+      .toMap
 
   private def ratePercentagesByYear(year: Int): Map[String, Double] =
-    configuration.getObject(s"taxRates.$year.percentages")
-      .map(_.unwrapped().asScala.map { case (key, value) =>
-        (key.toString, value.toString.toDouble)
-      }).getOrElse(Map()).toMap
+    configuration
+      .getObject(s"taxRates.$year.percentages")
+      .map(_.unwrapped().asScala.map {
+        case (key, value) =>
+          (key.toString, value.toString.toDouble)
+      })
+      .getOrElse(Map())
+      .toMap
 
-  override def taxFields(year: Int)= taxFieldsDefault ++ taxFieldsByYear(year)
-  override def ratePercentages(year: Int) = defaultRatePercentages ++ratePercentagesByYear(year)
+  override def taxFields(year: Int) = taxFieldsDefault ++ taxFieldsByYear(year)
+  override def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
 
 }

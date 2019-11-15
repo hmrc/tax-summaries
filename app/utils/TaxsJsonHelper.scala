@@ -22,9 +22,8 @@ import transformers.{ATSRawDataTransformer, ATSTaxpayerDataTransformer}
 
 trait TaxsJsonHelper {
 
-  def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue = {
+  def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue =
     Json.toJson(ATSRawDataTransformer(rawPayloadJson.as[TaxSummaryLiability], rawTaxpayerJson, UTR, taxYear).atsDataDTO)
-  }
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
     val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]

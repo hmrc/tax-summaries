@@ -18,10 +18,13 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class DataHolder(payload: Option[Map[LiabilityTransformer, Amount]], rates: Option[Map[String, ApiRate]], incomeTaxStatus: Option[String])
+case class DataHolder(
+  payload: Option[Map[LiabilityTransformer, Amount]],
+  rates: Option[Map[String, ApiRate]],
+  incomeTaxStatus: Option[String])
 
 object DataHolder {
-  implicit val formats:Format[DataHolder] = Json.format[DataHolder]
+  implicit val formats: Format[DataHolder] = Json.format[DataHolder]
 
   def make(payload: Map[LiabilityTransformer, Amount]): DataHolder =
     DataHolder(Some(payload), None, None)
@@ -29,6 +32,9 @@ object DataHolder {
   def make(payload: Map[LiabilityTransformer, Amount], rates: Map[String, ApiRate]): DataHolder =
     DataHolder(Some(payload), Some(rates), None)
 
-  def make(payload: Map[LiabilityTransformer, Amount], rates: Map[String, ApiRate], incomeTaxStatus: Option[String]): DataHolder =
+  def make(
+    payload: Map[LiabilityTransformer, Amount],
+    rates: Map[String, ApiRate],
+    incomeTaxStatus: Option[String]): DataHolder =
     DataHolder(Some(payload), Some(rates), incomeTaxStatus)
 }

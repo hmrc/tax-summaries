@@ -38,251 +38,220 @@ import services._
 
 class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int) {
 
-  def get(liability: Liability): Amount = {
-    summaryData.atsData.getOrElse(liability,
-      summaryData.nationalInsuranceData.getOrElse(liability,
-        throw ATSParsingException(liability.apiValue))
-    )
-  }
+  def get(liability: Liability): Amount =
+    summaryData.atsData.getOrElse(
+      liability,
+      summaryData.nationalInsuranceData.getOrElse(liability, throw ATSParsingException(liability.apiValue)))
 
-  def getWithDefaultAmount(liability: Liability): Amount ={
+  def getWithDefaultAmount(liability: Liability): Amount =
     try {
       get(liability)
     } catch {
       case ATSParsingException(_) => Amount(0.0, "GBP")
     }
-  }
 
-  def taxableGains(): Amount = {
+  def taxableGains(): Amount =
     get(CgTotGainsAfterLosses) +
-    get(CgGainsAfterLosses)
-  }
+      get(CgGainsAfterLosses)
 
-  def payCapitalGainsTaxOn: Amount = {
+  def payCapitalGainsTaxOn: Amount =
     if (taxableGains < get(CgAnnualExempt)) Amount.empty
     else taxableGains - get(CgAnnualExempt)
-  }
 
-  def totalCapitalGainsTax: Amount = {
+  def totalCapitalGainsTax: Amount =
     get(CgDueEntrepreneursRate) +
       get(CgDueLowerRate) +
       get(CgDueHigherRate) -
       get(CapAdjustment) +
       getWithDefaultAmount(LowerRateCgtRPCI) +
       getWithDefaultAmount(HigherRateCgtRPCI)
-  }
 
-  def selfEmployment: Amount = {
+  def selfEmployment: Amount =
     get(SummaryTotalSchedule) +
       get(SummaryTotalPartnership)
-  }
 
-  def otherPension: Amount = {
+  def otherPension: Amount =
     get(OtherPension) +
-    get(StatePensionGross)
-  }
+      get(StatePensionGross)
 
-  def taxableStateBenefits: Amount = {
+  def taxableStateBenefits: Amount =
     get(IncBenefitSuppAllow) +
-    get(JobSeekersAllowance) +
-    get(OthStatePenBenefits)
-  }
+      get(JobSeekersAllowance) +
+      get(OthStatePenBenefits)
 
-  def otherIncome: Amount = {
+  def otherIncome: Amount =
     get(SummaryTotShareOptions) +
-    get(SummaryTotalUklProperty) +
-    get(SummaryTotForeignIncome) +
-    get(SummaryTotTrustEstates) +
-    get(SummaryTotalOtherIncome) +
-    get(SummaryTotalUkInterest) +
-    get(SummaryTotForeignDiv) +
-    get(SummaryTotalUkIntDivs) +
-    get(SumTotLifePolicyGains)
-  }
+      get(SummaryTotalUklProperty) +
+      get(SummaryTotForeignIncome) +
+      get(SummaryTotTrustEstates) +
+      get(SummaryTotalOtherIncome) +
+      get(SummaryTotalUkInterest) +
+      get(SummaryTotForeignDiv) +
+      get(SummaryTotalUkIntDivs) +
+      get(SumTotLifePolicyGains)
 
-  def totalIncomeBeforeTax: Amount = {
+  def totalIncomeBeforeTax: Amount =
     selfEmployment +
-    get(SummaryTotalEmployment) +
-    get(StatePension) +
-    otherPension +
-    taxableStateBenefits +
-    otherIncome +
-    get(EmploymentBenefits)
-  }
+      get(SummaryTotalEmployment) +
+      get(StatePension) +
+      otherPension +
+      taxableStateBenefits +
+      otherIncome +
+      get(EmploymentBenefits)
 
-  def otherAllowances: Amount = {
+  def otherAllowances: Amount =
     (
       get(EmploymentExpenses) +
-      get(SummaryTotalDedPpr) +
-      get(SumTotForeignTaxRelief) +
-      get(SumTotLoanRestricted) +
-      get(SumTotLossRestricted) +
-      get(AnnuityPay) +
-      get(GiftsInvCharities) +
-      get(TradeUnionDeathBenefits) +
-      get(BpaAllowance) +
-      get(BPA) +
-      get(ExcludedIncome)
+        get(SummaryTotalDedPpr) +
+        get(SumTotForeignTaxRelief) +
+        get(SumTotLoanRestricted) +
+        get(SumTotLossRestricted) +
+        get(AnnuityPay) +
+        get(GiftsInvCharities) +
+        get(TradeUnionDeathBenefits) +
+        get(BpaAllowance) +
+        get(BPA) +
+        get(ExcludedIncome)
     ).roundAmountUp()
-  }
 
-  def totalTaxFreeAmount: Amount = {
+  def totalTaxFreeAmount: Amount =
     otherAllowances +
-    get(PersonalAllowance) -
-    getWithDefaultAmount(MarriageAllceOut)
-  }
+      get(PersonalAllowance) -
+      getWithDefaultAmount(MarriageAllceOut)
 
-  def totalAmountEmployeeNic: Amount = {
+  def totalAmountEmployeeNic: Amount =
     (
       get(EmployeeClass1NI) +
-      get(EmployeeClass2NI) +
-      get(Class4Nic)
+        get(EmployeeClass2NI) +
+        get(Class4Nic)
     ).roundAmountUp()
-  }
 
-  def basicRateIncomeTaxAmount: Amount = {
-      get(IncomeTaxBasicRate) +
-        get(SavingsTaxLowerRate) + {
-        if (addPensionSum(TaxRateService.basicRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
-        else Amount.empty
-      }
-    }
-
-
-  def higherRateIncomeTaxAmount: Amount = {
-    get(IncomeTaxHigherRate) +
-    get(SavingsTaxHigherRate) +
-    {
-      if (addPensionSum(TaxRateService.higherRateIncomeTaxRate(taxYear)))  get(PensionLsumTaxDue)
+  def basicRateIncomeTaxAmount: Amount =
+    get(IncomeTaxBasicRate) +
+      get(SavingsTaxLowerRate) + {
+      if (addPensionSum(TaxRateService.basicRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
       else Amount.empty
     }
-  }
 
-  def additionalRateIncomeTaxAmount: Amount = {
+  def higherRateIncomeTaxAmount: Amount =
+    get(IncomeTaxHigherRate) +
+      get(SavingsTaxHigherRate) + {
+      if (addPensionSum(TaxRateService.higherRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
+      else Amount.empty
+    }
+
+  def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
-    get(SavingsTaxAddHighRate) +
-    {
+      get(SavingsTaxAddHighRate) + {
       if (addPensionSum(TaxRateService.additionalRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
       else Amount.empty
     }
-  }
 
-  def otherAdjustmentsIncreasing: Amount = {
+  def otherAdjustmentsIncreasing: Amount =
     (
       get(NonDomCharge) +
-      get(TaxExcluded) +
-      get(IncomeTaxDue) +
-      get(NetAnnuityPaytsTaxDue) +
-      get(ChildBenefitCharge) +
-      get(PensionSavingChargeable)
+        get(TaxExcluded) +
+        get(IncomeTaxDue) +
+        get(NetAnnuityPaytsTaxDue) +
+        get(ChildBenefitCharge) +
+        get(PensionSavingChargeable)
     ) - get(TaxDueAfterAllceRlf)
-  }
 
-  def otherAdjustmentsReducing: Amount = {
+  def otherAdjustmentsReducing: Amount =
     (
       get(DeficiencyRelief) +
-      get(TopSlicingRelief) +
-      get(VctSharesRelief) +
-      get(EisRelief) +
-      get(SeedEisRelief) +
-      get(CommInvTrustRel) +
-      get(SurplusMcaAlimonyRel) +
-      get(NotionalTaxCegs) +
-      get(NotlTaxOtherSource) +
-      get(TaxCreditsForDivs) +
-      get(QualDistnRelief) +
-      get(TotalTaxCreditRelief) +
-      get(NonPayableTaxCredits) +
-      getWithDefaultAmount(ReliefForFinanceCosts)
+        get(TopSlicingRelief) +
+        get(VctSharesRelief) +
+        get(EisRelief) +
+        get(SeedEisRelief) +
+        get(CommInvTrustRel) +
+        get(SurplusMcaAlimonyRel) +
+        get(NotionalTaxCegs) +
+        get(NotlTaxOtherSource) +
+        get(TaxCreditsForDivs) +
+        get(QualDistnRelief) +
+        get(TotalTaxCreditRelief) +
+        get(NonPayableTaxCredits) +
+        getWithDefaultAmount(ReliefForFinanceCosts)
     ).roundAmountUp()
-  }
 
   def totalIncomeTaxAmount: Amount = {
 
     println("-" * 50)
     println(get(SavingsTaxStartingRate))
-    println(  basicRateIncomeTaxAmount)
+    println(basicRateIncomeTaxAmount)
     println(higherRateIncomeTaxAmount)
-    println(  get(DividendTaxLowRate))
+    println(get(DividendTaxLowRate))
     println(get(DividendTaxHighRate))
     println(get(DividendTaxAddHighRate))
     println(otherAdjustmentsIncreasing)
     println(otherAdjustmentsReducing)
     println(getWithDefaultAmount(MarriageAllceIn))
 
-
     get(SavingsTaxStartingRate) +
-    basicRateIncomeTaxAmount +
-    higherRateIncomeTaxAmount +
-    additionalRateIncomeTaxAmount +
-    get(DividendTaxLowRate) +
-    get(DividendTaxHighRate) +
-    get(DividendTaxAddHighRate) +
-    otherAdjustmentsIncreasing -
-    otherAdjustmentsReducing -
-    getWithDefaultAmount(MarriageAllceIn)
+      basicRateIncomeTaxAmount +
+      higherRateIncomeTaxAmount +
+      additionalRateIncomeTaxAmount +
+      get(DividendTaxLowRate) +
+      get(DividendTaxHighRate) +
+      get(DividendTaxAddHighRate) +
+      otherAdjustmentsIncreasing -
+      otherAdjustmentsReducing -
+      getWithDefaultAmount(MarriageAllceIn)
   }
 
-  def totalAmountTaxAndNics: Amount = {
+  def totalAmountTaxAndNics: Amount =
     totalAmountEmployeeNic +
-    totalIncomeTaxAmount
-  }
+      totalIncomeTaxAmount
 
-  def totalTax: Amount = {
+  def totalTax: Amount =
     totalAmountTaxAndNics +
-    totalCapitalGainsTax
-  }
+      totalCapitalGainsTax
 
-  def basicIncomeRateIncomeTax: Amount = {
+  def basicIncomeRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +
-    get(SavingsChargeableLowerRate)
-  }
+      get(SavingsChargeableLowerRate)
 
-  def higherRateIncomeTax: Amount = {
+  def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
-    get(SavingsChargeableHigherRate)
-  }
+      get(SavingsChargeableHigherRate)
 
-  def additionalRateIncomeTax: Amount = {
+  def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
-    get(SavingsChargeableAddHRate)
-  }
+      get(SavingsChargeableAddHRate)
 
-  def scottishIncomeTax:Amount = {
+  def scottishIncomeTax: Amount = {
     val scottishRate = 0.1
 
-    Amount.gbp((
-      getWithDefaultAmount(IncomeChargeableBasicRate) +
-      getWithDefaultAmount(IncomeChargeableHigherRate) +
-      getWithDefaultAmount(IncomeChargeableAddHRate)
-    ).amount * scottishRate)
+    Amount.gbp(
+      (
+        getWithDefaultAmount(IncomeChargeableBasicRate) +
+          getWithDefaultAmount(IncomeChargeableHigherRate) +
+          getWithDefaultAmount(IncomeChargeableAddHRate)
+      ).amount * scottishRate)
   }
 
-  def hasLiability: Boolean = {
+  def hasLiability: Boolean =
     !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
-  }
 
-  def capitalGainsTaxPerCurrency: Amount = {
+  def capitalGainsTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())
-  }
 
-  def nicsAndTaxPerCurrency: Amount = {
+  def nicsAndTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalAmountTaxAndNics, totalIncomeBeforeTax)
-  }
 
   private def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount): Amount =
     taxable match {
       case value if value.isZero => taxable
-      case _ => tax.divideWithPrecision(taxable, 4)
+      case _                     => tax.divideWithPrecision(taxable, 4)
     }
 
   def totalNicsAndTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(nicsAndTaxPerCurrency)
 
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
 
-
-  private def addPensionSum(taxRate : Rate):Boolean={
-    val convertedRate=summaryData.pensionLumpSumTaxRate.value*100
+  private def addPensionSum(taxRate: Rate): Boolean = {
+    val convertedRate = summaryData.pensionLumpSumTaxRate.value * 100
     convertedRate equals taxRate.percent
   }
 

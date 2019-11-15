@@ -78,7 +78,7 @@ object Liability {
   case object NotionalTaxCegs extends ApiValue("ctnNotionalTaxCegs") with Liability
   case object NotlTaxOtherSource extends ApiValue("ctnNotlTaxOthrSrceAmo") with Liability
   case object OthStatePenBenefits extends ApiValue("atsOthStatePenBenefitsAmt") with Liability
-  case object OtherPension extends ApiValue( "atsOtherPensionAmt") with Liability
+  case object OtherPension extends ApiValue("atsOtherPensionAmt") with Liability
   case object PensionLsumTaxDue extends ApiValue("ctnPensionLsumTaxDueAmt") with Liability
   case object PensionSavingChargeable extends ApiValue("ctnPensionSavingChrgbleAmt") with Liability
   case object PersonalAllowance extends ApiValue("ctnPersonalAllowance") with Liability
@@ -94,8 +94,8 @@ object Liability {
   case object SavingsTaxStartingRate extends ApiValue("ctnSavingsTaxStartingRate") with Liability
   case object SeedEisRelief extends ApiValue("ctnSeedEisReliefAmt") with Liability
   case object SocialInvTaxRel extends ApiValue("ctnSocialInvTaxRelAmt") with Liability
-  case object StatePension extends ApiValue( "atsStatePensionAmt") with Liability
-  case object StatePensionGross extends ApiValue( "itfStatePensionLsGrossAmt") with Liability
+  case object StatePension extends ApiValue("atsStatePensionAmt") with Liability
+  case object StatePensionGross extends ApiValue("itfStatePensionLsGrossAmt") with Liability
   case object SumTotForeignTaxRelief extends ApiValue("ctnSumTotForeignTaxRelief") with Liability
   case object SumTotLifePolicyGains extends ApiValue("ctn4SumTotLifePolicyGains") with Liability
   case object SumTotLoanRestricted extends ApiValue("ctnSumTotLoanRestricted") with Liability
@@ -105,7 +105,7 @@ object Liability {
   case object SummaryTotShareOptions extends ApiValue("ctnSummaryTotShareOptions") with Liability
   case object SummaryTotTrustEstates extends ApiValue("ctnSummaryTotTrustEstates") with Liability
   case object SummaryTotalDedPpr extends ApiValue("ctnSummaryTotalDedPpr") with Liability
-  case object SummaryTotalEmployment extends ApiValue( "ctnSummaryTotalEmployment") with Liability
+  case object SummaryTotalEmployment extends ApiValue("ctnSummaryTotalEmployment") with Liability
   case object SummaryTotalOtherIncome extends ApiValue("ctnSummaryTotalOtherIncome") with Liability
   case object SummaryTotalPartnership extends ApiValue("ctnSummaryTotalPartnership") with Liability
   case object SummaryTotalSchedule extends ApiValue("ctnSummaryTotalScheduleD") with Liability
@@ -126,24 +126,105 @@ object Liability {
   case object EmployerNI extends ApiValue("employerNic") with Liability
 
   val allLiabilities: List[Liability] =
-    List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
-      CgAnnualExempt, CgAtEntrepreneursRate, CgAtHigherRate, CgAtLowerRate, CgDueEntrepreneursRate, CgDueHigherRate,
-      CgDueLowerRate, CgGainsAfterLosses, CgTotGainsAfterLosses, ChildBenefitCharge, Class4Nic, CommInvTrustRel,
-      DeficiencyRelief, DividendChargeableAddHRate, DividendChargeableHighRate, DividendChargeableLowRate,
-      DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, EisRelief, EmploymentBenefits, EmploymentExpenses,
-      ExcludedIncome, GiftsInvCharities, HigherRateCgtRPCI, IncBenefitSuppAllow, IncomeChargeableAddHRate,
-      IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxDue,
-      IncomeTaxHigherRate, JobSeekersAllowance, LowerRateCgtRPCI, MarriageAllceIn, MarriageAllceOut, NRGTGainsAfterLoss,
-      NetAnnuityPaytsTaxDue, NonDomCharge, NonPayableTaxCredits, NotionalTaxCegs, NotlTaxOtherSource, OthStatePenBenefits,
-      OtherPension, PensionLsumTaxDue, PensionSavingChargeable, PersonalAllowance, QualDistnRelief, ReliefForFinanceCosts,
-      SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsChargeableStartRate,
-      SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, SavingsTaxStartingRate, SeedEisRelief,
-      SocialInvTaxRel, StatePension, StatePensionGross, SumTotForeignTaxRelief, SumTotLifePolicyGains, SumTotLoanRestricted,
-      SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotShareOptions, SummaryTotTrustEstates,
-      SummaryTotalDedPpr, SummaryTotalEmployment, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule,
-      SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxCharged, TaxCreditsForDivs,
-      TaxDueAfterAllceRlf, TaxExcluded, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
-      EmployeeClass1NI,EmployeeClass2NI,EmployerNI)
+    List(
+      AnnuityPay,
+      BPA,
+      BpaAllowance,
+      CGAtHigherRateRPCI,
+      CGAtLowerRateRPCI,
+      CGOtherGainsAfterLoss,
+      CapAdjustment,
+      CgAnnualExempt,
+      CgAtEntrepreneursRate,
+      CgAtHigherRate,
+      CgAtLowerRate,
+      CgDueEntrepreneursRate,
+      CgDueHigherRate,
+      CgDueLowerRate,
+      CgGainsAfterLosses,
+      CgTotGainsAfterLosses,
+      ChildBenefitCharge,
+      Class4Nic,
+      CommInvTrustRel,
+      DeficiencyRelief,
+      DividendChargeableAddHRate,
+      DividendChargeableHighRate,
+      DividendChargeableLowRate,
+      DividendTaxAddHighRate,
+      DividendTaxHighRate,
+      DividendTaxLowRate,
+      EisRelief,
+      EmploymentBenefits,
+      EmploymentExpenses,
+      ExcludedIncome,
+      GiftsInvCharities,
+      HigherRateCgtRPCI,
+      IncBenefitSuppAllow,
+      IncomeChargeableAddHRate,
+      IncomeChargeableBasicRate,
+      IncomeChargeableHigherRate,
+      IncomeTaxAddHighRate,
+      IncomeTaxBasicRate,
+      IncomeTaxDue,
+      IncomeTaxHigherRate,
+      JobSeekersAllowance,
+      LowerRateCgtRPCI,
+      MarriageAllceIn,
+      MarriageAllceOut,
+      NRGTGainsAfterLoss,
+      NetAnnuityPaytsTaxDue,
+      NonDomCharge,
+      NonPayableTaxCredits,
+      NotionalTaxCegs,
+      NotlTaxOtherSource,
+      OthStatePenBenefits,
+      OtherPension,
+      PensionLsumTaxDue,
+      PensionSavingChargeable,
+      PersonalAllowance,
+      QualDistnRelief,
+      ReliefForFinanceCosts,
+      SavingsChargeableAddHRate,
+      SavingsChargeableHigherRate,
+      SavingsChargeableLowerRate,
+      SavingsChargeableStartRate,
+      SavingsTaxAddHighRate,
+      SavingsTaxHigherRate,
+      SavingsTaxLowerRate,
+      SavingsTaxStartingRate,
+      SeedEisRelief,
+      SocialInvTaxRel,
+      StatePension,
+      StatePensionGross,
+      SumTotForeignTaxRelief,
+      SumTotLifePolicyGains,
+      SumTotLoanRestricted,
+      SumTotLossRestricted,
+      SummaryTotForeignDiv,
+      SummaryTotForeignIncome,
+      SummaryTotShareOptions,
+      SummaryTotTrustEstates,
+      SummaryTotalDedPpr,
+      SummaryTotalEmployment,
+      SummaryTotalOtherIncome,
+      SummaryTotalPartnership,
+      SummaryTotalSchedule,
+      SummaryTotalUkIntDivs,
+      SummaryTotalUkInterest,
+      SummaryTotalUklProperty,
+      SurplusMcaAlimonyRel,
+      TaxCharged,
+      TaxCreditsForDivs,
+      TaxDueAfterAllceRlf,
+      TaxExcluded,
+      TopSlicingRelief,
+      TotalTaxCreditRelief,
+      TradeUnionDeathBenefits,
+      VctSharesRelief,
+      EmployeeClass1NI,
+      EmployeeClass2NI,
+      EmployerNI
+    )
 
   implicit val reads: Reads[Liability] = Reads[Liability] {
     case JsString(s) =>
@@ -158,13 +239,13 @@ object Liability {
 
 final case class PensionTaxRate(value: Double)
 
-object PensionTaxRate{
+object PensionTaxRate {
 
-  implicit val reads:Reads[PensionTaxRate]=new Reads[PensionTaxRate] {
+  implicit val reads: Reads[PensionTaxRate] = new Reads[PensionTaxRate] {
     override def reads(json: JsValue): JsResult[PensionTaxRate] =
       json match {
         case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue()))
-        case _ => JsError("Unable to parse PensionTaxRate")
+        case _               => JsError("Unable to parse PensionTaxRate")
       }
   }
 }
@@ -172,7 +253,7 @@ object PensionTaxRate{
 final case class TaxSummaryLiability(
   taxYear: Int,
   pensionLumpSumTaxRate: PensionTaxRate,
-  incomeTaxStatus: Option[String] ,
+  incomeTaxStatus: Option[String],
   nationalInsuranceData: Map[Liability, Amount],
   atsData: Map[Liability, Amount]
 )
@@ -199,17 +280,12 @@ object TaxSummaryLiability {
 
     }
 
-  implicit  val reads: Reads[TaxSummaryLiability] =
+  implicit val reads: Reads[TaxSummaryLiability] =
     (
       (JsPath \ "taxYear").read[Int] and
-      (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
-      (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullableWithDefault(Some("")) and
-      (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
-      (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
+        (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
+        (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullableWithDefault(Some("")) and
+        (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
+        (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
     )(TaxSummaryLiability.apply _)
 }
-
-
-
-
-

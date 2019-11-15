@@ -25,13 +25,17 @@ import services.TaxRateService
 
 case class ATSParsingException(s: String) extends Exception(s)
 
-case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPayerJson: JsValue, UTR: String, taxYear: Int) {
+case class ATSRawDataTransformer(
+  summaryLiability: TaxSummaryLiability,
+  rawTaxPayerJson: JsValue,
+  UTR: String,
+  taxYear: Int) {
 
   val calculations = new ATSCalculations(summaryLiability, taxYear)
 
-  def atsDataDTO: AtsMiddleTierData = {
+  def atsDataDTO: AtsMiddleTierData =
     try {
-      if(calculations.hasLiability) {
+      if (calculations.hasLiability) {
 
         println("*" * 50)
         println(calculations.hasLiability)
@@ -63,21 +67,20 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
       } else {
         AtsMiddleTierData.noAtsResult(taxYear)
       }
-    }
-    catch {
+    } catch {
       case ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
       case otherError: Throwable =>
         Logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData.error(taxYear, "Other Error")
     }
-  }
 
   private def createGovSpendData =
     GovSpendingDataTransformer(calculations.totalTax, taxYear).govSpendReferenceDTO
 
   private def createSummaryData = DataHolder.make(createSummaryPageBreakdown, createSummaryPageRates)
   private def createIncomeData = DataHolder.make(createYourIncomeBeforeTaxBreakdown)
-  private def createIncomeTaxData = DataHolder.make(createTotalIncomeTaxPageBreakdown, createTotalIncomeTaxPageRates, summaryLiability.incomeTaxStatus)
+  private def createIncomeTaxData =
+    DataHolder.make(createTotalIncomeTaxPageBreakdown, createTotalIncomeTaxPageRates, summaryLiability.incomeTaxStatus)
   private def createAllowanceData = DataHolder.make(createYourTaxFreeAmountBreakdown)
   private def createCapitalGainsData = DataHolder.make(createCapitalGainsTaxBreakdown, createCapitalGainsTaxRates)
 
@@ -85,91 +88,93 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
 
   private def createCapitalGainsTaxBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
-      TaxableGains -> calculations.taxableGains,
-      LessTaxFreeAmount -> calculations.get(CgAnnualExempt),
-      PayCgTaxOn -> calculations.payCapitalGainsTaxOn,
-      AmountAtEntrepreneursRate -> calculations.get(CgAtEntrepreneursRate),
+      TaxableGains                 -> calculations.taxableGains,
+      LessTaxFreeAmount            -> calculations.get(CgAnnualExempt),
+      PayCgTaxOn                   -> calculations.payCapitalGainsTaxOn,
+      AmountAtEntrepreneursRate    -> calculations.get(CgAtEntrepreneursRate),
       AmountDueAtEntrepreneursRate -> calculations.get(CgDueEntrepreneursRate),
-      AmountAtOrdinaryRate -> calculations.get(CgAtLowerRate),
-      AmountDueAtOrdinaryRate -> calculations.get(CgDueLowerRate),
-      AmountAtHigherRate -> calculations.get(CgAtHigherRate),
-      AmountDueAtHigherRate -> calculations.get(CgDueHigherRate),
-      Adjustments -> calculations.get(CapAdjustment),
-      TotalCgTax -> calculations.totalCapitalGainsTax,
-      CgTaxPerCurrencyUnit -> calculations.capitalGainsTaxPerCurrency,
-      AmountAtRPCILowerRate -> calculations.getWithDefaultAmount(CGAtLowerRateRPCI),
-      AmountDueRPCILowerRate -> calculations.getWithDefaultAmount(LowerRateCgtRPCI),
-      AmountAtRPCIHigheRate -> calculations.getWithDefaultAmount(CGAtHigherRateRPCI),
-      AmountDueRPCIHigherRate -> calculations.getWithDefaultAmount(HigherRateCgtRPCI)
+      AmountAtOrdinaryRate         -> calculations.get(CgAtLowerRate),
+      AmountDueAtOrdinaryRate      -> calculations.get(CgDueLowerRate),
+      AmountAtHigherRate           -> calculations.get(CgAtHigherRate),
+      AmountDueAtHigherRate        -> calculations.get(CgDueHigherRate),
+      Adjustments                  -> calculations.get(CapAdjustment),
+      TotalCgTax                   -> calculations.totalCapitalGainsTax,
+      CgTaxPerCurrencyUnit         -> calculations.capitalGainsTaxPerCurrency,
+      AmountAtRPCILowerRate        -> calculations.getWithDefaultAmount(CGAtLowerRateRPCI),
+      AmountDueRPCILowerRate       -> calculations.getWithDefaultAmount(LowerRateCgtRPCI),
+      AmountAtRPCIHigheRate        -> calculations.getWithDefaultAmount(CGAtHigherRateRPCI),
+      AmountDueRPCIHigherRate      -> calculations.getWithDefaultAmount(HigherRateCgtRPCI)
     )
 
   private def createYourIncomeBeforeTaxBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
-      SelfEmploymentIncome -> calculations.selfEmployment,
-      IncomeFromEmployment -> calculations.get(SummaryTotalEmployment),
+      SelfEmploymentIncome              -> calculations.selfEmployment,
+      IncomeFromEmployment              -> calculations.get(SummaryTotalEmployment),
       LiabilityTransformer.StatePension -> calculations.get(StatePension),
-      OtherPensionIncome -> calculations.otherPension,
-      TaxableStateBenefits -> calculations.taxableStateBenefits,
-      OtherIncome -> calculations.otherIncome,
-      BenefitsFromEmployment -> calculations.get(EmploymentBenefits),
-      TotalIncomeBeforeTax -> calculations.totalIncomeBeforeTax
+      OtherPensionIncome                -> calculations.otherPension,
+      TaxableStateBenefits              -> calculations.taxableStateBenefits,
+      OtherIncome                       -> calculations.otherIncome,
+      BenefitsFromEmployment            -> calculations.get(EmploymentBenefits),
+      TotalIncomeBeforeTax              -> calculations.totalIncomeBeforeTax
     )
 
   private def createYourTaxFreeAmountBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
-      PersonalTaxFreeAmount -> calculations.get(PersonalAllowance),
+      PersonalTaxFreeAmount              -> calculations.get(PersonalAllowance),
       MarriageAllowanceTransferredAmount -> calculations.getWithDefaultAmount(MarriageAllceOut),
-      OtherAllowancesAmount -> calculations.otherAllowances,
-      TotalTaxFreeAmount -> calculations.totalTaxFreeAmount
+      OtherAllowancesAmount              -> calculations.otherAllowances,
+      TotalTaxFreeAmount                 -> calculations.totalTaxFreeAmount
     )
 
   private def createSummaryPageBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
-      EmployeeNicAmount -> calculations.totalAmountEmployeeNic,
-      TotalIncomeTaxAndNics -> calculations.totalAmountTaxAndNics,
-      YourTotalTax -> calculations.totalTax,
-      PersonalTaxFreeAmount -> calculations.get(PersonalAllowance),
-      TotalTaxFreeAmount -> calculations.totalTaxFreeAmount,
-      TotalIncomeBeforeTax -> calculations.totalIncomeBeforeTax,
-      TotalIncomeTax -> calculations.totalIncomeTaxAmount,
-      TotalCgTax -> calculations.totalCapitalGainsTax,
-      TaxableGains -> calculations.taxableGains,
-      CgTaxPerCurrencyUnit -> calculations.capitalGainsTaxPerCurrency,
+      EmployeeNicAmount         -> calculations.totalAmountEmployeeNic,
+      TotalIncomeTaxAndNics     -> calculations.totalAmountTaxAndNics,
+      YourTotalTax              -> calculations.totalTax,
+      PersonalTaxFreeAmount     -> calculations.get(PersonalAllowance),
+      TotalTaxFreeAmount        -> calculations.totalTaxFreeAmount,
+      TotalIncomeBeforeTax      -> calculations.totalIncomeBeforeTax,
+      TotalIncomeTax            -> calculations.totalIncomeTaxAmount,
+      TotalCgTax                -> calculations.totalCapitalGainsTax,
+      TaxableGains              -> calculations.taxableGains,
+      CgTaxPerCurrencyUnit      -> calculations.capitalGainsTaxPerCurrency,
       NicsAndTaxPerCurrencyUnit -> calculations.nicsAndTaxPerCurrency
     )
 
   private def createTotalIncomeTaxPageBreakdown: Map[LiabilityTransformer, Amount] =
     Map(
-      StartingRateForSavings -> calculations.get(SavingsChargeableStartRate),
-      StartingRateForSavingsAmount -> calculations.get(SavingsTaxStartingRate),
-      BasicRateIncomeTax -> calculations.basicIncomeRateIncomeTax,
-      BasicRateIncomeTaxAmount -> calculations. basicRateIncomeTaxAmount,
-      HigherRateIncomeTax -> calculations.higherRateIncomeTax,
-      HigherRateIncomeTaxAmount -> calculations. higherRateIncomeTaxAmount,
-      AdditionalRateIncomeTax -> calculations.additionalRateIncomeTax,
-      AdditionalRateIncomeTaxAmount -> calculations.additionalRateIncomeTaxAmount,
-      OrdinaryRate -> calculations.get(DividendChargeableLowRate),
-      OrdinaryRateAmount -> calculations.get(DividendTaxLowRate),
-      UpperRate -> calculations.get(DividendChargeableHighRate),
-      UpperRateAmount -> calculations.get(DividendTaxHighRate),
-      AdditionalRate -> calculations.get(DividendChargeableAddHRate),
-      AdditionalRateAmount -> calculations.get(DividendTaxAddHighRate),
-      OtherAdjustmentsIncreasing -> calculations.otherAdjustmentsIncreasing,
+      StartingRateForSavings          -> calculations.get(SavingsChargeableStartRate),
+      StartingRateForSavingsAmount    -> calculations.get(SavingsTaxStartingRate),
+      BasicRateIncomeTax              -> calculations.basicIncomeRateIncomeTax,
+      BasicRateIncomeTaxAmount        -> calculations.basicRateIncomeTaxAmount,
+      HigherRateIncomeTax             -> calculations.higherRateIncomeTax,
+      HigherRateIncomeTaxAmount       -> calculations.higherRateIncomeTaxAmount,
+      AdditionalRateIncomeTax         -> calculations.additionalRateIncomeTax,
+      AdditionalRateIncomeTaxAmount   -> calculations.additionalRateIncomeTaxAmount,
+      OrdinaryRate                    -> calculations.get(DividendChargeableLowRate),
+      OrdinaryRateAmount              -> calculations.get(DividendTaxLowRate),
+      UpperRate                       -> calculations.get(DividendChargeableHighRate),
+      UpperRateAmount                 -> calculations.get(DividendTaxHighRate),
+      AdditionalRate                  -> calculations.get(DividendChargeableAddHRate),
+      AdditionalRateAmount            -> calculations.get(DividendTaxAddHighRate),
+      OtherAdjustmentsIncreasing      -> calculations.otherAdjustmentsIncreasing,
       MarriageAllowanceReceivedAmount -> calculations.getWithDefaultAmount(MarriageAllceIn),
-      OtherAdjustmentsReducing -> calculations.otherAdjustmentsReducing,
-      TotalIncomeTax -> calculations.totalIncomeTaxAmount,
-      ScottishIncomeTax -> calculations.scottishIncomeTax
+      OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing,
+      TotalIncomeTax                  -> calculations.totalIncomeTaxAmount,
+      ScottishIncomeTax               -> calculations.scottishIncomeTax
     )
 
   //TODO RATES
   private def createCapitalGainsTaxRates: Map[String, ApiRate] =
     Map(
       "cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
-      "cg_ordinary_rate" -> TaxRateService.cgOrdinaryRate(taxYear),
-      "cg_upper_rate" -> TaxRateService.cgUpperRate(taxYear),
-      "total_cg_tax_rate" -> calculations.totalCgTaxLiabilityAsPercentage,
-      "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
-      "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
+      "cg_ordinary_rate"      -> TaxRateService.cgOrdinaryRate(taxYear),
+      "cg_upper_rate"         -> TaxRateService.cgUpperRate(taxYear),
+      "total_cg_tax_rate"     -> calculations.totalCgTaxLiabilityAsPercentage,
+      "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(
+        taxYear),
+      "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(
+        taxYear)
     ).collect {
       case (k, v) => (k, v.apiValue)
     }
@@ -184,16 +189,14 @@ case class ATSRawDataTransformer(summaryLiability: TaxSummaryLiability, rawTaxPa
   //rates TODO
   private def createTotalIncomeTaxPageRates: Map[String, ApiRate] =
     Map(
-      "starting_rate_for_savings_rate" -> TaxRateService.startingRateForSavingsRate(taxYear),
-      "basic_rate_income_tax_rate" -> TaxRateService.basicRateIncomeTaxRate(taxYear),
-      "higher_rate_income_tax_rate" -> TaxRateService.higherRateIncomeTaxRate(taxYear),
+      "starting_rate_for_savings_rate"  -> TaxRateService.startingRateForSavingsRate(taxYear),
+      "basic_rate_income_tax_rate"      -> TaxRateService.basicRateIncomeTaxRate(taxYear),
+      "higher_rate_income_tax_rate"     -> TaxRateService.higherRateIncomeTaxRate(taxYear),
       "additional_rate_income_tax_rate" -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
-      "ordinary_rate_tax_rate" -> TaxRateService.dividendsOrdinaryRate(taxYear),
-      "upper_rate_rate" -> TaxRateService.dividendUpperRateRate(taxYear),
-      "additional_rate_rate" -> TaxRateService.dividendAdditionalRate(taxYear)
+      "ordinary_rate_tax_rate"          -> TaxRateService.dividendsOrdinaryRate(taxYear),
+      "upper_rate_rate"                 -> TaxRateService.dividendUpperRateRate(taxYear),
+      "additional_rate_rate"            -> TaxRateService.dividendAdditionalRate(taxYear)
     ).collect {
       case (k, v) => (k, v.apiValue)
     }
 }
-
-

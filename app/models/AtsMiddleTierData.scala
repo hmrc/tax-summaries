@@ -32,7 +32,7 @@ case class AtsMiddleTierData(
   errors: Option[AtsError])
 
 object AtsMiddleTierData {
-  implicit val formats:Format[AtsMiddleTierData] = Json.format[AtsMiddleTierData]
+  implicit val formats: Format[AtsMiddleTierData] = Json.format[AtsMiddleTierData]
 
   def make(
     taxYear: Int,
