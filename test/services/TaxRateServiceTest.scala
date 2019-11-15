@@ -40,6 +40,20 @@ class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures wi
       }
     }
 
+    Seq(2014, 2015, 2016, 2017, 2018, 2019).foreach { year =>
+      s"return correct amounts for Dividends Upper Rate for $year" in {
+        val result = TaxRateService.dividendUpperRateRate(year)
+        result shouldBe Rate(32.5)
+      }
+    }
+
+    Seq(2017, 2018, 2019).foreach { year =>
+      s"return correct amounts for Dividends Additional Rate for $year" in {
+        val result = TaxRateService.dividendAdditionalRate(year)
+        result shouldBe Rate(38.1)
+      }
+    }
+
     Seq(2012, 2013, 2014, 2015, 2016).foreach { year =>
       s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
         val result = TaxRateService.cgOrdinaryRate(year)

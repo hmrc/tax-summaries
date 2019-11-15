@@ -148,7 +148,6 @@ case class ATSRawDataTransformer(
       ScottishIncomeTax               -> calculations.scottishIncomeTax
     )
 
-  //TODO RATES
   private def createCapitalGainsTaxRates: Map[String, ApiRate] =
     Map(
       "cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
@@ -163,10 +162,9 @@ case class ATSRawDataTransformer(
       case (k, v) => (k, v.apiValue)
     }
 
-  //TODO RATES
   private def createSummaryPageRates: Map[String, ApiRate] =
     Map(
-      "total_cg_tax_rate" -> calculations.totalCgTaxLiabilityAsPercentage.apiValue, //TODO RATES
+      "total_cg_tax_rate" -> calculations.totalCgTaxLiabilityAsPercentage.apiValue,
       "nics_and_tax_rate" -> calculations.totalNicsAndTaxLiabilityAsPercentage.apiValue
     )
 
