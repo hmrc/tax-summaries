@@ -284,8 +284,9 @@ object TaxSummaryLiability {
     (
       (JsPath \ "taxYear").read[Int] and
         (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
-        (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullableWithDefault(Some("")) and
+        (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullable[String].map(x => Some(x.getOrElse(""))) and
         (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
         (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
     )(TaxSummaryLiability.apply _)
+
 }

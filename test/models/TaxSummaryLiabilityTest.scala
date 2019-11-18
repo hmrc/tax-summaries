@@ -32,7 +32,26 @@ class TaxSummaryLiabilityTest extends UnitSpec {
       result.incomeTaxStatus shouldBe Some("0002")
       result.nationalInsuranceData.size shouldBe 3
       result.atsData.size shouldBe 94
+    }
 
+    "correctly parse the data where incomeTaxStatus is Null" in {
+      val json = JsonUtil.load("/test_case_4.json")
+      val result = Json.parse(json).as[TaxSummaryLiability]
+      result.taxYear shouldBe 2014
+      result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
+      result.incomeTaxStatus shouldBe Some("")
+      result.nationalInsuranceData.size shouldBe 3
+      result.atsData.size shouldBe 94
+    }
+
+    "correctly parse the data where incomeTaxStatus is missing" in {
+      val json = JsonUtil.load("/utr_2014_income_status_missing.json")
+      val result = Json.parse(json).as[TaxSummaryLiability]
+      result.taxYear shouldBe 2014
+      result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
+      result.incomeTaxStatus shouldBe Some("")
+      result.nationalInsuranceData.size shouldBe 3
+      result.atsData.size shouldBe 94
     }
   }
 }
