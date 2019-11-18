@@ -16,6 +16,7 @@
 
 package transformers
 
+import models.Liability.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models.LiabilityKey._
 import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -131,6 +132,23 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
           AmountDueRPCIHigherRate      -> Amount(0.00, "GBP")
         )
       testPayload shouldEqual parsedPayload
+    }
+
+    "return an amount of 0 when CapitalGains Annual Exempt is larger than the Taxable Gains" in {
+
+      val sampleJson = getClass.getResource("/test_case_6.json")
+
+      val update = Json.obj(
+        CgTotGainsAfterLosses.apiValue -> Amount(100.0, "GBP"),
+        CgGainsAfterLosses.apiValue -> Amount(200.0, "GBP")
+      )
+
+      val transformedData=transformation(sourceJson = sampleJson, tliSlpAtsUpdate = update)
+      val returnValue: AtsMiddleTierData =
+        ATSRawDataTransformer(transformedData.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+
+      val parsedPayload = returnValue.capital_gains_data.get.payload.get
+      parsedPayload(PayCgTaxOn) should equal (Amount.empty)
     }
   }
 }

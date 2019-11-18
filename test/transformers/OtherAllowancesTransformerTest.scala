@@ -16,6 +16,7 @@
 
 package transformers
 
+import models.Liability.MarriageAllceOut
 import models.LiabilityKey._
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -55,7 +56,54 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
         )
       testPayload shouldEqual parsedPayload
     }
+
+    "parse the allowance data where the marriage allowance is not present in API data so defaults to 0" in {
+      val sampleJson = Source.fromURL(getClass.getResource("/test_case_3.json")).mkString
+
+      val parsedJson = Json.parse(sampleJson)
+      val returnValue: AtsMiddleTierData =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+
+      val parsedYear = returnValue.taxYear
+      val testYear: Int = 2014
+
+      testYear shouldEqual parsedYear
+
+      val parsedPayload = returnValue.allowance_data.get.payload.get
+      val testPayload =
+        Map(
+          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP"),
+          MarriageAllowanceTransferredAmount -> Amount(0.00, "GBP"),
+          OtherAllowancesAmount              -> Amount(300.0, "GBP"),
+          TotalTaxFreeAmount                 -> Amount(9740.0, "GBP")
+        )
+      testPayload shouldEqual parsedPayload
+    }
+
+    "parse the allowance data with Marriage Allowance Amount subtracted" in {
+      val originalJson = getClass.getResource("/test_case_3.json")
+      val update=Json.obj(MarriageAllceOut.apiValue -> Amount(200.00, "GBP"))
+      val tranformedData=transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+      val returnValue: AtsMiddleTierData =
+        ATSRawDataTransformer(tranformedData.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+
+      val parsedYear = returnValue.taxYear
+      val testYear: Int = 2014
+
+      testYear shouldEqual parsedYear
+
+      val parsedPayload = returnValue.allowance_data.get.payload.get
+      val testPayload =
+        Map(
+          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP"),
+          MarriageAllowanceTransferredAmount -> Amount(200.00, "GBP"),
+          OtherAllowancesAmount              -> Amount(300.0, "GBP"),
+          TotalTaxFreeAmount                 -> Amount(9540.0, "GBP")
+        )
+      testPayload shouldEqual parsedPayload
+    }
   }
+
 
   "With base data for utr" should {
 
