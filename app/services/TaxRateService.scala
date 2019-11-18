@@ -19,36 +19,36 @@ package services
 import config.ApplicationConfig
 import models.Rate
 
-object TaxRateService {
+class TaxRateService(taxYear: Int) {
 
-  private def getRate(taxYear: Int, rate: String): Rate = {
+  private def getRate(rate: String): Rate = {
     val result = ApplicationConfig.ratePercentages(taxYear)
     Rate(result.getOrElse(rate, Rate.empty))
   }
 
-  def startingRateForSavingsRate(taxYear: Int): Rate = getRate(taxYear, "startingRateForSavingsRate")
+  def startingRateForSavingsRate(): Rate = getRate("startingRateForSavingsRate")
 
-  def basicRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear, "basicRateIncomeTaxRate")
+  def basicRateIncomeTaxRate(): Rate = getRate("basicRateIncomeTaxRate")
 
-  def higherRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear, "higherRateIncomeTaxRate")
+  def higherRateIncomeTaxRate(): Rate = getRate("higherRateIncomeTaxRate")
 
-  def additionalRateIncomeTaxRate(taxYear: Int): Rate = getRate(taxYear, "additionalRateIncomeTaxRate")
+  def additionalRateIncomeTaxRate(): Rate = getRate("additionalRateIncomeTaxRate")
 
-  def dividendsOrdinaryRate(taxYear: Int): Rate = getRate(taxYear, "dividendsOrdinaryRate")
+  def dividendsOrdinaryRate(): Rate = getRate("dividendsOrdinaryRate")
 
-  def dividendUpperRateRate(taxYear: Int): Rate = getRate(taxYear, "dividendUpperRateRate")
+  def dividendUpperRateRate(): Rate = getRate("dividendUpperRateRate")
 
-  def dividendAdditionalRate(taxYear: Int): Rate = getRate(taxYear, "dividendAdditionalRate")
+  def dividendAdditionalRate(): Rate = getRate("dividendAdditionalRate")
 
-  def cgEntrepreneursRate(taxYear: Int): Rate = getRate(taxYear, "cgEntrepreneursRate")
+  def cgEntrepreneursRate(): Rate = getRate("cgEntrepreneursRate")
 
-  def cgOrdinaryRate(taxYear: Int): Rate = getRate(taxYear, "cgOrdinaryRate")
+  def cgOrdinaryRate(): Rate = getRate("cgOrdinaryRate")
 
-  def cgUpperRate(taxYear: Int): Rate = getRate(taxYear, "cgUpperRate")
+  def cgUpperRate(): Rate = getRate("cgUpperRate")
 
-  def individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear: Int): Rate =
-    getRate(taxYear, "RCPILowerRate")
+  def individualsForResidentialPropertyAndCarriedInterestLowerRate(): Rate =
+    getRate("RCPILowerRate")
 
-  def individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear: Int): Rate =
-    getRate(taxYear, "RCPIHigherRate")
+  def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate =
+    getRate("RCPIHigherRate")
 }

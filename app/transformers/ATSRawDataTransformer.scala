@@ -30,8 +30,9 @@ case class ATSRawDataTransformer(
   rawTaxPayerJson: JsValue,
   UTR: String,
   taxYear: Int) {
+  val taxRate = new TaxRateService(taxYear)
 
-  val calculations = new ATSCalculations(summaryLiability, taxYear)
+  val calculations = new ATSCalculations(summaryLiability, taxYear, taxRate)
 
   def atsDataDTO: AtsMiddleTierData =
     try {
@@ -150,14 +151,12 @@ case class ATSRawDataTransformer(
 
   private def createCapitalGainsTaxRates: Map[String, ApiRate] =
     Map(
-      "cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
-      "cg_ordinary_rate"      -> TaxRateService.cgOrdinaryRate(taxYear),
-      "cg_upper_rate"         -> TaxRateService.cgUpperRate(taxYear),
-      "total_cg_tax_rate"     -> calculations.totalCgTaxLiabilityAsPercentage,
-      "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(
-        taxYear),
-      "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(
-        taxYear)
+      "cg_entrepreneurs_rate"          -> taxRate.cgEntrepreneursRate,
+      "cg_ordinary_rate"               -> taxRate.cgOrdinaryRate,
+      "cg_upper_rate"                  -> taxRate.cgUpperRate,
+      "total_cg_tax_rate"              -> calculations.totalCgTaxLiabilityAsPercentage,
+      "prop_interest_rate_lower_rate"  -> taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate,
+      "prop_interest_rate_higher_rate" -> taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate
     ).collect {
       case (k, v) => (k, v.apiValue)
     }
@@ -171,13 +170,13 @@ case class ATSRawDataTransformer(
   //rates TODO
   private def createTotalIncomeTaxPageRates: Map[String, ApiRate] =
     Map(
-      "starting_rate_for_savings_rate"  -> TaxRateService.startingRateForSavingsRate(taxYear),
-      "basic_rate_income_tax_rate"      -> TaxRateService.basicRateIncomeTaxRate(taxYear),
-      "higher_rate_income_tax_rate"     -> TaxRateService.higherRateIncomeTaxRate(taxYear),
-      "additional_rate_income_tax_rate" -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
-      "ordinary_rate_tax_rate"          -> TaxRateService.dividendsOrdinaryRate(taxYear),
-      "upper_rate_rate"                 -> TaxRateService.dividendUpperRateRate(taxYear),
-      "additional_rate_rate"            -> TaxRateService.dividendAdditionalRate(taxYear)
+      "starting_rate_for_savings_rate"  -> taxRate.startingRateForSavingsRate,
+      "basic_rate_income_tax_rate"      -> taxRate.basicRateIncomeTaxRate,
+      "higher_rate_income_tax_rate"     -> taxRate.higherRateIncomeTaxRate,
+      "additional_rate_income_tax_rate" -> taxRate.additionalRateIncomeTaxRate,
+      "ordinary_rate_tax_rate"          -> taxRate.dividendsOrdinaryRate,
+      "upper_rate_rate"                 -> taxRate.dividendUpperRateRate,
+      "additional_rate_rate"            -> taxRate.dividendAdditionalRate
     ).collect {
       case (k, v) => (k, v.apiValue)
     }
