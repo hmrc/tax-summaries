@@ -31,8 +31,9 @@ case class ATSRawDataTransformer(
   rawTaxPayerJson: JsValue,
   UTR: String,
   taxYear: Int) {
+  val taxRate = new TaxRateService(taxYear)
 
-  val calculations = new ATSCalculations(summaryLiability, taxYear)
+  val calculations = new ATSCalculations(summaryLiability, taxYear, taxRate)
 
   def atsDataDTO: AtsMiddleTierData =
     try {
@@ -159,12 +160,12 @@ case class ATSRawDataTransformer(
 
   private def createCapitalGainsTaxRates: Map[RateKey, ApiRate] =
     Map(
-      CapitalGainsEntrepreneur -> TaxRateService.cgEntrepreneursRate(taxYear),
-      CapitalGainsOrdinary     -> TaxRateService.cgOrdinaryRate(taxYear),
-      CapitalGainsUpper        -> TaxRateService.cgUpperRate(taxYear),
+      CapitalGainsEntrepreneur -> taxRate.cgEntrepreneursRate,
+      CapitalGainsOrdinary     -> taxRate.cgOrdinaryRate,
+      CapitalGainsUpper        -> taxRate.cgUpperRate,
       TotalCapitalGains        -> calculations.totalCgTaxLiabilityAsPercentage,
-      InterestLower            -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
-      InterestHigher           -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
+      InterestLower            -> taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate,
+      InterestHigher           -> taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate
     ).collect {
       case (k, v) => (k, v.apiValue)
     }
@@ -177,13 +178,13 @@ case class ATSRawDataTransformer(
 
   private def createTotalIncomeTaxPageRates: Map[RateKey, ApiRate] =
     Map(
-      Savings          -> TaxRateService.startingRateForSavingsRate(taxYear),
-      IncomeBasic      -> TaxRateService.basicRateIncomeTaxRate(taxYear),
-      IncomeHigher     -> TaxRateService.higherRateIncomeTaxRate(taxYear),
-      IncomeAdditional -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
-      Ordinary         -> TaxRateService.dividendsOrdinaryRate(taxYear),
-      Upper            -> TaxRateService.dividendUpperRateRate(taxYear),
-      Additional       -> TaxRateService.dividendAdditionalRate(taxYear)
+      Savings          -> taxRate.startingRateForSavingsRate,
+      IncomeBasic      -> taxRate.basicRateIncomeTaxRate,
+      IncomeHigher     -> taxRate.higherRateIncomeTaxRate,
+      IncomeAdditional -> taxRate.additionalRateIncomeTaxRate,
+      Ordinary         -> taxRate.dividendsOrdinaryRate,
+      Upper            -> taxRate.dividendUpperRateRate,
+      Additional       -> taxRate.dividendAdditionalRate
     ).collect {
       case (k, v) => (k, v.apiValue)
     }

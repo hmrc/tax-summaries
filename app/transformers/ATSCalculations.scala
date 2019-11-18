@@ -36,7 +36,7 @@ import models._
 import models.Liability._
 import services._
 
-class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int) {
+class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: TaxRateService) {
 
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
@@ -129,21 +129,21 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int) {
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) + {
-      if (addPensionSum(TaxRateService.basicRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
+      if (addPensionSum(taxRates.basicRateIncomeTaxRate())) get(PensionLsumTaxDue)
       else Amount.empty
     }
 
   def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) + {
-      if (addPensionSum(TaxRateService.higherRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
+      if (addPensionSum(taxRates.higherRateIncomeTaxRate())) get(PensionLsumTaxDue)
       else Amount.empty
     }
 
   def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) + {
-      if (addPensionSum(TaxRateService.additionalRateIncomeTaxRate(taxYear))) get(PensionLsumTaxDue)
+      if (addPensionSum(taxRates.additionalRateIncomeTaxRate())) get(PensionLsumTaxDue)
       else Amount.empty
     }
 
