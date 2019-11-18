@@ -25,8 +25,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait NpsService {
   def npsConnector: NPSConnector
 
-  def getRawPayload(nino: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-    npsConnector.connectToPayeTaxSummary(nino, TAX_YEAR)
+  def getRawPayload(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
+    npsConnector.connectToPayeTaxSummary(nino, taxYear)
 }
 
 object NpsService extends NpsService {
