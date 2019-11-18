@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityTransformer._
+import models.LiabilityKey._
 import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
@@ -51,7 +51,8 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
           "prop_interest_rate_lower_rate"  -> ApiRate("0%"),
           "prop_interest_rate_higher_rate" -> ApiRate("0%")
         )
-      testRates shouldEqual parsedRates
+
+      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "display the user's capital gains earned in the selected tax year (based on test_case_5.json)" in {
@@ -94,7 +95,7 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
           "prop_interest_rate_lower_rate"  -> ApiRate("0%"),
           "prop_interest_rate_higher_rate" -> ApiRate("0%")
         )
-      testRates shouldEqual parsedRates
+      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "display the user's capital gains earned in the selected tax year (based on test_case_6.json)" in {

@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityTransformer._
+import models.LiabilityKey._
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json

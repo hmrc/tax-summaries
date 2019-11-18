@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityTransformer.{OtherAdjustmentsIncreasing, OtherAdjustmentsReducing}
+import models.LiabilityKey.{OtherAdjustmentsIncreasing, OtherAdjustmentsReducing}
 import models.{Amount, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json

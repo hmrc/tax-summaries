@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityTransformer._
+import models.LiabilityKey._
 import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
@@ -117,8 +117,12 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       testPayload shouldEqual parsedPayload
 
       val parsedRates = returnValue.summary_data.get.rates.get
-      val testRates = Map("total_cg_tax_rate" -> ApiRate("0%"), "nics_and_tax_rate" -> ApiRate("4.93%"))
-      testRates shouldEqual parsedRates
+
+      val testRates = Map(
+        "total_cg_tax_rate" -> ApiRate("0%"),
+        "nics_and_tax_rate" -> ApiRate("4.93%")
+      )
+      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "parse the NICs data with 'other_adjustments_reducing' roundup" in {
@@ -154,8 +158,13 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       testPayload shouldEqual parsedPayload
 
       val parsedRates = returnValue.summary_data.get.rates.get
-      val testRates = Map("total_cg_tax_rate" -> ApiRate("0%"), "nics_and_tax_rate" -> ApiRate("4.92%"))
-      testRates shouldEqual parsedRates
+
+      val testRates = Map(
+        "total_cg_tax_rate" -> ApiRate("0%"),
+        "nics_and_tax_rate" -> ApiRate("4.92%")
+      )
+
+      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "parse the NICs data for utr year:2014" in {
@@ -188,8 +197,12 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       testPayload shouldEqual parsedPayload
 
       val parsedRates = returnValue.summary_data.get.rates.get
-      val testRates = Map("total_cg_tax_rate" -> ApiRate("45.34%"), "nics_and_tax_rate" -> ApiRate("4.84%"))
-      testRates shouldEqual parsedRates
+
+      val testRates = Map(
+        "total_cg_tax_rate" -> ApiRate("45.34%"),
+        "nics_and_tax_rate" -> ApiRate("4.84%")
+      )
+      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
   }
 
@@ -242,7 +255,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           "upper_rate_rate"                 -> ApiRate("32.5%"),
           "additional_rate_rate"            -> ApiRate("37.5%")
         )
-      testRates shouldEqual parsedRates
+      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "ATS raw data transformer" should {

@@ -17,7 +17,8 @@
 package transformers
 
 import models.Liability.{StatePension, _}
-import models.LiabilityTransformer._
+import models.LiabilityKey._
+import models.RateKey._
 import models._
 import play.api.Logger
 import play.api.libs.json._
@@ -61,16 +62,24 @@ case class ATSRawDataTransformer(
   private def createGovSpendData =
     GovSpendingDataTransformer(calculations.totalTax, taxYear).govSpendReferenceDTO
 
-  private def createSummaryData = DataHolder.make(createSummaryPageBreakdown, createSummaryPageRates)
-  private def createIncomeData = DataHolder.make(createYourIncomeBeforeTaxBreakdown)
+  private def createSummaryData =
+    DataHolder.make(createSummaryPageBreakdown, createSummaryPageRates)
+
+  private def createIncomeData =
+    DataHolder.make(createYourIncomeBeforeTaxBreakdown)
+
   private def createIncomeTaxData =
     DataHolder.make(createTotalIncomeTaxPageBreakdown, createTotalIncomeTaxPageRates, summaryLiability.incomeTaxStatus)
-  private def createAllowanceData = DataHolder.make(createYourTaxFreeAmountBreakdown)
-  private def createCapitalGainsData = DataHolder.make(createCapitalGainsTaxBreakdown, createCapitalGainsTaxRates)
+
+  private def createAllowanceData =
+    DataHolder.make(createYourTaxFreeAmountBreakdown)
+
+  private def createCapitalGainsData =
+    DataHolder.make(createCapitalGainsTaxBreakdown, createCapitalGainsTaxRates)
 
   private def createTaxPayerData = ATSTaxpayerDataTransformer(rawTaxPayerJson).atsTaxpayerDataDTO
 
-  private def createCapitalGainsTaxBreakdown: Map[LiabilityTransformer, Amount] =
+  private def createCapitalGainsTaxBreakdown: Map[LiabilityKey, Amount] =
     Map(
       TaxableGains                 -> calculations.taxableGains,
       LessTaxFreeAmount            -> calculations.get(CgAnnualExempt),
@@ -90,19 +99,19 @@ case class ATSRawDataTransformer(
       AmountDueRPCIHigherRate      -> calculations.getWithDefaultAmount(HigherRateCgtRPCI)
     )
 
-  private def createYourIncomeBeforeTaxBreakdown: Map[LiabilityTransformer, Amount] =
+  private def createYourIncomeBeforeTaxBreakdown: Map[LiabilityKey, Amount] =
     Map(
-      SelfEmploymentIncome              -> calculations.selfEmployment,
-      IncomeFromEmployment              -> calculations.get(SummaryTotalEmployment),
-      LiabilityTransformer.StatePension -> calculations.get(StatePension),
-      OtherPensionIncome                -> calculations.otherPension,
-      TaxableStateBenefits              -> calculations.taxableStateBenefits,
-      OtherIncome                       -> calculations.otherIncome,
-      BenefitsFromEmployment            -> calculations.get(EmploymentBenefits),
-      TotalIncomeBeforeTax              -> calculations.totalIncomeBeforeTax
+      SelfEmploymentIncome      -> calculations.selfEmployment,
+      IncomeFromEmployment      -> calculations.get(SummaryTotalEmployment),
+      LiabilityKey.StatePension -> calculations.get(StatePension),
+      OtherPensionIncome        -> calculations.otherPension,
+      TaxableStateBenefits      -> calculations.taxableStateBenefits,
+      OtherIncome               -> calculations.otherIncome,
+      BenefitsFromEmployment    -> calculations.get(EmploymentBenefits),
+      TotalIncomeBeforeTax      -> calculations.totalIncomeBeforeTax
     )
 
-  private def createYourTaxFreeAmountBreakdown: Map[LiabilityTransformer, Amount] =
+  private def createYourTaxFreeAmountBreakdown: Map[LiabilityKey, Amount] =
     Map(
       PersonalTaxFreeAmount              -> calculations.get(PersonalAllowance),
       MarriageAllowanceTransferredAmount -> calculations.getWithDefaultAmount(MarriageAllceOut),
@@ -110,7 +119,7 @@ case class ATSRawDataTransformer(
       TotalTaxFreeAmount                 -> calculations.totalTaxFreeAmount
     )
 
-  private def createSummaryPageBreakdown: Map[LiabilityTransformer, Amount] =
+  private def createSummaryPageBreakdown: Map[LiabilityKey, Amount] =
     Map(
       EmployeeNicAmount         -> calculations.totalAmountEmployeeNic,
       TotalIncomeTaxAndNics     -> calculations.totalAmountTaxAndNics,
@@ -125,7 +134,7 @@ case class ATSRawDataTransformer(
       NicsAndTaxPerCurrencyUnit -> calculations.nicsAndTaxPerCurrency
     )
 
-  private def createTotalIncomeTaxPageBreakdown: Map[LiabilityTransformer, Amount] =
+  private def createTotalIncomeTaxPageBreakdown: Map[LiabilityKey, Amount] =
     Map(
       StartingRateForSavings          -> calculations.get(SavingsChargeableStartRate),
       StartingRateForSavingsAmount    -> calculations.get(SavingsTaxStartingRate),
@@ -148,36 +157,33 @@ case class ATSRawDataTransformer(
       ScottishIncomeTax               -> calculations.scottishIncomeTax
     )
 
-  private def createCapitalGainsTaxRates: Map[String, ApiRate] =
+  private def createCapitalGainsTaxRates: Map[RateKey, ApiRate] =
     Map(
-      "cg_entrepreneurs_rate" -> TaxRateService.cgEntrepreneursRate(taxYear),
-      "cg_ordinary_rate"      -> TaxRateService.cgOrdinaryRate(taxYear),
-      "cg_upper_rate"         -> TaxRateService.cgUpperRate(taxYear),
-      "total_cg_tax_rate"     -> calculations.totalCgTaxLiabilityAsPercentage,
-      "prop_interest_rate_lower_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(
-        taxYear),
-      "prop_interest_rate_higher_rate" -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(
-        taxYear)
+      CapitalGainsEntrepreneur -> TaxRateService.cgEntrepreneursRate(taxYear),
+      CapitalGainsOrdinary     -> TaxRateService.cgOrdinaryRate(taxYear),
+      CapitalGainsUpper        -> TaxRateService.cgUpperRate(taxYear),
+      TotalCapitalGains        -> calculations.totalCgTaxLiabilityAsPercentage,
+      InterestLower            -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(taxYear),
+      InterestHigher           -> TaxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(taxYear)
     ).collect {
       case (k, v) => (k, v.apiValue)
     }
 
-  private def createSummaryPageRates: Map[String, ApiRate] =
+  private def createSummaryPageRates: Map[RateKey, ApiRate] =
     Map(
-      "total_cg_tax_rate" -> calculations.totalCgTaxLiabilityAsPercentage.apiValue,
-      "nics_and_tax_rate" -> calculations.totalNicsAndTaxLiabilityAsPercentage.apiValue
+      TotalCapitalGains -> calculations.totalCgTaxLiabilityAsPercentage.apiValue,
+      NICS              -> calculations.totalNicsAndTaxLiabilityAsPercentage.apiValue
     )
 
-  //rates TODO
-  private def createTotalIncomeTaxPageRates: Map[String, ApiRate] =
+  private def createTotalIncomeTaxPageRates: Map[RateKey, ApiRate] =
     Map(
-      "starting_rate_for_savings_rate"  -> TaxRateService.startingRateForSavingsRate(taxYear),
-      "basic_rate_income_tax_rate"      -> TaxRateService.basicRateIncomeTaxRate(taxYear),
-      "higher_rate_income_tax_rate"     -> TaxRateService.higherRateIncomeTaxRate(taxYear),
-      "additional_rate_income_tax_rate" -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
-      "ordinary_rate_tax_rate"          -> TaxRateService.dividendsOrdinaryRate(taxYear),
-      "upper_rate_rate"                 -> TaxRateService.dividendUpperRateRate(taxYear),
-      "additional_rate_rate"            -> TaxRateService.dividendAdditionalRate(taxYear)
+      Savings          -> TaxRateService.startingRateForSavingsRate(taxYear),
+      IncomeBasic      -> TaxRateService.basicRateIncomeTaxRate(taxYear),
+      IncomeHigher     -> TaxRateService.higherRateIncomeTaxRate(taxYear),
+      IncomeAdditional -> TaxRateService.additionalRateIncomeTaxRate(taxYear),
+      Ordinary         -> TaxRateService.dividendsOrdinaryRate(taxYear),
+      Upper            -> TaxRateService.dividendUpperRateRate(taxYear),
+      Additional       -> TaxRateService.dividendAdditionalRate(taxYear)
     ).collect {
       case (k, v) => (k, v.apiValue)
     }

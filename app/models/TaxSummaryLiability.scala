@@ -21,9 +21,28 @@ import play.api.libs.json._
 
 abstract class ApiValue(val apiValue: String)
 
-sealed trait Liability {
-  val apiValue: String
+object ApiValue extends DefaultReads {
+
+  def formatMap[A <: ApiValue, V: Format](ls: List[A]): Format[Map[A, V]] = Format(
+    mapReads(s => ls.find(_.apiValue == s).fold[JsResult[A]](JsError(""))(JsSuccess(_))),
+    Writes[Map[A, V]] { o =>
+      JsObject(o.map {
+        case (k, v) =>
+          k.apiValue -> Json.toJson(v)
+      })
+    }
+  )
+
+  def readFromList[A <: ApiValue](ls: List[A]): Reads[A] = Reads[A] {
+    case JsString(s) =>
+      ls.find(l => l.apiValue == s)
+        .fold[JsResult[A]](JsError("error.expected.apivalue"))(JsSuccess(_))
+
+    case _ => JsError("error.expected.jsstring")
+  }
 }
+
+sealed trait Liability extends ApiValue
 
 object Liability {
 
@@ -125,115 +144,29 @@ object Liability {
   case object EmployeeClass2NI extends ApiValue("employeeClass2Nic") with Liability
   case object EmployerNI extends ApiValue("employerNic") with Liability
 
-  val allLiabilities: List[Liability] =
-    List(
-      AnnuityPay,
-      BPA,
-      BpaAllowance,
-      CGAtHigherRateRPCI,
-      CGAtLowerRateRPCI,
-      CGOtherGainsAfterLoss,
-      CapAdjustment,
-      CgAnnualExempt,
-      CgAtEntrepreneursRate,
-      CgAtHigherRate,
-      CgAtLowerRate,
-      CgDueEntrepreneursRate,
-      CgDueHigherRate,
-      CgDueLowerRate,
-      CgGainsAfterLosses,
-      CgTotGainsAfterLosses,
-      ChildBenefitCharge,
-      Class4Nic,
-      CommInvTrustRel,
-      DeficiencyRelief,
-      DividendChargeableAddHRate,
-      DividendChargeableHighRate,
-      DividendChargeableLowRate,
-      DividendTaxAddHighRate,
-      DividendTaxHighRate,
-      DividendTaxLowRate,
-      EisRelief,
-      EmploymentBenefits,
-      EmploymentExpenses,
-      ExcludedIncome,
-      GiftsInvCharities,
-      HigherRateCgtRPCI,
-      IncBenefitSuppAllow,
-      IncomeChargeableAddHRate,
-      IncomeChargeableBasicRate,
-      IncomeChargeableHigherRate,
-      IncomeTaxAddHighRate,
-      IncomeTaxBasicRate,
-      IncomeTaxDue,
-      IncomeTaxHigherRate,
-      JobSeekersAllowance,
-      LowerRateCgtRPCI,
-      MarriageAllceIn,
-      MarriageAllceOut,
-      NRGTGainsAfterLoss,
-      NetAnnuityPaytsTaxDue,
-      NonDomCharge,
-      NonPayableTaxCredits,
-      NotionalTaxCegs,
-      NotlTaxOtherSource,
-      OthStatePenBenefits,
-      OtherPension,
-      PensionLsumTaxDue,
-      PensionSavingChargeable,
-      PersonalAllowance,
-      QualDistnRelief,
-      ReliefForFinanceCosts,
-      SavingsChargeableAddHRate,
-      SavingsChargeableHigherRate,
-      SavingsChargeableLowerRate,
-      SavingsChargeableStartRate,
-      SavingsTaxAddHighRate,
-      SavingsTaxHigherRate,
-      SavingsTaxLowerRate,
-      SavingsTaxStartingRate,
-      SeedEisRelief,
-      SocialInvTaxRel,
-      StatePension,
-      StatePensionGross,
-      SumTotForeignTaxRelief,
-      SumTotLifePolicyGains,
-      SumTotLoanRestricted,
-      SumTotLossRestricted,
-      SummaryTotForeignDiv,
-      SummaryTotForeignIncome,
-      SummaryTotShareOptions,
-      SummaryTotTrustEstates,
-      SummaryTotalDedPpr,
-      SummaryTotalEmployment,
-      SummaryTotalOtherIncome,
-      SummaryTotalPartnership,
-      SummaryTotalSchedule,
-      SummaryTotalUkIntDivs,
-      SummaryTotalUkInterest,
-      SummaryTotalUklProperty,
-      SurplusMcaAlimonyRel,
-      TaxCharged,
-      TaxCreditsForDivs,
-      TaxDueAfterAllceRlf,
-      TaxExcluded,
-      TopSlicingRelief,
-      TotalTaxCreditRelief,
-      TradeUnionDeathBenefits,
-      VctSharesRelief,
-      EmployeeClass1NI,
-      EmployeeClass2NI,
-      EmployerNI
-    )
+  // format: off
+  val allLiabilities: List[Liability with ApiValue] =
+    List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
+      CgAnnualExempt, CgAtEntrepreneursRate, CgAtHigherRate, CgAtLowerRate, CgDueEntrepreneursRate, CgDueHigherRate,
+      CgDueLowerRate, CgGainsAfterLosses, CgTotGainsAfterLosses, ChildBenefitCharge, Class4Nic, CommInvTrustRel,
+      DeficiencyRelief, DividendChargeableAddHRate, DividendChargeableHighRate, DividendChargeableLowRate,
+      DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, EisRelief, EmploymentBenefits, EmploymentExpenses,
+      ExcludedIncome, GiftsInvCharities, HigherRateCgtRPCI, IncBenefitSuppAllow, IncomeChargeableAddHRate,
+      IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxDue,
+      IncomeTaxHigherRate, JobSeekersAllowance, LowerRateCgtRPCI, MarriageAllceIn, MarriageAllceOut, NRGTGainsAfterLoss,
+      NetAnnuityPaytsTaxDue, NonDomCharge, NonPayableTaxCredits, NotionalTaxCegs, NotlTaxOtherSource, OthStatePenBenefits,
+      OtherPension, PensionLsumTaxDue, PensionSavingChargeable, PersonalAllowance, QualDistnRelief, ReliefForFinanceCosts,
+      SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsChargeableStartRate,
+      SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, SavingsTaxStartingRate, SeedEisRelief,
+      SocialInvTaxRel, StatePension, StatePensionGross, SumTotForeignTaxRelief, SumTotLifePolicyGains, SumTotLoanRestricted,
+      SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotShareOptions, SummaryTotTrustEstates,
+      SummaryTotalDedPpr, SummaryTotalEmployment, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule,
+      SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxCharged, TaxCreditsForDivs,
+      TaxDueAfterAllceRlf, TaxExcluded, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
+      EmployeeClass1NI,EmployeeClass2NI,EmployerNI)
+  // format: on
 
-  implicit val reads: Reads[Liability] = Reads[Liability] {
-    case JsString(s) =>
-      allLiabilities
-        .find(l => l.apiValue == s)
-        .fold[JsResult[Liability]](JsError("error.expected.liability"))(JsSuccess(_))
-
-    case _ => JsError("error.expected.jsstring")
-  }
+  implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)
 
 }
 

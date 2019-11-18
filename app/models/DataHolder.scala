@@ -19,22 +19,22 @@ package models
 import play.api.libs.json.{Format, Json}
 
 case class DataHolder(
-  payload: Option[Map[LiabilityTransformer, Amount]],
-  rates: Option[Map[String, ApiRate]],
+  payload: Option[Map[LiabilityKey, Amount]],
+  rates: Option[Map[RateKey, ApiRate]],
   incomeTaxStatus: Option[String])
 
 object DataHolder {
   implicit val formats: Format[DataHolder] = Json.format[DataHolder]
 
-  def make(payload: Map[LiabilityTransformer, Amount]): DataHolder =
+  def make(payload: Map[LiabilityKey, Amount]): DataHolder =
     DataHolder(Some(payload), None, None)
 
-  def make(payload: Map[LiabilityTransformer, Amount], rates: Map[String, ApiRate]): DataHolder =
+  def make(payload: Map[LiabilityKey, Amount], rates: Map[RateKey, ApiRate]): DataHolder =
     DataHolder(Some(payload), Some(rates), None)
 
   def make(
-    payload: Map[LiabilityTransformer, Amount],
-    rates: Map[String, ApiRate],
+    payload: Map[LiabilityKey, Amount],
+    rates: Map[RateKey, ApiRate],
     incomeTaxStatus: Option[String]): DataHolder =
     DataHolder(Some(payload), Some(rates), incomeTaxStatus)
 }

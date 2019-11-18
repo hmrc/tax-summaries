@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityTransformer.TaxableStateBenefits
+import models.LiabilityKey.TaxableStateBenefits
 import models.{Amount, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json

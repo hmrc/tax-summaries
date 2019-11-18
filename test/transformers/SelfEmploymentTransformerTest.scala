@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityTransformer.SelfEmploymentIncome
+import models.LiabilityKey.SelfEmploymentIncome
 import models.{Amount, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
