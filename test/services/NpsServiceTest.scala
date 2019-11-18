@@ -38,21 +38,20 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     override lazy val npsConnector: NPSConnector = mock[NPSConnector]
   }
 
-  private val CURRENT_YEAR = 2018
+  private val currentYear = 2018
 
   "getPayload" should {
 
     "return a successful future" in new TestService {
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(CURRENT_YEAR))(any[HeaderCarrier]))
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mock[JsValue]))
 
-      val result = getRawPayload(testNino, CURRENT_YEAR)(mock[HeaderCarrier])
+      val result = getRawPayload(testNino, currentYear)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
         result shouldBe a[JsValue]
       }
     }
   }
-
 }

@@ -22,6 +22,7 @@ import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
+import play.api.libs.json.{JsObject, JsString}
 import play.api.test.FakeRequest
 import services.NpsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,6 +42,13 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
   }
 
   "getAtsData" should {
+    "return ok" in new TestController {
+      when(npsService.getRawPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(new JsObject(Map("stuff" -> JsString("someStuff")))))
+      val result = getRawATSData(testNino, 2018)(request)
+
+      status(result) shouldBe 200
+    }
 
     "return a failed future" in new TestController {
       when(npsService.getRawPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
