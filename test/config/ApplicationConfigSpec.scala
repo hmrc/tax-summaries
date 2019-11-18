@@ -23,33 +23,18 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.test.UnitSpec
 
 class ApplicationConfigSpec extends UnitSpec with GuiceOneAppPerTest {
-  //abstract class WithSetup(additionalConfiguration: Map[String, _] = Map.empty)
 
   override def newAppForTest(testData: TestData): Application = {
 
     def appWithConfig(config: Map[String, Any]): Application =
       new GuiceApplicationBuilder().configure(Map("taxRates" -> "")).configure(config).build()
 
-    val taxRates =
-      Map("taxRates.default.whitelist" -> Seq("TaxField1", "TaxField2"), "taxRates.2017.whitelist" -> Seq("TaxField3"))
-
     val percentageRates = Map(
       "taxRates.default.percentages" -> Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30),
       "taxRates.2017.percentages"    -> Map("percentageRate2" -> 60)
     )
 
-    appWithConfig(taxRates ++ percentageRates)
-  }
-
-  "calling rate TaxFields" should {
-    "return default taxFields when no overriding year" in {
-      ApplicationConfig.taxFields(2016) shouldBe Seq("TaxField1", "TaxField2")
-    }
-
-    "return default taxFields with extra fields  for specific year" in {
-      ApplicationConfig.taxFields(2017) shouldBe Seq("TaxField1", "TaxField2", "TaxField3")
-    }
-
+    appWithConfig(percentageRates)
   }
 
   "calling ratePercentages" should {

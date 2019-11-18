@@ -140,15 +140,15 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val update = Json.obj(
         CgTotGainsAfterLosses.apiValue -> Amount(100.0, "GBP"),
-        CgGainsAfterLosses.apiValue -> Amount(200.0, "GBP")
+        CgGainsAfterLosses.apiValue    -> Amount(200.0, "GBP")
       )
 
-      val transformedData=transformation(sourceJson = sampleJson, tliSlpAtsUpdate = update)
+      val transformedData = transformation(sourceJson = sampleJson, tliSlpAtsUpdate = update)
       val returnValue: AtsMiddleTierData =
         ATSRawDataTransformer(transformedData.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
-      parsedPayload(PayCgTaxOn) should equal (Amount.empty)
+      parsedPayload(PayCgTaxOn) should equal(Amount.empty)
     }
   }
 }

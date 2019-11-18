@@ -24,8 +24,9 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import collection.JavaConverters._
 
 trait ApplicationConfig {
-  def taxFields(year: Int): Seq[String]
+
   def ratePercentages(year: Int): Map[String, Double]
+
 }
 
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
@@ -55,7 +56,6 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
       .getOrElse(Map())
       .toMap
 
-  override def taxFields(year: Int) = taxFieldsDefault ++ taxFieldsByYear(year)
   override def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
 
 }

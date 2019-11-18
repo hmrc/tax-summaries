@@ -58,7 +58,7 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
     }
 
     "parse the allowance data where the marriage allowance is not present in API data so defaults to 0" in {
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_3.json")).mkString
+      val sampleJson = Source.fromURL(getClass.getResource("/utr_2014_income_status_and_fields_missing.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
@@ -82,8 +82,8 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
     "parse the allowance data with Marriage Allowance Amount subtracted" in {
       val originalJson = getClass.getResource("/test_case_3.json")
-      val update=Json.obj(MarriageAllceOut.apiValue -> Amount(200.00, "GBP"))
-      val tranformedData=transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+      val update = Json.obj(MarriageAllceOut.apiValue -> Amount(200.00, "GBP"))
+      val tranformedData = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
       val returnValue: AtsMiddleTierData =
         ATSRawDataTransformer(tranformedData.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
@@ -103,7 +103,6 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
       testPayload shouldEqual parsedPayload
     }
   }
-
 
   "With base data for utr" should {
 

@@ -47,8 +47,8 @@ class TaxRateService(taxYear: Int) {
   def cgUpperRate(): Rate = getRate("cgUpperRate")
 
   def individualsForResidentialPropertyAndCarriedInterestLowerRate(): Rate =
-    getRate("RCPILowerRate")
+    getRate("RPCILowerRate")
 
   def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate =
-    getRate("RCPIHigherRate")
+    getRate("RPCIHigherRate")
 }
