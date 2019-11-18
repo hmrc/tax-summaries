@@ -35,20 +35,20 @@ class NPSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
     override lazy val http = mock[HttpGet]
   }
 
-  private val CURRENT_YEAR = 2018
+  private val currentYear = 2018
 
   "connectToPayeTaxSummary" should {
 
     "return successful future" in new TestConnector {
 
       when(
-        http.GET[JsValue](eqTo(url("/annual-tax-summary/summary/" + testNino + "/" + CURRENT_YEAR)))(
+        http.GET[JsValue](eqTo(url("/individuals/annual-tax-summary/" + testNino + "/" + currentYear)))(
           any[HttpReads[JsValue]],
           any[HeaderCarrier],
           any[ExecutionContext]))
         .thenReturn(Future.successful(mock[JsValue]))
 
-      val result: Future[JsValue] = connectToPayeTaxSummary(testNino, CURRENT_YEAR)(mock[HeaderCarrier])
+      val result: Future[JsValue] = connectToPayeTaxSummary(testNino, currentYear)(mock[HeaderCarrier])
 
       whenReady(result) {
         _ shouldBe a[JsValue]
@@ -58,19 +58,17 @@ class NPSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
     "return failed future" in new TestConnector {
 
       when(
-        http.GET[JsValue](eqTo(url("/annual-tax-summary/summary/" + testNino + "/" + CURRENT_YEAR)))(
+        http.GET[JsValue](eqTo(url("/individuals/annual-tax-summary/" + testNino + "/" + currentYear)))(
           any[HttpReads[JsValue]],
           any[HeaderCarrier],
           any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception))
 
-      val result: Future[JsValue] = connectToPayeTaxSummary(testNino, CURRENT_YEAR)(mock[HeaderCarrier])
+      val result: Future[JsValue] = connectToPayeTaxSummary(testNino, currentYear)(mock[HeaderCarrier])
 
       whenReady(result.failed) { exception =>
         exception shouldBe a[Exception]
       }
     }
-
   }
-
 }
