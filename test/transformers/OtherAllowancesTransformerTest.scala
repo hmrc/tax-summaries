@@ -28,13 +28,13 @@ import scala.io.Source
 
 class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest with JsonUtil {
 
-  val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
+  val taxpayerDetailsJson = JsonUtil.load("/taxpayerData/test_individual_utr.json")
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
   "The tax free amount" should {
     "parse the allowance data" in {
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_3.json")).mkString
+      val sampleJson = JsonUtil.load("/test_case_3.json")
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
@@ -58,7 +58,7 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
     "parse the allowance data where the marriage allowance is not present in API data so defaults to 0" in {
 
-      val sampleJson=JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
+      val sampleJson = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
 
       val parsedJson = Json.parse(sampleJson).as[TaxSummaryLiability]
       val returnValue: AtsMiddleTierData =
@@ -81,12 +81,12 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
     }
 
     "parse the allowance data with Marriage Allowance Amount subtracted" in {
-      println(Amount(200.00, "GBP"))
-      val replaceMap=Map("ctnMarriageAllceOutAmt" -> """{"amount":0.00,"currency":"GBP"}""")
-      val amendedJson =JsonUtil.loadAndReplace("/test_case_3.json",replaceMap)
-      println(replaceMap)
+
+      val data = Json.obj("ctnMarriageAllceOutAmt" -> Amount(200.00, "GBP"))
+      val amendedJson = JsonUtil.loadAndReplace("/test_case_3.json", data)
+
       val returnValue: AtsMiddleTierData =
-       ATSRawDataTransformer(amendedJson.asInstanceOf[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(amendedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -126,8 +126,6 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
     "have the correct summed other allowances data" in {
 
-      val originalJson = getClass.getResource("/utr_2014.json")
-
       val update = Json.obj(
         "ctnEmploymentExpensesAmt"   -> Amount(10.0, "GBP"),
         "ctnSummaryTotalDedPpr"      -> Amount(20.0, "GBP"),
@@ -142,7 +140,7 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
         "grossExcludedIncome"        -> Amount(110.0, "GBP")
       )
 
-      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+      val transformedJson = JsonUtil.loadAndReplace("/utr_2014.json", update)
 
       val returnValue =
         ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
@@ -152,8 +150,6 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
     }
 
     "have the correct summed other allowances data (with 'other_allowances_amount' roundup)" in {
-
-      val originalJson = getClass.getResource("/utr_2014.json")
 
       val update = Json.obj(
         "ctnEmploymentExpensesAmt"   -> Amount(10.0, "GBP"),
@@ -169,7 +165,7 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
         "grossExcludedIncome"        -> Amount(110.0, "GBP")
       )
 
-      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+      val transformedJson = JsonUtil.loadAndReplace("/utr_2014.json", update)
 
       val returnValue =
         ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO

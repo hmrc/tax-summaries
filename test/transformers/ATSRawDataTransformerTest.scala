@@ -21,13 +21,13 @@ import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.AtsJsonDataUpdate
+import utils.{AtsJsonDataUpdate, JsonUtil}
 
 import scala.io.Source
 
 class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
-  val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
+  val taxpayerDetailsJson = JsonUtil.load("/taxpayerData/test_individual_utr.json")
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
@@ -35,7 +35,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
     "parse the income values for utr year:2014" in {
 
-      val sampleJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
+      val sampleJson = JsonUtil.load("/utr_2014.json")
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
@@ -61,7 +61,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
     }
 
     "parse the income values for test case 2" in {
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_2.json")).mkString
+      val sampleJson = JsonUtil.load("/test_case_2.json")
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
@@ -89,7 +89,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
   "The summary page data" should {
     "parse the NICs data" in {
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_4.json")).mkString
+      val sampleJson = JsonUtil.load("/test_case_4.json")
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
@@ -127,14 +127,11 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
     "parse the NICs data with 'other_adjustments_reducing' roundup" in {
 
-      val originalJson = getClass.getResource("/test_case_4.json")
-
       val update = Json.obj("ctnDeficiencyRelief" -> Amount(0.01, "GBP"))
-
-      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+      val amendedJson = JsonUtil.loadAndReplace("/test_case_4.json", update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(amendedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -169,7 +166,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
     "parse the NICs data for utr year:2014" in {
 
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
+      val sampleJson = JsonUtil.load("/test_case_5.json")
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
@@ -209,7 +206,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
   "The total income before tax" should {
     "parse the tax rates transformation (based on utr year:2014 data)" in {
 
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
+      val sampleJson = JsonUtil.load("/test_case_5.json")
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
@@ -260,8 +257,6 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
     "Calculate the correct Total Income Tax" in {
 
-      val originalJson = getClass.getResource("/test_case_5.json")
-
       val update = Json.obj(
         "ctnPensionLumpSumTaxRate"   -> 0.45,
         "ctnSavingsTaxStartingRate"  -> Amount(991.0, "GBP"),
@@ -299,17 +294,15 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
         "ctnMarriageAllceInAmt"      -> Amount(587.0, "GBP")
       )
 
-      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+      val amendedJson = JsonUtil.loadAndReplace("/test_case_5.json", update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(amendedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
       parsedPayload(TotalIncomeTax) shouldEqual Amount(8889, "GBP")
     }
 
     "Calculate the Scottish Rate" in {
-
-      val originalJson = getClass.getResource("/test_case_5.json")
 
       val update = Json.obj(
         "ctnIncomeChgbleBasicRate"  -> Amount(469.0, "GBP"),
@@ -317,10 +310,10 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
         "ctnIncomeChgbleAddHRate"   -> Amount(568.0, "GBP")
       )
 
-      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+      val amendedJson = JsonUtil.loadAndReplace("/test_case_5.json", update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(amendedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
       parsedPayload(ScottishIncomeTax) shouldEqual Amount(130.4, "GBP")
     }
@@ -328,7 +321,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
     "ATS raw data transformer" should {
       "produce a no ats error if the total income tax is -500 and capital gains tax is 200" in {
 
-        val sampleJson = Source.fromURL(getClass.getResource("/test_case_7.json")).mkString
+        val sampleJson = JsonUtil.load("/test_case_7.json")
 
         val parsedJson = Json.parse(sampleJson)
         val returnValue: AtsMiddleTierData =
@@ -339,7 +332,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       "produce a no ats error if the total income tax is 200 and capital gains tax is -500" in {
 
-        val sampleJson = Source.fromURL(getClass.getResource("/test_case_8.json")).mkString
+        val sampleJson = JsonUtil.load("/test_case_8.json")
 
         val parsedJson = Json.parse(sampleJson)
         val returnValue: AtsMiddleTierData =
@@ -350,7 +343,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       "produce a no ats error if both total income tax and capital gains tax are negative" in {
 
-        val sampleJson = Source.fromURL(getClass.getResource("/test_case_9.json")).mkString
+        val sampleJson = JsonUtil.load("/test_case_9.json")
 
         val parsedJson = Json.parse(sampleJson)
         val returnValue: AtsMiddleTierData =
