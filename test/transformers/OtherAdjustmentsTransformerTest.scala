@@ -52,6 +52,26 @@ class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate wi
       parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
     }
 
+    "have the correct adjustment data with Relief for Financial Costs" in {
+
+      val originalJson = getClass.getResource("/utr_2014.json")
+
+      val update = Json.obj("reliefForFinanceCosts" -> Amount(20.0, "GBP"))
+
+      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+
+      val parsedYear = returnValue.taxYear
+      val testYear: Int = 2014
+      testYear shouldEqual parsedYear
+
+      val parsedPayload = returnValue.income_tax.get.payload.get
+
+      parsedPayload(OtherAdjustmentsIncreasing) should equal(new Amount(0.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(220.0, "GBP"))
+    }
     "have a correct 'other_adjustments_reducing' roundup data" in {
 
       val originalJson = getClass.getResource("/utr_2014.json")
