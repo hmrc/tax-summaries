@@ -62,9 +62,8 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
     get(CgDueEntrepreneursRate) +
       get(CgDueLowerRate) +
       get(CgDueHigherRate) -
-      get(CapAdjustment) +
-      getWithDefaultAmount(LowerRateCgtRPCI) +
-      getWithDefaultAmount(HigherRateCgtRPCI)
+      get(CapAdjustment)
+
 
   def selfEmployment: Amount =
     get(SummaryTotalSchedule) +
