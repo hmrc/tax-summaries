@@ -307,6 +307,24 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       parsedPayload(TotalIncomeTax) shouldEqual Amount(8889, "GBP")
     }
 
+    "Calculate the Scottish Rate" in {
+
+      val originalJson = getClass.getResource("/test_case_5.json")
+
+      val update = Json.obj(
+        "ctnIncomeChgbleBasicRate"  -> Amount(469.0, "GBP"),
+        "ctnIncomeChgbleHigherRate" -> Amount(267.0, "GBP"),
+        "ctnIncomeChgbleAddHRate"   -> Amount(568.0, "GBP")
+      )
+
+      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val parsedPayload = returnValue.income_tax.get.payload.get
+      parsedPayload(ScottishIncomeTax) shouldEqual Amount(130.4, "GBP")
+    }
+
     "ATS raw data transformer" should {
       "produce a no ats error if the total income tax is -500 and capital gains tax is 200" in {
 
