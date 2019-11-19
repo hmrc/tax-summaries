@@ -258,6 +258,56 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
+    "Calculate the correct Total Income Tax" in {
+
+      val originalJson = getClass.getResource("/test_case_5.json")
+
+      val update = Json.obj(
+        "ctnPensionLumpSumTaxRate" -> 0.45,
+        "ctnSavingsTaxStartingRate" -> Amount(991.0, "GBP"),
+        "ctnIncomeTaxBasicRate" -> Amount(1153.0, "GBP"),
+        "ctnSavingsTaxLowerRate" -> Amount(1174.0, "GBP"),
+        "ctnPensionLsumTaxDueAmt" -> Amount(2458.0, "GBP"),
+        "ctnIncomeTaxHigherRate" -> Amount(1816.0, "GBP"),
+        "ctnSavingsTaxHigherRate" -> Amount(1725.0, "GBP"),
+        "ctnIncomeTaxAddHighRate" -> Amount(1366.0, "GBP"),
+        "ctnSavingsTaxAddHighRate" -> Amount(2061.0, "GBP"),
+        "ctnDividendTaxLowRate" -> Amount(293.0, "GBP"),
+        "ctnDividendTaxHighRate" -> Amount(487.0, "GBP"),
+        "ctnDividendTaxAddHighRate" -> Amount(725.0, "GBP"),
+        "nonDomChargeAmount" -> Amount(64.0, "GBP"),
+        "taxExcluded" -> Amount(88.0, "GBP"),
+        "incomeTaxDue" -> Amount(75.0, "GBP"),
+        "netAnnuityPaytsTaxDue" -> Amount(111.0, "GBP"),
+        "ctnChildBenefitChrgAmt" -> Amount(119.0, "GBP"),
+        "ctnPensionSavingChrgbleAmt" -> Amount(127.0, "GBP"),
+        "ctn4TaxDueAfterAllceRlf" -> Amount(100.0, "GBP"),
+        "ctnDeficiencyRelief" -> Amount(612.2, "GBP"),
+        "topSlicingRelief" -> Amount(134.0, "GBP"),
+        "ctnVctSharesReliefAmt" -> Amount(532.0, "GBP"),
+        "ctnEisReliefAmt" -> Amount(762.0, "GBP"),
+        "ctnSeedEisReliefAmt" -> Amount(159.0, "GBP"),
+        "ctnCommInvTrustRelAmt" -> Amount(854.0, "GBP"),
+        "atsSurplusMcaAlimonyRel" -> Amount(137.0, "GBP"),
+        "ctnNotionalTaxCegs" -> Amount(99.0, "GBP"),
+        "ctnNotlTaxOthrSrceAmo" -> Amount(87.0, "GBP"),
+        "ctnTaxCredForDivs" -> Amount(166.0, "GBP"),
+        "ctnQualDistnReliefAmt" -> Amount(258, "GBP"),
+        "figTotalTaxCreditRelief" -> Amount(789.0, "GBP"),
+        "ctnNonPayableTaxCredits" -> Amount(198.0, "GBP"),
+        "reliefForFinanceCosts" -> Amount(469.0, "GBP"),
+        "ctnMarriageAllceInAmt" -> Amount(587.0, "GBP")
+      )
+
+      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val parsedPayload = returnValue.income_tax.get.payload.get
+      parsedPayload(TotalIncomeTax) shouldEqual Amount(8889, "GBP")
+    }
+
+
     "ATS raw data transformer" should {
       "produce a no ats error if the total income tax is -500 and capital gains tax is 200" in {
 
