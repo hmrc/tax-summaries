@@ -92,7 +92,7 @@ object LiabilityKey extends DefaultReads {
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =
     ApiValue.formatMap[LiabilityKey, V](allItems)
 
-  implicit val reads: Format[LiabilityKey] = Format(
+  implicit val formats: Format[LiabilityKey] = Format(
     ApiValue.readFromList(allItems),
     Writes[LiabilityKey](o => JsString(o.apiValue))
   )
