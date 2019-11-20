@@ -36,9 +36,7 @@ class ATSTaxpayerDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.taxpayer_name.get
       val testPayload =
-        Map("title" -> "Mr",
-          "forename" -> "forename",
-          "surname" -> "surname")
+        Map("title" -> "Mr", "forename" -> "forename", "surname" -> "surname")
       testPayload shouldEqual parsedPayload
     }
   }

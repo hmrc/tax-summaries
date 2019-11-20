@@ -64,7 +64,6 @@ class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       result.get("UkContributionToEuBudget") shouldBe Some(0.6)
     }
 
-
     "return correct amounts for 2016" in {
       val result: Map[String, BigDecimal] = GovSpendService.govSpending(2016)
 

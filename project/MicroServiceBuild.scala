@@ -29,7 +29,8 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "time" % "3.3.0",
     "uk.gov.hmrc" %% "json-encryption" % jsonEncryptionVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
-    "org.json4s" %% "json4s-native" % json4sNativeVersion
+    "org.json4s" %% "json4s-native" % json4sNativeVersion,
+    "com.typesafe.play" %% "play-json" % "2.6.0"
   )
 
   trait TestDependencies {

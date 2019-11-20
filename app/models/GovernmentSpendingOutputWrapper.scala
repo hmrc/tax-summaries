@@ -21,13 +21,16 @@ import play.api.libs.json._
 import services.GoodsAndServices
 import services.GoodsAndServices._
 
-case class GovernmentSpendingOutputWrapper(taxYear: Int, govSpendAmountData: Map[GoodsAndServices, SpendData], totalAmount: Amount, errors: Option[AtsError])
+case class GovernmentSpendingOutputWrapper(
+  taxYear: Int,
+  govSpendAmountData: Map[GoodsAndServices, SpendData],
+  totalAmount: Amount,
+  errors: Option[AtsError])
 
-object x {
+object GovernmentSpendingOutputWrapper {
   implicit val formats = new Format[GoodsAndServices] {
     override def writes(o: GoodsAndServices): JsValue = o match {
       case Welfare => JsString("Welfare")
-
 
       case Welfare                  => JsString("Welfare")
       case Health                   => JsString("Health")
@@ -44,7 +47,6 @@ object x {
       case UkContributionToEuBudget => JsString("UkContributionToEuBudget")
       case PublicOrderAndSafety     => JsString("PublicOrderAndSafety")
       case Environment              => JsString("Environment")
-
 
     }
 
@@ -66,11 +68,7 @@ object x {
         case JsString("PublicOrderAndSafety")     => JsSuccess(PublicOrderAndSafety)
         case JsString("Environment")              => JsSuccess(Environment)
 
-        case _                                    => JsError(s"Unable to parse object $json as GoodsAndServices")
+        case _ => JsError(s"Unable to parse object $json as GoodsAndServices")
       }
   }
-}
-
-object GovernmentSpendingOutputWrapper {
-  implicit val formats = Json.format[GovernmentSpendingOutputWrapper]
 }

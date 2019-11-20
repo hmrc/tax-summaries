@@ -32,7 +32,6 @@ object ODSConnector extends ODSConnector with ServicesConfig {
 
   override def http = WSHttp
 
-
 }
 
 trait ODSConnector {
@@ -47,15 +46,12 @@ trait ODSConnector {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
     http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR))
-  }
-  
-  def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
-  }
 
-  def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
+    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
+
+  def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
     http.GET[JsValue](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))
-  }
 }

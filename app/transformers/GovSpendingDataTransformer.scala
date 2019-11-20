@@ -19,15 +19,16 @@ package transformers
 import models._
 import services.{GoodsAndServices, GovSpendService}
 
-case class GovSpendingDataTransformer(totalTaxAmount: Amount, taxYear: Int){
+case class GovSpendingDataTransformer(totalTaxAmount: Amount, taxYear: Int) {
 
   lazy val govSpendReferenceDTO = createGovSpendingReferenceDTO
-  
-  private def createGovSpendingReferenceDTO = GovernmentSpendingOutputWrapper(taxYear, createGovernmentSpendingAmounts, totalTaxAmount, None)
+
+  private def createGovSpendingReferenceDTO =
+    GovernmentSpendingOutputWrapper(taxYear, createGovernmentSpendingAmounts, totalTaxAmount, None)
 
   def createSpendDataItem(spendCategory: GoodsAndServices, spendPercentage: BigDecimal, amount: Amount): SpendData = {
     val monetaryBD = getMonetaryAmount(spendPercentage, amount)
-    val monetaryAmount = new Amount(monetaryBD)
+    val monetaryAmount = Amount.gbp(monetaryBD)
     SpendData(monetaryAmount, spendPercentage)
   }
 
@@ -36,9 +37,6 @@ case class GovSpendingDataTransformer(totalTaxAmount: Amount, taxYear: Int){
       (key, createSpendDataItem(key, value, totalTaxAmount))
   }
 
-  private def getPercentage(key: GoodsAndServices) = GovSpendService.govSpending(taxYear).get(key).get
-
-  private def getMonetaryAmount(percentage: BigDecimal, amount: Amount) = {
+  private def getMonetaryAmount(percentage: BigDecimal, amount: Amount) =
     ((percentage / 100) * amount.amount).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-  }
 }
