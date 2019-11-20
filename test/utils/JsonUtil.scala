@@ -29,9 +29,15 @@ trait JsonUtil {
 
   def load(path: String): String =
     bracket(Source.fromInputStream(getClass.getResourceAsStream(path)))(_.close())(_.mkString)
-//
-//  def loadAndParseJsonWithDummyData(path: String): JsValue =
-//    Json.parse(loadAndReplace(path, dummyDataMap))
+
+  def loadAndParseJsonWithDummyUTRData(path: String, replaceMap: Map[String, String]): String =
+    bracket(Source.fromURL(getClass.getResource(path)))(_.close()) { json =>
+      var jsonString = json.mkString
+      for ((key, value) <- replaceMap) {
+        jsonString = jsonString.replace(key, value)
+      }
+      jsonString
+    }
 
   def loadAndReplace(path: String, replaceMap: JsObject) =
     bracket(Source.fromURL(getClass.getResource(path)))(_.close()) { json =>
