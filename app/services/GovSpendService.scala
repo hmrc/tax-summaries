@@ -16,21 +16,21 @@
 
 package services
 
+import models.ApiValue
 import play.api.libs.json.{Format, JsError, JsResult, JsString, JsSuccess, JsValue, Json}
 
-sealed trait GoodsAndServices
+sealed trait GoodsAndServices extends ApiValue
 
 object GoodsAndServices {
 
   implicit val formats = new Format[GoodsAndServices] {
     override def writes(o: GoodsAndServices): JsValue = o match {
-      case Welfare => JsString("Welfare")
-
       case Welfare                  => JsString("Welfare")
       case Health                   => JsString("Health")
       case Education                => JsString("Education")
       case StatePensions            => JsString("StatePensions")
       case NationalDebtInterest     => JsString("NationalDebtInterest")
+      case Defence                  => JsString("Defence")
       case CriminalJustice          => JsString("CriminalJustice")
       case Transport                => JsString("Transport")
       case BusinessAndIndustry      => JsString("BusinessAndIndustry")
@@ -51,6 +51,7 @@ object GoodsAndServices {
         case JsString("Education")                => JsSuccess(Education)
         case JsString("StatePensions")            => JsSuccess(StatePensions)
         case JsString("NationalDebtInterest")     => JsSuccess(NationalDebtInterest)
+        case JsString("Defence")                  => JsSuccess(Defence)
         case JsString("CriminalJustice")          => JsSuccess(CriminalJustice)
         case JsString("Transport")                => JsSuccess(Transport)
         case JsString("BusinessAndIndustry")      => JsSuccess(BusinessAndIndustry)
@@ -66,22 +67,43 @@ object GoodsAndServices {
       }
   }
 
-  case object Welfare extends GoodsAndServices
-  case object Health extends GoodsAndServices
-  case object Education extends GoodsAndServices
-  case object StatePensions extends GoodsAndServices
-  case object NationalDebtInterest extends GoodsAndServices
-  case object Defence extends GoodsAndServices
-  case object CriminalJustice extends GoodsAndServices
-  case object Transport extends GoodsAndServices
-  case object BusinessAndIndustry extends GoodsAndServices
-  case object GovernmentAdministration extends GoodsAndServices
-  case object Culture extends GoodsAndServices
-  case object HousingAndUtilities extends GoodsAndServices
-  case object OverseasAid extends GoodsAndServices
-  case object UkContributionToEuBudget extends GoodsAndServices
-  case object PublicOrderAndSafety extends GoodsAndServices
-  case object Environment extends GoodsAndServices
+  case object Welfare extends ApiValue("Welfare") with GoodsAndServices
+  case object Health extends ApiValue("Health") with GoodsAndServices
+  case object Education extends ApiValue("Education") with GoodsAndServices
+  case object StatePensions extends ApiValue("StatePensions") with GoodsAndServices
+  case object NationalDebtInterest extends ApiValue("NationalDebtInterest") with GoodsAndServices
+  case object Defence extends ApiValue("Defence") with GoodsAndServices
+  case object CriminalJustice extends ApiValue("CriminalJustice") with GoodsAndServices
+  case object Transport extends ApiValue("Transport") with GoodsAndServices
+  case object BusinessAndIndustry extends ApiValue("BusinessAndIndustry") with GoodsAndServices
+  case object GovernmentAdministration extends ApiValue("GovernmentAdministration") with GoodsAndServices
+  case object Culture extends ApiValue("Culture") with GoodsAndServices
+  case object HousingAndUtilities extends ApiValue("HousingAndUtilities") with GoodsAndServices
+  case object OverseasAid extends ApiValue("OverseasAid") with GoodsAndServices
+  case object UkContributionToEuBudget extends ApiValue("UkContributionToEuBudget") with GoodsAndServices
+  case object PublicOrderAndSafety extends ApiValue("PublicOrderAndSafety") with GoodsAndServices
+  case object Environment extends ApiValue("Environment") with GoodsAndServices
+
+  val allItems = List[GoodsAndServices](
+    Welfare,
+    Health,
+    Education,
+    StatePensions,
+    NationalDebtInterest,
+    Defence,
+    CriminalJustice,
+    Transport,
+    BusinessAndIndustry,
+    GovernmentAdministration,
+    Culture,
+    HousingAndUtilities,
+    OverseasAid,
+    UkContributionToEuBudget,
+    PublicOrderAndSafety,
+    Environment
+  )
+  implicit def mapFormat[V: Format]: Format[Map[GoodsAndServices, V]] =
+    ApiValue.formatMap[GoodsAndServices, V](allItems)
 }
 
 object GovSpendService {
