@@ -22,7 +22,7 @@ import services.GoodsAndServices
 
 case class GovernmentSpendingOutputWrapper(
   taxYear: Int,
-  govSpendAmountData: Map[GoodsAndServices, SpendData],
+  govSpendAmountData: Map[String, SpendData],
   totalAmount: Amount,
   errors: Option[AtsError])
 
