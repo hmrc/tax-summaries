@@ -27,7 +27,7 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
     summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(liability, {
-        Logger.error(s"Unable to retrieve $liability.apiValue")
+        Logger.error(s"Unable to retrieve $liability")
         throw ATSParsingException(liability.apiValue)
       })
     )
