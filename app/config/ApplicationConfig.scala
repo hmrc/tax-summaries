@@ -26,6 +26,7 @@ import collection.JavaConverters._
 trait ApplicationConfig {
 
   def ratePercentages(year: Int): Map[String, Double]
+  def governmentSpend(year: Int): Map[String, Double]
 }
 
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
@@ -58,5 +59,5 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
 
   override def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
 
-  def governemntSpend(year: Int) = governmentSpendByYear(year)
+  override def governmentSpend(year: Int) = governmentSpendByYear(year)
 }

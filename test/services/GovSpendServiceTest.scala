@@ -18,15 +18,16 @@ package services
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import services.GoodsAndServices._
 import uk.gov.hmrc.play.test.UnitSpec
 
-class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
+class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerTest {
 
   "govSpending" should {
 
     "return correct amounts for 2014" in {
-      val result: Map[GoodsAndServices, BigDecimal] = GovSpendService.govSpending(2014)
+      val result: Map[GoodsAndServices, Double] = GovSpendService.govSpending(2014)
 
       result.get(Welfare) shouldBe Some(24.52)
       result.get(Health) shouldBe Some(18.87)
@@ -46,7 +47,7 @@ class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     }
 
     "return correct amounts for 2015" in {
-      val result: Map[GoodsAndServices, BigDecimal] = GovSpendService.govSpending(2015)
+      val result: Map[GoodsAndServices, Double] = GovSpendService.govSpending(2015)
 
       result.get(Welfare) shouldBe Some(25.3)
       result.get(Health) shouldBe Some(19.9)
@@ -66,7 +67,7 @@ class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     }
 
     "return correct amounts for 2016" in {
-      val result: Map[GoodsAndServices, BigDecimal] = GovSpendService.govSpending(2016)
+      val result: Map[GoodsAndServices, Double] = GovSpendService.govSpending(2016)
 
       result.get(Welfare) shouldBe Some(25.00)
       result.get(Health) shouldBe Some(19.90)
@@ -86,7 +87,7 @@ class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     }
 
     "return correct amounts for 2017" in {
-      val result: Map[GoodsAndServices, BigDecimal] = GovSpendService.govSpending(2017)
+      val result: Map[GoodsAndServices, Double] = GovSpendService.govSpending(2017)
 
       result.get(Welfare) shouldBe Some(24.30)
       result.get(Health) shouldBe Some(20.30)
@@ -106,7 +107,7 @@ class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     }
 
     "return correct amounts for 2018" in {
-      val result: Map[GoodsAndServices, BigDecimal] = GovSpendService.govSpending(2018)
+      val result: Map[GoodsAndServices, Double] = GovSpendService.govSpending(2018)
 
       result.get(Welfare) shouldBe Some(23.80)
       result.get(Health) shouldBe Some(19.90)
@@ -126,7 +127,7 @@ class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
     }
 
     "return correct amounts for 2019" in {
-      val result: Map[GoodsAndServices, BigDecimal] = GovSpendService.govSpending(2019)
+      val result: Map[GoodsAndServices, Double] = GovSpendService.govSpending(2019)
 
       result.get(Welfare) shouldBe Some(23.50)
       result.get(Health) shouldBe Some(20.20)

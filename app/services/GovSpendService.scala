@@ -103,6 +103,7 @@ object GoodsAndServices {
     PublicOrderAndSafety,
     Environment
   )
+
   implicit def mapFormat[V: Format]: Format[Map[GoodsAndServices, V]] =
     ApiValue.formatMap[GoodsAndServices, V](allItems)
 }
@@ -111,6 +112,15 @@ object GovSpendService {
 
   import GoodsAndServices._
 
-  def govSpending(taxYear: Int): Map[String, Double] =
-    ApplicationConfig.governemntSpend(taxYear)
+  def govSpending(taxYear: Int): Map[GoodsAndServices, Double] =
+    ApplicationConfig
+      .governmentSpend(taxYear)
+      .toList
+      .map {
+        case (k, v) => allItems.find(_.apiValue == k).map(k => (k, v))
+      }
+      .collect {
+        case Some(v) => v
+      }
+      .toMap
 }
