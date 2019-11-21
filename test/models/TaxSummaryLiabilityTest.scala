@@ -51,7 +51,7 @@ class TaxSummaryLiabilityTest extends UnitSpec {
       result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
       result.incomeTaxStatus shouldBe Some("")
       result.nationalInsuranceData.size shouldBe 3
-      result.atsData.size shouldBe 86
+      result.atsData.size shouldBe 89
     }
 
     "correctly parse the data where incomeTaxStatus is missing and returns default empty string" in {
