@@ -132,10 +132,14 @@ object Liability {
   case object SummaryTotalUkInterest extends ApiValue("ctnSummaryTotalUkInterest") with Liability
   case object SummaryTotalUklProperty extends ApiValue("ctnSummaryTotalUklProperty") with Liability
   case object SurplusMcaAlimonyRel extends ApiValue("atsSurplusMcaAlimonyRel") with Liability
+  case object TaxablePayScottishIntermediateRate extends ApiValue("TAXABLE_PAY_SIR") with Liability
+  case object TaxablePayScottishStarterRate extends ApiValue("TAXABLE_PAY_SSR") with Liability
   case object TaxCharged extends ApiValue("atsTaxCharged") with Liability
   case object TaxCreditsForDivs extends ApiValue("ctnTaxCredForDivs") with Liability
   case object TaxDueAfterAllceRlf extends ApiValue("ctn4TaxDueAfterAllceRlf") with Liability
   case object TaxExcluded extends ApiValue("taxExcluded") with Liability
+  case object TaxOnPayScottishIntermediateRate extends ApiValue("TAX_ON_PAY_SIR") with Liability
+  case object TaxOnPayScottishStarterRate extends ApiValue("TAX_ON_PAY_SSR") with Liability
   case object TopSlicingRelief extends ApiValue("topSlicingRelief") with Liability
   case object TotalTaxCreditRelief extends ApiValue("figTotalTaxCreditRelief") with Liability
   case object TradeUnionDeathBenefits extends ApiValue("itfTradeUnionDeathBenefits") with Liability
@@ -161,16 +165,19 @@ object Liability {
       SocialInvTaxRel, StatePension, StatePensionGross, SumTotForeignTaxRelief, SumTotLifePolicyGains, SumTotLoanRestricted,
       SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotShareOptions, SummaryTotTrustEstates,
       SummaryTotalDedPpr, SummaryTotalEmployment, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule,
-      SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxCharged, TaxCreditsForDivs,
-      TaxDueAfterAllceRlf, TaxExcluded, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
-      EmployeeClass1NI,EmployeeClass2NI,EmployerNI)
+      SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxablePayScottishIntermediateRate,
+      TaxablePayScottishStarterRate, TaxCharged, TaxCreditsForDivs, TaxDueAfterAllceRlf, TaxExcluded, TaxOnPayScottishIntermediateRate,
+      TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
+      EmployeeClass1NI, EmployeeClass2NI, EmployerNI)
   // format: on
 
   implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)
 
 }
 
-final case class PensionTaxRate(value: Double)
+final case class PensionTaxRate(value: Double) {
+  val percentage: Int = (value * 100).toInt
+}
 
 object PensionTaxRate {
 
@@ -189,7 +196,10 @@ final case class TaxSummaryLiability(
   incomeTaxStatus: Option[String],
   nationalInsuranceData: Map[Liability, Amount],
   atsData: Map[Liability, Amount]
-)
+) {
+
+  val isScottish: Boolean = incomeTaxStatus.contains("0002")
+}
 
 object TaxSummaryLiability {
 
