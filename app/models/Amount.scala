@@ -36,17 +36,17 @@ case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] 
     copy(amount = this.amount - that.amount)
   }
 
-  def compare(that: Amount) = {
+  def compare(that: Amount): Int = {
     require(this.currency equals that.currency)
     this.amount compare that.amount
   }
 
-  def divideWithPrecision(that: Amount, scale: Int) = {
+  def divideWithPrecision(that: Amount, scale: Int): Amount = {
     require(this.currency equals that.currency)
     copy(amount = (this.amount / that.amount).setScale(scale, BigDecimal.RoundingMode.DOWN))
   }
 
-  def multiplyWithPrecision(that: Amount, scale: BigDecimal) = {
+  def multiplyWithPrecision(that: Amount, scale: BigDecimal): Amount = {
     require(this.currency equals that.currency)
     copy(amount = (this.amount * that.amount))
   }

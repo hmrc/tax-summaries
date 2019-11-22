@@ -18,6 +18,7 @@ package transformers
 
 import models._
 import models.Liability._
+import play.api.Logger
 import services._
 
 class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: TaxRateService) {
@@ -25,7 +26,11 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability, throw ATSParsingException(liability.apiValue)))
+      summaryData.nationalInsuranceData.getOrElse(liability, {
+        Logger.error(s"Unable to retrieve $liability")
+        throw ATSParsingException(liability.apiValue)
+      })
+    )
 
   def getWithDefaultAmount(liability: Liability): Amount =
     try {
@@ -34,7 +39,7 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
       case ATSParsingException(_) => Amount.empty
     }
 
-  def taxableGains(): Amount =
+  def taxableGains: Amount =
     get(CgTotGainsAfterLosses) +
       get(CgGainsAfterLosses)
 
@@ -102,11 +107,9 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
       getWithDefaultAmount(MarriageAllceOut)
 
   def totalAmountEmployeeNic: Amount =
-    (
-      get(EmployeeClass1NI) +
-        get(EmployeeClass2NI) +
-        get(Class4Nic)
-    ).roundAmountUp()
+    get(EmployeeClass1NI) +
+      get(EmployeeClass2NI) +
+      get(Class4Nic)
 
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
@@ -178,15 +181,15 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
       totalCapitalGainsTax
 
   def basicIncomeRateIncomeTax: Amount =
-    getWithDefaultAmount(IncomeChargeableBasicRate) +
+    get(IncomeChargeableBasicRate) +
       get(SavingsChargeableLowerRate)
 
   def higherRateIncomeTax: Amount =
-    getWithDefaultAmount(IncomeChargeableHigherRate) +
+    get(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate)
 
   def additionalRateIncomeTax: Amount =
-    getWithDefaultAmount(IncomeChargeableAddHRate) +
+    get(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate)
 
   def scottishIncomeTax: Amount = {
@@ -204,7 +207,7 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
     !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
 
   def capitalGainsTaxPerCurrency: Amount =
-    taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())
+    taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains)
 
   def nicsAndTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalAmountTaxAndNics, totalIncomeBeforeTax)
@@ -220,8 +223,8 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
 
   private def isPensionRateAndTaxRateTheSame(taxRate: Rate): Boolean = {
-    val convertedRate = summaryData.pensionLumpSumTaxRate.value * 100
-    convertedRate equals taxRate.percent
+    val convertedRate: Double = summaryData.pensionLumpSumTaxRate.value * 100
+    convertedRate == taxRate.percent
   }
 
   private def liabilityAsPercentage(amountPerUnit: Amount) =
