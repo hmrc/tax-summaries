@@ -19,10 +19,13 @@ package services
 import config.ApplicationConfig
 import models.Rate
 
-class TaxRateService(taxYear: Int) {
+trait TaxRateService {
+
+  val taxYear: Int
+  val configRate: Int => Map[String, Double]
 
   private def getRate(rate: String): Rate = {
-    val result = ApplicationConfig.ratePercentages(taxYear)
+    val result = configRate(taxYear)
     Rate(result.getOrElse(rate, Rate.empty))
   }
 
@@ -51,4 +54,15 @@ class TaxRateService(taxYear: Int) {
 
   def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate =
     getRate("RPCIHigherRate")
+
+  def scottishStarterRate: Rate = getRate("scottishStarterRate")
+  def scottishBasicRate: Rate = getRate("scottishBasicRate")
+  def scottishIntermediateRate: Rate = getRate("scottishIntermediateRate")
+  def scottishHigherRate: Rate = getRate("scottishHigherRate")
+  def scottishAdditionalRate: Rate = getRate("scottishAdditionalRate")
+}
+
+class DefaultTaxRateService(val taxYear: Int) extends TaxRateService {
+
+  override val configRate: Int => Map[String, Double] = ApplicationConfig.ratePercentages
 }

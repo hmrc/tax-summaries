@@ -22,7 +22,7 @@ import models.RateKey._
 import models._
 import play.api.Logger
 import play.api.libs.json._
-import services.TaxRateService
+import services.DefaultTaxRateService
 
 case class ATSParsingException(s: String) extends Exception(s)
 
@@ -31,9 +31,9 @@ case class ATSRawDataTransformer(
   rawTaxPayerJson: JsValue,
   UTR: String,
   taxYear: Int) {
-  val taxRate = new TaxRateService(taxYear)
 
-  val calculations = new ATSCalculations(summaryLiability, taxYear, taxRate)
+  val taxRate = new DefaultTaxRateService(taxYear)
+  val calculations = ATSCalculations.make(summaryLiability, taxRate)
 
   def atsDataDTO: AtsMiddleTierData =
     try {
