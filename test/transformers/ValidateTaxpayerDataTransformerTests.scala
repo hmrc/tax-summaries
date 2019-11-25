@@ -17,13 +17,15 @@
 package transformers
 
 import errors.AtsError
+import models.TaxSummaryLiability
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsNull, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AtsJsonDataUpdate
 
 import scala.io.Source
 
-class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpdate {
+class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val dataJson = Json.parse(Source.fromURL(getClass.getResource("/utr_2014.json")).mkString)
   val taxYear: Int = 2014
@@ -40,7 +42,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
 
       val transformedJson = transformTaxpayerData(sourceJson = originalJson, jsonUpdateObject = update)
 
-      val returnValue = ATSRawDataTransformer(dataJson, transformedJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(dataJson.as[TaxSummaryLiability], transformedJson, "", taxYear).atsDataDTO
       returnValue.taxPayerData shouldBe None
       returnValue.errors shouldBe Some(AtsError("title"))
     }
@@ -52,7 +55,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
 
       val parsedJson = Json.parse(originalJson)
 
-      val returnValue = ATSRawDataTransformer(dataJson, parsedJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
       returnValue.taxPayerData shouldBe None
 
       returnValue.errors shouldBe Some(AtsError("forename"))
@@ -64,7 +68,8 @@ class ValidateTaxpayerDataTransformerTests extends UnitSpec with AtsJsonDataUpda
         Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
 
       val parsedJson = Json.parse(originalJson)
-      val returnValue = ATSRawDataTransformer(dataJson, parsedJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
 
       returnValue.taxPayerData shouldBe None
       returnValue.errors shouldBe Some(AtsError("surname"))

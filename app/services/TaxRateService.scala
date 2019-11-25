@@ -16,29 +16,39 @@
 
 package services
 
+import config.ApplicationConfig
 import models.Rate
 
-object TaxRateService {
-  def startingRateForSavingsRate(taxYear: Int): Rate = Rate("10%")
-  def basicRateIncomeTaxRate(taxYear: Int): Rate = Rate("20%")
-  def higherRateIncomeTaxRate(taxYear: Int): Rate = Rate("40%")
-  def additionalRateIncomeTaxRate(taxYear: Int): Rate = Rate("45%")
-  def dividendsOrdinaryRate(taxYear: Int): Rate = taxYear match {
-    case year if year >= 2017 => Rate("7.5%")
-    case _                    => Rate("10%")
+class TaxRateService(taxYear: Int) {
+
+  private def getRate(rate: String): Rate = {
+    val result = ApplicationConfig.ratePercentages(taxYear)
+    Rate(result.getOrElse(rate, Rate.empty))
   }
-  def dividendUpperRateRate(taxYear: Int): Rate = Rate("32.5%")
-  def dividendAdditionalRate(taxYear: Int): Rate = taxYear match {
-    case year if year >= 2017 => Rate("38.1%")
-    case _                    => Rate("37.5%")
-  }
-  def cgEntrepreneursRate(taxYear: Int): Rate = Rate("10%")
-  def cgOrdinaryRate(taxYear: Int): Rate = taxYear match {
-    case year if year >= 2012 && year <= 2016 => Rate("18%")
-    case _                                    => Rate("10%")
-  }
-  def cgUpperRate(taxYear: Int): Rate = taxYear match {
-    case year if year >= 2012 && year <= 2016 => Rate("28%")
-    case _                                    => Rate("20%")
-  }
+
+  def startingRateForSavingsRate(): Rate = getRate("startingRateForSavingsRate")
+
+  def basicRateIncomeTaxRate(): Rate = getRate("basicRateIncomeTaxRate")
+
+  def higherRateIncomeTaxRate(): Rate = getRate("higherRateIncomeTaxRate")
+
+  def additionalRateIncomeTaxRate(): Rate = getRate("additionalRateIncomeTaxRate")
+
+  def dividendsOrdinaryRate(): Rate = getRate("dividendsOrdinaryRate")
+
+  def dividendUpperRateRate(): Rate = getRate("dividendUpperRateRate")
+
+  def dividendAdditionalRate(): Rate = getRate("dividendAdditionalRate")
+
+  def cgEntrepreneursRate(): Rate = getRate("cgEntrepreneursRate")
+
+  def cgOrdinaryRate(): Rate = getRate("cgOrdinaryRate")
+
+  def cgUpperRate(): Rate = getRate("cgUpperRate")
+
+  def individualsForResidentialPropertyAndCarriedInterestLowerRate(): Rate =
+    getRate("RPCILowerRate")
+
+  def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate =
+    getRate("RPCIHigherRate")
 }
