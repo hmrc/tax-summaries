@@ -39,8 +39,8 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
   private def defaultRatePercentages: Map[String, Double] =
     configuration
       .getObject("taxRates.default.percentages")
-      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble)) //option of a map where the values are a double
-      .getOrElse(Map()) // get the map out of the option, if it is a none for some reason return an empty map
+      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
+      .getOrElse(Map())
       .toMap
 
   private def ratePercentagesByYear(year: Int): Map[String, Double] =

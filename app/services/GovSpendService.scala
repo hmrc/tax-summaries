@@ -17,56 +17,17 @@
 package services
 
 import models.ApiValue
-import play.api.libs.json.{Format, JsError, JsResult, JsString, JsSuccess, JsValue, Json}
+import play.api.libs.json.{Format, JsError, JsResult, JsString, JsSuccess, JsValue, Json, Writes}
 import config.ApplicationConfig
 
 sealed trait GoodsAndServices extends ApiValue
 
 object GoodsAndServices {
 
-  implicit val formats = new Format[GoodsAndServices] {
-    override def writes(o: GoodsAndServices): JsValue = o match {
-      case Welfare                  => JsString("Welfare")
-      case Health                   => JsString("Health")
-      case Education                => JsString("Education")
-      case StatePensions            => JsString("StatePensions")
-      case NationalDebtInterest     => JsString("NationalDebtInterest")
-      case Defence                  => JsString("Defence")
-      case CriminalJustice          => JsString("CriminalJustice")
-      case Transport                => JsString("Transport")
-      case BusinessAndIndustry      => JsString("BusinessAndIndustry")
-      case GovernmentAdministration => JsString("GovernmentAdministration")
-      case Culture                  => JsString("Culture")
-      case HousingAndUtilities      => JsString("HousingAndUtilities")
-      case OverseasAid              => JsString("OverseasAid")
-      case UkContributionToEuBudget => JsString("UkContributionToEuBudget")
-      case PublicOrderAndSafety     => JsString("PublicOrderAndSafety")
-      case Environment              => JsString("Environment")
-
-    }
-
-    override def reads(json: JsValue): JsResult[GoodsAndServices] =
-      json match {
-        case JsString("Welfare")                  => JsSuccess(Welfare)
-        case JsString("Health")                   => JsSuccess(Health)
-        case JsString("Education")                => JsSuccess(Education)
-        case JsString("StatePensions")            => JsSuccess(StatePensions)
-        case JsString("NationalDebtInterest")     => JsSuccess(NationalDebtInterest)
-        case JsString("Defence")                  => JsSuccess(Defence)
-        case JsString("CriminalJustice")          => JsSuccess(CriminalJustice)
-        case JsString("Transport")                => JsSuccess(Transport)
-        case JsString("BusinessAndIndustry")      => JsSuccess(BusinessAndIndustry)
-        case JsString("GovernmentAdministration") => JsSuccess(GovernmentAdministration)
-        case JsString("Culture")                  => JsSuccess(Culture)
-        case JsString("HousingAndUtilities")      => JsSuccess(HousingAndUtilities)
-        case JsString("OverseasAid")              => JsSuccess(OverseasAid)
-        case JsString("UkContributionToEuBudget") => JsSuccess(UkContributionToEuBudget)
-        case JsString("PublicOrderAndSafety")     => JsSuccess(PublicOrderAndSafety)
-        case JsString("Environment")              => JsSuccess(Environment)
-
-        case _ => JsError(s"Unable to parse object $json as GoodsAndServices")
-      }
-  }
+  implicit val formats: Format[GoodsAndServices] = Format(
+    ApiValue.readFromList(allItems),
+    Writes[GoodsAndServices](o => JsString(o.apiValue))
+  )
 
   case object Welfare extends ApiValue("Welfare") with GoodsAndServices
   case object Health extends ApiValue("Health") with GoodsAndServices
