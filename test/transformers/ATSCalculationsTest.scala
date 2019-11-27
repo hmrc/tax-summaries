@@ -138,7 +138,7 @@ class ATSCalculationsTest extends UnitSpec {
     "scottishStarterRateTaxAmount is starter rate amount" in new ScottishFixture {
 
       override val atsData: Map[Liability, Amount] = Map(TaxOnPayScottishStarterRate -> Amount.gbp(200))
-      calculation.scottishStarterRateTaxAmount shouldBe Amount.gbp(200)
+      calculation.scottishStarterRateTax shouldBe Amount.gbp(200)
     }
 
     "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in new ScottishFixture {
@@ -147,13 +147,13 @@ class ATSCalculationsTest extends UnitSpec {
       override val atsData: Map[Liability, Amount] =
         Map(TaxOnPayScottishStarterRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
 
-      calculation.scottishStarterRateTaxAmount shouldBe Amount.gbp(500)
+      calculation.scottishStarterRateTax shouldBe Amount.gbp(500)
     }
 
     "scottishBasicRateTaxAmount is basic rate amount" in new ScottishFixture {
 
       override val atsData: Map[Liability, Amount] = Map(IncomeTaxBasicRate -> Amount.gbp(200))
-      calculation.scottishBasicRateTaxAmount shouldBe Amount.gbp(200)
+      calculation.scottishBasicRateTax shouldBe Amount.gbp(200)
     }
 
     "scottishBasicRateTaxAmount includes pension tax when pension rate matches basic rate" in new ScottishFixture {
@@ -162,13 +162,13 @@ class ATSCalculationsTest extends UnitSpec {
       override val atsData: Map[Liability, Amount] =
         Map(IncomeTaxBasicRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
 
-      calculation.scottishBasicRateTaxAmount shouldBe Amount.gbp(500)
+      calculation.scottishBasicRateTax shouldBe Amount.gbp(500)
     }
 
     "scottishIntermediateRateTaxAmount is intermediate rate amount" in new ScottishFixture {
 
       override val atsData: Map[Liability, Amount] = Map(TaxOnPayScottishIntermediateRate -> Amount.gbp(200))
-      calculation.scottishIntermediateRateTaxAmount shouldBe Amount.gbp(200)
+      calculation.scottishIntermediateRateTax shouldBe Amount.gbp(200)
     }
 
     "scottishIntermediateRateTaxAmount includes pension tax when pension rate matches intermediate rate" in new ScottishFixture {
@@ -177,13 +177,13 @@ class ATSCalculationsTest extends UnitSpec {
       override val atsData: Map[Liability, Amount] =
         Map(TaxOnPayScottishIntermediateRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
 
-      calculation.scottishIntermediateRateTaxAmount shouldBe Amount.gbp(500)
+      calculation.scottishIntermediateRateTax shouldBe Amount.gbp(500)
     }
 
     "scottishHigherRateTaxAmount is higher rate amount" in new ScottishFixture {
 
       override val atsData: Map[Liability, Amount] = Map(IncomeTaxHigherRate -> Amount.gbp(200))
-      calculation.scottishHigherRateTaxAmount shouldBe Amount.gbp(200)
+      calculation.scottishHigherRateTax shouldBe Amount.gbp(200)
     }
 
     "scottishHigherRateTaxAmount includes pension tax when pension rate matches higher rate" in new ScottishFixture {
@@ -192,13 +192,13 @@ class ATSCalculationsTest extends UnitSpec {
       override val atsData: Map[Liability, Amount] =
         Map(IncomeTaxHigherRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
 
-      calculation.scottishHigherRateTaxAmount shouldBe Amount.gbp(500)
+      calculation.scottishHigherRateTax shouldBe Amount.gbp(500)
     }
 
     "scottishAdditionalRateTaxAmount is additional rate amount" in new ScottishFixture {
 
       override val atsData: Map[Liability, Amount] = Map(IncomeTaxAddHighRate -> Amount.gbp(200))
-      calculation.scottishAdditionalRateTaxAmount shouldBe Amount.gbp(200)
+      calculation.scottishAdditionalRateTax shouldBe Amount.gbp(200)
     }
 
     "scottishAdditionalRateTaxAmount includes pension tax when pension rate matches additional rate" in new ScottishFixture {
@@ -207,7 +207,15 @@ class ATSCalculationsTest extends UnitSpec {
       override val atsData: Map[Liability, Amount] =
         Map(IncomeTaxAddHighRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
 
-      calculation.scottishAdditionalRateTaxAmount shouldBe Amount.gbp(500)
+      calculation.scottishAdditionalRateTax shouldBe Amount.gbp(500)
     }
+
+    /*
+    def scottishStarterRateIncome: Amount = Amount.empty
+  def scottishBasicRateIncome: Amount = Amount.empty
+  def scottishIntermediateRateIncome: Amount = Amount.empty
+  def scottishHigherRateIncome: Amount = Amount.empty
+  def scottishAdditionalRateIncome: Amount = Amount.empty
+     */
   }
 }
