@@ -118,6 +118,15 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
       override val atsData: Map[Liability, Amount] = newAtsData.toMap
     }
 
+    object ScottishFixture {
+
+      def apply(newPensionTaxRate: PensionTaxRate, newAtsData: (Liability, Amount)*): ScottishFixture =
+        new ScottishFixture(newPensionTaxRate, newAtsData: _*)
+
+      def apply(newAtsData: (Liability, Amount)*): ScottishFixture =
+        new ScottishFixture(PensionTaxRate(0), newAtsData: _*)
+    }
+
     val fixture = new ScottishFixture(PensionTaxRate(0)) {}
 
     "return an empty amount for scottishIncomeTax" in {
@@ -143,7 +152,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.19),
           TaxOnPayScottishStarterRate -> Amount.gbp(income),
           PensionLsumTaxDue           -> Amount.gbp(pension))
@@ -155,7 +164,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishBasicRateTaxAmount includes pension tax when pension rate matches basic rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.20),
           IncomeTaxBasicRate -> Amount.gbp(income),
           PensionLsumTaxDue  -> Amount.gbp(pension))
@@ -167,7 +176,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishIntermediateRateTaxAmount includes pension tax when pension rate matches intermediate rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.21),
           TaxOnPayScottishIntermediateRate -> Amount.gbp(income),
           PensionLsumTaxDue                -> Amount.gbp(pension))
@@ -179,7 +188,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishHigherRateTaxAmount includes pension tax when pension rate matches higher rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.41),
           IncomeTaxHigherRate -> Amount.gbp(income),
           PensionLsumTaxDue   -> Amount.gbp(pension))
@@ -191,7 +200,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishAdditionalRateTaxAmount includes pension tax when pension rate matches additional rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.46),
           IncomeTaxAddHighRate -> Amount.gbp(income),
           PensionLsumTaxDue    -> Amount.gbp(pension))
@@ -203,7 +212,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishStarterRateIncome include pension lump sum amount when matches starter rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.19),
           TaxablePayScottishStarterRate -> Amount.gbp(income),
           StatePensionGross             -> Amount.gbp(pension))
@@ -215,7 +224,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishStarterRateIncome include pension lump sum amount when matches basic rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.20),
           IncomeTaxBasicRate -> Amount.gbp(income),
           StatePensionGross  -> Amount.gbp(pension))
@@ -227,7 +236,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishStarterRateIncome include pension lump sum amount when matches intermediate rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.21),
           TaxablePayScottishIntermediateRate -> Amount.gbp(income),
           StatePensionGross                  -> Amount.gbp(pension))
@@ -239,7 +248,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     "scottishStarterRateIncome include pension lump sum amount when matches higher rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>
-        val sut = new ScottishFixture(
+        val sut = ScottishFixture(
           PensionTaxRate(0.41),
           IncomeTaxHigherRate -> Amount.gbp(income),
           StatePensionGross   -> Amount.gbp(pension))
@@ -257,6 +266,54 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
           StatePensionGross    -> Amount.gbp(pension))
 
         sut.calculation.scottishAdditionalRateIncome shouldBe Amount.gbp(income + pension)
+      }
+    }
+
+    "savingsBasicRateTax returns tax on savings" in {
+
+      forAll { tax: BigDecimal =>
+        val sut = ScottishFixture(SavingsTaxLowerRate -> Amount.gbp(tax))
+        sut.calculation.savingsBasicRateTax shouldBe Amount.gbp(tax)
+      }
+    }
+
+    "savingsHigherRateTax returns tax on savings" in {
+
+      forAll { tax: BigDecimal =>
+        val sut = ScottishFixture(SavingsTaxHigherRate -> Amount.gbp(tax))
+        sut.calculation.savingsHigherRateTax shouldBe Amount.gbp(tax)
+      }
+    }
+
+    "savingsAdditionalRateTax returns tax on savings" in {
+
+      forAll { tax: BigDecimal =>
+        val sut = ScottishFixture(SavingsTaxAddHighRate -> Amount.gbp(tax))
+        sut.calculation.savingsAdditionalRateTax shouldBe Amount.gbp(tax)
+      }
+    }
+
+    "savingsBasicRateIncome returns income on savings" in {
+
+      forAll { tax: BigDecimal =>
+        val sut = ScottishFixture(SavingsChargeableLowerRate -> Amount.gbp(tax))
+        sut.calculation.savingsBasicRateIncome shouldBe Amount.gbp(tax)
+      }
+    }
+
+    "savingsHigherRateIncome returns income on savings" in {
+
+      forAll { tax: BigDecimal =>
+        val sut = ScottishFixture(SavingsChargeableHigherRate -> Amount.gbp(tax))
+        sut.calculation.savingsHigherRateIncome shouldBe Amount.gbp(tax)
+      }
+    }
+
+    "savingsAdditionalRateIncome returns income on savings" in {
+
+      forAll { tax: BigDecimal =>
+        val sut = ScottishFixture(SavingsChargeableAddHRate -> Amount.gbp(tax))
+        sut.calculation.savingsAdditionalRateIncome shouldBe Amount.gbp(tax)
       }
     }
   }
