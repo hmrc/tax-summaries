@@ -239,7 +239,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           ScottishIncomeTax               -> Amount(186.00, "GBP"),
           TotalIncomeTax                  -> Amount(362.00, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      parsedPayload should contain allElementsOf testPayload
 
       val parsedRates = returnValue.income_tax.get.rates.get
       val testRates =
