@@ -114,22 +114,21 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) + {
-      if (isPensionRateAndTaxRateTheSame(taxRates.basicRateIncomeTaxRate())) get(PensionLsumTaxDue)
-      else Amount.empty
+      includePensionTaxForRate(taxRates.basicRateIncomeTaxRate())
+
     }
 
   def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) + {
-      if (isPensionRateAndTaxRateTheSame(taxRates.higherRateIncomeTaxRate())) get(PensionLsumTaxDue)
-      else Amount.empty
+      includePensionTaxForRate(taxRates.higherRateIncomeTaxRate())
     }
 
   def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) + {
-      if (isPensionRateAndTaxRateTheSame(taxRates.additionalRateIncomeTaxRate())) get(PensionLsumTaxDue)
-      else Amount.empty
+      includePensionTaxForRate(taxRates.additionalRateIncomeTaxRate())
+
     }
 
   def otherAdjustmentsIncreasing: Amount =
@@ -222,9 +221,9 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
 
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
 
-  private def isPensionRateAndTaxRateTheSame(taxRate: Rate): Boolean = {
-    val convertedRate: Double = summaryData.pensionLumpSumTaxRate.value * 100
-    convertedRate == taxRate.percent
+  private def includePensionTaxForRate (taxRate: Rate): Amount = {
+    if (summaryData.pensionLumpSumTaxRate.value * 100 == taxRate.percent) get (PensionLsumTaxDue)
+    else Amount.empty
   }
 
   private def liabilityAsPercentage(amountPerUnit: Amount) =
