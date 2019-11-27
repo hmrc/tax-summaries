@@ -72,7 +72,7 @@ object PAYETransformer {
       val otherIncome: Option[Double] = pickAmount(__ \ 'income \ 'otherIncome, source)
       val incomeBeforeTax: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
       val taxableIncome: Option[Double] = pickAmount(__ \ 'income \ 'taxableIncome, source)
-      //  val otherAllowancesDeductionsExpenses: Option[Double] = pickAmount(__ \'income\'otherAllowancesDeductionsExpenses, source)    Waiting on Ralph
+      val otherAllowancesDeductionsExpenses: Option[Double] = pickAmount(__ \'income\'otherAllowancesDeductionsExpenses, source)
       val employmentBenefits: Option[Double] = pickAmount(__ \ 'income \ 'employmentBenefits, source)
 
       val jsonTransformer =
@@ -92,9 +92,9 @@ object PAYETransformer {
             __ \ 'income_data \ 'payload,
             middleTierAttributeJson("total_income_before_tax", incomeBeforeTax.getOrElse(0))) andThen
           appendAttribute(
-            __ \ 'income_data \ 'payload,
-            middleTierAttributeJson("income_from_employment", taxableIncome.getOrElse(0))) andThen
-          //         appendAttribute(__ \ 'income_data \ 'payload, middleTierAttributeJson("income_from_employment", otherAllowancesDeductionsExpenses.getOrElse(0))) andThen
+            __ \ 'allowance_data \ 'payload,
+            middleTierAttributeJson("total_tax_free_amount", taxableIncome.getOrElse(0))) andThen
+          appendAttribute(__ \ 'allowance_data \ 'payload, middleTierAttributeJson("other_allowances_amount", otherAllowancesDeductionsExpenses.getOrElse(0))) andThen
           appendAttribute(
             __ \ 'income_data \ 'payload,
             middleTierAttributeJson("taxable_state_benefits", employmentBenefits.getOrElse(0)))
@@ -152,5 +152,25 @@ object PAYETransformer {
         "amount": 11600,
         "currency": "GBP"
       }
+    },
+    "allowance_data": {  // Your tax-free amount (2)
+    "payload": {
+      "marriage_allowance_transferred_amount": {
+        "amount": 0,
+        "currency": "GBP"
+      },
+      "other_allowances_amount": {
+        "amount": 300,
+        "currency": "GBP"
+      },
+      "personal_tax_free_amount": {
+        "amount": 9440,
+        "currency": "GBP"
+      },
+      "total_tax_free_amount": {
+        "amount": 9740,
+        "currency": "GBP"
+      }
     }
+  }
  */
