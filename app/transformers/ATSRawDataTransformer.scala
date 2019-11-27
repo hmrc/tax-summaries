@@ -166,7 +166,7 @@ case class ATSRawDataTransformer(
       TotalCapitalGains        -> calculations.totalCgTaxLiabilityAsPercentage,
       InterestLower            -> taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate,
       InterestHigher           -> taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate
-    ).mapValues(_.apiValue).map(apiValue=>apiValue)
+    ).mapValues(_.apiValue).map(apiValue => apiValue)
 
   private def createSummaryPageRates: Map[RateKey, ApiRate] =
     Map(
@@ -183,5 +183,5 @@ case class ATSRawDataTransformer(
       Ordinary         -> taxRate.dividendsOrdinaryRate,
       Upper            -> taxRate.dividendUpperRateRate,
       Additional       -> taxRate.dividendAdditionalRate
-    ).mapValues(_.apiValue).map(apiValue=>apiValue)
+    ).mapValues(_.apiValue).map(apiValue => apiValue)
 }

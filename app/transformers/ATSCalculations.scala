@@ -220,10 +220,9 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
 
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
 
-  private def includePensionTaxForRate (taxRate: Rate): Amount = {
-    if (summaryData.pensionLumpSumTaxRate.value * 100 == taxRate.percent) get (PensionLsumTaxDue)
+  private def includePensionTaxForRate(taxRate: Rate): Amount =
+    if (summaryData.pensionLumpSumTaxRate.value * 100 == taxRate.percent) get(PensionLsumTaxDue)
     else Amount.empty
-  }
 
   private def liabilityAsPercentage(amountPerUnit: Amount) =
     Rate.rateFromPerUnitAmount(amountPerUnit)
