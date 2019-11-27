@@ -22,7 +22,7 @@ import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.libs.json.{JsObject, JsString}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.NpsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,10 +41,10 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
     override lazy val npsService: NpsService = mock[NpsService]
   }
 
-  "getAtsData" should {
+  "getRawAtsData" should {
     "return ok" in new TestController {
       when(npsService.getRawPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(new JsObject(Map("stuff" -> JsString("someStuff")))))
+        .thenReturn(Future.successful(Json.obj()))
       val result = getRawATSData(testNino, 2018)(request)
 
       status(result) shouldBe 200
@@ -60,5 +60,24 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
       }
     }
   }
+  
+  "getAtsData" should {
+    "return ok" in new TestController {
+      when(npsService.getPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Json.obj()))
+      val result = getATSData(testNino, 2018)(request)
 
+      status(result) shouldBe 200
+    }
+
+    "return a failed future" in new TestController {
+      when(npsService.getPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(new Exception("failed")))
+      val result = getATSData(testNino, 2018)(request)
+
+      whenReady(result.failed) { exception =>
+        exception shouldBe a[Exception]
+      }
+    }
+  }
 }

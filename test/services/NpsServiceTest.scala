@@ -22,7 +22,7 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants._
@@ -40,14 +40,28 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
   private val currentYear = 2018
 
-  "getPayload" should {
-
+  "getRawPayload" should {
     "return a successful future" in new TestService {
-
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mock[JsValue]))
 
       val result = getRawPayload(testNino, currentYear)(mock[HeaderCarrier])
+
+      whenReady(result) { result =>
+        result shouldBe a[JsValue]
+      }
+    }
+  }
+
+  "getPayload" should {
+    "return a successful future" in new TestService {
+      val mockPayload =  mock[JsValue]
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(mockPayload))
+      when(mockPayload.as[JsObject])
+        .thenReturn(Json.obj())
+
+      val result = getPayload(testNino, currentYear)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
         result shouldBe a[JsValue]
