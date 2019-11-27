@@ -77,6 +77,28 @@ object LiabilityKey extends DefaultReads {
   case object UpperRateAmount extends ApiValue("upper_rate_amount") with LiabilityKey
   case object YourTotalTax extends ApiValue("your_total_tax") with LiabilityKey
 
+  case object ScottishStarterRate extends ApiValue("scottish_starter_rate") with LiabilityKey
+  case object ScottishBasicRate extends ApiValue("scottish_basic_rate") with LiabilityKey
+  case object ScottishIntermediateRate extends ApiValue("scottish_intermediate_rate") with LiabilityKey
+  case object ScottishHigherRate extends ApiValue("scottish_higher_rate") with LiabilityKey
+  case object ScottishAdditionalRate extends ApiValue("scottish_additional_rate") with LiabilityKey
+
+  case object ScottishTotalTax extends ApiValue("scottish_total_tax") with LiabilityKey
+
+  case object ScottishStarterIncome extends ApiValue("scottish_starter_income") with LiabilityKey
+  case object ScottishBasicIncome extends ApiValue("scottish_basic_income") with LiabilityKey
+  case object ScottishIntermediateIncome extends ApiValue("scottish_intermediate_income") with LiabilityKey
+  case object ScottishHigherIncome extends ApiValue("scottish_higher_income") with LiabilityKey
+  case object ScottishAdditionalIncome extends ApiValue("scottish_additional_income") with LiabilityKey
+
+  case object SavingsLowerRate extends ApiValue("savings_lower_rate") with LiabilityKey
+  case object SavingsHigherRate extends ApiValue("savings_higher_rate") with LiabilityKey
+  case object SavingsAdditionalRate extends ApiValue("savings_additional_rate") with LiabilityKey
+
+  case object SavingsLowerIncome extends ApiValue("savings_lower_income") with LiabilityKey
+  case object SavingsHigherIncome extends ApiValue("savings_higher_income") with LiabilityKey
+  case object SavingsAdditionalIncome extends ApiValue("savings_additional_income") with LiabilityKey
+
   // format: off
   val allItems: List[LiabilityKey] =
     List(TaxableGains, LessTaxFreeAmount, PayCgTaxOn, AmountAtEntrepreneursRate, AmountDueAtEntrepreneursRate, AmountAtOrdinaryRate, AmountDueAtOrdinaryRate,
@@ -86,7 +108,9 @@ object LiabilityKey extends DefaultReads {
       YourTotalTax, TotalIncomeTax, NicsAndTaxPerCurrencyUnit, TotalCgTaxRate, NicsAndTaxRate, StartingRateForSavings, StartingRateForSavingsAmount, BasicRateIncomeTax,
       BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, OrdinaryRate, OrdinaryRateAmount,
       UpperRate, UpperRateAmount, AdditionalRate, AdditionalRateAmount, OtherAdjustmentsIncreasing, MarriageAllowanceReceivedAmount, OtherAdjustmentsReducing,
-      ScottishIncomeTax)
+      ScottishIncomeTax, ScottishStarterRate, ScottishBasicRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate, ScottishTotalTax,
+      ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome, ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRate,
+      SavingsHigherRate, SavingsAdditionalRate, SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome)
   // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =
