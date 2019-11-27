@@ -243,10 +243,10 @@ sealed trait ATSCalculations {
     else Amount.empty
 
   protected def includePensionIncomeForRate(taxRate: Rate): Amount =
-    if(summaryData.pensionLumpSumTaxRate.percentage == taxRate.percent) get(PensionSavingChargeable)
+    if (summaryData.pensionLumpSumTaxRate.percentage == taxRate.percent) get(StatePensionGross)
     else Amount.empty
 
-  protected def liabilityAsPercentage(amountPerUnit: Amount) =
+  protected def liabilityAsPercentage(amountPerUnit: Amount): Rate =
     Rate.rateFromPerUnitAmount(amountPerUnit)
 }
 
@@ -282,6 +282,21 @@ sealed class Post2017ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
 
   override def scottishAdditionalRateTax: Amount =
     get(IncomeTaxAddHighRate) + includePensionTaxForRate(taxRates.scottishAdditionalRate)
+
+  override def scottishStarterRateIncome: Amount =
+    get(TaxablePayScottishStarterRate) + includePensionIncomeForRate(taxRates.scottishStarterRate)
+
+  override def scottishBasicRateIncome: Amount =
+    get(IncomeTaxBasicRate) + includePensionIncomeForRate(taxRates.scottishBasicRate)
+
+  override def scottishIntermediateRateIncome: Amount =
+    get(TaxablePayScottishIntermediateRate) + includePensionIncomeForRate(taxRates.scottishIntermediateRate)
+
+  override def scottishHigherRateIncome: Amount =
+    get(IncomeTaxHigherRate) + includePensionIncomeForRate(taxRates.scottishHigherRate)
+
+  override def scottishAdditionalRateIncome: Amount =
+    get(IncomeTaxAddHighRate) + includePensionIncomeForRate(taxRates.scottishAdditionalRate)
 }
 
 object ATSCalculations {

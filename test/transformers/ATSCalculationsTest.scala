@@ -16,12 +16,13 @@
 
 package transformers
 
-import models.Liability.{IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, PensionLsumTaxDue, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate}
+import models.Liability._
 import models.{Amount, Liability, PensionTaxRate, TaxSummaryLiability}
+import org.scalatest.prop.PropertyChecks
 import services.{DefaultTaxRateService, TaxRateService}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class ATSCalculationsTest extends UnitSpec {
+class ATSCalculationsTest extends UnitSpec with PropertyChecks {
 
   trait CalcFixtures { self =>
 
@@ -108,12 +109,16 @@ class ATSCalculationsTest extends UnitSpec {
 
   "Post2017ScottishATSCalculations" should {
 
-    trait ScottishFixture extends CalcFixtures {
+    class ScottishFixture(newPensionTaxRate: PensionTaxRate, newAtsData: (Liability, Amount)*) extends CalcFixtures {
+
       override val taxYear: Int = 2018
       override val isScottish: Boolean = true
+
+      override val pensionTaxRate: PensionTaxRate = newPensionTaxRate
+      override val atsData: Map[Liability, Amount] = newAtsData.toMap
     }
 
-    val fixture = new ScottishFixture {}
+    val fixture = new ScottishFixture(PensionTaxRate(0)) {}
 
     "return an empty amount for scottishIncomeTax" in {
       import fixture._
@@ -135,87 +140,124 @@ class ATSCalculationsTest extends UnitSpec {
       calculation.additionalRateIncomeTaxAmount shouldBe Amount.empty
     }
 
-    "scottishStarterRateTaxAmount is starter rate amount" in new ScottishFixture {
+    "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in {
 
-      override val atsData: Map[Liability, Amount] = Map(TaxOnPayScottishStarterRate -> Amount.gbp(200))
-      calculation.scottishStarterRateTax shouldBe Amount.gbp(200)
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.19),
+          TaxOnPayScottishStarterRate -> Amount.gbp(income),
+          PensionLsumTaxDue           -> Amount.gbp(pension))
+
+        sut.calculation.scottishStarterRateTax shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in new ScottishFixture {
+    "scottishBasicRateTaxAmount includes pension tax when pension rate matches basic rate" in {
 
-      override val pensionTaxRate: PensionTaxRate = PensionTaxRate(0.19)
-      override val atsData: Map[Liability, Amount] =
-        Map(TaxOnPayScottishStarterRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.20),
+          IncomeTaxBasicRate -> Amount.gbp(income),
+          PensionLsumTaxDue  -> Amount.gbp(pension))
 
-      calculation.scottishStarterRateTax shouldBe Amount.gbp(500)
+        sut.calculation.scottishBasicRateTax shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishBasicRateTaxAmount is basic rate amount" in new ScottishFixture {
+    "scottishIntermediateRateTaxAmount includes pension tax when pension rate matches intermediate rate" in {
 
-      override val atsData: Map[Liability, Amount] = Map(IncomeTaxBasicRate -> Amount.gbp(200))
-      calculation.scottishBasicRateTax shouldBe Amount.gbp(200)
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.21),
+          TaxOnPayScottishIntermediateRate -> Amount.gbp(income),
+          PensionLsumTaxDue                -> Amount.gbp(pension))
+
+        sut.calculation.scottishIntermediateRateTax shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishBasicRateTaxAmount includes pension tax when pension rate matches basic rate" in new ScottishFixture {
+    "scottishHigherRateTaxAmount includes pension tax when pension rate matches higher rate" in {
 
-      override val pensionTaxRate: PensionTaxRate = PensionTaxRate(0.2)
-      override val atsData: Map[Liability, Amount] =
-        Map(IncomeTaxBasicRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.41),
+          IncomeTaxHigherRate -> Amount.gbp(income),
+          PensionLsumTaxDue   -> Amount.gbp(pension))
 
-      calculation.scottishBasicRateTax shouldBe Amount.gbp(500)
+        sut.calculation.scottishHigherRateTax shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishIntermediateRateTaxAmount is intermediate rate amount" in new ScottishFixture {
+    "scottishAdditionalRateTaxAmount includes pension tax when pension rate matches additional rate" in {
 
-      override val atsData: Map[Liability, Amount] = Map(TaxOnPayScottishIntermediateRate -> Amount.gbp(200))
-      calculation.scottishIntermediateRateTax shouldBe Amount.gbp(200)
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.46),
+          IncomeTaxAddHighRate -> Amount.gbp(income),
+          PensionLsumTaxDue    -> Amount.gbp(pension))
+
+        sut.calculation.scottishAdditionalRateTax shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishIntermediateRateTaxAmount includes pension tax when pension rate matches intermediate rate" in new ScottishFixture {
+    "scottishStarterRateIncome include pension lump sum amount when matches starter rate" in {
 
-      override val pensionTaxRate: PensionTaxRate = PensionTaxRate(0.21)
-      override val atsData: Map[Liability, Amount] =
-        Map(TaxOnPayScottishIntermediateRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.19),
+          TaxablePayScottishStarterRate -> Amount.gbp(income),
+          StatePensionGross             -> Amount.gbp(pension))
 
-      calculation.scottishIntermediateRateTax shouldBe Amount.gbp(500)
+        sut.calculation.scottishStarterRateIncome shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishHigherRateTaxAmount is higher rate amount" in new ScottishFixture {
+    "scottishStarterRateIncome include pension lump sum amount when matches basic rate" in {
 
-      override val atsData: Map[Liability, Amount] = Map(IncomeTaxHigherRate -> Amount.gbp(200))
-      calculation.scottishHigherRateTax shouldBe Amount.gbp(200)
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.20),
+          IncomeTaxBasicRate -> Amount.gbp(income),
+          StatePensionGross  -> Amount.gbp(pension))
+
+        sut.calculation.scottishBasicRateIncome shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishHigherRateTaxAmount includes pension tax when pension rate matches higher rate" in new ScottishFixture {
+    "scottishStarterRateIncome include pension lump sum amount when matches intermediate rate" in {
 
-      override val pensionTaxRate: PensionTaxRate = PensionTaxRate(0.41)
-      override val atsData: Map[Liability, Amount] =
-        Map(IncomeTaxHigherRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.21),
+          TaxablePayScottishIntermediateRate -> Amount.gbp(income),
+          StatePensionGross                  -> Amount.gbp(pension))
 
-      calculation.scottishHigherRateTax shouldBe Amount.gbp(500)
+        sut.calculation.scottishIntermediateRateIncome shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishAdditionalRateTaxAmount is additional rate amount" in new ScottishFixture {
+    "scottishStarterRateIncome include pension lump sum amount when matches higher rate" in {
 
-      override val atsData: Map[Liability, Amount] = Map(IncomeTaxAddHighRate -> Amount.gbp(200))
-      calculation.scottishAdditionalRateTax shouldBe Amount.gbp(200)
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.41),
+          IncomeTaxHigherRate -> Amount.gbp(income),
+          StatePensionGross   -> Amount.gbp(pension))
+
+        sut.calculation.scottishHigherRateIncome shouldBe Amount.gbp(income + pension)
+      }
     }
 
-    "scottishAdditionalRateTaxAmount includes pension tax when pension rate matches additional rate" in new ScottishFixture {
+    "scottishStarterRateIncome include pension lump sum amount when matches additional rate" in {
 
-      override val pensionTaxRate: PensionTaxRate = PensionTaxRate(0.46)
-      override val atsData: Map[Liability, Amount] =
-        Map(IncomeTaxAddHighRate -> Amount.gbp(200), PensionLsumTaxDue -> Amount.gbp(300))
+      forAll { (income: BigDecimal, pension: BigDecimal) =>
+        val sut = new ScottishFixture(
+          PensionTaxRate(0.46),
+          IncomeTaxAddHighRate -> Amount.gbp(income),
+          StatePensionGross    -> Amount.gbp(pension))
 
-      calculation.scottishAdditionalRateTax shouldBe Amount.gbp(500)
+        sut.calculation.scottishAdditionalRateIncome shouldBe Amount.gbp(income + pension)
+      }
     }
-
-    /*
-    def scottishStarterRateIncome: Amount = Amount.empty
-  def scottishBasicRateIncome: Amount = Amount.empty
-  def scottishIntermediateRateIncome: Amount = Amount.empty
-  def scottishHigherRateIncome: Amount = Amount.empty
-  def scottishAdditionalRateIncome: Amount = Amount.empty
-     */
   }
 }
