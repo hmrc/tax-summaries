@@ -140,13 +140,13 @@ sealed trait ATSCalculations {
   def scottishHigherRateIncome: Amount = Amount.empty
   def scottishAdditionalRateIncome: Amount = Amount.empty
 
-//  def savingsBasicRateTax: Amount = Amount.empty
-//  def savingsHigherRateTax: Amount = Amount.empty
-//  def savingsAdditionalRateTax: Amount = Amount.empty
-//
-//  def savingsBasicRateIncome: Amount = Amount.empty
-//  def savingsHigherRateIncome: Amount = Amount.empty
-//  def savingsAdditionalRateIncome: Amount = Amount.empty
+  def savingsBasicRateTax: Amount = Amount.empty
+  def savingsHigherRateTax: Amount = Amount.empty
+  def savingsAdditionalRateTax: Amount = Amount.empty
+
+  def savingsBasicRateIncome: Amount = Amount.empty
+  def savingsHigherRateIncome: Amount = Amount.empty
+  def savingsAdditionalRateIncome: Amount = Amount.empty
 
   def otherAdjustmentsIncreasing: Amount =
     (
@@ -297,6 +297,14 @@ sealed class Post2017ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
 
   override def scottishAdditionalRateIncome: Amount =
     get(IncomeTaxAddHighRate) + includePensionIncomeForRate(taxRates.scottishAdditionalRate)
+
+  override def savingsBasicRateTax: Amount = get(SavingsTaxLowerRate)
+  override def savingsHigherRateTax: Amount = get(SavingsTaxHigherRate)
+  override def savingsAdditionalRateTax: Amount = get(SavingsTaxAddHighRate)
+
+  override def savingsBasicRateIncome: Amount = get(SavingsChargeableLowerRate)
+  override def savingsHigherRateIncome: Amount = get(SavingsChargeableHigherRate)
+  override def savingsAdditionalRateIncome: Amount = get(SavingsChargeableAddHRate)
 }
 
 object ATSCalculations {
