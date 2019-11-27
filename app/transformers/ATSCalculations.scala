@@ -115,7 +115,6 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) + {
       includePensionTaxForRate(taxRates.basicRateIncomeTaxRate())
-
     }
 
   def higherRateIncomeTaxAmount: Amount =
