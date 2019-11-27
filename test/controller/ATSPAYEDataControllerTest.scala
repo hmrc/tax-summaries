@@ -60,7 +60,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
       }
     }
   }
-  
+
   "getAtsData" should {
     "return ok" in new TestController {
       when(npsService.getPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
