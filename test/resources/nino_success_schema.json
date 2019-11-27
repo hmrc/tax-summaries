@@ -1,0 +1,383 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "API#1535 Get Annual Tax Summary v1.2.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "taxableStateBenefits": {
+      "description": "Individuals taxable state benefits",
+      "$ref": "#/definitions/monetaryType"
+    },
+    "averageRateTax": {
+      "description": "The overall rate of tax paid against an individuals income",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 99
+    },
+    "scottishIncomeTax": {
+      "description": "This is a element which can hold the total scottish income tax",
+      "$ref": "#/definitions/monetaryType"
+    },
+    "adjustments": {
+      "type": "object",
+      "description": "This object stores elements which can adjust the total tax liability",
+      "additionalProperties": false,
+      "properties": {
+        "taxFreeAmount": {
+          "description": "Tax free allowance",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "marriageAllowanceReceived": {
+          "description": "Amount of marriage allowance an individual has received from a spouse",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "marriageAllowanceTransferred": {
+          "description": "Amount of marriage allowance an individual has transferred to a spouse",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "marriedCouplesAllowanceAdjustment": {
+          "description": "Amount total income tax due can be adjusted due to an individual having married couples allowance",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "lessTaxAdjustmentPreviousYear": {
+          "description": "Amount total income tax due can be decreased due to overpaying income tax in the previous year",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "taxUnderpaidPreviousYear": {
+          "description": "Amount total income tax due can be increased due to underpaying income tax in the previous year",
+          "$ref": "#/definitions/monetaryType"
+        }
+      }
+    },
+    "income": {
+      "type": "object",
+      "description": "This object stores elements which contribute to an individuals income",
+      "additionalProperties": false,
+      "properties": {
+        "incomeFromEmployment": {
+          "description": "Total Income from Employment",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "statePension": {
+          "description": "Individuals state Pension amount",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "otherPensionIncome": {
+          "description": "Individuals private pension income",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "otherIncome": {
+          "description": "Other income the individual may receive",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "incomeBeforeTax": {
+          "description": "Individuals income before tax",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "taxableIncome": {
+          "description": "Taxable income minus tax free amount",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "otherAllowancesDeductionsExpenses": {
+          "description": "Individuals other allowances, expenses and deductions",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "employmentBenefits": {
+          "description": "Amount of employment benefits individual receives",
+          "$ref": "#/definitions/monetaryType"
+        }
+      }
+    },
+    "nationalInsurance": {
+      "type": "object",
+      "description": "This object stores elements related to national insurance contributions",
+      "additionalProperties": false,
+      "properties": {
+        "employerContributions": {
+          "description": "Employers contributions to national insurance",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "employeeContributions": {
+          "description": "Employees contributions to national insurance",
+          "$ref": "#/definitions/monetaryType"
+        }
+      }
+    },
+    "calculatedTotals": {
+      "type": "object",
+      "description": "This object stores elements which have been calculated as part of the ATS calculation",
+      "additionalProperties": false,
+      "properties": {
+        "totalIncomeTax": {
+          "description": "The total amount of income tax an individual has paid",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "totalIncomeTaxNics": {
+          "description": "Total income tax and National insurance contributions",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "totalScottishIncomeTax": {
+          "description": "The total amount of Scottish Income Tax due",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "totalIncomeTax2": {
+          "description": "The total amount of Income Tax due inclusive of both rUK and Scottish liabilities where applicable",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "totalUKIncomeTax": {
+          "description": "Total UK income tax for Scottish Tax Payers who also have rUK Liability as well as a Scottish Liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "totalIncomeTax2Nics": {
+          "description": "The total amount of Income Tax due inclusive of both rUK and Scottish liabilities where applicable and national insurance contributions",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "incomeAfterTaxNics": {
+          "description": "Total income after tax paid and national insurance contributions have been deducted ",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "liableTaxAmount": {
+          "description": "Total amount an individual will be taxed on",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "incomeAfterTax2Nics": {
+          "description": "Income after income tax due and national insurance contributions has been deducted",
+          "$ref": "#/definitions/monetaryType"
+        }
+      }
+    },
+    "basicRateBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the basic rate band ",
+      "additionalProperties": false,
+      "properties": {
+        "basicRateTaxAmount": {
+          "description": "rUK tax payers income that is subjected to basic rate",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "basicRateTax": {
+          "description": "rUK tax payers basic rate liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "basicRate": {
+          "description": "rUK tax payers basic rate",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "basicRateTaxAmount",
+        "basicRateTax",
+        "basicRate"
+      ]
+    },
+    "higherRateBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the higher rate band ",
+      "additionalProperties": false,
+      "properties": {
+        "higherRateTaxAmount": {
+          "description": "rUK tax payers income that is subjected to higher rate",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "higherRateTax": {
+          "description": "rUK tax payers higher rate liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "higherRate": {
+          "description": "rUK tax payers higher rate",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "higherRateTaxAmount",
+        "higherRateTax",
+        "higherRate"
+      ]
+    },
+    "dividendLowerBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the dividend lower rate band",
+      "additionalProperties": false,
+      "properties": {
+        "dividendLowRateAmount": {
+          "description": "Amount applicable for the lower rate of dividend tax",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "dividendLowRateTax": {
+          "description": "Dividend income lower rate liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "dividendLowRate": {
+          "description": "Dividend income lower rate",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "dividendLowRateAmount",
+        "dividendLowRateTax",
+        "dividendLowRate"
+      ]
+    },
+    "dividendHigherBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the dividend higher rate band",
+      "additionalProperties": false,
+      "properties": {
+        "dividendHigherRateAmount": {
+          "description": "Amount applicable for the higher rate of dividend tax",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "dividendHigherRateTax": {
+          "description": "Dividend income higher rate liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "dividendHigherRate": {
+          "description": "Dividend income higher rate",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "dividendHigherRateAmount",
+        "dividendHigherRateTax",
+        "dividendHigherRate"
+      ]
+    },
+    "scottishStarterBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the scottish starter rate band",
+      "additionalProperties": false,
+      "properties": {
+        "scottishStarterRateTaxAmount": {
+          "description": "The amount of income allocated into the Scottish starter band",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishStarterRateTax": {
+          "description": "Scottish starter rate tax liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishStarterRate": {
+          "description": "The rate in which the Scottish starter rate is taxed",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "scottishStarterRateTaxAmount",
+        "scottishStarterRateTax",
+        "scottishStarterRate"
+      ]
+    },
+    "scottishBasicBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the Scottish basic rate band",
+      "additionalProperties": false,
+      "properties": {
+        "scottishBasicRateTaxAmount": {
+          "description": "The amount of income allocated into the Scottish basic band",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishBasicRateTax": {
+          "description": "Scottish Basic rate tax liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishBasicRate": {
+          "description": "The rate in which the Scottish Basic rate is taxed",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "scottishBasicRateTaxAmount",
+        "scottishBasicRateTax",
+        "scottishBasicRate"
+      ]
+    },
+    "scottishIntermediateBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the Scottish intermediate rate band",
+      "additionalProperties": false,
+      "properties": {
+        "scottishIntermediateRateTaxAmount": {
+          "description": "The amount of income allocated into the Scottish intermediate band",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishIntermediateRateTax": {
+          "description": "Scottish intermediate rate tax liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishIntermediateRate": {
+          "description": "The rate in which the Scottish intermediate rate is taxed",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "scottishIntermediateRateTaxAmount",
+        "scottishIntermediateRateTax",
+        "scottishIntermediateRate"
+      ]
+    },
+    "scottishHigherBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the Scottish higher rate band",
+      "additionalProperties": false,
+      "properties": {
+        "scottishHigherRateTaxAmount": {
+          "description": "The amount of income allocated into the Scottish higher band",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishHigherRateTax": {
+          "description": "Scottish higher rate tax liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "scottishHigherRate": {
+          "description": "The rate in which the Scottish higher rate is taxed",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "scottishHigherRateTaxAmount",
+        "scottishHigherRateTax",
+        "scottishHigherRate"
+      ]
+    },
+    "savingsStarterBand": {
+      "type": "object",
+      "description": "This object stores the elements relating to the savings starter rate band",
+      "additionalProperties": false,
+      "properties": {
+        "savingsStarterRateTaxAmount": {
+          "description": "The amount of income allocated into the savings starter band",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "savingsStarterRateTax": {
+          "description": "savings starter rate tax liability",
+          "$ref": "#/definitions/monetaryType"
+        },
+        "savingsStarterRate": {
+          "description": "The rate in which the savings starter rate is taxed",
+          "$ref": "#/definitions/percentageType"
+        }
+      },
+      "required": [
+        "savingsStarterRateTaxAmount",
+        "savingsStarterRateTax",
+        "savingsStarterRate"
+      ]
+    }
+  },
+  "definitions": {
+    "monetaryType": {
+      "type": "number",
+      "description": "Monetary Value validation reference",
+      "minimum": 0.01,
+      "maximum": 9999999.99,
+      "multipleOf": 0.01
+    },
+    "percentageType": {
+      "type": "number",
+      "description": "Percentage Type validation reference",
+      "minimum": 0,
+      "maximum": 100,
+      "multipleOf": 0.01
+    }
+  }
+}
+
