@@ -77,7 +77,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer {
       transformedJson should be(Some(Json.parse(expectedTestAttributesJson)))
     }
 
-    "transform 'Your Total Income' section" in {
+    "transform 'Your income and taxes' section" in {
       val expectedIncomeDataJson =
         """
           |{
@@ -87,10 +87,22 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer {
           |    "rel" : "self",
           |    "href" : "https://digital.ws.ibt.hmrc.gov.uk/individuals/annual-tax-summary/AB654321B/2018"
           |  } ],
+          |  "allowance_data" : {
+          |    "payload" : {
+          |      "total_tax_free_amount" : {
+          |        "amount" : 25500,
+          |        "currency" : "GBP"
+          |      },
+          |      "other_allowances_amount" : {
+          |        "amount" : 6000,
+          |        "currency" : "GBP"
+          |      }
+          |    }
+          |  },
           |  "income_data" : {
           |    "payload" : {
           |      "income_from_employment" : {
-          |        "amount" : 25500,
+          |        "amount" : 25000,
           |        "currency" : "GBP"
           |      },
           |      "state_pension" : {
