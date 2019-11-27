@@ -72,7 +72,8 @@ object PAYETransformer {
       val otherIncome: Option[Double] = pickAmount(__ \ 'income \ 'otherIncome, source)
       val incomeBeforeTax: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
       val taxableIncome: Option[Double] = pickAmount(__ \ 'income \ 'taxableIncome, source)
-      val otherAllowancesDeductionsExpenses: Option[Double] = pickAmount(__ \'income\'otherAllowancesDeductionsExpenses, source)
+      val otherAllowancesDeductionsExpenses: Option[Double] =
+        pickAmount(__ \ 'income \ 'otherAllowancesDeductionsExpenses, source)
       val employmentBenefits: Option[Double] = pickAmount(__ \ 'income \ 'employmentBenefits, source)
 
       val jsonTransformer =
@@ -94,7 +95,9 @@ object PAYETransformer {
           appendAttribute(
             __ \ 'allowance_data \ 'payload,
             middleTierAttributeJson("total_tax_free_amount", taxableIncome.getOrElse(0))) andThen
-          appendAttribute(__ \ 'allowance_data \ 'payload, middleTierAttributeJson("other_allowances_amount", otherAllowancesDeductionsExpenses.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'allowance_data \ 'payload,
+            middleTierAttributeJson("other_allowances_amount", otherAllowancesDeductionsExpenses.getOrElse(0))) andThen
           appendAttribute(
             __ \ 'income_data \ 'payload,
             middleTierAttributeJson("taxable_state_benefits", employmentBenefits.getOrElse(0)))

@@ -55,7 +55,7 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
   "getPayload" should {
     "return a successful future" in new TestService {
-      val mockPayload =  mock[JsValue]
+      val mockPayload = mock[JsValue]
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mockPayload))
       when(mockPayload.as[JsObject])
