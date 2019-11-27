@@ -183,7 +183,5 @@ case class ATSRawDataTransformer(
       Ordinary         -> taxRate.dividendsOrdinaryRate,
       Upper            -> taxRate.dividendUpperRateRate,
       Additional       -> taxRate.dividendAdditionalRate
-    ).collect {
-      case (k, v) => (k, v.apiValue)
-    }
+    ).mapValues(_.apiValue).map(apiValue=>apiValue)
 }
