@@ -155,7 +155,24 @@ case class ATSRawDataTransformer(
       MarriageAllowanceReceivedAmount -> calculations.getWithDefaultAmount(MarriageAllceIn),
       OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing,
       TotalIncomeTax                  -> calculations.totalIncomeTaxAmount,
-      ScottishIncomeTax               -> calculations.scottishIncomeTax
+      ScottishIncomeTax               -> calculations.scottishIncomeTax,
+      ScottishStarterRate             -> calculations.scottishStarterRateTax,
+      ScottishBasicRate               -> calculations.scottishBasicRateTax,
+      ScottishIntermediateRate        -> calculations.scottishIntermediateRateTax,
+      ScottishHigherRate              -> calculations.scottishHigherRateTax,
+      ScottishAdditionalRate          -> calculations.scottishAdditionalRateTax,
+      ScottishTotalTax                -> calculations.scottishTotalTax,
+      ScottishStarterIncome           -> calculations.scottishStarterRateIncome,
+      ScottishBasicIncome             -> calculations.scottishBasicRateIncome,
+      ScottishIntermediateIncome      -> calculations.scottishIntermediateRateIncome,
+      ScottishHigherIncome            -> calculations.scottishHigherRateIncome,
+      ScottishAdditionalIncome        -> calculations.scottishAdditionalRateIncome,
+      SavingsLowerRate                -> calculations.savingsBasicRateTax,
+      SavingsHigherRate               -> calculations.savingsHigherRateTax,
+      SavingsAdditionalRate           -> calculations.savingsAdditionalRateTax,
+      SavingsLowerIncome              -> calculations.savingsBasicRateIncome,
+      SavingsHigherIncome             -> calculations.savingsHigherRateIncome,
+      SavingsAdditionalIncome         -> calculations.savingsAdditionalRateIncome
     )
 
   private def createCapitalGainsTaxRates: Map[RateKey, ApiRate] =

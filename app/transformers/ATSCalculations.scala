@@ -290,17 +290,17 @@ sealed class Post2017ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
     getWithDefaultAmount(TaxablePayScottishStarterRate) + includePensionIncomeForRate(taxRates.scottishStarterRate)
 
   override def scottishBasicRateIncome: Amount =
-    getWithDefaultAmount(IncomeTaxBasicRate) + includePensionIncomeForRate(taxRates.scottishBasicRate)
+    getWithDefaultAmount(IncomeChargeableBasicRate) + includePensionIncomeForRate(taxRates.scottishBasicRate)
 
   override def scottishIntermediateRateIncome: Amount =
     getWithDefaultAmount(TaxablePayScottishIntermediateRate) + includePensionIncomeForRate(
       taxRates.scottishIntermediateRate)
 
   override def scottishHigherRateIncome: Amount =
-    getWithDefaultAmount(IncomeTaxHigherRate) + includePensionIncomeForRate(taxRates.scottishHigherRate)
+    getWithDefaultAmount(IncomeChargeableHigherRate) + includePensionIncomeForRate(taxRates.scottishHigherRate)
 
   override def scottishAdditionalRateIncome: Amount =
-    getWithDefaultAmount(IncomeTaxAddHighRate) + includePensionIncomeForRate(taxRates.scottishAdditionalRate)
+    getWithDefaultAmount(IncomeChargeableAddHRate) + includePensionIncomeForRate(taxRates.scottishAdditionalRate)
 
   override def savingsBasicRateTax: Amount = getWithDefaultAmount(SavingsTaxLowerRate)
   override def savingsHigherRateTax: Amount = getWithDefaultAmount(SavingsTaxHigherRate)
