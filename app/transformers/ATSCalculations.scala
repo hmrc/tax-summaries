@@ -137,6 +137,9 @@ sealed trait ATSCalculations {
   def scottishHigherRateTax: Amount = Amount.empty
   def scottishAdditionalRateTax: Amount = Amount.empty
 
+  def scottishTotalTax: Amount =
+    scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
+
   def scottishStarterRateIncome: Amount = Amount.empty
   def scottishBasicRateIncome: Amount = Amount.empty
   def scottishIntermediateRateIncome: Amount = Amount.empty
@@ -273,42 +276,48 @@ sealed class Post2017ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
   override def additionalRateIncomeTaxAmount: Amount = Amount.empty
 
   override def scottishStarterRateTax: Amount =
-    get(TaxOnPayScottishStarterRate) + includePensionTaxForRate(taxRates.scottishStarterRate)
+    getWithDefaultAmount(TaxOnPayScottishStarterRate) + includePensionTaxForRate(taxRates.scottishStarterRate)
 
   override def scottishBasicRateTax: Amount =
-    get(IncomeTaxBasicRate) + includePensionTaxForRate(taxRates.scottishBasicRate)
+    getWithDefaultAmount(IncomeTaxBasicRate) + includePensionTaxForRate(taxRates.scottishBasicRate)
 
   override def scottishIntermediateRateTax: Amount =
-    get(TaxOnPayScottishIntermediateRate) + includePensionTaxForRate(taxRates.scottishIntermediateRate)
+    getWithDefaultAmount(TaxOnPayScottishIntermediateRate) + includePensionTaxForRate(taxRates.scottishIntermediateRate)
 
   override def scottishHigherRateTax: Amount =
-    get(IncomeTaxHigherRate) + includePensionTaxForRate(taxRates.scottishHigherRate)
+    getWithDefaultAmount(IncomeTaxHigherRate) + includePensionTaxForRate(taxRates.scottishHigherRate)
 
   override def scottishAdditionalRateTax: Amount =
-    get(IncomeTaxAddHighRate) + includePensionTaxForRate(taxRates.scottishAdditionalRate)
+    getWithDefaultAmount(IncomeTaxAddHighRate) + includePensionTaxForRate(taxRates.scottishAdditionalRate)
 
   override def scottishStarterRateIncome: Amount =
-    get(TaxablePayScottishStarterRate) + includePensionIncomeForRate(taxRates.scottishStarterRate)
+    getWithDefaultAmount(TaxablePayScottishStarterRate) + includePensionIncomeForRate(taxRates.scottishStarterRate)
 
   override def scottishBasicRateIncome: Amount =
-    get(IncomeTaxBasicRate) + includePensionIncomeForRate(taxRates.scottishBasicRate)
+    getWithDefaultAmount(IncomeTaxBasicRate) + includePensionIncomeForRate(taxRates.scottishBasicRate)
 
   override def scottishIntermediateRateIncome: Amount =
-    get(TaxablePayScottishIntermediateRate) + includePensionIncomeForRate(taxRates.scottishIntermediateRate)
+    getWithDefaultAmount(TaxablePayScottishIntermediateRate) + includePensionIncomeForRate(
+      taxRates.scottishIntermediateRate)
 
   override def scottishHigherRateIncome: Amount =
-    get(IncomeTaxHigherRate) + includePensionIncomeForRate(taxRates.scottishHigherRate)
+    getWithDefaultAmount(IncomeTaxHigherRate) + includePensionIncomeForRate(taxRates.scottishHigherRate)
 
   override def scottishAdditionalRateIncome: Amount =
-    get(IncomeTaxAddHighRate) + includePensionIncomeForRate(taxRates.scottishAdditionalRate)
+    getWithDefaultAmount(IncomeTaxAddHighRate) + includePensionIncomeForRate(taxRates.scottishAdditionalRate)
 
-  override def savingsBasicRateTax: Amount = get(SavingsTaxLowerRate)
-  override def savingsHigherRateTax: Amount = get(SavingsTaxHigherRate)
-  override def savingsAdditionalRateTax: Amount = get(SavingsTaxAddHighRate)
+  override def savingsBasicRateTax: Amount = getWithDefaultAmount(SavingsTaxLowerRate)
+  override def savingsHigherRateTax: Amount = getWithDefaultAmount(SavingsTaxHigherRate)
+  override def savingsAdditionalRateTax: Amount = getWithDefaultAmount(SavingsTaxAddHighRate)
 
-  override def savingsBasicRateIncome: Amount = get(SavingsChargeableLowerRate)
-  override def savingsHigherRateIncome: Amount = get(SavingsChargeableHigherRate)
-  override def savingsAdditionalRateIncome: Amount = get(SavingsChargeableAddHRate)
+  override def savingsBasicRateIncome: Amount = getWithDefaultAmount(SavingsChargeableLowerRate)
+  override def savingsHigherRateIncome: Amount = getWithDefaultAmount(SavingsChargeableHigherRate)
+  override def savingsAdditionalRateIncome: Amount = getWithDefaultAmount(SavingsChargeableAddHRate)
+
+  private val savingsTotalTax = savingsBasicRateTax + savingsHigherRateTax + savingsAdditionalRateTax
+
+  override def totalIncomeTaxAmount: Amount =
+    super.totalIncomeTaxAmount + scottishTotalTax + savingsTotalTax
 }
 
 object ATSCalculations {

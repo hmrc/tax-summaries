@@ -22,6 +22,8 @@ import org.scalatest.prop.PropertyChecks
 import services.{DefaultTaxRateService, TaxRateService}
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.util.Random
+
 class ATSCalculationsTest extends UnitSpec with PropertyChecks {
 
   trait CalcFixtures { self =>
@@ -48,6 +50,33 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
 
     lazy val calculation: ATSCalculations = ATSCalculations.make(taxSummaryLiability, taxRateService)
   }
+
+  val emptyValues = List(
+    SavingsTaxStartingRate  -> Amount.empty,
+    DividendTaxLowRate      -> Amount.empty,
+    DividendTaxHighRate     -> Amount.empty,
+    DividendTaxAddHighRate  -> Amount.empty,
+    NonDomCharge            -> Amount.empty,
+    TaxExcluded             -> Amount.empty,
+    IncomeTaxDue            -> Amount.empty,
+    NetAnnuityPaytsTaxDue   -> Amount.empty,
+    ChildBenefitCharge      -> Amount.empty,
+    PensionSavingChargeable -> Amount.empty,
+    TaxDueAfterAllceRlf     -> Amount.empty,
+    DeficiencyRelief        -> Amount.empty,
+    TopSlicingRelief        -> Amount.empty,
+    VctSharesRelief         -> Amount.empty,
+    EisRelief               -> Amount.empty,
+    SeedEisRelief           -> Amount.empty,
+    CommInvTrustRel         -> Amount.empty,
+    SurplusMcaAlimonyRel    -> Amount.empty,
+    NotionalTaxCegs         -> Amount.empty,
+    NotlTaxOtherSource      -> Amount.empty,
+    TaxCreditsForDivs       -> Amount.empty,
+    QualDistnRelief         -> Amount.empty,
+    TotalTaxCreditRelief    -> Amount.empty,
+    NonPayableTaxCredits    -> Amount.empty
+  )
 
   "make" should {
 
@@ -124,6 +153,9 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
         new ScottishFixture(newPensionTaxRate, newAtsData: _*)
 
       def apply(newAtsData: (Liability, Amount)*): ScottishFixture =
+        new ScottishFixture(PensionTaxRate(0), newAtsData: _*)
+
+      def apply(newAtsData: List[(Liability, Amount)]): ScottishFixture =
         new ScottishFixture(PensionTaxRate(0), newAtsData: _*)
     }
 
@@ -314,6 +346,54 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
       forAll { tax: BigDecimal =>
         val sut = ScottishFixture(SavingsChargeableAddHRate -> Amount.gbp(tax))
         sut.calculation.savingsAdditionalRateIncome shouldBe Amount.gbp(tax)
+      }
+    }
+
+    "scottishTotalTax includes any 2 random scottish taxes" in {
+
+      forAll { (first: BigDecimal, second: BigDecimal) =>
+        val keys =
+          Random.shuffle(
+            List(
+              TaxOnPayScottishStarterRate,
+              IncomeTaxBasicRate,
+              TaxOnPayScottishIntermediateRate,
+              IncomeTaxHigherRate,
+              IncomeTaxAddHighRate))
+
+        val sut = ScottishFixture(
+          keys.head -> Amount.gbp(first),
+          keys(1)   -> Amount.gbp(second)
+        )
+
+        sut.calculation.scottishTotalTax shouldBe Amount.gbp(first + second)
+      }
+    }
+
+    "totalIncomeTaxAmount includes any 2 random scottish taxes or savings taxes" in {
+
+      forAll { (first: BigDecimal, second: BigDecimal) =>
+        val keys =
+          Random.shuffle(
+            List(
+              TaxOnPayScottishStarterRate,
+              IncomeTaxBasicRate,
+              TaxOnPayScottishIntermediateRate,
+              IncomeTaxHigherRate,
+              IncomeTaxAddHighRate,
+              SavingsTaxLowerRate,
+              SavingsTaxHigherRate,
+              SavingsTaxAddHighRate
+            ))
+
+        val sut = ScottishFixture(
+          emptyValues ++ List(
+            keys.head -> Amount.gbp(first),
+            keys(1)   -> Amount.gbp(second)
+          )
+        )
+
+        sut.calculation.totalIncomeTaxAmount shouldBe Amount.gbp(first + second)
       }
     }
   }
