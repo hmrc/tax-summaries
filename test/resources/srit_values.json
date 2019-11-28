@@ -93,15 +93,15 @@
       "ctnHigherRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
       "reliefForFinanceCosts":{"amount":0.00, "currency":"GBP"},
 
-      "TAX_ON_PAY_SSR":{"amount":1.01, "currency":"GBP"},
+      "taxOnPaySSR":{"amount":1.01, "currency":"GBP"},
       "ctnIncomeTaxBasicRate":{"amount":2.02,"currency":"GBP"},
-      "TAX_ON_PAY_SIR":{"amount":3.03, "currency":"GBP"},
+      "taxOnPaySIR":{"amount":3.03, "currency":"GBP"},
       "ctnIncomeTaxHigherRate":{"amount":4.04,"currency":"GBP"},
       "ctnIncomeTaxAddHighRate":{"amount":5.05,"currency":"GBP"},
 
-      "TAXABLE_PAY_SSR":{"amount":6.06, "currency":"GBP"},
+      "taxablePaySSR":{"amount":6.06, "currency":"GBP"},
       "ctnIncomeChgbleBasicRate":{"amount":7.07,"currency":"GBP"},
-      "TAXABLE_PAY_SIR":{"amount":8.08, "currency":"GBP"},
+      "taxablePaySIR":{"amount":8.08, "currency":"GBP"},
       "ctnIncomeChgbleHigherRate":{"amount":9.09,"currency":"GBP"},
       "ctnIncomeChgbleAddHRate":{"amount":10.10,"currency":"GBP"},
 

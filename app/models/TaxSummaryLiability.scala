@@ -132,14 +132,14 @@ object Liability {
   case object SummaryTotalUkInterest extends ApiValue("ctnSummaryTotalUkInterest") with Liability
   case object SummaryTotalUklProperty extends ApiValue("ctnSummaryTotalUklProperty") with Liability
   case object SurplusMcaAlimonyRel extends ApiValue("atsSurplusMcaAlimonyRel") with Liability
-  case object TaxablePayScottishIntermediateRate extends ApiValue("TAXABLE_PAY_SIR") with Liability
-  case object TaxablePayScottishStarterRate extends ApiValue("TAXABLE_PAY_SSR") with Liability
+  case object TaxablePayScottishIntermediateRate extends ApiValue("taxablePaySIR") with Liability
+  case object TaxablePayScottishStarterRate extends ApiValue("taxablePaySSR") with Liability
   case object TaxCharged extends ApiValue("atsTaxCharged") with Liability
   case object TaxCreditsForDivs extends ApiValue("ctnTaxCredForDivs") with Liability
   case object TaxDueAfterAllceRlf extends ApiValue("ctn4TaxDueAfterAllceRlf") with Liability
   case object TaxExcluded extends ApiValue("taxExcluded") with Liability
-  case object TaxOnPayScottishIntermediateRate extends ApiValue("TAX_ON_PAY_SIR") with Liability
-  case object TaxOnPayScottishStarterRate extends ApiValue("TAX_ON_PAY_SSR") with Liability
+  case object TaxOnPayScottishIntermediateRate extends ApiValue("taxOnPaySIR") with Liability
+  case object TaxOnPayScottishStarterRate extends ApiValue("taxOnPaySSR") with Liability
   case object TopSlicingRelief extends ApiValue("topSlicingRelief") with Liability
   case object TotalTaxCreditRelief extends ApiValue("figTotalTaxCreditRelief") with Liability
   case object TradeUnionDeathBenefits extends ApiValue("itfTradeUnionDeathBenefits") with Liability
