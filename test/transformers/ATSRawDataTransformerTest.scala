@@ -250,8 +250,17 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           "additional_rate_income_tax_rate" -> ApiRate("45%"),
           "ordinary_rate_tax_rate"          -> ApiRate("10%"),
           "upper_rate_rate"                 -> ApiRate("32.5%"),
-          "additional_rate_rate"            -> ApiRate("37.5%")
+          "additional_rate_rate"            -> ApiRate("37.5%"),
+          "scottish_starter_rate"           -> ApiRate("19%"),
+          "scottish_basic_rate"             -> ApiRate("20%"),
+          "scottish_intermediate_rate"      -> ApiRate("21%"),
+          "scottish_higher_rate"            -> ApiRate("41%"),
+          "scottish_additional_rate"        -> ApiRate("46%"),
+          "savings_lower_rate"              -> ApiRate("20%"),
+          "savings_higher_rate"             -> ApiRate("40%"),
+          "savings_additional_rate"         -> ApiRate("45%")
         )
+
       testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 

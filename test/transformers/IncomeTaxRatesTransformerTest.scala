@@ -230,18 +230,15 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
     val json = JsonUtil.load("/srit_values.json")
     val sut = ATSRawDataTransformer(Json.parse(json).as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2018)
 
-    def payload(key: LiabilityKey): Option[Amount] = {
-      println(sut.calculations.hasLiability)
-      println(sut.calculations.totalIncomeTaxAmount)
+    def payload(key: LiabilityKey): Option[Amount] =
       sut.atsDataDTO.income_tax.flatMap(_.payload.flatMap(_.get(key)))
-    }
 
     "return the correct values for scottish tax on income" in {
-      payload(ScottishStarterRate) shouldBe Some(Amount.gbp(1.01))
-      payload(ScottishBasicRate) shouldBe Some(Amount.gbp(2.02))
-      payload(ScottishIntermediateRate) shouldBe Some(Amount.gbp(3.03))
-      payload(ScottishHigherRate) shouldBe Some(Amount.gbp(4.04))
-      payload(ScottishAdditionalRate) shouldBe Some(Amount.gbp(5.05))
+      payload(ScottishStarterRateTax) shouldBe Some(Amount.gbp(1.01))
+      payload(ScottishBasicRateTax) shouldBe Some(Amount.gbp(2.02))
+      payload(ScottishIntermediateRateTax) shouldBe Some(Amount.gbp(3.03))
+      payload(ScottishHigherRateTax) shouldBe Some(Amount.gbp(4.04))
+      payload(ScottishAdditionalRateTax) shouldBe Some(Amount.gbp(5.05))
     }
 
     "return the correct values for scottish income" in {
@@ -253,9 +250,9 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
     }
 
     "return the correct values for savings tax" in {
-      payload(SavingsLowerRate) shouldBe Some(Amount.gbp(11.11))
-      payload(SavingsHigherRate) shouldBe Some(Amount.gbp(12.12))
-      payload(SavingsAdditionalRate) shouldBe Some(Amount.gbp(13.13))
+      payload(SavingsLowerRateTax) shouldBe Some(Amount.gbp(11.11))
+      payload(SavingsHigherRateTax) shouldBe Some(Amount.gbp(12.12))
+      payload(SavingsAdditionalRateTax) shouldBe Some(Amount.gbp(13.13))
     }
 
     "return the correct values for savings totals" in {
