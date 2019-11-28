@@ -19,7 +19,7 @@ private object AppDependencies {
   private val mockitoAllVersion = "1.10.19"
   private val jsonSchemaValidatorVersion = "2.2.6"
   private val json4sNativeVersion = "3.2.10"
-  private val scalaCheckVersion = "1.14.1"
+  private val scalaCheckVersion = "1.13.4"
 
   val compile = Seq(
     filters,

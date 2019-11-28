@@ -199,17 +199,20 @@ sealed trait ATSCalculations {
     totalAmountTaxAndNics +
       totalCapitalGainsTax
 
-  def basicIncomeRateIncomeTax: Amount =
+  def basicRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +
-      get(SavingsChargeableLowerRate)
+      get(SavingsChargeableLowerRate) +
+      includePensionIncomeForRate(taxRates.basicRateIncomeTaxRate())
 
   def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
-      get(SavingsChargeableHigherRate)
+      get(SavingsChargeableHigherRate) +
+      includePensionIncomeForRate(taxRates.higherRateIncomeTaxRate())
 
   def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
-      get(SavingsChargeableAddHRate)
+      get(SavingsChargeableAddHRate) +
+      includePensionIncomeForRate(taxRates.additionalRateIncomeTaxRate())
 
   def scottishIncomeTax: Amount = {
     val scottishRate = 0.1

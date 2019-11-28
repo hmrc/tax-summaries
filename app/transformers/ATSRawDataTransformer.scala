@@ -139,7 +139,7 @@ case class ATSRawDataTransformer(
     Map(
       StartingRateForSavings          -> calculations.get(SavingsChargeableStartRate),
       StartingRateForSavingsAmount    -> calculations.get(SavingsTaxStartingRate),
-      BasicRateIncomeTax              -> calculations.basicIncomeRateIncomeTax,
+      BasicRateIncomeTax              -> calculations.basicRateIncomeTax,
       BasicRateIncomeTaxAmount        -> calculations.basicRateIncomeTaxAmount,
       HigherRateIncomeTax             -> calculations.higherRateIncomeTax,
       HigherRateIncomeTaxAmount       -> calculations.higherRateIncomeTaxAmount,
