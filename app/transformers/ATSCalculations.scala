@@ -130,8 +130,8 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
 
     }
 
-  def otherAdjustmentsIncreasing: Amount =
-    (
+  def otherAdjustmentsIncreasing: Amount = {
+    val a = (
       get(NonDomCharge) +
         get(TaxExcluded) +
         get(IncomeTaxDue) +
@@ -139,6 +139,8 @@ class ATSCalculations(summaryData: TaxSummaryLiability, taxYear: Int, taxRates: 
         get(ChildBenefitCharge) +
         get(PensionSavingChargeable)
     ) - get(TaxDueAfterAllceRlf)
+    a
+  }
 
   def otherAdjustmentsReducing: Amount =
     (
