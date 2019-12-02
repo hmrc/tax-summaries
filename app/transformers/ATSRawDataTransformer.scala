@@ -159,16 +159,14 @@ case class ATSRawDataTransformer(
     )
 
   private def createCapitalGainsTaxRates: Map[RateKey, ApiRate] =
-    Map(
+    Map[RateKey, Rate](
       CapitalGainsEntrepreneur -> taxRate.cgEntrepreneursRate,
       CapitalGainsOrdinary     -> taxRate.cgOrdinaryRate,
       CapitalGainsUpper        -> taxRate.cgUpperRate,
       TotalCapitalGains        -> calculations.totalCgTaxLiabilityAsPercentage,
       InterestLower            -> taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate,
       InterestHigher           -> taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate
-    ).collect {
-      case (k, v) => (k, v.apiValue)
-    }
+    ).mapValues(_.apiValue)
 
   private def createSummaryPageRates: Map[RateKey, ApiRate] =
     Map(
@@ -177,7 +175,7 @@ case class ATSRawDataTransformer(
     )
 
   private def createTotalIncomeTaxPageRates: Map[RateKey, ApiRate] =
-    Map(
+    Map[RateKey, Rate](
       Savings          -> taxRate.startingRateForSavingsRate,
       IncomeBasic      -> taxRate.basicRateIncomeTaxRate,
       IncomeHigher     -> taxRate.higherRateIncomeTaxRate,
@@ -185,7 +183,5 @@ case class ATSRawDataTransformer(
       Ordinary         -> taxRate.dividendsOrdinaryRate,
       Upper            -> taxRate.dividendUpperRateRate,
       Additional       -> taxRate.dividendAdditionalRate
-    ).collect {
-      case (k, v) => (k, v.apiValue)
-    }
+    ).mapValues(_.apiValue)
 }

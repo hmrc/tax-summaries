@@ -52,4 +52,5 @@ class ApplicationConfigSpec extends UnitSpec with GuiceOneAppPerTest {
         "percentageRate3" -> 30)
     }
   }
+
 }

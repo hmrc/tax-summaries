@@ -26,7 +26,7 @@ import collection.JavaConverters._
 trait ApplicationConfig {
 
   def ratePercentages(year: Int): Map[String, Double]
-
+  def governmentSpend(year: Int): Map[String, Double]
 }
 
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
@@ -39,23 +39,25 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
   private def defaultRatePercentages: Map[String, Double] =
     configuration
       .getObject("taxRates.default.percentages")
-      .map(_.unwrapped().asScala.map {
-        case (key, value) =>
-          (key.toString, value.toString.toDouble)
-      })
+      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def ratePercentagesByYear(year: Int): Map[String, Double] =
     configuration
       .getObject(s"taxRates.$year.percentages")
-      .map(_.unwrapped().asScala.map {
-        case (key, value) =>
-          (key.toString, value.toString.toDouble)
-      })
+      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
+      .getOrElse(Map())
+      .toMap
+
+  private def governmentSpendByYear(year: Int): Map[String, Double] =
+    configuration
+      .getObject(s"governmentSpend.$year.percentages")
+      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   override def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
 
+  override def governmentSpend(year: Int) = governmentSpendByYear(year)
 }
