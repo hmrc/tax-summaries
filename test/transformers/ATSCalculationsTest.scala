@@ -97,35 +97,35 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
 
   "make" should {
 
-    "return Post2017ScottishATSCalculations" when {
+    "return Post2018ScottishATSCalculations" when {
 
-      "tax years is > 2017 and type is scottish" in {
+      "tax years is > 2018 and type is scottish" in {
 
-        val calculation = new Fixture(2018, true)().calculation
-        calculation shouldBe a[Post2017ScottishATSCalculations]
+        val calculation = new Fixture(2019, true)().calculation
+        calculation shouldBe a[Post2018ScottishATSCalculations]
       }
     }
 
-    "return Post2017ATSCalculations" when {
+    "return Post2018ATSCalculations" when {
 
-      "tax year is > 2017" in {
+      "tax year is > 2018" in {
 
-        val calculation = new Fixture(2018, false)().calculation
-        calculation shouldBe a[Post2017ATSCalculations]
+        val calculation = new Fixture(2019, false)().calculation
+        calculation shouldBe a[Post2018ATSCalculations]
       }
     }
 
     "return DefaultATSCalculations" when {
 
-      "tax year is < 2018 and type is scottish" in {
+      "tax year is < 2019 and type is scottish" in {
 
-        val calculation = new Fixture(2017, true)().calculation
+        val calculation = new Fixture(2018, true)().calculation
         calculation shouldBe a[DefaultATSCalculations]
       }
 
-      "tax year is < 2018" in {
+      "tax year is < 2019" in {
 
-        val calculation = new Fixture(2017, false)().calculation
+        val calculation = new Fixture(2018, false)().calculation
         calculation shouldBe a[DefaultATSCalculations]
       }
     }
@@ -178,9 +178,9 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     }
   }
 
-  "Post2017ATSCalculations" should {
+  "Post2018ATSCalculations" should {
 
-    val fixture = new Fixture(2018, false)()
+    val fixture = new Fixture(2019, false)()
 
     "return an empty amount for scottishIncomeTax" in {
       import fixture._
@@ -189,9 +189,9 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
     }
   }
 
-  "Post2017ScottishATSCalculations" should {
+  "Post2018ScottishATSCalculations" should {
 
-    val scottishFixture = new Fixture(taxYear = 2018, isScottish = true)
+    val scottishFixture = new Fixture(taxYear = 2019, isScottish = true)
     val fixture = scottishFixture()
 
     "return an empty amount for scottishIncomeTax" in {

@@ -228,7 +228,7 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
   "new SRIT values" should {
 
     val json = JsonUtil.load("/srit_values.json")
-    val sut = ATSRawDataTransformer(Json.parse(json).as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2018)
+    val sut = ATSRawDataTransformer(Json.parse(json).as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2019)
 
     def payload(key: LiabilityKey): Option[Amount] =
       sut.atsDataDTO.income_tax.flatMap(_.payload.flatMap(_.get(key)))

@@ -257,13 +257,13 @@ sealed trait ATSCalculations {
 sealed class DefaultATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations
 
-sealed class Post2017ATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+sealed class Post2018ATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
 
   override def scottishIncomeTax: Amount = Amount.empty
 }
 
-sealed class Post2017ScottishATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
 
   override def scottishIncomeTax: Amount = Amount.empty
@@ -323,10 +323,10 @@ sealed class Post2017ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
 object ATSCalculations {
 
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
-    if (summaryData.taxYear > 2017 && summaryData.isScottish) {
-      new Post2017ScottishATSCalculations(summaryData, taxRates)
-    } else if (summaryData.taxYear > 2017) {
-      new Post2017ATSCalculations(summaryData, taxRates)
+    if (summaryData.taxYear > 2018 && summaryData.isScottish) {
+      new Post2018ScottishATSCalculations(summaryData, taxRates)
+    } else if (summaryData.taxYear > 2018) {
+      new Post2018ATSCalculations(summaryData, taxRates)
     } else {
       new DefaultATSCalculations(summaryData, taxRates)
     }
