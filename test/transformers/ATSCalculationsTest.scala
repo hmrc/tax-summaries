@@ -214,6 +214,21 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
       calculation.additionalRateIncomeTaxAmount shouldBe Amount.empty
     }
 
+    "return an empty amount for basicRateIncomeTax" in {
+      import fixture._
+      calculation.basicRateIncomeTax shouldBe Amount.empty
+    }
+
+    "return an empty amount for higherRateIncomeTax" in {
+      import fixture._
+      calculation.higherRateIncomeTax shouldBe Amount.empty
+    }
+
+    "return an empty amount for additionalRateIncomeTax" in {
+      import fixture._
+      calculation.additionalRateIncomeTax shouldBe Amount.empty
+    }
+
     "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in {
 
       forAll { (income: BigDecimal, pension: BigDecimal) =>

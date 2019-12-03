@@ -18,7 +18,6 @@ package transformers
 
 import models._
 import models.Liability._
-import play.api.Logger
 import services._
 
 sealed trait ATSCalculations {
@@ -31,11 +30,7 @@ sealed trait ATSCalculations {
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability, {
-        Logger.error(s"Unable to retrieve $liability")
-        throw ATSParsingException(liability.apiValue)
-      })
-    )
+      summaryData.nationalInsuranceData.getOrElse(liability, throw ATSParsingException(liability.apiValue)))
 
   def getWithDefaultAmount(liability: Liability): Amount =
     try {
@@ -44,7 +39,7 @@ sealed trait ATSCalculations {
       case ATSParsingException(_) => Amount.empty
     }
 
-  def taxableGains: Amount =
+  def taxableGains(): Amount =
     get(CgTotGainsAfterLosses) +
       get(CgGainsAfterLosses)
 
@@ -112,9 +107,11 @@ sealed trait ATSCalculations {
       getWithDefaultAmount(MarriageAllceOut)
 
   def totalAmountEmployeeNic: Amount =
-    get(EmployeeClass1NI) +
-      get(EmployeeClass2NI) +
-      get(Class4Nic)
+    (
+      get(EmployeeClass1NI) +
+        get(EmployeeClass2NI) +
+        get(Class4Nic)
+    ).roundAmountUp()
 
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
@@ -232,7 +229,7 @@ sealed trait ATSCalculations {
     !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
 
   def capitalGainsTaxPerCurrency: Amount =
-    taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains)
+    taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())
 
   def nicsAndTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalAmountTaxAndNics, totalIncomeBeforeTax)
@@ -276,6 +273,9 @@ sealed class Post2017ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
   override def basicRateIncomeTaxAmount: Amount = Amount.empty
   override def higherRateIncomeTaxAmount: Amount = Amount.empty
   override def additionalRateIncomeTaxAmount: Amount = Amount.empty
+  override def basicRateIncomeTax: Amount = Amount.empty
+  override def higherRateIncomeTax: Amount = Amount.empty
+  override def additionalRateIncomeTax: Amount = Amount.empty
 
   override def scottishStarterRateTax: Amount =
     getWithDefaultAmount(TaxOnPayScottishStarterRate) + includePensionTaxForRate(taxRates.scottishStarterRate)
