@@ -164,7 +164,6 @@ sealed trait ATSCalculations {
         get(PensionSavingChargeable)
     ) - get(TaxDueAfterAllceRlf)
 
-
   def otherAdjustmentsReducing: Amount =
     (
       get(DeficiencyRelief) +
