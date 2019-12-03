@@ -107,11 +107,9 @@ sealed trait ATSCalculations {
       getWithDefaultAmount(MarriageAllceOut)
 
   def totalAmountEmployeeNic: Amount =
-    (
-      get(EmployeeClass1NI) +
-        get(EmployeeClass2NI) +
-        get(Class4Nic)
-    ).roundAmountUp()
+    get(EmployeeClass1NI) +
+      get(EmployeeClass2NI) +
+      get(Class4Nic)
 
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
