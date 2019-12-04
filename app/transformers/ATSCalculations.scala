@@ -18,6 +18,7 @@ package transformers
 
 import models._
 import models.Liability._
+import play.api.Logger
 import services._
 
 sealed trait ATSCalculations {
@@ -30,7 +31,10 @@ sealed trait ATSCalculations {
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability, throw ATSParsingException(liability.apiValue)))
+      summaryData.nationalInsuranceData.getOrElse(liability,{
+        Logger.error(s"Unable to retrieve $liability")
+        throw ATSParsingException(liability.apiValue)}
+      ))
 
   def getWithDefaultAmount(liability: Liability): Amount =
     try {
