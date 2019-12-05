@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
-import play.api.libs.json._
+trait DoubleUtils {
 
-final case class PensionTaxRate(value: Double) {
-  val percentage: Double = value * 100
-}
+  implicit class Ops(d: Double) {
 
-object PensionTaxRate {
-
-  implicit val reads: Reads[PensionTaxRate] = new Reads[PensionTaxRate] {
-    override def reads(json: JsValue): JsResult[PensionTaxRate] =
-      json match {
-        case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue()))
-        case _               => JsError("Unable to parse PensionTaxRate")
-      }
+    def ===(that: Double): Boolean = (d - that).abs <= 1.0e-8 * d.abs
+    def !==(that: Double): Boolean = !(d === that)
   }
 }

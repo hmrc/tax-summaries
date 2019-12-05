@@ -18,23 +18,24 @@ package transformers
 
 import models._
 import models.Liability._
+import models.LiabilityKey.StartingRateForSavingsAmount
 import play.api.Logger
 import services._
+import utils.DoubleUtils
 
-sealed trait ATSCalculations {
+sealed trait ATSCalculations extends DoubleUtils {
 
   val summaryData: TaxSummaryLiability
   val taxRates: TaxRateService
 
-  val taxYear: Int = summaryData.taxYear
-
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability,{
+      summaryData.nationalInsuranceData.getOrElse(liability, {
         Logger.error(s"Unable to retrieve $liability")
-        throw ATSParsingException(liability.apiValue)}
-      ))
+        throw ATSParsingException(liability.apiValue)
+      })
+    )
 
   def getWithDefaultAmount(liability: Liability): Amount =
     try {
@@ -236,6 +237,10 @@ sealed trait ATSCalculations {
   def nicsAndTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalAmountTaxAndNics, totalIncomeBeforeTax)
 
+  def savingsRate: Amount = get(SavingsChargeableStartRate)
+
+  def savingsRateAmount: Amount = get(SavingsTaxStartingRate)
+
   protected def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount): Amount =
     taxable match {
       case value if value.isZero => taxable
@@ -246,12 +251,12 @@ sealed trait ATSCalculations {
 
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
 
-  protected def includePensionTaxForRate(taxRate: Rate): Amount =
-    if (summaryData.pensionLumpSumTaxRate.percentage == taxRate.percent) get(PensionLsumTaxDue)
+  def includePensionTaxForRate(taxRate: Rate): Amount =
+    if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(PensionLsumTaxDue)
     else Amount.empty
 
-  protected def includePensionIncomeForRate(taxRate: Rate): Amount =
-    if (summaryData.pensionLumpSumTaxRate.percentage == taxRate.percent) get(StatePensionGross)
+  def includePensionIncomeForRate(taxRate: Rate): Amount =
+    if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(StatePensionGross)
     else Amount.empty
 
   protected def liabilityAsPercentage(amountPerUnit: Amount): Rate =
@@ -265,12 +270,16 @@ sealed class Post2018ATSCalculations(val summaryData: TaxSummaryLiability, val t
     extends ATSCalculations {
 
   override def scottishIncomeTax: Amount = Amount.empty
+  override def savingsRate: Amount = Amount.empty
+  override def savingsRateAmount: Amount = Amount.empty
 }
 
 sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
 
   override def scottishIncomeTax: Amount = Amount.empty
+  override def savingsRate: Amount = Amount.empty
+  override def savingsRateAmount: Amount = Amount.empty
 
   override def basicRateIncomeTaxAmount: Amount = Amount.empty
   override def higherRateIncomeTaxAmount: Amount = Amount.empty

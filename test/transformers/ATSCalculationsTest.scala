@@ -17,14 +17,15 @@
 package transformers
 
 import models.Liability._
-import models.{Amount, Liability, PensionTaxRate, TaxSummaryLiability}
+import models.{Amount, Liability, PensionTaxRate, Rate, TaxSummaryLiability}
 import org.scalatest.prop.PropertyChecks
 import services.TaxRateService
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.DoubleUtils
 
 import scala.util.Random
 
-class ATSCalculationsTest extends UnitSpec with PropertyChecks {
+class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils {
 
   class CalcFixtures(val taxYear: Int, val isScottish: Boolean)(
     pensionTaxRate: PensionTaxRate,
@@ -45,6 +46,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
 
     lazy val taxSummaryLiability =
       TaxSummaryLiability(taxYear, pensionTaxRate, if (isScottish) Some("0002") else None, niData, atsData)
+
     lazy val taxRateService = new TaxRateService {
       override val taxYear: Int = self.taxYear
       override val configRate: Int => Map[String, Double] = _ => configRates
@@ -176,57 +178,112 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks {
         sut.calculation.additionalRateIncomeTax shouldBe Amount.gbp(income + pension + savings)
       }
     }
+
+    "includePensionIncomeForRate returns StatePensionGross when percentages match" in {
+
+      forAll { (rate: Double, total: BigDecimal) =>
+        val sum = List.fill(10)(rate).fold(0.0)(_ + _)
+        val prod = rate * 10
+
+        val sut = fixture(PensionTaxRate(sum / 100), StatePensionGross -> Amount.gbp(total))
+        sut.calculation.includePensionIncomeForRate(Rate(prod)) shouldBe Amount.gbp(total)
+      }
+    }
+
+    "includePensionIncomeForRate returns 0 when rates don't match" in {
+
+      forAll { (rate1: Double, rate2: Double) =>
+        whenever(rate1 !== rate2) {
+          val sut = fixture(PensionTaxRate(rate1 / 100))
+          sut.calculation.includePensionIncomeForRate(Rate(rate2)) shouldBe Amount.empty
+        }
+      }
+    }
+
+    "includePensionTaxForRate returns PensionLsumTaxDue when percentages match" in {
+
+      forAll { (rate: Double, total: BigDecimal) =>
+        val sum = List.fill(10)(rate).fold(0.0)(_ + _)
+        val prod = rate * 10
+
+        val sut = fixture(PensionTaxRate(sum / 100), PensionLsumTaxDue -> Amount.gbp(total))
+        sut.calculation.includePensionTaxForRate(Rate(prod)) shouldBe Amount.gbp(total)
+      }
+    }
+
+    "includePensionTaxForRate returns 0 when rates don't match" in {
+
+      forAll { (rate1: Double, rate2: Double) =>
+        whenever(rate1 !== rate2) {
+          val sut = fixture(PensionTaxRate(rate1 / 100))
+          sut.calculation.includePensionTaxForRate(Rate(rate2)) shouldBe Amount.empty
+        }
+      }
+    }
   }
 
   "Post2018ATSCalculations" should {
 
     val fixture = new Fixture(2019, false)()
+    val calculation = fixture.calculation
 
     "return an empty amount for scottishIncomeTax" in {
-      import fixture._
 
       calculation.scottishIncomeTax shouldBe Amount.empty
+    }
+
+    "return empty for savingsRate" in {
+
+      calculation.savingsRate shouldBe Amount.empty
+    }
+
+    "return empty for savingsRateAmount" in {
+
+      calculation.savingsRateAmount shouldBe Amount.empty
     }
   }
 
   "Post2018ScottishATSCalculations" should {
 
     val scottishFixture = new Fixture(taxYear = 2019, isScottish = true)
-    val fixture = scottishFixture()
+    val calculation = scottishFixture().calculation
 
     "return an empty amount for scottishIncomeTax" in {
-      import fixture._
       calculation.scottishIncomeTax shouldBe Amount.empty
     }
 
     "return an empty amount for basicRateIncomeTaxAmount" in {
-      import fixture._
       calculation.basicRateIncomeTaxAmount shouldBe Amount.empty
     }
 
     "return an empty amount for higherRateIncomeTaxAmount" in {
-      import fixture._
       calculation.higherRateIncomeTaxAmount shouldBe Amount.empty
     }
 
     "return an empty amount for additionalRateIncomeTaxAmount" in {
-      import fixture._
       calculation.additionalRateIncomeTaxAmount shouldBe Amount.empty
     }
 
     "return an empty amount for basicRateIncomeTax" in {
-      import fixture._
       calculation.basicRateIncomeTax shouldBe Amount.empty
     }
 
     "return an empty amount for higherRateIncomeTax" in {
-      import fixture._
       calculation.higherRateIncomeTax shouldBe Amount.empty
     }
 
     "return an empty amount for additionalRateIncomeTax" in {
-      import fixture._
       calculation.additionalRateIncomeTax shouldBe Amount.empty
+    }
+
+    "return empty for savingsRate" in {
+
+      calculation.savingsRate shouldBe Amount.empty
+    }
+
+    "return empty for savingsRateAmount" in {
+
+      calculation.savingsRateAmount shouldBe Amount.empty
     }
 
     "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in {

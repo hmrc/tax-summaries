@@ -137,8 +137,8 @@ case class ATSRawDataTransformer(
 
   private def createTotalIncomeTaxPageBreakdown: Map[LiabilityKey, Amount] =
     Map(
-      StartingRateForSavings          -> calculations.get(SavingsChargeableStartRate),
-      StartingRateForSavingsAmount    -> calculations.get(SavingsTaxStartingRate),
+      StartingRateForSavings          -> calculations.savingsRate,
+      StartingRateForSavingsAmount    -> calculations.savingsRateAmount,
       BasicRateIncomeTax              -> calculations.basicRateIncomeTax,
       BasicRateIncomeTaxAmount        -> calculations.basicRateIncomeTaxAmount,
       HigherRateIncomeTax             -> calculations.higherRateIncomeTax,
