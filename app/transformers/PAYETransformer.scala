@@ -48,6 +48,7 @@ object PAYETransformer {
       "allowance_data"     -> Json.obj("payload" -> Json.obj()),
       "capital_gains_data" -> Json.obj("payload" -> Json.obj()),
       "income_data"        -> Json.obj("payload" -> Json.obj()),
+      "summary_data"       -> Json.obj("payload" -> Json.obj()),
       "rates"              -> Json.obj(),
       "gov_spending"       -> Json.obj()
     )
@@ -71,9 +72,6 @@ object PAYETransformer {
       val otherPensionIncome: Option[Double] = pickAmount(__ \ 'income \ 'otherPensionIncome, source)
       val otherIncome: Option[Double] = pickAmount(__ \ 'income \ 'otherIncome, source)
       val incomeBeforeTax: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
-      val taxableIncome: Option[Double] = pickAmount(__ \ 'income \ 'taxableIncome, source)
-      val otherAllowancesDeductionsExpenses: Option[Double] =
-        pickAmount(__ \ 'income \ 'otherAllowancesDeductionsExpenses, source)
       val employmentBenefits: Option[Double] = pickAmount(__ \ 'income \ 'employmentBenefits, source)
 
       val jsonTransformer =
@@ -93,87 +91,10 @@ object PAYETransformer {
             __ \ 'income_data \ 'payload,
             middleTierAttributeJson("total_income_before_tax", incomeBeforeTax.getOrElse(0))) andThen
           appendAttribute(
-            __ \ 'allowance_data \ 'payload,
-            middleTierAttributeJson("total_tax_free_amount", taxableIncome.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'allowance_data \ 'payload,
-            middleTierAttributeJson("other_allowances_amount", otherAllowancesDeductionsExpenses.getOrElse(0))) andThen
-          appendAttribute(
             __ \ 'income_data \ 'payload,
-            middleTierAttributeJson("taxable_state_benefits", employmentBenefits.getOrElse(0)))
+            middleTierAttributeJson("benefits_from_employment", employmentBenefits.getOrElse(0)))
 
       safeTransform(jsonTransformer)
     }
   }
 }
-
-/*
-  "income": {
-    "incomeFromEmployment": 25000.00,
-    "statePension": 1000.00,
-    "otherPensionIncome": 500.00,
-    "otherIncome": 3000.00,
-    "incomeBeforeTax": 28000.00,
-    "taxableIncome": 25500.00,
-    "otherAllowancesDeductionsExpenses": 6000.00,
-    "employmentBenefits": 200.00
-  },
- */
-
-/*
-  "income_data": {       // Your total income (1)
-    "payload": {
-      "benefits_from_employment": {
-        "amount": 0,
-        "currency": "GBP"
-      },
-      "income_from_employment": {
-        "amount": 10500,
-        "currency": "GBP"
-      },
-      "other_income": {
-        "amount": 0,
-        "currency": "GBP"
-      },
-      "other_pension_income": {
-        "amount": 0,
-        "currency": "GBP"
-      },
-      "self_employment_income": {      // NOT PAYE
-        "amount": 1100,
-        "currency": "GBP"
-      },
-      "state_pension": {
-        "amount": 0,
-        "currency": "GBP"
-      },
-      "taxable_state_benefits": {
-        "amount": 0,
-        "currency": "GBP"
-      },
-      "total_income_before_tax": {
-        "amount": 11600,
-        "currency": "GBP"
-      }
-    },
-    "allowance_data": {  // Your tax-free amount (2)
-    "payload": {
-      "marriage_allowance_transferred_amount": {
-        "amount": 0,
-        "currency": "GBP"
-      },
-      "other_allowances_amount": {
-        "amount": 300,
-        "currency": "GBP"
-      },
-      "personal_tax_free_amount": {
-        "amount": 9440,
-        "currency": "GBP"
-      },
-      "total_tax_free_amount": {
-        "amount": 9740,
-        "currency": "GBP"
-      }
-    }
-  }
- */
