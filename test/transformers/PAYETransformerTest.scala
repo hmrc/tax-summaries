@@ -87,18 +87,6 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer {
           |    "rel" : "self",
           |    "href" : "https://digital.ws.ibt.hmrc.gov.uk/individuals/annual-tax-summary/AB654321B/2018"
           |  } ],
-          |  "allowance_data" : {
-          |    "payload" : {
-          |      "total_tax_free_amount" : {
-          |        "amount" : 25500,
-          |        "currency" : "GBP"
-          |      },
-          |      "other_allowances_amount" : {
-          |        "amount" : 6000,
-          |        "currency" : "GBP"
-          |      }
-          |    }
-          |  },
           |  "income_data" : {
           |    "payload" : {
           |      "income_from_employment" : {
@@ -121,13 +109,14 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer {
           |        "amount" : 28000,
           |        "currency" : "GBP"
           |      },
-          |      "taxable_state_benefits" : {
+          |      "benefits_from_employment" : {
           |        "amount" : 200,
           |        "currency" : "GBP"
           |      }
           |    }
           |  }
           |}
+          |
         """.stripMargin
 
       val transformedJson = middleTierJson(nino, 2018).transformTotalIncome(payeJson)
