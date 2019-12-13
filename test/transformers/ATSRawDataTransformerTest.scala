@@ -236,7 +236,6 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           OtherAdjustmentsIncreasing      -> Amount(0.00, "GBP"),
           MarriageAllowanceReceivedAmount -> Amount(0.00, "GBP"),
           OtherAdjustmentsReducing        -> Amount(28.0, "GBP"),
-          LFIRelief                       -> Amount.gbp(17.17),
           ScottishIncomeTax               -> Amount(186.00, "GBP"),
           TotalIncomeTax                  -> Amount(344.00, "GBP")
         )
