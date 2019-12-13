@@ -63,6 +63,7 @@ object Liability {
   case object IncomeTaxDue extends ApiValue("incomeTaxDue") with Liability
   case object IncomeTaxHigherRate extends ApiValue("ctnIncomeTaxHigherRate") with Liability
   case object JobSeekersAllowance extends ApiValue("atsJobSeekersAllowanceAmt") with Liability
+  case object LFIRelief extends ApiValue("lfiRelief") with Liability
   case object LowerRateCgtRPCI extends ApiValue("ctnLowerRateCgtRPCI") with Liability
   case object MarriageAllceIn extends ApiValue("ctnMarriageAllceInAmt") with Liability
   case object MarriageAllceOut extends ApiValue("ctnMarriageAllceOutAmt") with Liability
@@ -144,7 +145,7 @@ object Liability {
       SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxablePayScottishIntermediateRate,
       TaxablePayScottishStarterRate, TaxCharged, TaxCreditsForDivs, TaxDueAfterAllceRlf, TaxExcluded, TaxOnPayScottishIntermediateRate,
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
-      EmployeeClass1NI, EmployeeClass2NI, EmployerNI)
+      EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief)
   // format: on
 
   implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)

@@ -46,6 +46,7 @@ object LiabilityKey extends DefaultReads {
   case object HigherRateIncomeTaxAmount extends ApiValue("higher_rate_income_tax_amount") with LiabilityKey
   case object IncomeFromEmployment extends ApiValue("income_from_employment") with LiabilityKey
   case object LessTaxFreeAmount extends ApiValue("less_tax_free_amount") with LiabilityKey
+  case object LFIRelief extends ApiValue("lfi_relief") with LiabilityKey
   case object MarriageAllowanceReceivedAmount extends ApiValue("marriage_allowance_received_amount") with LiabilityKey
   case object MarriageAllowanceTransferredAmount
       extends ApiValue("marriage_allowance_transferred_amount") with LiabilityKey
@@ -114,7 +115,7 @@ object LiabilityKey extends DefaultReads {
       ScottishIncomeTax, ScottishStarterRateTax, ScottishBasicRateTax, ScottishIntermediateRateTax, ScottishHigherRateTax,
       ScottishAdditionalRateTax, ScottishTotalTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
       ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-      SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome)
+      SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, LFIRelief)
   // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =

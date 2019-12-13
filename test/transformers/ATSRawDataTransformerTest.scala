@@ -103,16 +103,16 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       val testPayload =
         Map(
           EmployeeNicAmount         -> Amount(200.00, "GBP"),
-          TotalIncomeTaxAndNics     -> Amount(572.00, "GBP"),
-          YourTotalTax              -> Amount(572.00, "GBP"),
+          TotalIncomeTaxAndNics     -> Amount(554.00, "GBP"),
+          YourTotalTax              -> Amount(554.00, "GBP"),
           PersonalTaxFreeAmount     -> Amount(9440.00, "GBP"),
           TotalTaxFreeAmount        -> Amount(9740.00, "GBP"),
           TotalIncomeBeforeTax      -> Amount(11600.00, "GBP"),
-          TotalIncomeTax            -> Amount(372.00, "GBP"),
+          TotalIncomeTax            -> Amount(354.00, "GBP"),
           TotalCgTax                -> Amount(0.00, "GBP"),
           TaxableGains              -> Amount(0.00, "GBP"),
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
-          NicsAndTaxPerCurrencyUnit -> Amount(0.0493, "GBP")
+          NicsAndTaxPerCurrencyUnit -> Amount(0.0477, "GBP")
         )
       testPayload shouldEqual parsedPayload
 
@@ -120,7 +120,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("0%"),
-        "nics_and_tax_rate" -> ApiRate("4.93%")
+        "nics_and_tax_rate" -> ApiRate("4.77%")
       )
       testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
@@ -141,16 +141,16 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       val testPayload =
         Map(
           EmployeeNicAmount         -> Amount(200.00, "GBP"),
-          TotalIncomeTaxAndNics     -> Amount(571.00, "GBP"),
-          YourTotalTax              -> Amount(571.00, "GBP"),
+          TotalIncomeTaxAndNics     -> Amount(554.00, "GBP"),
+          YourTotalTax              -> Amount(554.00, "GBP"),
           PersonalTaxFreeAmount     -> Amount(9440.00, "GBP"),
           TotalTaxFreeAmount        -> Amount(9740.00, "GBP"),
           TotalIncomeBeforeTax      -> Amount(11600.00, "GBP"),
-          TotalIncomeTax            -> Amount(371.00, "GBP"),
+          TotalIncomeTax            -> Amount(354.00, "GBP"),
           TotalCgTax                -> Amount(0.00, "GBP"),
           TaxableGains              -> Amount(0.00, "GBP"),
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
-          NicsAndTaxPerCurrencyUnit -> Amount(0.0492, "GBP")
+          NicsAndTaxPerCurrencyUnit -> Amount(0.0477, "GBP")
         )
       testPayload shouldEqual parsedPayload
 
@@ -158,7 +158,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("0%"),
-        "nics_and_tax_rate" -> ApiRate("4.92%")
+        "nics_and_tax_rate" -> ApiRate("4.77%")
       )
 
       testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
@@ -180,16 +180,16 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       val testPayload =
         Map(
           EmployeeNicAmount         -> Amount(200.0, "GBP"),
-          TotalIncomeTaxAndNics     -> Amount(562.0, "GBP"),
-          YourTotalTax              -> Amount(6117.00, "GBP"),
+          TotalIncomeTaxAndNics     -> Amount(544.0, "GBP"),
+          YourTotalTax              -> Amount(6099.00, "GBP"),
           PersonalTaxFreeAmount     -> Amount(9440.00, "GBP"),
           TotalTaxFreeAmount        -> Amount(9740.00, "GBP"),
           TotalIncomeBeforeTax      -> Amount(11600.00, "GBP"),
-          TotalIncomeTax            -> Amount(362.00, "GBP"),
+          TotalIncomeTax            -> Amount(344.00, "GBP"),
           TotalCgTax                -> Amount(5555.00, "GBP"),
           TaxableGains              -> Amount(12250.00, "GBP"),
           CgTaxPerCurrencyUnit      -> Amount(0.4534, "GBP"),
-          NicsAndTaxPerCurrencyUnit -> Amount(0.0484, "GBP")
+          NicsAndTaxPerCurrencyUnit -> Amount(0.0468, "GBP")
         )
       testPayload shouldEqual parsedPayload
 
@@ -197,7 +197,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("45.34%"),
-        "nics_and_tax_rate" -> ApiRate("4.84%")
+        "nics_and_tax_rate" -> ApiRate("4.68%")
       )
       testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
@@ -235,9 +235,10 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           AdditionalRateAmount            -> Amount(0.00, "GBP"),
           OtherAdjustmentsIncreasing      -> Amount(0.00, "GBP"),
           MarriageAllowanceReceivedAmount -> Amount(0.00, "GBP"),
-          OtherAdjustmentsReducing        -> Amount(10.0, "GBP"),
+          OtherAdjustmentsReducing        -> Amount(28.0, "GBP"),
+          LFIRelief                       -> Amount.gbp(17.17),
           ScottishIncomeTax               -> Amount(186.00, "GBP"),
-          TotalIncomeTax                  -> Amount(362.00, "GBP")
+          TotalIncomeTax                  -> Amount(344.00, "GBP")
         )
       parsedPayload should contain allElementsOf testPayload
 
@@ -308,7 +309,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       val returnValue =
         ATSRawDataTransformer(amendedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
-      parsedPayload(TotalIncomeTax) shouldEqual Amount(8889, "GBP")
+      parsedPayload(TotalIncomeTax) shouldEqual Amount(8872, "GBP")
     }
 
     "Calculate the Scottish Rate" in {

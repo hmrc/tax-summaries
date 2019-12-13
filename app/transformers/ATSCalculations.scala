@@ -179,7 +179,8 @@ sealed trait ATSCalculations extends DoubleUtils {
         get(QualDistnRelief) +
         get(TotalTaxCreditRelief) +
         get(NonPayableTaxCredits) +
-        getWithDefaultAmount(ReliefForFinanceCosts)
+        getWithDefaultAmount(ReliefForFinanceCosts) +
+        getWithDefaultAmount(LFIRelief)
     ).roundAmountUp()
 
   def totalIncomeTaxAmount: Amount =

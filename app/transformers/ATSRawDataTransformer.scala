@@ -17,7 +17,7 @@
 package transformers
 
 import models.Liability.{StatePension, _}
-import models.LiabilityKey._
+import models.LiabilityKey.{LFIRelief, _}
 import models.RateKey._
 import models._
 import play.api.Logger
@@ -154,6 +154,7 @@ case class ATSRawDataTransformer(
       OtherAdjustmentsIncreasing      -> calculations.otherAdjustmentsIncreasing,
       MarriageAllowanceReceivedAmount -> calculations.getWithDefaultAmount(MarriageAllceIn),
       OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing,
+      LFIRelief                       -> calculations.getWithDefaultAmount(Liability.LFIRelief),
       TotalIncomeTax                  -> calculations.totalIncomeTaxAmount,
       ScottishIncomeTax               -> calculations.scottishIncomeTax,
       ScottishStarterRateTax          -> calculations.scottishStarterRateTax,
