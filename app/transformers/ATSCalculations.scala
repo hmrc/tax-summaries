@@ -184,7 +184,7 @@ sealed trait ATSCalculations extends DoubleUtils {
     ).roundAmountUp()
 
   def totalIncomeTaxAmount: Amount =
-    get(SavingsTaxStartingRate) +
+    savingsRateAmount +
       basicRateIncomeTaxAmount +
       higherRateIncomeTaxAmount +
       additionalRateIncomeTaxAmount +
@@ -271,7 +271,9 @@ sealed class Post2018ATSCalculations(val summaryData: TaxSummaryLiability, val t
     extends ATSCalculations {
 
   override def scottishIncomeTax: Amount = Amount.empty
+
   override def savingsRate: Amount = Amount.empty
+
   override def savingsRateAmount: Amount = Amount.empty
 }
 
