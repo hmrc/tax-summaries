@@ -66,23 +66,24 @@ object RateKey {
   case object TotalCapitalGains extends ApiValue("total_cg_tax_rate") with RateKey
   case object Upper extends ApiValue("upper_rate_rate") with RateKey
 
+  case object ScottishStarterRate extends ApiValue("scottish_starter_rate") with RateKey
+  case object ScottishBasicRate extends ApiValue("scottish_basic_rate") with RateKey
+  case object ScottishIntermediateRate extends ApiValue("scottish_intermediate_rate") with RateKey
+  case object ScottishHigherRate extends ApiValue("scottish_higher_rate") with RateKey
+  case object ScottishAdditionalRate extends ApiValue("scottish_additional_rate") with RateKey
+  case object SavingsLowerRate extends ApiValue("savings_lower_rate") with RateKey
+  case object SavingsHigherRate extends ApiValue("savings_higher_rate") with RateKey
+  case object SavingsAdditionalRate extends ApiValue("savings_additional_rate") with RateKey
+
+  // format: off
   val allItems: List[RateKey] =
     List(
-      Additional,
-      CapitalGainsEntrepreneur,
-      CapitalGainsOrdinary,
-      CapitalGainsUpper,
-      IncomeAdditional,
-      IncomeBasic,
-      IncomeHigher,
-      InterestHigher,
-      InterestLower,
-      NICS,
-      Ordinary,
-      Savings,
-      TotalCapitalGains,
-      Upper
+      Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic,
+      IncomeHigher, InterestHigher, InterestLower, NICS, Ordinary, Savings, TotalCapitalGains, Upper, ScottishStarterRate,
+      ScottishBasicRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate, SavingsLowerRate,
+      SavingsHigherRate, SavingsAdditionalRate
     )
+  // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[RateKey, V]] = ApiValue.formatMap[RateKey, V](allItems)
 

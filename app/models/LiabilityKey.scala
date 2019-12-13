@@ -77,16 +77,44 @@ object LiabilityKey extends DefaultReads {
   case object UpperRateAmount extends ApiValue("upper_rate_amount") with LiabilityKey
   case object YourTotalTax extends ApiValue("your_total_tax") with LiabilityKey
 
+  case object ScottishStarterRateTax extends ApiValue("scottish_starter_rate_tax") with LiabilityKey
+  case object ScottishBasicRateTax extends ApiValue("scottish_basic_rate_tax") with LiabilityKey
+  case object ScottishIntermediateRateTax extends ApiValue("scottish_intermediate_rate_tax") with LiabilityKey
+  case object ScottishHigherRateTax extends ApiValue("scottish_higher_rate_tax") with LiabilityKey
+  case object ScottishAdditionalRateTax extends ApiValue("scottish_additional_rate_tax") with LiabilityKey
+
+  case object ScottishTotalTax extends ApiValue("scottish_total_tax") with LiabilityKey
+
+  case object ScottishStarterIncome extends ApiValue("scottish_starter_income") with LiabilityKey
+  case object ScottishBasicIncome extends ApiValue("scottish_basic_income") with LiabilityKey
+  case object ScottishIntermediateIncome extends ApiValue("scottish_intermediate_income") with LiabilityKey
+  case object ScottishHigherIncome extends ApiValue("scottish_higher_income") with LiabilityKey
+  case object ScottishAdditionalIncome extends ApiValue("scottish_additional_income") with LiabilityKey
+
+  case object SavingsLowerRateTax extends ApiValue("savings_lower_rate_tax") with LiabilityKey
+  case object SavingsHigherRateTax extends ApiValue("savings_higher_rate_tax") with LiabilityKey
+  case object SavingsAdditionalRateTax extends ApiValue("savings_additional_rate_tax") with LiabilityKey
+
+  case object SavingsLowerIncome extends ApiValue("savings_lower_income") with LiabilityKey
+  case object SavingsHigherIncome extends ApiValue("savings_higher_income") with LiabilityKey
+  case object SavingsAdditionalIncome extends ApiValue("savings_additional_income") with LiabilityKey
+
   // format: off
   val allItems: List[LiabilityKey] =
-    List(TaxableGains, LessTaxFreeAmount, PayCgTaxOn, AmountAtEntrepreneursRate, AmountDueAtEntrepreneursRate, AmountAtOrdinaryRate, AmountDueAtOrdinaryRate,
-      AmountAtHigherRate, AmountDueAtHigherRate, Adjustments, TotalCgTax, CgTaxPerCurrencyUnit, AmountAtRPCILowerRate, AmountDueRPCILowerRate, AmountAtRPCIHigheRate,
-      AmountDueRPCIHigherRate, SelfEmploymentIncome, IncomeFromEmployment, StatePension, OtherPensionIncome, TaxableStateBenefits, OtherIncome, BenefitsFromEmployment,
-      TotalIncomeBeforeTax, PersonalTaxFreeAmount, MarriageAllowanceTransferredAmount, OtherAllowancesAmount, TotalTaxFreeAmount, EmployeeNicAmount, TotalIncomeTaxAndNics,
-      YourTotalTax, TotalIncomeTax, NicsAndTaxPerCurrencyUnit, TotalCgTaxRate, NicsAndTaxRate, StartingRateForSavings, StartingRateForSavingsAmount, BasicRateIncomeTax,
-      BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, OrdinaryRate, OrdinaryRateAmount,
-      UpperRate, UpperRateAmount, AdditionalRate, AdditionalRateAmount, OtherAdjustmentsIncreasing, MarriageAllowanceReceivedAmount, OtherAdjustmentsReducing,
-      ScottishIncomeTax)
+    List(TaxableGains, LessTaxFreeAmount, PayCgTaxOn, AmountAtEntrepreneursRate, AmountDueAtEntrepreneursRate,
+      AmountAtOrdinaryRate, AmountDueAtOrdinaryRate, AmountAtHigherRate, AmountDueAtHigherRate, Adjustments, TotalCgTax,
+      CgTaxPerCurrencyUnit, AmountAtRPCILowerRate, AmountDueRPCILowerRate, AmountAtRPCIHigheRate, AmountDueRPCIHigherRate,
+      SelfEmploymentIncome, IncomeFromEmployment, StatePension, OtherPensionIncome, TaxableStateBenefits, OtherIncome,
+      BenefitsFromEmployment, TotalIncomeBeforeTax, PersonalTaxFreeAmount, MarriageAllowanceTransferredAmount,
+      OtherAllowancesAmount, TotalTaxFreeAmount, EmployeeNicAmount, TotalIncomeTaxAndNics, YourTotalTax, TotalIncomeTax,
+      NicsAndTaxPerCurrencyUnit, TotalCgTaxRate, NicsAndTaxRate, StartingRateForSavings, StartingRateForSavingsAmount,
+      BasicRateIncomeTax, BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, AdditionalRateIncomeTax,
+      AdditionalRateIncomeTaxAmount, OrdinaryRate, OrdinaryRateAmount, UpperRate, UpperRateAmount, AdditionalRate,
+      AdditionalRateAmount, OtherAdjustmentsIncreasing, MarriageAllowanceReceivedAmount, OtherAdjustmentsReducing,
+      ScottishIncomeTax, ScottishStarterRateTax, ScottishBasicRateTax, ScottishIntermediateRateTax, ScottishHigherRateTax,
+      ScottishAdditionalRateTax, ScottishTotalTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
+      ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
+      SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome)
   // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =

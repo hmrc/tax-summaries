@@ -22,7 +22,7 @@ import models.RateKey._
 import models._
 import play.api.Logger
 import play.api.libs.json._
-import services.TaxRateService
+import services.DefaultTaxRateService
 
 case class ATSParsingException(s: String) extends Exception(s)
 
@@ -31,9 +31,9 @@ case class ATSRawDataTransformer(
   rawTaxPayerJson: JsValue,
   UTR: String,
   taxYear: Int) {
-  val taxRate = new TaxRateService(taxYear)
 
-  val calculations = new ATSCalculations(summaryLiability, taxYear, taxRate)
+  val taxRate = new DefaultTaxRateService(taxYear)
+  val calculations = ATSCalculations.make(summaryLiability, taxRate)
 
   def atsDataDTO: AtsMiddleTierData =
     try {
@@ -137,9 +137,9 @@ case class ATSRawDataTransformer(
 
   private def createTotalIncomeTaxPageBreakdown: Map[LiabilityKey, Amount] =
     Map(
-      StartingRateForSavings          -> calculations.get(SavingsChargeableStartRate),
-      StartingRateForSavingsAmount    -> calculations.get(SavingsTaxStartingRate),
-      BasicRateIncomeTax              -> calculations.basicIncomeRateIncomeTax,
+      StartingRateForSavings          -> calculations.savingsRate,
+      StartingRateForSavingsAmount    -> calculations.savingsRateAmount,
+      BasicRateIncomeTax              -> calculations.basicRateIncomeTax,
       BasicRateIncomeTaxAmount        -> calculations.basicRateIncomeTaxAmount,
       HigherRateIncomeTax             -> calculations.higherRateIncomeTax,
       HigherRateIncomeTaxAmount       -> calculations.higherRateIncomeTaxAmount,
@@ -155,7 +155,24 @@ case class ATSRawDataTransformer(
       MarriageAllowanceReceivedAmount -> calculations.getWithDefaultAmount(MarriageAllceIn),
       OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing,
       TotalIncomeTax                  -> calculations.totalIncomeTaxAmount,
-      ScottishIncomeTax               -> calculations.scottishIncomeTax
+      ScottishIncomeTax               -> calculations.scottishIncomeTax,
+      ScottishStarterRateTax          -> calculations.scottishStarterRateTax,
+      ScottishBasicRateTax            -> calculations.scottishBasicRateTax,
+      ScottishIntermediateRateTax     -> calculations.scottishIntermediateRateTax,
+      ScottishHigherRateTax           -> calculations.scottishHigherRateTax,
+      ScottishAdditionalRateTax       -> calculations.scottishAdditionalRateTax,
+      ScottishTotalTax                -> calculations.scottishTotalTax,
+      ScottishStarterIncome           -> calculations.scottishStarterRateIncome,
+      ScottishBasicIncome             -> calculations.scottishBasicRateIncome,
+      ScottishIntermediateIncome      -> calculations.scottishIntermediateRateIncome,
+      ScottishHigherIncome            -> calculations.scottishHigherRateIncome,
+      ScottishAdditionalIncome        -> calculations.scottishAdditionalRateIncome,
+      SavingsLowerRateTax             -> calculations.savingsBasicRateTax,
+      SavingsHigherRateTax            -> calculations.savingsHigherRateTax,
+      SavingsAdditionalRateTax        -> calculations.savingsAdditionalRateTax,
+      SavingsLowerIncome              -> calculations.savingsBasicRateIncome,
+      SavingsHigherIncome             -> calculations.savingsHigherRateIncome,
+      SavingsAdditionalIncome         -> calculations.savingsAdditionalRateIncome
     )
 
   private def createCapitalGainsTaxRates: Map[RateKey, ApiRate] =
@@ -176,12 +193,20 @@ case class ATSRawDataTransformer(
 
   private def createTotalIncomeTaxPageRates: Map[RateKey, ApiRate] =
     Map[RateKey, Rate](
-      Savings          -> taxRate.startingRateForSavingsRate,
-      IncomeBasic      -> taxRate.basicRateIncomeTaxRate,
-      IncomeHigher     -> taxRate.higherRateIncomeTaxRate,
-      IncomeAdditional -> taxRate.additionalRateIncomeTaxRate,
-      Ordinary         -> taxRate.dividendsOrdinaryRate,
-      Upper            -> taxRate.dividendUpperRateRate,
-      Additional       -> taxRate.dividendAdditionalRate
+      Savings                  -> taxRate.startingRateForSavingsRate,
+      IncomeBasic              -> taxRate.basicRateIncomeTaxRate,
+      IncomeHigher             -> taxRate.higherRateIncomeTaxRate,
+      IncomeAdditional         -> taxRate.additionalRateIncomeTaxRate,
+      Ordinary                 -> taxRate.dividendsOrdinaryRate,
+      Upper                    -> taxRate.dividendUpperRateRate,
+      Additional               -> taxRate.dividendAdditionalRate,
+      ScottishStarterRate      -> taxRate.scottishStarterRate,
+      ScottishBasicRate        -> taxRate.scottishBasicRate,
+      ScottishIntermediateRate -> taxRate.scottishIntermediateRate,
+      ScottishHigherRate       -> taxRate.scottishHigherRate,
+      ScottishAdditionalRate   -> taxRate.scottishAdditionalRate,
+      SavingsLowerRate         -> taxRate.basicRateIncomeTaxRate,
+      SavingsHigherRate        -> taxRate.higherRateIncomeTaxRate,
+      SavingsAdditionalRate    -> taxRate.additionalRateIncomeTaxRate
     ).mapValues(_.apiValue)
 }

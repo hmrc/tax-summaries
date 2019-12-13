@@ -16,8 +16,9 @@
 
 package transformers
 
-import models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount}
-import models.{Amount, TaxSummaryLiability}
+import models.LiabilityKey._
+import models.{Amount, LiabilityKey, TaxSummaryLiability}
+import org.scalatest.OptionValues
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
@@ -221,6 +222,47 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       parsedPayload(BasicRateIncomeTaxAmount) should equal(new Amount(700.0, "GBP"))
       parsedPayload(HigherRateIncomeTaxAmount) should equal(new Amount(1300.0, "GBP"))
       parsedPayload(AdditionalRateIncomeTaxAmount) should equal(new Amount(350.0, "GBP"))
+    }
+  }
+
+  "new SRIT values" should {
+
+    val json = JsonUtil.load("/srit_values.json")
+    val sut = ATSRawDataTransformer(Json.parse(json).as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2019)
+
+    def payload(key: LiabilityKey): Option[Amount] =
+      sut.atsDataDTO.income_tax.flatMap(_.payload.flatMap(_.get(key)))
+
+    "return the correct values for scottish tax on income" in {
+      payload(ScottishStarterRateTax) shouldBe Some(Amount.gbp(1.01))
+      payload(ScottishBasicRateTax) shouldBe Some(Amount.gbp(2.02))
+      payload(ScottishIntermediateRateTax) shouldBe Some(Amount.gbp(3.03))
+      payload(ScottishHigherRateTax) shouldBe Some(Amount.gbp(4.04))
+      payload(ScottishAdditionalRateTax) shouldBe Some(Amount.gbp(5.05))
+    }
+
+    "return the correct values for scottish income" in {
+      payload(ScottishStarterIncome) shouldBe Some(Amount.gbp(6.06))
+      payload(ScottishBasicIncome) shouldBe Some(Amount.gbp(7.07))
+      payload(ScottishIntermediateIncome) shouldBe Some(Amount.gbp(8.08))
+      payload(ScottishHigherIncome) shouldBe Some(Amount.gbp(9.09))
+      payload(ScottishAdditionalIncome) shouldBe Some(Amount.gbp(10.10))
+    }
+
+    "return the correct values for savings tax" in {
+      payload(SavingsLowerRateTax) shouldBe Some(Amount.gbp(11.11))
+      payload(SavingsHigherRateTax) shouldBe Some(Amount.gbp(12.12))
+      payload(SavingsAdditionalRateTax) shouldBe Some(Amount.gbp(13.13))
+    }
+
+    "return the correct values for savings totals" in {
+      payload(SavingsLowerIncome) shouldBe Some(Amount.gbp(14.14))
+      payload(SavingsHigherIncome) shouldBe Some(Amount.gbp(15.15))
+      payload(SavingsAdditionalIncome) shouldBe Some(Amount.gbp(16.16))
+    }
+
+    "return the correct values for total scottish tax paid" in {
+      payload(ScottishTotalTax) shouldBe Some(Amount.gbp(15.15))
     }
   }
 }

@@ -19,6 +19,7 @@ private object AppDependencies {
   private val mockitoAllVersion = "1.10.19"
   private val jsonSchemaValidatorVersion = "2.2.6"
   private val json4sNativeVersion = "3.2.10"
+  private val scalaCheckVersion = "1.13.4"
 
   val compile = Seq(
     filters,
@@ -48,7 +49,8 @@ private object AppDependencies {
         "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
         "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
         "org.json4s" %% "json4s-native" % json4sNativeVersion,
-        "org.mockito" % "mockito-all" % mockitoAllVersion
+        "org.mockito" % "mockito-all" % mockitoAllVersion,
+        "org.scalacheck" %% "scalacheck" % scalaCheckVersion % scope
       )
     }.test
   }
