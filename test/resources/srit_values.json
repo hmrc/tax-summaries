@@ -114,6 +114,7 @@
       "ctnSavingsChgbleAddHRate":{"amount":16.16,"currency":"GBP"},
 
       "lfiRelief": { "amount": 17.17, "currency": "GBP" },
+      "disguisedRemunerationAmount":{"amount":18.18, "currency":"GBP"},
 
       "incomeTaxStatus":"0002"
     }

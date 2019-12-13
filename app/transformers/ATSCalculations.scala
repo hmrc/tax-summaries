@@ -80,7 +80,8 @@ sealed trait ATSCalculations extends DoubleUtils {
       get(SummaryTotalUkInterest) +
       get(SummaryTotForeignDiv) +
       get(SummaryTotalUkIntDivs) +
-      get(SumTotLifePolicyGains)
+      get(SumTotLifePolicyGains) +
+      getWithDefaultAmount(DisguisedRemunerationAmount)
 
   def totalIncomeBeforeTax: Amount =
     selfEmployment +

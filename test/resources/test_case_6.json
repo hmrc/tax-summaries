@@ -104,6 +104,7 @@
       "ctnCGAtHigherRateRPCI":{"amount":0.00, "currency":"GBP"},
       "ctnHigherRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
       "lfiRelief": { "amount": 17.17, "currency": "GBP" },
+      "disguisedRemunerationAmount":{"amount":18.18, "currency":"GBP"},
       "reliefForFinanceCosts":null,
       "incomeTaxStatus":"0002"
     }
