@@ -33,7 +33,7 @@ trait NpsService {
   def getPayload(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
     for {
       payeJson       <- npsConnector.connectToPayeTaxSummary(nino, taxYear)
-      middleTierJson <- Future.successful(middleTierJson(nino, 2018).transformTotalIncome(payeJson.as[JsObject]))
+      middleTierJson <- Future.successful(middleTierJson(nino, 2018).transformPaye(payeJson.as[JsObject]))
     } yield middleTierJson
 }
 

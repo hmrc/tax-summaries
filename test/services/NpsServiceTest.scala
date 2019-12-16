@@ -65,6 +65,7 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
       whenReady(result) { result =>
         result shouldBe a[JsValue]
+
       }
     }
   }

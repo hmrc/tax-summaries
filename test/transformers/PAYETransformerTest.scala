@@ -17,8 +17,8 @@
 package transformers
 
 import play.api.libs.json._
+import transformers.PAYETransformer._
 import uk.gov.hmrc.play.test.UnitSpec
-import PAYETransformer._
 import scala.io.Source
 
 class PAYETransformerTest extends UnitSpec with PAYETransformer {
@@ -119,8 +119,237 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer {
           |
         """.stripMargin
 
-      val transformedJson = middleTierJson(nino, 2018).transformTotalIncome(payeJson)
+      val transformedJson = middleTierJson(nino, 2018).transformTotalIncome(payeJson).omitEmpty
       transformedJson should be(Json.parse(expectedIncomeDataJson))
+    }
+
+    "transform 'Summmary' section" in {
+      val expectedSummaryDataJson =
+        """{
+          |  "taxYear" : 2018,
+          |  "nino" : "AB654321B",
+          |  "lnks" : [ {
+          |    "rel" : "self",
+          |    "href" : "https://digital.ws.ibt.hmrc.gov.uk/individuals/annual-tax-summary/AB654321B/2018"
+          |  } ],
+          |  "summary_data" : {
+          |    "payload" : {
+          |      "total_income_before_tax" : {
+          |        "amount" : 28000,
+          |        "currency" : "GBP"
+          |      },
+          |      "total_tax_free_amount" : {
+          |        "amount" : 28000,
+          |        "currency" : "GBP"
+          |      },
+          |      "total_income_tax_and_nics" : {
+          |        "amount" : 4200,
+          |        "currency" : "GBP"
+          |      },
+          |      "income_after_tax_and_nics" : {
+          |        "amount" : 4200,
+          |        "currency" : "GBP"
+          |      },
+          |      "total_income_tax" : {
+          |        "amount" : 4000,
+          |        "currency" : "GBP"
+          |      },
+          |      "employee_nic_amount" : {
+          |        "amount" : 200,
+          |        "currency" : "GBP"
+          |      }
+          |    }
+          |  }
+          |}
+        """.stripMargin
+      val transformedJson = middleTierJson(nino, 2018).transformSummary(payeJson).omitEmpty
+      transformedJson should be(Json.parse(expectedSummaryDataJson))
+    }
+
+    "transform 'Allowances' section" in {
+      val expectedAllowancesJson =
+        """
+          |{
+          |  "taxYear" : 2018,
+          |  "nino" : "AB654321B",
+          |  "lnks" : [ {
+          |    "rel" : "self",
+          |    "href" : "https://digital.ws.ibt.hmrc.gov.uk/individuals/annual-tax-summary/AB654321B/2018"
+          |  } ],
+          |  "allowance_data" : {
+          |    "payload" : {
+          |      "personal_tax_free_amount" : {
+          |        "amount" : 12500,
+          |        "currency" : "GBP"
+          |      },
+          |      "marriage_allowance_transferred_amount" : {
+          |        "amount" : 1250,
+          |        "currency" : "GBP"
+          |      },
+          |      "other_allowances_amount" : {
+          |        "amount" : 6000,
+          |        "currency" : "GBP"
+          |      }
+          |    }
+          |  }
+          |}
+        """.stripMargin
+      val transformedJson = middleTierJson(nino, 2018).transformAllowances(payeJson).omitEmpty
+      transformedJson should be(Json.parse(expectedAllowancesJson))
+    }
+
+    "transform 'income_tax' section" in {
+      val expectedIncomeTaxJson =
+        """
+          |{
+          |  "taxYear" : 2018,
+          |  "nino" : "AB654321B",
+          |  "lnks" : [ {
+          |    "rel" : "self",
+          |    "href" : "https://digital.ws.ibt.hmrc.gov.uk/individuals/annual-tax-summary/AB654321B/2018"
+          |  } ],
+          |  "income_tax" : {
+          |    "payload" : {
+          |      "total_income_tax" : {
+          |        "amount" : 4000,
+          |        "currency" : "GBP"
+          |      }
+          |    }
+          |  }
+          |}
+        """.stripMargin
+      val transformedJson = middleTierJson(nino, 2018).transformIncomeTax(payeJson).omitEmpty
+      transformedJson should be(Json.parse(expectedIncomeTaxJson))
+    }
+
+    "transform 'gov_spending' section" in {
+      val expectedGovSpendingJson =
+        """
+          |{
+          |  "taxYear" : 2018,
+          |  "nino" : "AB654321B",
+          |  "lnks" : [ {
+          |    "rel" : "self",
+          |    "href" : "https://digital.ws.ibt.hmrc.gov.uk/individuals/annual-tax-summary/AB654321B/2018"
+          |  } ],
+          |  "gov_spending" : {
+          |    "taxYear" : 2018,
+          |    "govSpendAmountData" : {
+          |      "PublicOrderAndSafety" : {
+          |        "amount" : {
+          |          "amount" : 180.6,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 4.3
+          |      },
+          |      "Environment" : {
+          |        "amount" : {
+          |          "amount" : 67.2,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 1.6
+          |      },
+          |      "OverseasAid" : {
+          |        "amount" : {
+          |          "amount" : 50.4,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 1.2
+          |      },
+          |      "BusinessAndIndustry" : {
+          |        "amount" : {
+          |          "amount" : 121.8,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 2.9
+          |      },
+          |      "NationalDebtInterest" : {
+          |        "amount" : {
+          |          "amount" : 256.2,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 6.1
+          |      },
+          |      "Defence" : {
+          |        "amount" : {
+          |          "amount" : 222.6,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 5.3
+          |      },
+          |      "Health" : {
+          |        "amount" : {
+          |          "amount" : 835.8,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 19.9
+          |      },
+          |      "Culture" : {
+          |        "amount" : {
+          |          "amount" : 67.2,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 1.6
+          |      },
+          |      "UkContributionToEuBudget" : {
+          |        "amount" : {
+          |          "amount" : 29.4,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 0.7
+          |      },
+          |      "HousingAndUtilities" : {
+          |        "amount" : {
+          |          "amount" : 67.2,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 1.6
+          |      },
+          |      "Transport" : {
+          |        "amount" : {
+          |          "amount" : 180.6,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 4.3
+          |      },
+          |      "Welfare" : {
+          |        "amount" : {
+          |          "amount" : 999.6,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 23.8
+          |      },
+          |      "GovernmentAdministration" : {
+          |        "amount" : {
+          |          "amount" : 88.2,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 2.1
+          |      },
+          |      "Education" : {
+          |        "amount" : {
+          |          "amount" : 504,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 12
+          |      },
+          |      "StatePensions" : {
+          |        "amount" : {
+          |          "amount" : 537.6,
+          |          "currency" : "GBP"
+          |        },
+          |        "percentage" : 12.8
+          |      }
+          |    },
+          |    "totalAmount" : {
+          |      "amount" : 4200,
+          |      "currency" : "GBP"
+          |    }
+          |  }
+          |}
+        """.stripMargin
+      val transformedJson = middleTierJson(nino, 2018).transformGovSpendingData(payeJson).omitEmpty
+      transformedJson should be(Json.parse(expectedGovSpendingJson))
     }
   }
 }
