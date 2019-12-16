@@ -16,7 +16,9 @@
 
 package transformers
 
+import models.Amount
 import play.api.libs.json._
+import play.api.libs.json.JsPath
 
 trait PAYETransformer {
   def middleTierAttributeJson(name: String, value: Double, currency: String = "GBP"): JsObject = Json.obj(
@@ -48,6 +50,7 @@ object PAYETransformer {
       "allowance_data"     -> Json.obj("payload" -> Json.obj()),
       "capital_gains_data" -> Json.obj("payload" -> Json.obj()),
       "income_data"        -> Json.obj("payload" -> Json.obj()),
+      "income_tax"         -> Json.obj("payload" -> Json.obj()),
       "summary_data"       -> Json.obj("payload" -> Json.obj()),
       "rates"              -> Json.obj(),
       "gov_spending"       -> Json.obj()
@@ -62,10 +65,19 @@ object PAYETransformer {
     }
 
     def safeTransform(jsonTransformer: Reads[JsObject]): JsObject =
-      original.transform(jsonTransformer).asOpt.map(_.omitEmpty) match {
+      original.transform(jsonTransformer).asOpt match {
         case Some(json) => json
         case None       => original
       }
+
+    def transformPaye(source: JsObject): JsObject =
+      transformTotalIncome(source)
+        .transformSummary(source)
+        .transformAllowances(source)
+        .transformIncomeTax(source)
+        .transformGovSpendingData(source)
+        .omitEmpty
+
     def transformTotalIncome(source: JsObject): JsObject = {
       val income: Option[Double] = pickAmount(__ \ 'income \ 'incomeFromEmployment, source)
       val statePension: Option[Double] = pickAmount(__ \ 'income \ 'statePension, source)
@@ -96,5 +108,83 @@ object PAYETransformer {
 
       safeTransform(jsonTransformer)
     }
+    def transformSummary(source: JsObject): JsObject = {
+      val taxableIncome: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
+      val taxFreeAmount: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
+      val incomeTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTaxNics, source)
+      val IncomeAfterTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTaxNics, source)
+      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax, source)
+      val nationalInsurance: Option[Double] = pickAmount(__ \ 'nationalInsurance \ 'employeeContributions, source)
+
+      val jsonTransformer =
+        appendAttribute(
+          __ \ 'summary_data \ 'payload,
+          middleTierAttributeJson("total_income_before_tax", taxableIncome.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'summary_data \ 'payload,
+            middleTierAttributeJson("total_tax_free_amount", taxFreeAmount.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'summary_data \ 'payload,
+            middleTierAttributeJson("total_income_tax_and_nics", incomeTaxAndNics.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'summary_data \ 'payload,
+            middleTierAttributeJson("income_after_tax_and_nics", IncomeAfterTaxAndNics.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'summary_data \ 'payload,
+            middleTierAttributeJson("total_income_tax", incomeTax.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'summary_data \ 'payload,
+            middleTierAttributeJson("employee_nic_amount", nationalInsurance.getOrElse(0)))
+
+      safeTransform(jsonTransformer)
+    }
+
+    def transformAllowances(source: JsObject): JsObject = {
+      val personalAllowance: Option[Double] = pickAmount(__ \ 'adjustments \ 'taxFreeAmount, source)
+      val marriageAllowanceTransferred: Option[Double] =
+        pickAmount(__ \ 'adjustments \ 'marriageAllowanceTransferred, source)
+      val otherAllowancees: Option[Double] = pickAmount(__ \ 'income \ 'otherAllowancesDeductionsExpenses, source)
+
+      val jsonTransformer =
+        appendAttribute(
+          __ \ 'allowance_data \ 'payload,
+          middleTierAttributeJson("personal_tax_free_amount", personalAllowance.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'allowance_data \ 'payload,
+            middleTierAttributeJson("marriage_allowance_transferred_amount", marriageAllowanceTransferred.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'allowance_data \ 'payload,
+            middleTierAttributeJson("other_allowances_amount", otherAllowancees.getOrElse(0)))
+
+      safeTransform(jsonTransformer)
+    }
+
+    def transformIncomeTax(source: JsObject): JsObject = {
+      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax, source)
+
+      val jsonTransformer =
+        appendAttribute(
+          __ \ 'income_tax \ 'payload,
+          middleTierAttributeJson("total_income_tax", incomeTax.getOrElse(0)))
+
+      safeTransform(jsonTransformer)
+    }
+
+    def transformGovSpendingData(source: JsObject): JsObject = {
+      import play.api.libs.json.Reads._
+
+      val totalTaxAmount: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTaxNics, source)
+      val taxYear = original.transform((__ \ 'taxYear).json.pick[JsNumber]).asOpt.map(n => n.as[Int])
+      val govSpendingJson = Json
+        .toJson(
+          new GovSpendingDataTransformer(Amount(BigDecimal(totalTaxAmount.getOrElse(0.0)), "GBP"), taxYear.get).govSpendReferenceDTO)
+        .as[JsObject]
+
+      val jsonTransformer = (__ \ 'gov_spending).json.update((__).read[JsObject].map { o =>
+        o ++ govSpendingJson
+      })
+      safeTransform(jsonTransformer)
+    }
   }
 }
+
