@@ -16,104 +16,72 @@
 
 package services
 
+import models.ApiValue
+import play.api.libs.json.{Format, JsError, JsResult, JsString, JsSuccess, JsValue, Json, Writes}
+import config.ApplicationConfig
+
+sealed trait GoodsAndServices extends ApiValue
+
+object GoodsAndServices {
+
+  implicit val formats: Format[GoodsAndServices] = Format(
+    ApiValue.readFromList(allItems),
+    Writes[GoodsAndServices](o => JsString(o.apiValue))
+  )
+
+  case object Welfare extends ApiValue("Welfare") with GoodsAndServices
+  case object Health extends ApiValue("Health") with GoodsAndServices
+  case object Education extends ApiValue("Education") with GoodsAndServices
+  case object StatePensions extends ApiValue("StatePensions") with GoodsAndServices
+  case object NationalDebtInterest extends ApiValue("NationalDebtInterest") with GoodsAndServices
+  case object Defence extends ApiValue("Defence") with GoodsAndServices
+  case object CriminalJustice extends ApiValue("CriminalJustice") with GoodsAndServices
+  case object Transport extends ApiValue("Transport") with GoodsAndServices
+  case object BusinessAndIndustry extends ApiValue("BusinessAndIndustry") with GoodsAndServices
+  case object GovernmentAdministration extends ApiValue("GovernmentAdministration") with GoodsAndServices
+  case object Culture extends ApiValue("Culture") with GoodsAndServices
+  case object HousingAndUtilities extends ApiValue("HousingAndUtilities") with GoodsAndServices
+  case object OverseasAid extends ApiValue("OverseasAid") with GoodsAndServices
+  case object UkContributionToEuBudget extends ApiValue("UkContributionToEuBudget") with GoodsAndServices
+  case object PublicOrderAndSafety extends ApiValue("PublicOrderAndSafety") with GoodsAndServices
+  case object Environment extends ApiValue("Environment") with GoodsAndServices
+
+  val allItems = List[GoodsAndServices](
+    Welfare,
+    Health,
+    Education,
+    StatePensions,
+    NationalDebtInterest,
+    Defence,
+    CriminalJustice,
+    Transport,
+    BusinessAndIndustry,
+    GovernmentAdministration,
+    Culture,
+    HousingAndUtilities,
+    OverseasAid,
+    UkContributionToEuBudget,
+    PublicOrderAndSafety,
+    Environment
+  )
+
+  implicit def mapFormat[V: Format]: Format[Map[GoodsAndServices, V]] =
+    ApiValue.formatMap[GoodsAndServices, V](allItems)
+}
+
 object GovSpendService {
 
-  def govSpending(taxYear: Int): Map[String, BigDecimal] = taxYear match {
-    case 2014 => taxYear2014
-    case 2015 => taxYear2015
-    case 2016 => taxYear2016
-    case 2017 => taxYear2017
-    case 2018 => taxYear2018
-  }
+  import GoodsAndServices._
 
-  val taxYear2014: Map[String, BigDecimal] = Map(
-    "Welfare"                  -> 24.52,
-    "Health"                   -> 18.87,
-    "Education"                -> 13.15,
-    "StatePensions"            -> 12.12,
-    "NationalDebtInterest"     -> 7.00,
-    "Defence"                  -> 5.31,
-    "CriminalJustice"          -> 4.40,
-    "Transport"                -> 2.95,
-    "BusinessAndIndustry"      -> 2.74,
-    "GovernmentAdministration" -> 2.05,
-    "Culture"                  -> 1.69,
-    "Environment"              -> 1.66,
-    "HousingAndUtilities"      -> 1.64,
-    "OverseasAid"              -> 1.15,
-    "UkContributionToEuBudget" -> 0.75
-  )
-
-  val taxYear2015: Map[String, BigDecimal] = Map(
-    "Welfare"                  -> 25.30,
-    "Health"                   -> 19.90,
-    "StatePensions"            -> 12.80,
-    "Education"                -> 12.50,
-    "Defence"                  -> 5.40,
-    "NationalDebtInterest"     -> 5.00,
-    "PublicOrderAndSafety"     -> 4.40,
-    "Transport"                -> 3.00,
-    "BusinessAndIndustry"      -> 2.70,
-    "GovernmentAdministration" -> 2.00,
-    "Culture"                  -> 1.80,
-    "Environment"              -> 1.70,
-    "HousingAndUtilities"      -> 1.60,
-    "OverseasAid"              -> 1.30,
-    "UkContributionToEuBudget" -> 0.60
-  )
-
-  val taxYear2016: Map[String, BigDecimal] = Map(
-    "Welfare"                  -> 25.00,
-    "Health"                   -> 19.90,
-    "StatePensions"            -> 12.80,
-    "Education"                -> 12.00,
-    "Defence"                  -> 5.20,
-    "NationalDebtInterest"     -> 5.30,
-    "PublicOrderAndSafety"     -> 4.30,
-    "Transport"                -> 4.00,
-    "BusinessAndIndustry"      -> 2.40,
-    "GovernmentAdministration" -> 2.00,
-    "Culture"                  -> 1.60,
-    "Environment"              -> 1.70,
-    "HousingAndUtilities"      -> 1.40,
-    "OverseasAid"              -> 1.20,
-    "UkContributionToEuBudget" -> 1.10
-  )
-
-  val taxYear2017: Map[String, BigDecimal] = Map(
-    "Welfare"                  -> 24.30,
-    "Health"                   -> 20.30,
-    "StatePensions"            -> 12.90,
-    "Education"                -> 12.30,
-    "Defence"                  -> 5.20,
-    "NationalDebtInterest"     -> 5.50,
-    "PublicOrderAndSafety"     -> 4.20,
-    "Transport"                -> 4.20,
-    "BusinessAndIndustry"      -> 2.50,
-    "GovernmentAdministration" -> 2.10,
-    "Culture"                  -> 1.60,
-    "Environment"              -> 1.60,
-    "HousingAndUtilities"      -> 1.50,
-    "OverseasAid"              -> 1.10,
-    "UkContributionToEuBudget" -> 0.70
-  )
-
-  val taxYear2018: Map[String, BigDecimal] = Map(
-    "Welfare"                  -> 23.80,
-    "Health"                   -> 19.90,
-    "StatePensions"            -> 12.80,
-    "Education"                -> 12.00,
-    "Defence"                  -> 5.30,
-    "NationalDebtInterest"     -> 6.10,
-    "PublicOrderAndSafety"     -> 4.30,
-    "Transport"                -> 4.30,
-    "BusinessAndIndustry"      -> 2.90,
-    "GovernmentAdministration" -> 2.10,
-    "Culture"                  -> 1.60,
-    "Environment"              -> 1.60,
-    "HousingAndUtilities"      -> 1.60,
-    "OverseasAid"              -> 1.20,
-    "UkContributionToEuBudget" -> 0.70
-  )
-
+  def govSpending(taxYear: Int): Map[GoodsAndServices, Double] =
+    ApplicationConfig
+      .governmentSpend(taxYear)
+      .toList
+      .map {
+        case (k, v) => allItems.find(_.apiValue == k).map(k => (k, v))
+      }
+      .collect {
+        case Some(v) => v
+      }
+      .toMap
 }

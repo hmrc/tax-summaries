@@ -16,7 +16,9 @@
 
 package transformers
 
-import models.Amount
+import models.LiabilityKey.OtherIncome
+import models.{Amount, TaxSummaryLiability}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -24,7 +26,7 @@ import utils._
 
 import scala.io.Source
 
-class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate {
+class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -37,14 +39,15 @@ class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       taxYear shouldEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload("other_income") should equal(new Amount(0.0, "GBP"))
+      parsedPayload(OtherIncome) should equal(new Amount(18.18, "GBP"))
     }
 
     "have the correct summed other income data" in {
@@ -65,10 +68,11 @@ class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate {
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
-      val returnValue = ATSRawDataTransformer(transformedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload("other_income") should equal(new Amount(450.0, "GBP"))
+      parsedPayload(OtherIncome) should equal(new Amount(468.18, "GBP"))
     }
   }
 }

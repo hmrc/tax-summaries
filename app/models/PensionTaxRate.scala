@@ -16,12 +16,19 @@
 
 package models
 
-import uk.gov.hmrc.play.test.UnitSpec
+import play.api.libs.json._
 
-class RateTest extends UnitSpec {
-  "Rate class" should {
-    "not change given value" in {
-      10 shouldEqual Rate(10).percent
-    }
+final case class PensionTaxRate(value: Double) {
+  val percentage: Double = value * 100
+}
+
+object PensionTaxRate {
+
+  implicit val reads: Reads[PensionTaxRate] = new Reads[PensionTaxRate] {
+    override def reads(json: JsValue): JsResult[PensionTaxRate] =
+      json match {
+        case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue()))
+        case _               => JsError("Unable to parse PensionTaxRate")
+      }
   }
 }

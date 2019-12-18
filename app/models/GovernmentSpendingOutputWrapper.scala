@@ -18,10 +18,11 @@ package models
 
 import errors.AtsError
 import play.api.libs.json.Json
+import services.GoodsAndServices
 
 case class GovernmentSpendingOutputWrapper(
   taxYear: Int,
-  govSpendAmountData: Map[String, SpendData],
+  govSpendAmountData: Map[GoodsAndServices, SpendData],
   totalAmount: Amount,
   errors: Option[AtsError])
 
