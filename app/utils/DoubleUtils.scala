@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
-import uk.gov.hmrc.play.test.UnitSpec
+trait DoubleUtils {
 
-class RateTest extends UnitSpec {
-  "Rate class" should {
-    "not change given value" in {
-      10 shouldEqual Rate(10).percent
-    }
+  implicit class Ops(d: Double) {
+
+    def ===(that: Double): Boolean = (d - that).abs <= 1.0e-8 * d.abs
+    def !==(that: Double): Boolean = !(d === that)
   }
 }

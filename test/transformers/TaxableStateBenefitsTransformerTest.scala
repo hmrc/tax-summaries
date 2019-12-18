@@ -16,7 +16,9 @@
 
 package transformers
 
-import models.Amount
+import models.LiabilityKey.TaxableStateBenefits
+import models.{Amount, TaxSummaryLiability}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
@@ -24,7 +26,7 @@ import utils._
 
 import scala.io.Source
 
-class TaxableStateBenefitsTransformerTest extends UnitSpec with AtsJsonDataUpdate {
+class TaxableStateBenefitsTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -37,7 +39,8 @@ class TaxableStateBenefitsTransformerTest extends UnitSpec with AtsJsonDataUpdat
       val sampleJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
-      val returnValue = ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -45,7 +48,7 @@ class TaxableStateBenefitsTransformerTest extends UnitSpec with AtsJsonDataUpdat
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload("taxable_state_benefits") should equal(new Amount(0.0, "GBP"))
+      parsedPayload(TaxableStateBenefits) should equal(new Amount(0.0, "GBP"))
     }
 
     "have the correct summed other pension income data" in {
@@ -59,10 +62,11 @@ class TaxableStateBenefitsTransformerTest extends UnitSpec with AtsJsonDataUpdat
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
-      val returnValue = ATSRawDataTransformer(transformedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+      val returnValue =
+        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedPayload = returnValue.income_data.get.payload.get
-      parsedPayload("taxable_state_benefits") should equal(new Amount(600.0, "GBP"))
+      parsedPayload(TaxableStateBenefits) should equal(new Amount(600.0, "GBP"))
     }
   }
 }
