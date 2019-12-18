@@ -147,7 +147,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer {
           |        "currency" : "GBP"
           |      },
           |      "income_after_tax_and_nics" : {
-          |        "amount" : 4200,
+          |        "amount" : 5000,
           |        "currency" : "GBP"
           |      },
           |      "total_income_tax" : {
