@@ -16,9 +16,8 @@
 
 package controllers.auth
 
-import com.google.inject.ImplementedBy
+import com.google.inject.{ImplementedBy, Inject}
 import config.WSHttp
-import javax.inject.Inject
 import play.api.Mode.Mode
 import play.api.mvc.Results.{BadRequest, Unauthorized}
 import play.api.mvc.{ActionBuilder, ActionFilter, Request, Result}
@@ -38,14 +37,16 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit execut
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, None)
 
-    val matchUtrInUriPattern = "/([\\d\\w-]+).*".r
+    val matchUtrInUriPattern = "/([\\d-]+).*".r
 
     val matches = matchUtrInUriPattern.findAllIn(request.uri)
 
     if (matches.isEmpty) {
       Future.successful(Some(BadRequest))
     } else {
+
       val urlUtr: Option[String] = Some(matches.group(1))
+
       authorised(ConfidenceLevel.L50 and Enrolment("IR-SA"))
         .retrieve(Retrievals.saUtr) { utr =>
           if (urlUtr == utr) Future.successful(None) else Future.successful(Some(Unauthorized))

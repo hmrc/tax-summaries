@@ -14,7 +14,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "json-encryption"        % "4.4.0-play-25",
     "com.github.fge"     % "json-schema-validator"  % "2.2.6",
     "org.json4s"        %% "json4s-native"          % "3.5.5",
-    "com.typesafe.play" %% "play-json"              % "2.7.4",
+    "com.typesafe.play" %% "play-json"              % "2.6.0-M7",
     "uk.gov.hmrc"       %% "auth-client"            % "2.31.0-play-25"
   )
 

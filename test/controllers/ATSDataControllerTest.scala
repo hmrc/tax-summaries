@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controller
+package controllers
 
-import controller.auth.FakeAuthAction
+import controllers.auth.FakeAuthAction
 import controllers.ATSDataController
 import controllers.auth.AuthAction
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.test.FakeRequest
 import services.OdsService

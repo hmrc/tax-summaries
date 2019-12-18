@@ -18,7 +18,7 @@ package utils
 
 import transformers.ATSParsingException
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json._
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants._

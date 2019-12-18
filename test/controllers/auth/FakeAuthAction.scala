@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package controller.auth
+package controllers.auth
 
-import controllers.auth.AuthAction
 import play.api.mvc.{Request, Result}
 
 import scala.concurrent.Future

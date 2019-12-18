@@ -21,7 +21,7 @@ import connectors.ODSConnector
 import errors.AtsError
 import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.test.UnitSpec

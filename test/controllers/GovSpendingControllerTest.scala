@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package controller
+package controllers
 
 import connectors.ODSConnector
-import controller.auth.FakeAuthAction
+import controllers.auth.FakeAuthAction
 import controllers.ATSDataController
 import controllers.auth.AuthAction
 import models.SpendData
