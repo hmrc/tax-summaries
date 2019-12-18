@@ -34,5 +34,5 @@ object ApplicationGlobal extends DefaultMicroserviceGlobal {
 
   override lazy val microserviceAuditFilter: AuditFilter = TAXSAuditFilter
 
-  override lazy val authFilter: Option[EssentialFilter] = Some(TAXSAuthFilter)
+  override lazy val authFilter: Option[EssentialFilter] = None
 }

@@ -57,17 +57,8 @@ object TAXSControllerConfig extends ControllerConfig {
   override lazy val controllerConfigs: Config = Play.current.configuration.underlying.getConfig("controllers")
 }
 
-object TAXSAuthControllerConfig extends AuthParamsControllerConfig {
-  override lazy val controllerConfigs: Config = TAXSControllerConfig.controllerConfigs
-}
-
 object TAXSAuditConnector extends AuditConnector {
   override lazy val auditingConfig: AuditingConfig = LoadAuditingConfig(s"auditing")
-}
-
-object TAXSAuthConnector extends AuthConnector with ServicesConfig with WSHttp {
-  override def authBaseUrl: String = baseUrl("auth")
-
 }
 
 object TAXSLoggingFilter extends LoggingFilter with MicroserviceFilterSupport {
@@ -81,11 +72,4 @@ object TAXSAuditFilter extends AuditFilter with AppName with MicroserviceFilterS
   override def controllerNeedsAuditing(controllerName: String): Boolean = false
 
   protected def appNameConfiguration: Configuration = Play.current.configuration
-}
-
-object TAXSAuthFilter extends AuthorisationFilter with MicroserviceFilterSupport {
-  override def authConnector: AuthConnector = TAXSAuthConnector
-  override def authParamsConfig: AuthParamsControllerConfig = TAXSAuthControllerConfig
-  override def controllerNeedsAuth(controllerName: String): Boolean =
-    TAXSControllerConfig.paramsForController(controllerName).needsAuth
 }

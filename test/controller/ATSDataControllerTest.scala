@@ -16,7 +16,9 @@
 
 package controller
 
+import controller.auth.FakeAuthAction
 import controllers.ATSDataController
+import controllers.auth.AuthAction
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -26,6 +28,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import utils.TestConstants._
+
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -37,6 +40,7 @@ class ATSDataControllerTest extends UnitSpec with MockitoSugar with WithFakeAppl
   class TestController extends ATSDataController {
     val request = FakeRequest()
     override lazy val odsService: OdsService = mock[OdsService]
+    override val authAction: AuthAction = FakeAuthAction
   }
 
   "getAtsData" should {

@@ -17,7 +17,9 @@
 package controller
 
 import connectors.ODSConnector
+import controller.auth.FakeAuthAction
 import controllers.ATSDataController
+import controllers.auth.AuthAction
 import models.SpendData
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsValue, Json}
@@ -59,6 +61,7 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
 
     new ATSDataController {
       override val odsService = odsServiceObject
+      override val authAction: AuthAction = FakeAuthAction
     }
   }
 
