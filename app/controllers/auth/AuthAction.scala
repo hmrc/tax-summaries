@@ -22,7 +22,6 @@ import play.api.Mode.Mode
 import play.api.mvc.Results.{BadRequest, Unauthorized}
 import play.api.mvc.{ActionBuilder, ActionFilter, Request, Result}
 import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, ConfidenceLevel, Enrolment, PlayAuthConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -45,17 +44,17 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit execut
       Future.successful(Some(BadRequest))
     } else {
 
-      val urlUtr: Option[String] = Some(matches.group(1))
-
-      authorised(ConfidenceLevel.L50 and Enrolment("IR-SA"))
-        .retrieve(Retrievals.saUtr) { utr =>
-          if (urlUtr == utr) Future.successful(None) else Future.successful(Some(Unauthorized))
-        }
-        .recover {
-          case t: Throwable =>
-            Logger.debug(s"Debug info - ${t.getMessage}", t)
-            Some(Unauthorized)
-        }
+      val urlUtr: String = matches.group(1)
+      authorised(
+        ConfidenceLevel.L50 and Enrolment("IR-SA")
+          .withIdentifier("UTR", urlUtr)
+          .withDelegatedAuthRule("sa-auth")) {
+        Future.successful(None)
+      }.recover {
+        case t: Throwable =>
+          Logger.debug(s"Debug info - ${t.getMessage}", t)
+          Some(Unauthorized)
+      }
     }
   }
 }
