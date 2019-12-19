@@ -22,6 +22,7 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
@@ -29,7 +30,7 @@ import utils.TestConstants._
 
 import scala.concurrent.Future
 
-class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
+class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerTest {
 
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))

@@ -16,12 +16,14 @@
 
 package transformers
 
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json._
 import transformers.PAYETransformer._
 import uk.gov.hmrc.play.test.UnitSpec
+
 import scala.io.Source
 
-class PAYETransformerTest extends UnitSpec with PAYETransformer {
+class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneAppPerTest {
 
   val nino = "AB654321B"
   val payeJson = Json.parse(Source.fromURL(getClass.getResource("/nino_2018.json")).mkString).as[JsObject]
