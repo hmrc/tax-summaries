@@ -195,6 +195,14 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
           |      "other_allowances_amount" : {
           |        "amount" : 6000,
           |        "currency" : "GBP"
+          |      },
+          |      "you_pay_tax_on" : {
+          |        "amount" : 15000,
+          |        "currency" : "GBP"
+          |      },
+          |     "total_tax_free_amount" : {
+          |        "amount" : 25500,
+          |        "currency" : "GBP"
           |      }
           |    }
           |  }
@@ -286,7 +294,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
           |}
         """.stripMargin
       val transformedJson = middleTierJson(nino, 2018).transformIncomeTax(payeJson).omitEmpty
-     transformedJson should be(Json.parse(expectedIncomeTaxJson))
+      transformedJson should be(Json.parse(expectedIncomeTaxJson))
     }
 
     "transform 'gov_spending' section" in {
