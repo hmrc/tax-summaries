@@ -72,8 +72,8 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
     """.stripMargin
 
       val jsonTransformer =
-        appendAttribute(__ \ 'income_data \ 'payload, middleTierAttributeJson("test1", 2.50)) andThen
-          appendAttribute(__ \ 'income_data \ 'payload, middleTierAttributeJson("test2", 5.50))
+        appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("test1", 2.50)) andThen
+          appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("test2", 5.50))
 
       val transformedJson = middleTierJson(nino, 2018).transform(jsonTransformer).asOpt.map(_.omitEmpty)
       transformedJson should be(Some(Json.parse(expectedTestAttributesJson)))
@@ -202,26 +202,87 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
 
     "transform 'income_tax' section" in {
       val expectedIncomeTaxJson =
-        """
-          |{
-          |  "taxYear" : 2018,
+        """{
           |  "nino" : "AB654321B",
           |  "lnks" : [ {
           |    "rel" : "self",
           |    "href" : "https://digital.ws.ibt.hmrc.gov.uk/individuals/annual-tax-summary/AB654321B/2018"
           |  } ],
+          |  "taxYear" : 2018,
           |  "income_tax" : {
           |    "payload" : {
+          |      "higher_rate_income_tax_amount" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "ordinary_rate_amount" : {
+          |        "amount" : 200,
+          |        "currency" : "GBP"
+          |      },
+          |      "basic_rate_income_tax" : {
+          |        "amount" : 10000,
+          |        "currency" : "GBP"
+          |      },
           |      "total_income_tax" : {
           |        "amount" : 4000,
           |        "currency" : "GBP"
+          |      },
+          |      "upper_rate" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "married_couples_allowance_adjustment" : {
+          |        "amount" : 500,
+          |        "currency" : "GBP"
+          |      },
+          |      "less_tax_adjustment_previous_year" : {
+          |        "amount" : 200,
+          |        "currency" : "GBP"
+          |      },
+          |      "higher_rate_income_tax" : {
+          |        "amount" : 10000,
+          |        "currency" : "GBP"
+          |      },
+          |      "ordinary_rate" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "marriage_allowance_received_amount" : {
+          |        "amount" : 1250,
+          |        "currency" : "GBP"
+          |      },
+          |      "tax_underpaid_previous_year" : {
+          |        "amount" : 200,
+          |        "currency" : "GBP"
+          |      },
+          |      "upper_rate_amount" : {
+          |        "amount" : 200,
+          |        "currency" : "GBP"
+          |      },
+          |      "basic_rate_income_tax_amount" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      }
+          |    },
+          |    "rates" : {
+          |      "basic_rate_income_tax_rate" : {
+          |        "percent" : "20.0%"
+          |      },
+          |      "higher_rate_income_tax_rate" : {
+          |        "percent" : "40.0%"
+          |      },
+          |      "upper_rate_rate" : {
+          |        "percent" : "32.5%"
+          |      },
+          |      "ordinary_rate_tax_rate" : {
+          |        "percent" : "7.5%"
           |      }
           |    }
           |  }
           |}
         """.stripMargin
       val transformedJson = middleTierJson(nino, 2018).transformIncomeTax(payeJson).omitEmpty
-      transformedJson should be(Json.parse(expectedIncomeTaxJson))
+     transformedJson should be(Json.parse(expectedIncomeTaxJson))
     }
 
     "transform 'gov_spending' section" in {
