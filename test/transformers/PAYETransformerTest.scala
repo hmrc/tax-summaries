@@ -159,6 +159,10 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
           |      "employee_nic_amount" : {
           |        "amount" : 200,
           |        "currency" : "GBP"
+          |      },
+          |      "nics_and_tax_rate" : {
+          |        "amount" : 25,
+          |        "currency" : "GBP"
           |      }
           |    }
           |  }
