@@ -151,6 +151,8 @@ object PAYETransformer {
       val marriageAllowanceTransferred: Option[Double] =
         pickAmount(__ \ 'adjustments \ 'marriageAllowanceTransferred, source)
       val otherAllowancees: Option[Double] = pickAmount(__ \ 'income \ 'otherAllowancesDeductionsExpenses, source)
+      val youPayTaxOn: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'liableTaxAmount, source)
+      val totalTaxFreeAmount: Option[Double] = pickAmount(__ \ 'income \ 'taxableIncome, source)
 
       val jsonTransformer =
         appendAttribute(
@@ -161,7 +163,13 @@ object PAYETransformer {
             middleTierAmountJson("marriage_allowance_transferred_amount", marriageAllowanceTransferred.getOrElse(0))) andThen
           appendAttribute(
             __ \ 'allowance_data \ 'payload,
-            middleTierAmountJson("other_allowances_amount", otherAllowancees.getOrElse(0)))
+            middleTierAmountJson("other_allowances_amount", otherAllowancees.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'allowance_data \ 'payload,
+            middleTierAmountJson("you_pay_tax_on", youPayTaxOn.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'allowance_data \ 'payload,
+            middleTierAmountJson("total_tax_free_amount", totalTaxFreeAmount.getOrElse(0)))
 
       safeTransform(jsonTransformer)
     }
