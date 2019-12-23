@@ -118,6 +118,8 @@ object PAYETransformer {
       val IncomeAfterTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'incomeAfterTaxNics, source)
       val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax, source)
       val nationalInsurance: Option[Double] = pickAmount(__ \ 'nationalInsurance \ 'employeeContributions, source)
+      val nationalInsuranceEmployer: Option[Double] =
+        pickAmount(__ \ 'nationalInsurance \ 'employerContributions, source)
       val averageIncomeTaxRate: Option[Double] = pickAmount(__ \ 'averageRateTax, source)
 
       val jsonTransformer =
@@ -139,6 +141,9 @@ object PAYETransformer {
           appendAttribute(
             __ \ 'summary_data \ 'payload,
             middleTierAmountJson("employee_nic_amount", nationalInsurance.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'summary_data \ 'payload,
+            middleTierAmountJson("employer_nic_amount", nationalInsuranceEmployer.getOrElse(0))) andThen
           appendAttribute(
             __ \ 'summary_data \ 'payload,
             middleTierAmountJson("nics_and_tax_rate", averageIncomeTaxRate.getOrElse(0)))
