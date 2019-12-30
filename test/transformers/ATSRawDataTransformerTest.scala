@@ -53,9 +53,9 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           StatePension           -> Amount(0.0, "GBP"),
           OtherPensionIncome     -> Amount(0.0, "GBP"),
           TaxableStateBenefits   -> Amount(0.0, "GBP"),
-          OtherIncome            -> Amount(18.18, "GBP"),
+          OtherIncome            -> Amount.empty,
           BenefitsFromEmployment -> Amount(0.0, "GBP"),
-          TotalIncomeBeforeTax   -> Amount(11618.18, "GBP")
+          TotalIncomeBeforeTax   -> Amount(11600.00, "GBP")
         )
       testPayload shouldEqual parsedPayload
     }
@@ -79,9 +79,9 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           StatePension           -> Amount(16.0, "GBP"),
           OtherPensionIncome     -> Amount(96.0, "GBP"),
           TaxableStateBenefits   -> Amount(896.0, "GBP"),
-          OtherIncome            -> Amount(523282.18, "GBP"),
+          OtherIncome            -> Amount(523264.00, "GBP"),
           BenefitsFromEmployment -> Amount(1.0, "GBP"),
-          TotalIncomeBeforeTax   -> Amount(524305.18, "GBP")
+          TotalIncomeBeforeTax   -> Amount(524287.00, "GBP")
         )
       testPayload shouldEqual parsedPayload
     }
@@ -107,12 +107,12 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           YourTotalTax              -> Amount(554.00, "GBP"),
           PersonalTaxFreeAmount     -> Amount(9440.00, "GBP"),
           TotalTaxFreeAmount        -> Amount(9740.00, "GBP"),
-          TotalIncomeBeforeTax      -> Amount(11618.18, "GBP"),
+          TotalIncomeBeforeTax      -> Amount(11600.00, "GBP"),
           TotalIncomeTax            -> Amount(354.00, "GBP"),
           TotalCgTax                -> Amount(0.00, "GBP"),
           TaxableGains              -> Amount(0.00, "GBP"),
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
-          NicsAndTaxPerCurrencyUnit -> Amount(0.0476, "GBP")
+          NicsAndTaxPerCurrencyUnit -> Amount(0.0477, "GBP")
         )
       testPayload shouldEqual parsedPayload
 
@@ -120,7 +120,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("0%"),
-        "nics_and_tax_rate" -> ApiRate("4.76%")
+        "nics_and_tax_rate" -> ApiRate("4.77%")
       )
       testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
@@ -145,12 +145,12 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           YourTotalTax              -> Amount(554.00, "GBP"),
           PersonalTaxFreeAmount     -> Amount(9440.00, "GBP"),
           TotalTaxFreeAmount        -> Amount(9740.00, "GBP"),
-          TotalIncomeBeforeTax      -> Amount(11618.18, "GBP"),
+          TotalIncomeBeforeTax      -> Amount(11600.00, "GBP"),
           TotalIncomeTax            -> Amount(354.00, "GBP"),
           TotalCgTax                -> Amount(0.00, "GBP"),
           TaxableGains              -> Amount(0.00, "GBP"),
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
-          NicsAndTaxPerCurrencyUnit -> Amount(0.0476, "GBP")
+          NicsAndTaxPerCurrencyUnit -> Amount(0.0477, "GBP")
         )
       testPayload shouldEqual parsedPayload
 
@@ -158,7 +158,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("0%"),
-        "nics_and_tax_rate" -> ApiRate("4.76%")
+        "nics_and_tax_rate" -> ApiRate("4.77%")
       )
 
       testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
@@ -184,7 +184,7 @@ class ATSRawDataTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
           YourTotalTax              -> Amount(6099.00, "GBP"),
           PersonalTaxFreeAmount     -> Amount(9440.00, "GBP"),
           TotalTaxFreeAmount        -> Amount(9740.00, "GBP"),
-          TotalIncomeBeforeTax      -> Amount(11618.18, "GBP"),
+          TotalIncomeBeforeTax      -> Amount(11600.00, "GBP"),
           TotalIncomeTax            -> Amount(344.00, "GBP"),
           TotalCgTax                -> Amount(5555.00, "GBP"),
           TaxableGains              -> Amount(12250.00, "GBP"),
