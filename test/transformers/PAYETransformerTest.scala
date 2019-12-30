@@ -141,7 +141,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
           |        "currency" : "GBP"
           |      },
           |      "total_tax_free_amount" : {
-          |        "amount" : 28000,
+          |        "amount" : 25500,
           |        "currency" : "GBP"
           |      },
           |      "total_income_tax_and_nics" : {
