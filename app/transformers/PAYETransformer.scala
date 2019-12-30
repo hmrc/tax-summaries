@@ -113,7 +113,7 @@ object PAYETransformer {
     }
     def transformSummary(source: JsObject): JsObject = {
       val taxableIncome: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
-      val taxFreeAmount: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
+      val taxFreeAmount: Option[Double] = pickAmount(__ \ 'income \ 'taxableIncome, source)
       val incomeTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTaxNics, source)
       val IncomeAfterTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'incomeAfterTaxNics, source)
       val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax, source)
