@@ -47,7 +47,7 @@ class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gu
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherIncome) should equal(new Amount(18.18, "GBP"))
+      parsedPayload(OtherIncome) should equal(Amount.empty)
     }
 
     "have the correct summed other income data" in {
@@ -72,7 +72,7 @@ class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gu
         ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherIncome) should equal(new Amount(468.18, "GBP"))
+      parsedPayload(OtherIncome) should equal(new Amount(450.00, "GBP"))
     }
   }
 }
