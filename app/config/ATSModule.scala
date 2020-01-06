@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package config
 
-import play.api.libs.json.Json
+import play.api.{Configuration, Environment}
+import play.api.inject.{Binding, Module}
 
-case class SpendData(amount: Amount, percentage: BigDecimal)
-
-object SpendData {
-  implicit val formats = Json.format[SpendData]
+class ATSModule extends Module {
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
+    bind[WSHttp].to(WSHttp)
+  )
 }

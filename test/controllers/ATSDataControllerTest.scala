@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package controller
+package controllers
 
+import controllers.auth.FakeAuthAction
 import controllers.ATSDataController
+import controllers.auth.AuthAction
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.test.FakeRequest
 import services.OdsService
@@ -26,6 +28,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => eqTo, _}
 import utils.TestConstants._
+
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -37,6 +40,7 @@ class ATSDataControllerTest extends UnitSpec with MockitoSugar with WithFakeAppl
   class TestController extends ATSDataController {
     val request = FakeRequest()
     override lazy val odsService: OdsService = mock[OdsService]
+    override val authAction: AuthAction = FakeAuthAction
   }
 
   "getAtsData" should {
