@@ -53,7 +53,9 @@ sealed trait ATSCalculations extends DoubleUtils {
     else taxableGains - get(CgAnnualExempt)
 
   def totalCapitalGainsTax: Amount =
-    get(CgDueEntrepreneursRate) +
+    getWithDefaultAmount(LowerRateCgtRPCI) +
+      getWithDefaultAmount(HigherRateCgtRPCI) +
+      get(CgDueEntrepreneursRate) +
       get(CgDueLowerRate) +
       get(CgDueHigherRate) -
       get(CapAdjustment)

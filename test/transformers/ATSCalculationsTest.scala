@@ -31,7 +31,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
     pensionTaxRate: PensionTaxRate,
     newAtsData: (Liability, Amount)*) { self =>
 
-    val atsData: Map[Liability, Amount] = newAtsData.toMap
+    val atsData: Map[Liability, Amount] = (newAtsData ++ emptyValues).toMap
     val niData: Map[Liability, Amount] = Map()
     val configRates: Map[String, Double] = Map(
       "basicRateIncomeTaxRate"      -> 20,
@@ -94,7 +94,11 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
     TaxCreditsForDivs       -> Amount.empty,
     QualDistnRelief         -> Amount.empty,
     TotalTaxCreditRelief    -> Amount.empty,
-    NonPayableTaxCredits    -> Amount.empty
+    NonPayableTaxCredits    -> Amount.empty,
+    CgDueEntrepreneursRate  -> Amount.empty,
+    CgDueLowerRate          -> Amount.empty,
+    CgDueHigherRate         -> Amount.empty,
+    CapAdjustment           -> Amount.empty
   )
 
   "make" should {
@@ -218,6 +222,18 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
           val sut = fixture(PensionTaxRate(rate1 / 100))
           sut.calculation.includePensionTaxForRate(Rate(rate2)) shouldBe Amount.empty
         }
+      }
+    }
+
+    "totalCapitalGainsTax returns correct calculation" in {
+
+      forAll { (lower: BigDecimal, higher: BigDecimal) =>
+        val sut = fixture(
+          LowerRateCgtRPCI  -> Amount.gbp(lower),
+          HigherRateCgtRPCI -> Amount.gbp(higher)
+        )
+
+        sut.calculation.totalCapitalGainsTax shouldBe Amount.gbp(lower + higher)
       }
     }
   }
@@ -492,7 +508,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
             ))
 
         val sut = scottishFixture(
-          emptyValues ++ List(
+          List(
             keys.head -> Amount.gbp(first),
             keys(1)   -> Amount.gbp(second)
           )
