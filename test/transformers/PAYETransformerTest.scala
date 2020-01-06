@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,10 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
           |      "benefits_from_employment" : {
           |        "amount" : 200,
           |        "currency" : "GBP"
+          |      },
+          |      "taxable_state_benefits": {
+          |        "amount": 500,
+          |        "currency": "GBP"
           |      }
           |    }
           |  }

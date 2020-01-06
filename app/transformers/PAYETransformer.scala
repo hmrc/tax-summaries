@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,6 +90,7 @@ object PAYETransformer {
       val otherIncome: Option[Double] = pickAmount(__ \ 'income \ 'otherIncome, source)
       val incomeBeforeTax: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
       val employmentBenefits: Option[Double] = pickAmount(__ \ 'income \ 'employmentBenefits, source)
+      val taxableStateBenefits: Option[Double] = pickAmount(__ \ 'taxableStateBenefits, source)
 
       val jsonTransformer =
         appendAttribute(
@@ -107,7 +108,10 @@ object PAYETransformer {
             middleTierAmountJson("total_income_before_tax", incomeBeforeTax.getOrElse(0))) andThen
           appendAttribute(
             __ \ 'income_data \ 'payload,
-            middleTierAmountJson("benefits_from_employment", employmentBenefits.getOrElse(0)))
+            middleTierAmountJson("benefits_from_employment", employmentBenefits.getOrElse(0))) andThen
+          appendAttribute(
+            __ \ 'income_data \ 'payload,
+            middleTierAmountJson("taxable_state_benefits", taxableStateBenefits.getOrElse(0)))
 
       safeTransform(jsonTransformer)
     }
