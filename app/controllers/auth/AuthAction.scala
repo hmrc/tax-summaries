@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit execut
     } else {
 
       val urlUtr: String = matches.group(1)
+
       authorised(
         ConfidenceLevel.L50 and Enrolment("IR-SA")
           .withIdentifier("UTR", urlUtr)

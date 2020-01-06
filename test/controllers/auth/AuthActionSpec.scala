@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,10 +59,8 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
 
     "return the request when the user is authorised" in {
 
-      val retrievalResult: Future[Option[String]] = Future.successful(Some("1111111111"))
-
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
+        .thenReturn(Future.successful(()))
 
       val authAction = new AuthActionImpl(mockAuthConnector)
       val harness = new Harness(authAction)
