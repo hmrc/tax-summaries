@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package controllers.auth
 
-import play.api.libs.json.Json
+import play.api.mvc.{Request, Result}
 
-case class SpendData(amount: Amount, percentage: BigDecimal)
+import scala.concurrent.Future
 
-object SpendData {
-  implicit val formats = Json.format[SpendData]
+object FakeAuthAction extends AuthAction {
+  override protected def filter[A](request: Request[A]): Future[Option[Result]] = Future.successful(None)
 }

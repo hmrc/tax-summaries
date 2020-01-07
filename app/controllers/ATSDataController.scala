@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,36 @@
 
 package controllers
 
-import play.api.mvc.Action
+import controllers.auth.AuthAction
+import play.api.Play
+import play.api.mvc.{Action, AnyContent}
 import services.OdsService
 import uk.gov.hmrc.play.microservice.controller.BaseController
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object ATSDataController extends ATSDataController {
   override val odsService = OdsService
+  override val authAction: AuthAction = Play.current.injector.instanceOf[AuthAction]
 }
 
 trait ATSDataController extends BaseController {
 
   def odsService: OdsService
 
-  def hasAts(utr: String) = Action.async { implicit request =>
-    {
-      odsService.getList(utr) map (Ok(_)) recover {
-        case error => NotFound
-      }
+  val authAction: AuthAction
+
+  def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
+    odsService.getList(utr) map (Ok(_)) recover {
+      case error => NotFound
     }
   }
 
-  def getATSData(utr: String, tax_year: Int) = Action.async { implicit request =>
-    {
-      odsService.getPayload(utr, tax_year) map { Ok(_) }
-    }
+  def getATSData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
+    odsService.getPayload(utr, tax_year) map { Ok(_) }
   }
 
-  def getATSList(utr: String) = Action.async { implicit request =>
-    {
-      odsService.getATSList(utr) map { Ok(_) }
-    }
+  def getATSList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
+    odsService.getATSList(utr) map { Ok(_) }
   }
 }
