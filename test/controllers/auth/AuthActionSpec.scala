@@ -78,20 +78,6 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       status(result) mustBe BAD_REQUEST
     }
 
-    "return UNAUTHORIZED when the utr in the uri is different to the utr in the retrieval" in {
-
-      val retrievalResult: Future[Option[String]] = Future.successful(Some("2222222222"))
-
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
-
-      val authAction = new AuthActionImpl(mockAuthConnector)
-      val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe UNAUTHORIZED
-    }
-
     "return UNAUTHORIZED when the IR-SA enrolment is not present" in {
 
       val retrievalResult: Future[Option[String]] = Future.failed(new InsufficientEnrolments)
