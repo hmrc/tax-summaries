@@ -43,13 +43,9 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit execut
     if (matches.isEmpty) {
       Future.successful(Some(BadRequest))
     } else {
-
-      val urlUtr: String = matches.group(1)
-
       authorised(
-        ConfidenceLevel.L50 and Enrolment("IR-SA")
-          .withIdentifier("UTR", urlUtr)
-          .withDelegatedAuthRule("sa-auth")) {
+        ConfidenceLevel.L50 and
+          (Enrolment("IR-SA") or Enrolment("IR-SA-AGENT"))) {
         Future.successful(None)
       }.recover {
         case t: Throwable =>
