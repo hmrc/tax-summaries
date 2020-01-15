@@ -170,7 +170,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
           |      },
           |      "nics_and_tax_rate" : {
           |        "amount" : 25,
-          |        "currency" : "GBP"
+          |        "currency" : "PERCENT"
           |      }
           |    }
           |  }

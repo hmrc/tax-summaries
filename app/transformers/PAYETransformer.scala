@@ -150,7 +150,7 @@ object PAYETransformer {
             middleTierAmountJson("employer_nic_amount", nationalInsuranceEmployer.getOrElse(0))) andThen
           appendAttribute(
             __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("nics_and_tax_rate", averageIncomeTaxRate.getOrElse(0)))
+            middleTierAmountJson("nics_and_tax_rate", averageIncomeTaxRate.getOrElse(0), "PERCENT"))
 
       safeTransform(jsonTransformer)
     }
