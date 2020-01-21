@@ -213,7 +213,7 @@ object PAYETransformer {
         pickAmount(__ \ 'adjustments \ 'lessTaxAdjustmentPreviousYear, source)
       val taxUnderpaidPreviousYear: Option[Double] = pickAmount(__ \ 'adjustments \ 'taxUnderpaidPreviousYear, source)
 
-      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax, source)
+      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax2, source)
 
       val jsonTransformer =
         appendAttribute(

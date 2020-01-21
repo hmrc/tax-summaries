@@ -250,7 +250,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
           |        "currency" : "GBP"
           |      },
           |      "total_income_tax" : {
-          |        "amount" : 4000,
+          |        "amount" : 4010,
           |        "currency" : "GBP"
           |      },
           |      "upper_rate" : {
