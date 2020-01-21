@@ -57,7 +57,7 @@ object PAYETransformer {
       "capital_gains_data" -> Json.obj("payload" -> Json.obj()),
       "income_data"        -> Json.obj("payload" -> Json.obj()),
       "income_tax"         -> Json.obj("payload" -> Json.obj(), "rates" -> Json.obj()),
-      "summary_data"       -> Json.obj("payload" -> Json.obj()),
+      "summary_data"       -> Json.obj("payload" -> Json.obj(), "rates" -> Json.obj()),
       "gov_spending"       -> Json.obj()
     )
 
@@ -150,7 +150,10 @@ object PAYETransformer {
             middleTierAmountJson("employer_nic_amount", nationalInsuranceEmployer.getOrElse(0))) andThen
           appendAttribute(
             __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("nics_and_tax_rate", averageIncomeTaxRate.getOrElse(0), "PERCENT"))
+            middleTierAmountJson("nics_and_tax_rate_amount", averageIncomeTaxRate.getOrElse(0), "PERCENT")) andThen
+          appendAttribute(
+            __ \ 'summary_data \ 'rates,
+            middleTierRateJson("nics_and_tax_rate", averageIncomeTaxRate.getOrElse(0)))
 
       safeTransform(jsonTransformer)
     }
