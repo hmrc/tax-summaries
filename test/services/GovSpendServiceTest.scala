@@ -17,7 +17,7 @@
 package services
 
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import services.GoodsAndServices._
 import uk.gov.hmrc.play.test.UnitSpec
