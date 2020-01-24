@@ -137,7 +137,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |  "nino" : "AB654321B",
            |  "lnks" : [ {
            |    "rel" : "self",
-           |    "href" : "$href"
+           |    "href" :  "$href"
            |  } ],
            |  "summary_data" : {
            |    "payload" : {
@@ -158,7 +158,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |        "currency" : "GBP"
            |      },
            |      "total_income_tax" : {
-           |        "amount" : 4000,
+           |        "amount" : 4010,
            |        "currency" : "GBP"
            |      },
            |      "employee_nic_amount" : {
@@ -176,15 +176,14 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |    },
            |    "rates" : {
            |      "nics_and_tax_rate" : {
-           |        "percent" : "25%",
+           |        "percent" : "25.0%"
            |      }
            |    }
            |  }
            |}
         """.stripMargin
       val transformedJson = middleTierJson(nino, 2018).transformSummary(payeJson).omitEmpty
-      // transformedJson should be(Json.parse(expectedSummaryDataJson))
-      println(Json.prettyPrint(transformedJson))
+      transformedJson should be(Json.parse(expectedSummaryDataJson))
     }
 
     "transform 'Allowances' section" in {
@@ -255,7 +254,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |        "currency" : "GBP"
            |      },
            |      "total_income_tax" : {
-           |        "amount" : 4010,
+           |        "amount" : 4000,
            |        "currency" : "GBP"
            |      },
            |      "upper_rate" : {
