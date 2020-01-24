@@ -128,7 +128,7 @@ object PAYETransformer extends ServicesConfig {
       val taxFreeAmount: Option[Double] = pickAmount(__ \ 'income \ 'taxableIncome, source)
       val incomeTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTaxNics, source)
       val IncomeAfterTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'incomeAfterTaxNics, source)
-      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax, source)
+      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax2, source)
       val nationalInsurance: Option[Double] = pickAmount(__ \ 'nationalInsurance \ 'employeeContributions, source)
       val nationalInsuranceEmployer: Option[Double] =
         pickAmount(__ \ 'nationalInsurance \ 'employerContributions, source)
@@ -225,7 +225,7 @@ object PAYETransformer extends ServicesConfig {
         pickAmount(__ \ 'adjustments \ 'lessTaxAdjustmentPreviousYear, source)
       val taxUnderpaidPreviousYear: Option[Double] = pickAmount(__ \ 'adjustments \ 'taxUnderpaidPreviousYear, source)
 
-      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax2, source)
+      val incomeTax: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTax, source)
 
       val jsonTransformer =
         appendAttribute(
