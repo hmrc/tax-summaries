@@ -444,5 +444,131 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
       val transformedJson = middleTierJson(nino, 2018).transformGovSpendingData(payeJson).omitEmpty
       transformedJson should be(Json.parse(expectedGovSpendingJson))
     }
+
+    "transform 'Scottish income' section" in {
+
+      val expectedScottishJson =
+        s"""
+          |{
+          |  "nino" : "AB654321B",
+          |  "lnks" : [ {
+          |    "rel" : "self",
+          |    "href" : "$href"
+          |  } ],
+          |  "taxYear" : 2018,
+          |  "income_tax" : {
+          |    "payload" : {
+          |      "scottish_intermediate_rate_tax" : {
+          |        "amount" : 4080.3,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_starter_income" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "higher_rate_income_tax_amount" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "ordinary_rate_amount" : {
+          |        "amount" : 200,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_basic_rate_tax" : {
+          |        "amount" : 2030,
+          |        "currency" : "GBP"
+          |      },
+          |      "basic_rate_income_tax" : {
+          |        "amount" : 10000,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_higher_rate_tax" : {
+          |        "amount" : 12943.7,
+          |        "currency" : "GBP"
+          |      },
+          |      "upper_rate" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_higher_income" : {
+          |        "amount" : 31570,
+          |        "currency" : "GBP"
+          |      },
+          |      "married_couples_allowance_adjustment" : {
+          |        "amount" : 500,
+          |        "currency" : "GBP"
+          |      },
+          |      "higher_rate_income_tax" : {
+          |        "amount" : 10000,
+          |        "currency" : "GBP"
+          |      },
+          |      "ordinary_rate" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "marriage_allowance_received_amount" : {
+          |        "amount" : 1250,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_starter_rate_tax" : {
+          |        "amount" : 380,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_intermediate_income" : {
+          |        "amount" : 19430,
+          |        "currency" : "GBP"
+          |      },
+          |      "upper_rate_amount" : {
+          |        "amount" : 200,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_income_tax" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "basic_rate_income_tax_amount" : {
+          |        "amount" : 2000,
+          |        "currency" : "GBP"
+          |      },
+          |      "scottish_basic_income" : {
+          |        "amount" : 10150,
+          |        "currency" : "GBP"
+          |      }
+          |    },
+          |    "rates" : {
+          |      "scottish_intermediate_rate" : {
+          |        "percent" : "21.0%"
+          |      },
+          |      "basic_rate_income_tax_rate" : {
+          |        "percent" : "20.0%"
+          |      },
+          |      "higher_rate_income_tax_rate" : {
+          |        "percent" : "40.0%"
+          |      },
+          |      "scottish_higher_rate" : {
+          |        "percent" : "41.0%"
+          |      },
+          |      "upper_rate_rate" : {
+          |        "percent" : "32.5%"
+          |      },
+          |      "scottish_starter_rate" : {
+          |        "percent" : "19.0%"
+          |      },
+          |      "scottish_basic_rate" : {
+          |        "percent" : "20.0%"
+          |      },
+          |      "ordinary_rate_tax_rate" : {
+          |        "percent" : "7.5%"
+          |      }
+          |    }
+          |  }
+          |}
+        """.stripMargin
+      val transformedJson = middleTierJson(nino, 2018).transformScottishIncome(payeJson).omitEmpty
+      transformedJson should be(Json.parse(expectedScottishJson))
+
+      //println(Json.prettyPrint(transformedJson))
+
+    }
   }
 }
