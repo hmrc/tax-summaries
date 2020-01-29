@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class NPSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
-  class TestConnector extends NPSConnector with ServicesConfig {
+  class TestConnector extends NpsConnector with ServicesConfig {
     override lazy val serviceUrl = ""
     override lazy val http = mock[HttpGet]
   }

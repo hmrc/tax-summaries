@@ -16,7 +16,7 @@
 
 package connectors
 
-import config.WSHttp
+import config.{ApplicationConfig, WSHttp}
 import play.api.{Configuration, Play}
 import play.api.Mode.Mode
 import play.api.libs.json.JsValue
@@ -26,15 +26,15 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 
-object NPSConnector extends NPSConnector with ServicesConfig {
+object NpsConnector extends NpsConnector with ServicesConfig {
 
-  override val serviceUrl = baseUrl("tax-summaries-hod")
+  override val serviceUrl = ApplicationConfig.npsServiceUrl
 
   override def http = WSHttp
 
 }
 
-trait NPSConnector {
+trait NpsConnector {
 
   protected def mode: Mode = Play.current.mode
 

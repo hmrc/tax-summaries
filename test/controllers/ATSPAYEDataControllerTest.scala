@@ -41,26 +41,6 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
     override lazy val npsService: NpsService = mock[NpsService]
   }
 
-  "getRawAtsData" should {
-    "return ok" in new TestController {
-      when(npsService.getRawPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Json.obj()))
-      val result = getRawATSData(testNino, 2018)(request)
-
-      status(result) shouldBe 200
-    }
-
-    "return a failed future" in new TestController {
-      when(npsService.getRawPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new Exception("failed")))
-      val result = getRawATSData(testNino, 2018)(request)
-
-      whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
-      }
-    }
-  }
-
   "getAtsData" should {
     "return ok" in new TestController {
       when(npsService.getPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))

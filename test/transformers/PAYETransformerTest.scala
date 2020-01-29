@@ -20,39 +20,41 @@ import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json._
 import transformers.PAYETransformer._
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.TestConstants
 
 import scala.io.Source
 
 class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneAppPerTest {
 
-  val nino = "AB654321B"
-  val payeJson = Json.parse(Source.fromURL(getClass.getResource("/nino_2018.json")).mkString).as[JsObject]
-  lazy val href = s"${PAYETransformer.serviceUrl}/individuals/annual-tax-summary/AB654321B/2018"
+  lazy val nino = TestConstants.testNino
+  lazy val payeJson = Json.parse(Source.fromURL(getClass.getResource("/nino_2018.json")).mkString).as[JsObject]
+  lazy val taxYear = 2018
+  lazy val href = s"${PAYETransformer.npsServiceUrl}/individuals/annual-tax-summary/$nino/$taxYear"
 
   "The middle tier json transformer" should {
     "show the header" in {
       val expectedHeaderJson =
         s"""
            |{
-           |  "taxYear" : 2018,
-           |  "nino" : "AB654321B",
-           |  "lnks" : [ {
+           |  "taxYear" : $taxYear,
+           |  "nino" : "$nino",
+           |  "links" : [ {
            |    "rel" : "self",
            |    "href" : "$href"
            |  } ]
            |}
         """.stripMargin
 
-      middleTierJson(nino, 2018).omitEmpty should be(Json.parse(expectedHeaderJson))
+      middleTierJson(nino, taxYear).omitEmpty should be(Json.parse(expectedHeaderJson))
     }
 
     "transform test attributes" in {
       val expectedTestAttributesJson =
         s"""
            |{
-           |  "taxYear" : 2018,
-           |  "nino" : "AB654321B",
-           |  "lnks" : [ {
+           |  "taxYear" : $taxYear,
+           |  "nino" :  "$nino",
+           |  "links" : [ {
            |    "rel" : "self",
            |    "href" :"$href"
            |  } ],
@@ -73,10 +75,10 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
     """.stripMargin
 
       val jsonTransformer =
-        appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("test1", 2.50)) andThen
-          appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("test2", 5.50))
+        appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("test1", Some(2.50))) andThen
+          appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("test2", Some(5.50)))
 
-      val transformedJson = middleTierJson(nino, 2018).transform(jsonTransformer).asOpt.map(_.omitEmpty)
+      val transformedJson = middleTierJson(nino, taxYear).transform(jsonTransformer).asOpt.map(_.omitEmpty)
       transformedJson should be(Some(Json.parse(expectedTestAttributesJson)))
     }
 
@@ -84,9 +86,9 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
       val expectedIncomeDataJson =
         s"""
            |{
-           |  "taxYear" : 2018,
-           |  "nino" : "AB654321B",
-           |  "lnks" : [ {
+           |  "taxYear" : $taxYear,
+           |  "nino" : "$nino",
+           |  "links" : [ {
            |    "rel" : "self",
            |    "href" : "$href"
            |  } ],
@@ -126,16 +128,16 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |
         """.stripMargin
 
-      val transformedJson = middleTierJson(nino, 2018).transformTotalIncome(payeJson).omitEmpty
+      val transformedJson = middleTierJson(nino, taxYear).transformTotalIncome(payeJson).omitEmpty
       transformedJson should be(Json.parse(expectedIncomeDataJson))
     }
 
     "transform 'Summmary' section" in {
       val expectedSummaryDataJson =
         s"""{
-           |  "taxYear" : 2018,
-           |  "nino" : "AB654321B",
-           |  "lnks" : [ {
+           |  "taxYear" : $taxYear,
+           |  "nino" : "$nino",
+           |  "links" : [ {
            |    "rel" : "self",
            |    "href" :  "$href"
            |  } ],
@@ -182,7 +184,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |  }
            |}
         """.stripMargin
-      val transformedJson = middleTierJson(nino, 2018).transformSummary(payeJson).omitEmpty
+      val transformedJson = middleTierJson(nino, taxYear).transformSummary(payeJson).omitEmpty
       transformedJson should be(Json.parse(expectedSummaryDataJson))
     }
 
@@ -190,9 +192,9 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
       val expectedAllowancesJson =
         s"""
            |{
-           |  "taxYear" : 2018,
-           |  "nino" : "AB654321B",
-           |  "lnks" : [ {
+           |  "taxYear" : $taxYear,
+           |  "nino" : "$nino",
+           |  "links" : [ {
            |    "rel" : "self",
            |    "href" : "$href"
            |  } ],
@@ -226,19 +228,19 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |  }
            |}
         """.stripMargin
-      val transformedJson = middleTierJson(nino, 2018).transformAllowances(payeJson).omitEmpty
+      val transformedJson = middleTierJson(nino, taxYear).transformAllowances(payeJson).omitEmpty
       transformedJson should be(Json.parse(expectedAllowancesJson))
     }
 
     "transform 'income_tax' section" in {
       val expectedIncomeTaxJson =
         s"""{
-           |  "nino" : "AB654321B",
-           |  "lnks" : [ {
+           |  "nino" : "$nino",
+           |  "links" : [ {
            |    "rel" : "self",
            |    "href" : "$href"
            |  } ],
-           |  "taxYear" : 2018,
+           |  "taxYear" : $taxYear,
            |  "income_tax" : {
            |    "payload" : {
            |      "higher_rate_income_tax_amount" : {
@@ -311,7 +313,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |  }
            |}
         """.stripMargin
-      val transformedJson = middleTierJson(nino, 2018).transformIncomeTax(payeJson).omitEmpty
+      val transformedJson = middleTierJson(nino, taxYear).transformIncomeTax(payeJson).omitEmpty
       transformedJson should be(Json.parse(expectedIncomeTaxJson))
     }
 
@@ -319,14 +321,14 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
       val expectedGovSpendingJson =
         s"""
            |{
-           |  "taxYear" : 2018,
-           |  "nino" : "AB654321B",
-           |  "lnks" : [ {
+           |  "taxYear" : $taxYear,
+           |  "nino" : "$nino",
+           |  "links" : [ {
            |    "rel" : "self",
            |    "href" : "$href"
            |  } ],
            |  "gov_spending" : {
-           |    "taxYear" : 2018,
+           |    "taxYear" : $taxYear,
            |    "govSpendAmountData" : {
            |      "PublicOrderAndSafety" : {
            |        "amount" : {
@@ -441,7 +443,7 @@ class PAYETransformerTest extends UnitSpec with PAYETransformer with GuiceOneApp
            |  }
            |}
         """.stripMargin
-      val transformedJson = middleTierJson(nino, 2018).transformGovSpendingData(payeJson).omitEmpty
+      val transformedJson = middleTierJson(nino, taxYear).transformGovSpendingData(payeJson).omitEmpty
       transformedJson should be(Json.parse(expectedGovSpendingJson))
     }
   }

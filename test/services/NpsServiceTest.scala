@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.NPSConnector
+import connectors.NpsConnector
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -36,7 +36,7 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with G
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
   trait TestService extends NpsService {
-    override lazy val npsConnector: NPSConnector = mock[NPSConnector]
+    override lazy val npsConnector: NpsConnector = mock[NpsConnector]
   }
 
   private val currentYear = 2018

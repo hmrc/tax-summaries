@@ -16,6 +16,7 @@
 
 package transformers
 
+import config.ApplicationConfig
 import models.Amount
 import play.api.Mode.Mode
 import play.api.{Configuration, Play}
@@ -23,17 +24,20 @@ import play.api.libs.json._
 import play.api.libs.json.JsPath
 import uk.gov.hmrc.play.config.ServicesConfig
 
-trait PAYETransformer {
-  def middleTierAmountJson(name: String, value: Double, currency: String = "GBP"): JsObject = Json.obj(
-    name -> Json.obj(
-      "amount"   -> value,
-      "currency" -> currency
+private[transformers] trait PAYETransformer {
+  def middleTierAmountJson(name: String, amount: Option[Double], currency: String = "GBP"): JsObject = {
+    val jsAmount: JsNumber = JsNumber(BigDecimal(amount.getOrElse(0.0)))
+    Json.obj(
+      name -> Json.obj(
+        "amount"   -> jsAmount,
+        "currency" -> currency
+      )
     )
-  )
+  }
 
-  def middleTierRateJson(name: String, percent: Double): JsObject = Json.obj(
+  def middleTierRateJson(name: String, percent: Option[Double]): JsObject = Json.obj(
     name -> Json.obj(
-      "percent" -> JsString(percent.toString + "%")
+      "percent" -> JsString(percent.getOrElse(0).toString + "%")
     )
   )
 
@@ -50,16 +54,16 @@ object PAYETransformer extends ServicesConfig {
 
   protected def runModeConfiguration: Configuration = Play.current.configuration
 
-  val serviceUrl = baseUrl("tax-summaries-hod")
+  lazy val npsServiceUrl = ApplicationConfig.npsServiceUrl
 
   def middleTierJson(nino: String, year: Int): JsObject =
-    Json.obj( // add nino
+    Json.obj(
       "taxYear" -> JsNumber(year),
       "nino"    -> JsString(nino),
-      "lnks" -> Json.arr(
+      "links" -> Json.arr(
         Json.obj(
           "rel"  -> "self",
-          "href" -> s"$serviceUrl/individuals/annual-tax-summary/$nino/$year"
+          "href" -> s"$npsServiceUrl/individuals/annual-tax-summary/$nino/$year"
         )),
       "allowance_data"     -> Json.obj("payload" -> Json.obj()),
       "capital_gains_data" -> Json.obj("payload" -> Json.obj()),
@@ -69,21 +73,22 @@ object PAYETransformer extends ServicesConfig {
       "gov_spending"       -> Json.obj()
     )
 
-  implicit class RichJsObject(original: JsObject) extends PAYETransformer {
-    def omitEmpty: JsObject = original.value.foldLeft(original) {
-      case (obj, (key, JsString(st))) if st.isEmpty                                                   => obj - key
-      case (obj, (key, JsArray(arr))) if arr.isEmpty                                                  => obj - key
-      case (obj, (key, JsObject(child))) if new RichJsObject(JsObject(child)).omitEmpty.value.isEmpty => obj - key
-      case (obj, (_, _))                                                                              => obj
+  implicit class TransformableJsObject(original: JsObject) extends PAYETransformer {
+    private[transformers] def omitEmpty: JsObject = original.value.foldLeft(original) {
+      case (obj, (key, JsString(st))) if st.isEmpty  => obj - key
+      case (obj, (key, JsArray(arr))) if arr.isEmpty => obj - key
+      case (obj, (key, JsObject(child))) if new TransformableJsObject(JsObject(child)).omitEmpty.value.isEmpty =>
+        obj - key
+      case (obj, (_, _)) => obj
     }
 
-    def safeTransform(jsonTransformer: Reads[JsObject]): JsObject =
+    private[transformers] def safeTransform(jsonTransformer: Reads[JsObject]): JsObject =
       original.transform(jsonTransformer).asOpt match {
         case Some(json) => json
         case None       => original
       }
 
-    def transformPaye(source: JsObject): JsObject =
+    def transformFromPaye(source: JsObject): JsObject =
       transformTotalIncome(source)
         .transformSummary(source)
         .transformAllowances(source)
@@ -91,7 +96,7 @@ object PAYETransformer extends ServicesConfig {
         .transformGovSpendingData(source)
         .omitEmpty
 
-    def transformTotalIncome(source: JsObject): JsObject = {
+    private[transformers] def transformTotalIncome(source: JsObject): JsObject = {
       val income: Option[Double] = pickAmount(__ \ 'income \ 'incomeFromEmployment, source)
       val statePension: Option[Double] = pickAmount(__ \ 'income \ 'statePension, source)
       val otherPensionIncome: Option[Double] = pickAmount(__ \ 'income \ 'otherPensionIncome, source)
@@ -101,29 +106,25 @@ object PAYETransformer extends ServicesConfig {
       val taxableStateBenefits: Option[Double] = pickAmount(__ \ 'taxableStateBenefits, source)
 
       val jsonTransformer =
-        appendAttribute(
-          __ \ 'income_data \ 'payload,
-          middleTierAmountJson("income_from_employment", income.getOrElse(0))) andThen
+        appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("income_from_employment", income)) andThen
+          appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("state_pension", statePension)) andThen
           appendAttribute(
             __ \ 'income_data \ 'payload,
-            middleTierAmountJson("state_pension", statePension.getOrElse(0))) andThen
+            middleTierAmountJson("other_pension_income", otherPensionIncome)) andThen
+          appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("other_income", otherIncome)) andThen
           appendAttribute(
             __ \ 'income_data \ 'payload,
-            middleTierAmountJson("other_pension_income", otherPensionIncome.getOrElse(0))) andThen
-          appendAttribute(__ \ 'income_data \ 'payload, middleTierAmountJson("other_income", otherIncome.getOrElse(0))) andThen
+            middleTierAmountJson("total_income_before_tax", incomeBeforeTax)) andThen
           appendAttribute(
             __ \ 'income_data \ 'payload,
-            middleTierAmountJson("total_income_before_tax", incomeBeforeTax.getOrElse(0))) andThen
+            middleTierAmountJson("benefits_from_employment", employmentBenefits)) andThen
           appendAttribute(
             __ \ 'income_data \ 'payload,
-            middleTierAmountJson("benefits_from_employment", employmentBenefits.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_data \ 'payload,
-            middleTierAmountJson("taxable_state_benefits", taxableStateBenefits.getOrElse(0)))
+            middleTierAmountJson("taxable_state_benefits", taxableStateBenefits))
 
       safeTransform(jsonTransformer)
     }
-    def transformSummary(source: JsObject): JsObject = {
+    private[transformers] def transformSummary(source: JsObject): JsObject = {
       val taxableIncome: Option[Double] = pickAmount(__ \ 'income \ 'incomeBeforeTax, source)
       val taxFreeAmount: Option[Double] = pickAmount(__ \ 'income \ 'taxableIncome, source)
       val incomeTaxAndNics: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTaxNics, source)
@@ -135,38 +136,28 @@ object PAYETransformer extends ServicesConfig {
       val averageIncomeTaxRate: Option[Double] = pickAmount(__ \ 'averageRateTax, source)
 
       val jsonTransformer =
-        appendAttribute(
-          __ \ 'summary_data \ 'payload,
-          middleTierAmountJson("total_income_before_tax", taxableIncome.getOrElse(0))) andThen
+        appendAttribute(__ \ 'summary_data \ 'payload, middleTierAmountJson("total_income_before_tax", taxableIncome)) andThen
+          appendAttribute(__ \ 'summary_data \ 'payload, middleTierAmountJson("total_tax_free_amount", taxFreeAmount)) andThen
           appendAttribute(
             __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("total_tax_free_amount", taxFreeAmount.getOrElse(0))) andThen
+            middleTierAmountJson("total_income_tax_and_nics", incomeTaxAndNics)) andThen
           appendAttribute(
             __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("total_income_tax_and_nics", incomeTaxAndNics.getOrElse(0))) andThen
+            middleTierAmountJson("income_after_tax_and_nics", IncomeAfterTaxAndNics)) andThen
+          appendAttribute(__ \ 'summary_data \ 'payload, middleTierAmountJson("total_income_tax", incomeTax)) andThen
+          appendAttribute(__ \ 'summary_data \ 'payload, middleTierAmountJson("employee_nic_amount", nationalInsurance)) andThen
           appendAttribute(
             __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("income_after_tax_and_nics", IncomeAfterTaxAndNics.getOrElse(0))) andThen
+            middleTierAmountJson("employer_nic_amount", nationalInsuranceEmployer)) andThen
           appendAttribute(
             __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("total_income_tax", incomeTax.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("employee_nic_amount", nationalInsurance.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("employer_nic_amount", nationalInsuranceEmployer.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'summary_data \ 'payload,
-            middleTierAmountJson("nics_and_tax_rate_amount", averageIncomeTaxRate.getOrElse(0), "PERCENT")) andThen
-          appendAttribute(
-            __ \ 'summary_data \ 'rates,
-            middleTierRateJson("nics_and_tax_rate", averageIncomeTaxRate.getOrElse(0)))
+            middleTierAmountJson("nics_and_tax_rate_amount", averageIncomeTaxRate, "PERCENT")) andThen
+          appendAttribute(__ \ 'summary_data \ 'rates, middleTierRateJson("nics_and_tax_rate", averageIncomeTaxRate))
 
       safeTransform(jsonTransformer)
     }
 
-    def transformAllowances(source: JsObject): JsObject = {
+    private[transformers] def transformAllowances(source: JsObject): JsObject = {
       val personalAllowance: Option[Double] = pickAmount(__ \ 'adjustments \ 'taxFreeAmount, source)
       val marriageAllowanceTransferred: Option[Double] =
         pickAmount(__ \ 'adjustments \ 'marriageAllowanceTransferred, source)
@@ -178,27 +169,25 @@ object PAYETransformer extends ServicesConfig {
       val jsonTransformer =
         appendAttribute(
           __ \ 'allowance_data \ 'payload,
-          middleTierAmountJson("personal_tax_free_amount", personalAllowance.getOrElse(0))) andThen
+          middleTierAmountJson("personal_tax_free_amount", personalAllowance)) andThen
           appendAttribute(
             __ \ 'allowance_data \ 'payload,
-            middleTierAmountJson("marriage_allowance_transferred_amount", marriageAllowanceTransferred.getOrElse(0))) andThen
+            middleTierAmountJson("marriage_allowance_transferred_amount", marriageAllowanceTransferred)) andThen
           appendAttribute(
             __ \ 'allowance_data \ 'payload,
-            middleTierAmountJson("other_allowances_amount", otherAllowancees.getOrElse(0))) andThen
+            middleTierAmountJson("other_allowances_amount", otherAllowancees)) andThen
+          appendAttribute(__ \ 'allowance_data \ 'payload, middleTierAmountJson("you_pay_tax_on", youPayTaxOn)) andThen
           appendAttribute(
             __ \ 'allowance_data \ 'payload,
-            middleTierAmountJson("you_pay_tax_on", youPayTaxOn.getOrElse(0))) andThen
+            middleTierAmountJson("total_tax_free_amount", totalTaxFreeAmount)) andThen
           appendAttribute(
             __ \ 'allowance_data \ 'payload,
-            middleTierAmountJson("total_tax_free_amount", totalTaxFreeAmount.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'allowance_data \ 'payload,
-            middleTierAmountJson("total_income_before_tax", incomeBeforeTax.getOrElse(0)))
+            middleTierAmountJson("total_income_before_tax", incomeBeforeTax))
 
       safeTransform(jsonTransformer)
     }
 
-    def transformIncomeTax(source: JsObject): JsObject = {
+    private[transformers] def transformIncomeTax(source: JsObject): JsObject = {
       val basicRateTaxAmount: Option[Double] = pickAmount(__ \ 'basicRateBand \ 'basicRateTax, source)
       val basicRateTax: Option[Double] = pickAmount(__ \ 'basicRateBand \ 'basicRateTaxAmount, source)
       val basicRate: Option[Double] = pickAmount(__ \ 'basicRateBand \ 'basicRate, source)
@@ -230,58 +219,42 @@ object PAYETransformer extends ServicesConfig {
       val jsonTransformer =
         appendAttribute(
           __ \ 'income_tax \ 'payload,
-          middleTierAmountJson("basic_rate_income_tax_amount", basicRateTaxAmount.getOrElse(0))) andThen
+          middleTierAmountJson("basic_rate_income_tax_amount", basicRateTaxAmount)) andThen
+          appendAttribute(__ \ 'income_tax \ 'payload, middleTierAmountJson("basic_rate_income_tax", basicRateTax)) andThen
+          appendAttribute(__ \ 'income_tax \ 'rates, middleTierRateJson("basic_rate_income_tax_rate", basicRate)) andThen
           appendAttribute(
             __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("basic_rate_income_tax", basicRateTax.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'rates,
-            middleTierRateJson("basic_rate_income_tax_rate", basicRate.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("higher_rate_income_tax_amount", higherRateTaxAmount.getOrElse(0))) andThen
+            middleTierAmountJson("higher_rate_income_tax_amount", higherRateTaxAmount)) andThen
+          appendAttribute(__ \ 'income_tax \ 'payload, middleTierAmountJson("higher_rate_income_tax", higherRateTax)) andThen
+          appendAttribute(__ \ 'income_tax \ 'rates, middleTierRateJson("higher_rate_income_tax_rate", higherRate)) andThen
           appendAttribute(
             __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("higher_rate_income_tax", higherRateTax.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'rates,
-            middleTierRateJson("higher_rate_income_tax_rate", higherRate.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("ordinary_rate_amount", dividendLowRateTaxAmount.getOrElse(0))) andThen
+            middleTierAmountJson("ordinary_rate_amount", dividendLowRateTaxAmount)) andThen
+          appendAttribute(__ \ 'income_tax \ 'payload, middleTierAmountJson("ordinary_rate", dividendLowRateTax)) andThen
+          appendAttribute(__ \ 'income_tax \ 'rates, middleTierRateJson("ordinary_rate_tax_rate", dividendLowRate)) andThen
           appendAttribute(
             __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("ordinary_rate", dividendLowRateTax.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'rates,
-            middleTierRateJson("ordinary_rate_tax_rate", dividendLowRate.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("upper_rate_amount", dividendHigherRateTaxAmount.getOrElse(0))) andThen
+            middleTierAmountJson("upper_rate_amount", dividendHigherRateTaxAmount)) andThen
+          appendAttribute(__ \ 'income_tax \ 'payload, middleTierAmountJson("upper_rate", dividendHigherRateTax)) andThen
+          appendAttribute(__ \ 'income_tax \ 'rates, middleTierRateJson("upper_rate_rate", dividendHigherRate)) andThen
           appendAttribute(
             __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("upper_rate", dividendHigherRateTax.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'rates,
-            middleTierRateJson("upper_rate_rate", dividendHigherRate.getOrElse(0))) andThen
+            middleTierAmountJson("married_couples_allowance_adjustment", marriedCouplesAllowanceAdjust)) andThen
           appendAttribute(
             __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("married_couples_allowance_adjustment", marriedCouplesAllowanceAdjust.getOrElse(0))) andThen
+            middleTierAmountJson("marriage_allowance_received_amount", marriedCouplesAllowanceReceived)) andThen
           appendAttribute(
             __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("marriage_allowance_received_amount", marriedCouplesAllowanceReceived.getOrElse(0))) andThen
+            middleTierAmountJson("less_tax_adjustment_previous_year", lessTaxAdjustPreviousYear)) andThen
           appendAttribute(
             __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("less_tax_adjustment_previous_year", lessTaxAdjustPreviousYear.getOrElse(0))) andThen
-          appendAttribute(
-            __ \ 'income_tax \ 'payload,
-            middleTierAmountJson("tax_underpaid_previous_year", taxUnderpaidPreviousYear.getOrElse(0))) andThen
-          appendAttribute(__ \ 'income_tax \ 'payload, middleTierAmountJson("total_income_tax", incomeTax.getOrElse(0)))
+            middleTierAmountJson("tax_underpaid_previous_year", taxUnderpaidPreviousYear)) andThen
+          appendAttribute(__ \ 'income_tax \ 'payload, middleTierAmountJson("total_income_tax", incomeTax))
 
       safeTransform(jsonTransformer)
     }
 
-    def transformGovSpendingData(source: JsObject): JsObject = {
+    private[transformers] def transformGovSpendingData(source: JsObject): JsObject = {
       import play.api.libs.json.Reads._
 
       val totalTaxAmount: Option[Double] = pickAmount(__ \ 'calculatedTotals \ 'totalIncomeTaxNics, source)
