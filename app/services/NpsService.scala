@@ -17,8 +17,8 @@
 package services
 
 import connectors.NpsConnector
-import play.api.libs.json.{JsObject, JsValue}
-import transformers.PAYETransformer._
+import models.paye.{PayeAtsData, PayeAtsMiddeTier}
+import transformers.PayeAtsDataTransformer
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,16 +26,19 @@ import scala.concurrent.Future
 
 trait NpsService {
   def npsConnector: NpsConnector
+  def convertData: (String, Int, PayeAtsData) => PayeAtsMiddeTier
 
-  def getRawPayload(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-    npsConnector.connectToPayeTaxSummary(nino, taxYear)
-
-  def getPayload(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
+  def getPayload(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[PayeAtsMiddeTier] =
     for {
       payeJson <- npsConnector.connectToPayeTaxSummary(nino, taxYear)
-    } yield middleTierJson(nino, taxYear).transformFromPaye(payeJson.as[JsObject])
+    } yield {
+      convertData(nino, taxYear, payeJson.as[PayeAtsData])
+    }
 }
 
 object NpsService extends NpsService {
   override val npsConnector = NpsConnector
+
+  override def convertData: (String, Int, PayeAtsData) => PayeAtsMiddeTier =
+    new PayeAtsDataTransformer(_, _, _).transformToPayeMiddleTier
 }

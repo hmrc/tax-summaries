@@ -17,12 +17,12 @@
 package controller
 
 import controllers.ATSPAYEDataController
+import models.paye.PayeAtsMiddeTier
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.NpsService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -44,7 +44,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
   "getAtsData" should {
     "return ok" in new TestController {
       when(npsService.getPayload(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Json.obj()))
+        .thenReturn(Future.successful(PayeAtsMiddeTier(2018, testNino, None, None, None, None, None, None)))
       val result = getATSData(testNino, 2018)(request)
 
       status(result) shouldBe 200

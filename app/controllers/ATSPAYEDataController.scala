@@ -16,9 +16,9 @@
 
 package controllers
 
-import play.api.mvc.Action
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent}
 import services.NpsService
-
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,10 +30,10 @@ object ATSPAYEDataController extends ATSPAYEDataController {
 trait ATSPAYEDataController extends BaseController {
 
   def npsService: NpsService
-
-  def getATSData(utr: String, tax_year: Int) = Action.async { implicit request =>
-    {
-      npsService.getPayload(utr, tax_year) map { Ok(_) }
+//TODO is this not NINO??
+  def getATSData(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
+    npsService.getPayload(utr, tax_year) map { data =>
+      Ok(Json.toJson(data))
     }
   }
 }

@@ -17,8 +17,9 @@
 package services
 
 import connectors.NpsConnector
+import models.paye.{PayeAtsData, PayeAtsMiddeTier}
 import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -35,39 +36,29 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with G
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
-  trait TestService extends NpsService {
+  class TestService extends NpsService {
+    val functionMock = mock[Function3[String, Int, PayeAtsData, PayeAtsMiddeTier]]
+
     override lazy val npsConnector: NpsConnector = mock[NpsConnector]
+
+    override def convertData: (String, Int, PayeAtsData) => PayeAtsMiddeTier =
+      functionMock
   }
 
   private val currentYear = 2018
 
-  "getRawPayload" should {
-    "return a successful future" in new TestService {
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(mock[JsValue]))
-
-      val result = getRawPayload(testNino, currentYear)(mock[HeaderCarrier])
-
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
-      }
-    }
-  }
-
   "getPayload" should {
     "return a successful future" in new TestService {
-      val mockPayload = mock[JsValue]
+      val mockPayload: JsValue = mock[JsValue]
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mockPayload))
-      when(mockPayload.as[JsObject])
-        .thenReturn(Json.obj())
+      when(mockPayload.as[PayeAtsData])
+        .thenReturn(mock[PayeAtsData])
+      when(functionMock.apply(eqTo(testNino), eqTo(currentYear), any()))
+        .thenReturn(mock[PayeAtsMiddeTier])
 
-      val result = getPayload(testNino, currentYear)(mock[HeaderCarrier])
-
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
-
-      }
+      val result: Future[PayeAtsMiddeTier] = getPayload(testNino, currentYear)(mock[HeaderCarrier])
+      verify(functionMock, times(1)).apply(any(), any(), any())
     }
   }
 }
