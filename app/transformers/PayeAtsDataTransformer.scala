@@ -16,9 +16,10 @@
 
 package transformers
 
-import models.LiabilityKey.{MarriageAllowanceTransferredAmount, OtherAllowancesAmount, PersonalTaxFreeAmount, TotalTaxFreeAmount}
+import models.LiabilityKey._
+import models.RateKey.NICS
 import models.paye.{PayeAtsData, PayeAtsMiddeTier}
-import models.{Amount, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey}
+import models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, Rate, RateKey}
 
 //TODO do we need nino/taxyear in class cons
 class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
@@ -28,8 +29,8 @@ class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
       taxYear,
       nino,
       emptyDataHolder,
-      emptyDataHolder,
-      emptyDataHolder,
+      createSummaryData,
+      createIncomeData,
       createAllowanceData,
       createGovSpendData
     )
@@ -38,15 +39,48 @@ class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
 //TODO check if this is the case for all values
   implicit def optionToAmount(opt: Option[Double]): Amount = opt.fold(Amount.empty)(Amount.gbp(_))
 
-  private def createAllowanceData: DataHolder =
-    DataHolder.make(createYourTaxFreeAmountBreakdown)
+  private def createSummaryData: DataHolder =
+    DataHolder.make(createSummaryDataMap, createSummaryRates)
 
-  private def createYourTaxFreeAmountBreakdown: Map[LiabilityKey, Amount] =
+  private def createSummaryDataMap: Map[LiabilityKey, Amount] =
+    Map(
+      TotalIncomeBeforeTax  -> atsData.income.flatMap(_.incomeBeforeTax),
+      TotalTaxFreeAmount    -> atsData.income.flatMap(_.taxableIncome),
+      TotalIncomeTaxAndNics -> atsData.calculatedTotals.flatMap(_.totalIncomeTaxNics),
+      IncomeAfterTaxAndNics -> atsData.calculatedTotals.flatMap(_.incomeAfterTaxNics),
+      TotalIncomeTax        -> atsData.calculatedTotals.flatMap(_.totalIncomeTax2),
+      EmployeeNicAmount     -> atsData.nationalInsurance.flatMap(_.employeeContributions),
+      EmployerNicAmount     -> atsData.nationalInsurance.flatMap(_.employerContributions)
+    )
+
+  private def createSummaryRates: Map[RateKey, ApiRate] = Map(
+    NICS -> Rate(atsData.averageRateTax.getOrElse(0).toDouble).apiValue
+  )
+
+  private def createIncomeData: DataHolder =
+    DataHolder.make(createIncomePayload)
+
+  private def createIncomePayload: Map[LiabilityKey, Amount] =
+    Map(
+      IncomeFromEmployment   -> atsData.income.flatMap(_.incomeFromEmployment),
+      StatePension           -> atsData.income.flatMap(_.statePension),
+      OtherPensionIncome     -> atsData.income.flatMap(_.otherPensionIncome),
+      OtherIncome            -> atsData.income.flatMap(_.otherIncome),
+      TotalIncomeBeforeTax   -> atsData.income.flatMap(_.incomeBeforeTax),
+      BenefitsFromEmployment -> atsData.income.flatMap(_.employmentBenefits),
+      TaxableStateBenefits   -> atsData.taxableStateBenefits
+    )
+
+  private def createAllowanceData: DataHolder =
+    DataHolder.make(createAllowancePayload)
+
+  private def createAllowancePayload: Map[LiabilityKey, Amount] =
     Map(
       PersonalTaxFreeAmount              -> atsData.adjustments.flatMap(_.taxFreeAmount),
       MarriageAllowanceTransferredAmount -> atsData.adjustments.flatMap(_.marriageAllowanceTransferred),
       OtherAllowancesAmount              -> atsData.income.flatMap(_.otherAllowancesDeductionsExpenses),
-      TotalTaxFreeAmount                 -> atsData.income.flatMap(_.taxableIncome)
+      TotalTaxFreeAmount                 -> atsData.income.flatMap(_.taxableIncome),
+      TotalIncomeBeforeTax               -> atsData.income.flatMap(_.incomeBeforeTax)
     )
 
   private def createGovSpendData: GovernmentSpendingOutputWrapper =

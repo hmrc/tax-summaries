@@ -42,6 +42,7 @@ object LiabilityKey extends DefaultReads {
   case object BenefitsFromEmployment extends ApiValue("benefits_from_employment") with LiabilityKey
   case object CgTaxPerCurrencyUnit extends ApiValue("cg_tax_per_currency_unit") with LiabilityKey
   case object EmployeeNicAmount extends ApiValue("employee_nic_amount") with LiabilityKey
+  case object EmployerNicAmount extends ApiValue("employer_nic_amount") with LiabilityKey
   case object HigherRateIncomeTax extends ApiValue("higher_rate_income_tax") with LiabilityKey
   case object HigherRateIncomeTaxAmount extends ApiValue("higher_rate_income_tax_amount") with LiabilityKey
   case object IncomeFromEmployment extends ApiValue("income_from_employment") with LiabilityKey
@@ -99,6 +100,8 @@ object LiabilityKey extends DefaultReads {
   case object SavingsHigherIncome extends ApiValue("savings_higher_income") with LiabilityKey
   case object SavingsAdditionalIncome extends ApiValue("savings_additional_income") with LiabilityKey
 
+  case object IncomeAfterTaxAndNics extends ApiValue("income_after_tax_and_nics") with LiabilityKey
+
   // format: off
   val allItems: List[LiabilityKey] =
     List(TaxableGains, LessTaxFreeAmount, PayCgTaxOn, AmountAtEntrepreneursRate, AmountDueAtEntrepreneursRate,
@@ -114,7 +117,7 @@ object LiabilityKey extends DefaultReads {
       ScottishIncomeTax, ScottishStarterRateTax, ScottishBasicRateTax, ScottishIntermediateRateTax, ScottishHigherRateTax,
       ScottishAdditionalRateTax, ScottishTotalTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
       ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-      SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome)
+      SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, EmployerNicAmount, IncomeAfterTaxAndNics)
   // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =

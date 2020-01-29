@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.LiabilityKey.{MarriageAllowanceTransferredAmount, OtherAllowancesAmount, PersonalTaxFreeAmount, TotalTaxFreeAmount, UpperRate}
+import models.LiabilityKey.{MarriageAllowanceTransferredAmount, OtherAllowancesAmount, PersonalTaxFreeAmount, TotalIncomeBeforeTax, TotalTaxFreeAmount, UpperRate}
 import models.{Amount, DataHolder, LiabilityKey}
 import models.paye.{PayeAtsData, PayeAtsMiddeTier}
 import org.scalatestplus.play.OneAppPerSuite
@@ -50,7 +50,8 @@ class PayeAtsDataTransformerTest extends UnitSpec with OneAppPerSuite {
         PersonalTaxFreeAmount              -> 12500.00,
         MarriageAllowanceTransferredAmount -> 1250.00,
         OtherAllowancesAmount              -> 6000.00,
-        TotalTaxFreeAmount                 -> 25500.00
+        TotalTaxFreeAmount                 -> 25500.00,
+        TotalIncomeBeforeTax               -> 28000.00
       )
 
       payload should contain theSameElementsAs expectedValues
