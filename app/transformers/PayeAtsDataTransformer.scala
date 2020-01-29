@@ -17,7 +17,7 @@
 package transformers
 
 import models.LiabilityKey._
-import models.RateKey.NICS
+import models.RateKey.{IncomeBasic, IncomeHigher, NICS, Ordinary, Upper}
 import models.paye.{PayeAtsData, PayeAtsMiddeTier}
 import models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, Rate, RateKey}
 
@@ -28,16 +28,44 @@ class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
     PayeAtsMiddeTier.make(
       taxYear,
       nino,
-      emptyDataHolder,
+      createIncomeTaxData,
       createSummaryData,
       createIncomeData,
       createAllowanceData,
       createGovSpendData
     )
-  //TODO remove
-  def emptyDataHolder: DataHolder = DataHolder(None, None, None)
+
 //TODO check if this is the case for all values
   implicit def optionToAmount(opt: Option[Double]): Amount = opt.fold(Amount.empty)(Amount.gbp(_))
+  implicit def optionToRate(opt: Option[Double]): ApiRate = Rate(opt.getOrElse(0)).apiValue
+
+  private def createIncomeTaxData: DataHolder =
+    DataHolder.make(createIncomeTaxPayload, createIncomeTaxRates)
+
+  private def createIncomeTaxPayload: Map[LiabilityKey, Amount] =
+    Map(
+      BasicRateIncomeTaxAmount        -> atsData.basicRateBand.map(_.basicRateTax),
+      BasicRateIncomeTax              -> atsData.basicRateBand.map(_.basicRateTaxAmount),
+      HigherRateIncomeTaxAmount       -> atsData.higherRateBand.map(_.higherRateTax),
+      HigherRateIncomeTax             -> atsData.higherRateBand.map(_.higherRateTaxAmount),
+      OrdinaryRateAmount              -> atsData.dividendLowerBand.map(_.dividendLowRateTax),
+      OrdinaryRate                    -> atsData.dividendLowerBand.map(_.dividendLowRateAmount),
+      UpperRateAmount                 -> atsData.dividendHigherBand.map(_.dividendHigherRateTax),
+      UpperRate                       -> atsData.dividendHigherBand.map(_.dividendHigherRateAmount),
+      MarriedCouplesAllowance         -> atsData.adjustments.flatMap(_.marriedCouplesAllowanceAdjustment),
+      MarriageAllowanceReceivedAmount -> atsData.adjustments.flatMap(_.marriageAllowanceReceived),
+      LessTaxAdjustmentPrevYear       -> atsData.adjustments.flatMap(_.lessTaxAdjustmentPreviousYear),
+      TaxUnderpaidPrevYear            -> atsData.adjustments.flatMap(_.taxUnderpaidPreviousYear),
+      TotalIncomeTax                  -> atsData.calculatedTotals.flatMap(_.totalIncomeTax)
+    )
+
+  private def createIncomeTaxRates: Map[RateKey, ApiRate] =
+    Map(
+      Ordinary     -> atsData.dividendLowerBand.map(_.dividendLowRate),
+      IncomeHigher -> atsData.higherRateBand.map(_.higherRate),
+      IncomeBasic  -> atsData.basicRateBand.map(_.basicRate),
+      Upper        -> atsData.dividendHigherBand.map(_.dividendHigherRate)
+    )
 
   private def createSummaryData: DataHolder =
     DataHolder.make(createSummaryDataMap, createSummaryRates)
@@ -54,7 +82,7 @@ class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
     )
 
   private def createSummaryRates: Map[RateKey, ApiRate] = Map(
-    NICS -> Rate(atsData.averageRateTax.getOrElse(0).toDouble).apiValue
+    NICS -> atsData.averageRateTax.map(_.toDouble)
   )
 
   private def createIncomeData: DataHolder =
