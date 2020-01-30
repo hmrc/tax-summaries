@@ -17,7 +17,7 @@
 package services
 
 import connectors.NpsConnector
-import models.paye.{PayeAtsData, PayeAtsMiddeTier}
+import models.paye.{PayeAtsData, PayeAtsMiddleTier, PayeAtsMiddleTier$}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -37,11 +37,11 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with G
     PatienceConfig(timeout = Span(50, Seconds), interval = Span(500, Millis))
 
   class TestService extends NpsService {
-    val functionMock = mock[Function3[String, Int, PayeAtsData, PayeAtsMiddeTier]]
+    val functionMock = mock[Function3[String, Int, PayeAtsData, PayeAtsMiddleTier]]
 
     override lazy val npsConnector: NpsConnector = mock[NpsConnector]
 
-    override def convertData: (String, Int, PayeAtsData) => PayeAtsMiddeTier =
+    override def convertData: (String, Int, PayeAtsData) => PayeAtsMiddleTier =
       functionMock
   }
 
@@ -51,19 +51,19 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with G
     "return a successful future" in new TestService {
       val mockPayload: JsValue = mock[JsValue]
       val mockPayeAtsData: PayeAtsData = mock[PayeAtsData]
-      val mockPayeAtsMiddeTier: PayeAtsMiddeTier = mock[PayeAtsMiddeTier]
+      val mockPayeAtsMiddleTier: PayeAtsMiddleTier = mock[PayeAtsMiddleTier]
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mockPayload))
       when(mockPayload.as[PayeAtsData])
         .thenReturn(mockPayeAtsData)
       when(functionMock.apply(eqTo(testNino), eqTo(currentYear), any()))
-        .thenReturn(mockPayeAtsMiddeTier)
+        .thenReturn(mockPayeAtsMiddleTier)
 
-      val result: Future[PayeAtsMiddeTier] = getPayload(testNino, currentYear)(mock[HeaderCarrier])
+      val result: Future[PayeAtsMiddleTier] = getPayload(testNino, currentYear)(mock[HeaderCarrier])
       whenReady(result) { result =>
         verify(functionMock).apply(any(), any(), any())
-        result shouldBe mockPayeAtsMiddeTier
+        result shouldBe mockPayeAtsMiddleTier
       }
     }
   }

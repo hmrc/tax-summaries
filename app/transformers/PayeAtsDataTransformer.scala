@@ -18,14 +18,14 @@ package transformers
 
 import models.LiabilityKey._
 import models.RateKey.{IncomeBasic, IncomeHigher, NICS, Ordinary, Upper}
-import models.paye.{PayeAtsData, PayeAtsMiddeTier}
+import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, Rate, RateKey}
 
 //TODO do we need nino/taxyear in class cons
 class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
 
-  def transformToPayeMiddleTier: PayeAtsMiddeTier =
-    PayeAtsMiddeTier.make(
+  def transformToPayeMiddleTier: PayeAtsMiddleTier =
+    PayeAtsMiddleTier.make(
       taxYear,
       nino,
       createIncomeTaxData,

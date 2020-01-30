@@ -19,9 +19,8 @@ package transformers
 import models.LiabilityKey._
 import models.RateKey.{IncomeBasic, IncomeHigher, NICS, Ordinary, Upper}
 import models._
-import models.paye.{PayeAtsData, PayeAtsMiddeTier}
+import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{PayeAtsDataUtil, TestConstants}
 
@@ -33,14 +32,13 @@ class PayeAtsDataTransformerTest extends UnitSpec with OneAppPerSuite {
   val nino: String = TestConstants.testNino
   //TODO bring in taxyear domain model
   val taxYear = 2020
-  lazy val transformedData: PayeAtsMiddeTier =
+  lazy val transformedData: PayeAtsMiddleTier =
     new PayeAtsDataTransformer(nino, taxYear, atsData).transformToPayeMiddleTier
 
   "transformToPayeMiddleTier" should {
     "populate the nino and tax year" in {
       transformedData.nino shouldBe nino
       transformedData.taxYear shouldBe taxYear
-      println(Json.prettyPrint(Json.toJson(transformedData)))
     }
 
     "create allowance data" in {

@@ -20,7 +20,7 @@ import errors.AtsError
 import models.{DataHolder, GovernmentSpendingOutputWrapper}
 import play.api.libs.json.{Json, Writes}
 
-case class PayeAtsMiddeTier(
+case class PayeAtsMiddleTier(
   taxYear: Int,
   nino: String,
   income_tax: Option[DataHolder],
@@ -31,8 +31,8 @@ case class PayeAtsMiddeTier(
   errors: Option[AtsError]
 )
 
-object PayeAtsMiddeTier {
-  implicit val writes: Writes[PayeAtsMiddeTier] = Json.writes[PayeAtsMiddeTier]
+object PayeAtsMiddleTier {
+  implicit val writes: Writes[PayeAtsMiddleTier] = Json.writes[PayeAtsMiddleTier]
 
   def make(
     taxYear: Int,
@@ -42,8 +42,8 @@ object PayeAtsMiddeTier {
     income: DataHolder,
     allowance: DataHolder,
     govSpending: GovernmentSpendingOutputWrapper
-  ): PayeAtsMiddeTier =
-    PayeAtsMiddeTier(
+  ): PayeAtsMiddleTier =
+    PayeAtsMiddleTier(
       taxYear,
       nino,
       Some(incomeTax),
@@ -54,8 +54,8 @@ object PayeAtsMiddeTier {
       None
     )
 
-  def error(nino: String, taxYear: Int, message: String): PayeAtsMiddeTier =
-    PayeAtsMiddeTier(taxYear, nino, None, None, None, None, None, Option(AtsError(message)))
+  def error(nino: String, taxYear: Int, message: String): PayeAtsMiddleTier =
+    PayeAtsMiddleTier(taxYear, nino, None, None, None, None, None, Option(AtsError(message)))
 
-  def noAtsResult(nino: String, taxYear: Int): PayeAtsMiddeTier = error(nino, taxYear, "NoAtsError")
+  def noAtsResult(nino: String, taxYear: Int): PayeAtsMiddleTier = error(nino, taxYear, "NoAtsError")
 }

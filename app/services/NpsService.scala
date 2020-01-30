@@ -17,7 +17,7 @@
 package services
 
 import connectors.NpsConnector
-import models.paye.{PayeAtsData, PayeAtsMiddeTier}
+import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import transformers.PayeAtsDataTransformer
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,9 +26,9 @@ import scala.concurrent.Future
 
 trait NpsService {
   def npsConnector: NpsConnector
-  def convertData: (String, Int, PayeAtsData) => PayeAtsMiddeTier
+  def convertData: (String, Int, PayeAtsData) => PayeAtsMiddleTier
 
-  def getPayload(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[PayeAtsMiddeTier] =
+  def getPayload(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[PayeAtsMiddleTier] =
     for {
       payeJson <- npsConnector.connectToPayeTaxSummary(nino, taxYear)
     } yield {
@@ -39,6 +39,6 @@ trait NpsService {
 object NpsService extends NpsService {
   override val npsConnector = NpsConnector
 
-  override def convertData: (String, Int, PayeAtsData) => PayeAtsMiddeTier =
+  override def convertData: (String, Int, PayeAtsData) => PayeAtsMiddleTier =
     new PayeAtsDataTransformer(_, _, _).transformToPayeMiddleTier
 }
