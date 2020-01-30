@@ -40,6 +40,7 @@ class PayeAtsDataTransformerTest extends UnitSpec with OneAppPerSuite {
     "populate the nino and tax year" in {
       transformedData.nino shouldBe nino
       transformedData.taxYear shouldBe taxYear
+      println(Json.prettyPrint(Json.toJson(transformedData)))
     }
 
     "create allowance data" in {
@@ -59,7 +60,7 @@ class PayeAtsDataTransformerTest extends UnitSpec with OneAppPerSuite {
       payload should contain theSameElementsAs expectedValues
       allowanceData.incomeTaxStatus shouldBe None
       allowanceData.rates shouldBe None
-      println(Json.prettyPrint(Json.toJson(allowanceData)))
+
     }
 
     "create income data" in {
@@ -67,40 +68,6 @@ class PayeAtsDataTransformerTest extends UnitSpec with OneAppPerSuite {
         transformedData.income_data.getOrElse(fail("No income data"))
       val payload: Map[LiabilityKey, Amount] =
         incomeData.payload.getOrElse(fail("No payload for income data"))
-
-      /*
-      "income_data" : {
-      "payload" : {
-        "income_from_employment" : {
-          "amount" : 25000,
-          "currency" : "GBP"
-        },
-        "state_pension" : {
-          "amount" : 1000,
-          "currency" : "GBP"
-        },
-        "other_pension_income" : {
-          "amount" : 500,
-          "currency" : "GBP"
-        },
-        "other_income" : {
-          "amount" : 3000,
-          "currency" : "GBP"
-        },
-        "total_income_before_tax" : {
-          "amount" : 28000,
-          "currency" : "GBP"
-        },
-        "benefits_from_employment" : {
-          "amount" : 200,
-          "currency" : "GBP"
-        },
-        "taxable_state_benefits": {
-          "amount": 500,
-          "currency": "GBP"
-        }
-      }
-       */
 
       val expectedValues: Map[LiabilityKey, Amount] = Map(
         IncomeFromEmployment   -> 25000.00,

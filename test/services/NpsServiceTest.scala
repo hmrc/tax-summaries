@@ -34,7 +34,7 @@ import scala.concurrent.Future
 class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerTest {
 
   implicit val defaultPatience =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
+    PatienceConfig(timeout = Span(50, Seconds), interval = Span(500, Millis))
 
   class TestService extends NpsService {
     val functionMock = mock[Function3[String, Int, PayeAtsData, PayeAtsMiddeTier]]
@@ -50,15 +50,21 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with G
   "getPayload" should {
     "return a successful future" in new TestService {
       val mockPayload: JsValue = mock[JsValue]
+      val mockPayeAtsData: PayeAtsData = mock[PayeAtsData]
+      val mockPayeAtsMiddeTier: PayeAtsMiddeTier = mock[PayeAtsMiddeTier]
+
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mockPayload))
       when(mockPayload.as[PayeAtsData])
-        .thenReturn(mock[PayeAtsData])
+        .thenReturn(mockPayeAtsData)
       when(functionMock.apply(eqTo(testNino), eqTo(currentYear), any()))
-        .thenReturn(mock[PayeAtsMiddeTier])
+        .thenReturn(mockPayeAtsMiddeTier)
 
       val result: Future[PayeAtsMiddeTier] = getPayload(testNino, currentYear)(mock[HeaderCarrier])
-      verify(functionMock, times(1)).apply(any(), any(), any())
+      whenReady(result) { result =>
+        verify(functionMock).apply(any(), any(), any())
+        result shouldBe mockPayeAtsMiddeTier
+      }
     }
   }
 }
