@@ -119,7 +119,8 @@ object LiabilityKey extends DefaultReads {
       ScottishIncomeTax, ScottishStarterRateTax, ScottishBasicRateTax, ScottishIntermediateRateTax, ScottishHigherRateTax,
       ScottishAdditionalRateTax, ScottishTotalTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
       ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-      SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome,MarriedCouplesAllowance,IncomeAfterTaxAndNics,EmployerNicAmount)
+      SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome,MarriedCouplesAllowance,LessTaxAdjustmentPrevYear,
+      TaxUnderpaidPrevYear,IncomeAfterTaxAndNics,EmployerNicAmount)
   // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =
