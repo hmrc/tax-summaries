@@ -18,7 +18,6 @@ package models.paye
 
 import play.api.libs.json.{Json, Reads}
 
-//TODO Missed percentage type
 case class PayeAtsData(
   taxableStateBenefits: Option[Double],
   averageRateTax: Option[Int],

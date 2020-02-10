@@ -21,7 +21,6 @@ import models.RateKey.{IncomeBasic, IncomeHigher, NICS, Ordinary, Upper}
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, Rate, RateKey}
 
-//TODO do we need nino/taxyear in class cons
 class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
 
   def transformToPayeMiddleTier: PayeAtsMiddleTier =
