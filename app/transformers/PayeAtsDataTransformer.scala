@@ -34,7 +34,6 @@ class PayeAtsDataTransformer(nino: String, taxYear: Int, atsData: PayeAtsData) {
       createGovSpendData
     )
 
-//TODO check if this is the case for all values
   implicit def optionToAmount(opt: Option[Double]): Amount = opt.fold(Amount.empty)(Amount.gbp(_))
   implicit def optionToRate(opt: Option[Double]): ApiRate = Rate(opt.getOrElse(0)).apiValue
 
