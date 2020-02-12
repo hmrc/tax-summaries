@@ -27,35 +27,19 @@ case class PayeAtsMiddleTier(
   summary_data: Option[DataHolder],
   income_data: Option[DataHolder],
   allowance_data: Option[DataHolder],
-  gov_spending: Option[GovernmentSpendingOutputWrapper],
-  errors: Option[AtsError]
+  gov_spending: Option[GovernmentSpendingOutputWrapper]
 )
 
 object PayeAtsMiddleTier {
   implicit val writes: Writes[PayeAtsMiddleTier] = Json.writes[PayeAtsMiddleTier]
 
-  def make(
+  def apply(
     taxYear: Int,
     nino: String,
     incomeTax: DataHolder,
     summary: DataHolder,
     income: DataHolder,
     allowance: DataHolder,
-    govSpending: GovernmentSpendingOutputWrapper
-  ): PayeAtsMiddleTier =
-    PayeAtsMiddleTier(
-      taxYear,
-      nino,
-      Some(incomeTax),
-      Some(summary),
-      Some(income),
-      Some(allowance),
-      Some(govSpending),
-      None
-    )
-
-  def error(nino: String, taxYear: Int, message: String): PayeAtsMiddleTier =
-    PayeAtsMiddleTier(taxYear, nino, None, None, None, None, None, Option(AtsError(message)))
-
-  def noAtsResult(nino: String, taxYear: Int): PayeAtsMiddleTier = error(nino, taxYear, "NoAtsError")
+    govSpending: GovernmentSpendingOutputWrapper): PayeAtsMiddleTier =
+    PayeAtsMiddleTier(taxYear, nino, Some(incomeTax), Some(summary), Some(income), Some(allowance), Some(govSpending))
 }

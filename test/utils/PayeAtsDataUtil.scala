@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 
 object PayeAtsDataUtil extends JsonUtil {
 
-  private val jsonString: String = load("/nino_2018.json")
+  private val jsonString: String = load("/paye_annual_tax_summary.json")
 
   val atsData: PayeAtsData = Json.parse(jsonString).as[PayeAtsData]
 
