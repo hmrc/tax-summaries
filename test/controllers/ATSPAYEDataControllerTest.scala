@@ -16,25 +16,26 @@
 
 package controller
 
+import akka.util.Timeout
 import controllers.ATSPAYEDataController
+import controllers.errorHandling.ErrorGenericBadRequest
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.time.{Millis, Seconds, Span}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
+import play.api.test.Helpers.contentAsJson
 import services.NpsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.TestConstants._
-
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
 
-  implicit val defaultPatience =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
+  implicit val timeout = new Timeout(Duration.Zero)
 
   class TestController extends ATSPAYEDataController {
     val request = FakeRequest()
@@ -42,22 +43,25 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
   }
 
   "getAtsData" should {
+
+    val expectedResponse = PayeAtsMiddleTier(2018, testNino, None, None, None, None, None)
+
     "return ok" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(PayeAtsMiddleTier(2018, testNino, None, None, None, None, None)))
+        .thenReturn(Right(expectedResponse))
       val result = getATSData(testNino, 2018)(request)
 
       status(result) shouldBe 200
+      contentAsJson(result) shouldBe Json.toJson(expectedResponse)
     }
 
     "return a failed future" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new Exception("failed")))
+        .thenReturn(Left(BAD_REQUEST))
       val result = getATSData(testNino, 2018)(request)
 
-      whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
-      }
+      status(result) shouldBe 400
+      contentAsJson(result) shouldBe Json.toJson(ErrorGenericBadRequest)
     }
   }
 }

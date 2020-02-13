@@ -16,11 +16,11 @@
 
 package controllers
 
+import controllers.errorHandling._
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import services.NpsService
 import uk.gov.hmrc.play.microservice.controller.BaseController
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object ATSPAYEDataController extends ATSPAYEDataController {
@@ -32,8 +32,19 @@ trait ATSPAYEDataController extends BaseController {
   def npsService: NpsService
 
   def getATSData(nino: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
-    npsService.getPayeATSData(nino, tax_year) map { data =>
-      Ok(Json.toJson(data))
+    npsService.getPayeATSData(nino, tax_year) map {
+      case Right(payeJson) => Ok(Json.toJson(payeJson))
+      case Left(errorResponse) => {
+        errorResponse match {
+          case ErrorNotFound.httpStatusCode            => ErrorNotFound.toResult
+          case ErrorGenericBadRequest.httpStatusCode   => ErrorGenericBadRequest.toResult
+          case ErrorInternalServerError.httpStatusCode => ErrorInternalServerError.toResult
+          case ErrorBadGateway.httpStatusCode          => ErrorBadGateway.toResult
+          case ErrorServiceUnavailable.httpStatusCode  => ErrorServiceUnavailable.toResult
+          case _                                       => ErrorGatewayTimeout.toResult
+        }
+
+      }
     }
   }
 }

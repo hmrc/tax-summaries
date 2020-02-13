@@ -19,27 +19,22 @@ package services
 import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.{verify, when}
-import org.scalatest.concurrent.ScalaFutures
+import org.mockito.Mockito.when
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.libs.json.{JsValue, Json}
+import play.api.http.Status.BAD_GATEWAY
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.{JsonUtil, PayeAtsDataUtil}
 import utils.TestConstants._
-
+import utils.{JsonUtil, PayeAtsDataUtil}
 import scala.concurrent.Future
 
 class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest {
 
   implicit val hc = HeaderCarrier()
-
   val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
-
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
-
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(testNino, currentYear)
 
@@ -51,14 +46,25 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
   private val currentYear = 2018
 
   "getPayeATSData" should {
+
     "return a successful future" in new TestService {
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Json.parse(expectedNpsResponse)))
+        .thenReturn(Future.successful(Right(Json.parse(expectedNpsResponse))))
 
       val result = await(getPayeATSData(testNino, currentYear))
 
-      result shouldBe transformedData
+      result shouldBe Right(transformedData)
+    }
+
+    "return a Failure future" in new TestService {
+
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(BAD_GATEWAY)))
+
+      val result = await(getPayeATSData(testNino, currentYear))
+
+      result shouldBe Left(BAD_GATEWAY)
     }
   }
 }

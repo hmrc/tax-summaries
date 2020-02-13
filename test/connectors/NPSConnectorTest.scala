@@ -17,10 +17,11 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
+import com.github.tomakehurst.wiremock.http.Fault
 import config.{ApplicationConfig, WSHttp}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.http.Status.OK
+import play.api.http.Status.{BAD_REQUEST, GATEWAY_TIMEOUT, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
@@ -41,34 +42,63 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
       .build()
 
   implicit val hc = HeaderCarrier()
-
   private val currentYear = 2018
+  private val invalidTaxYear = 201899
 
   trait NPSConnectorSetUp extends NpsConnector with JsonUtil {
 
     override def http: HttpGet = WSHttp
-
     override def serviceUrl: String = ApplicationConfig.npsServiceUrl
-
-    val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
-
-    lazy val url = s"/individuals/annual-tax-summary/" + testNino + "/" + currentYear
-
-    server.stubFor(
-      get(urlEqualTo(url)).willReturn(
-        aResponse()
-          .withStatus(OK)
-          .withBody(expectedNpsResponse))
-    )
   }
 
   "connectToPayeTaxSummary" should {
 
     "return successful response" in new NPSConnectorSetUp {
 
-      val result = Await.result(connectToPayeTaxSummary(testNino, currentYear), 5.seconds)
-      result shouldBe Json.parse(expectedNpsResponse)
+      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
+      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + currentYear
 
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody(expectedNpsResponse))
+      )
+
+      val result = Await.result(connectToPayeTaxSummary(testNino, currentYear), 5.seconds)
+      result shouldBe Right(Json.parse(expectedNpsResponse))
+    }
+
+    "return Failure response" in new NPSConnectorSetUp {
+
+      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
+      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(400)
+            .withBody("File not found"))
+      )
+
+      val result = Await.result(connectToPayeTaxSummary(testNino, invalidTaxYear), 5.seconds)
+      result shouldBe Left(BAD_REQUEST)
+    }
+
+    "return Failure response in case of Exception" in new NPSConnectorSetUp {
+
+      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
+      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withFault(Fault.EMPTY_RESPONSE)
+            .withBody("File not found"))
+      )
+
+      val result = Await.result(connectToPayeTaxSummary(testNino, invalidTaxYear), 5.seconds)
+      result shouldBe Left(GATEWAY_TIMEOUT)
     }
   }
 }
