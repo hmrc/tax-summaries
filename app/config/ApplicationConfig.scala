@@ -27,6 +27,7 @@ trait ApplicationConfig {
 
   def ratePercentages(year: Int): Map[String, Double]
   def governmentSpend(year: Int): Map[String, Double]
+  def npsServiceUrl: String
 }
 
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
@@ -60,4 +61,6 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
   override def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
 
   override def governmentSpend(year: Int) = governmentSpendByYear(year)
+
+  override def npsServiceUrl = baseUrl("tax-summaries-hod")
 }
