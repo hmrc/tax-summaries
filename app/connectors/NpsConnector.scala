@@ -18,11 +18,12 @@ package connectors
 
 import config.{ApplicationConfig, WSHttp}
 import play.api.Mode.Mode
-import play.api.http.Status.{BAD_GATEWAY, GATEWAY_TIMEOUT, OK}
+import play.api.http.Status.{BAD_GATEWAY, GATEWAY_TIMEOUT, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.JsValue
-import play.api.{Configuration, Play}
+import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, _}
 import uk.gov.hmrc.play.config.ServicesConfig
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -42,24 +43,13 @@ trait NpsConnector {
   def serviceUrl: String
   def url(path: String) = s"$serviceUrl$path"
 
-  val httpRead: HttpReads[Either[Int, JsValue]] =
-    new HttpReads[Either[Int, JsValue]] {
-
-      def read(method: String, url: String, response: HttpResponse): Either[Int, JsValue] =
-        response status match {
-          case OK => Right(response.json)
-          case _  => Left(response.status)
-        }
-    }
-
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Either[Int, JsValue]] =
-    (http.GET[Either[Int, JsValue]](url("/individuals/annual-tax-summary/" + NINO + "/" + TAX_YEAR))(
-      httpRead,
+  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + NINO + "/" + TAX_YEAR))(
+      RawReads.readRaw,
       hc,
-      ec = global) map { response =>
-      response
-    }).recover {
-      case _: BadGatewayException => Left(BAD_GATEWAY)
-      case _: Throwable           => Left(GATEWAY_TIMEOUT)
+      ec = global) recover {
+      case e =>
+        Logger.error(s"Exception blah in connector: ${e.getMessage}")
+        HttpResponse(INTERNAL_SERVER_ERROR)
     }
 }

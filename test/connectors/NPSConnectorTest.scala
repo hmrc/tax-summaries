@@ -19,9 +19,10 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
 import com.github.tomakehurst.wiremock.http.Fault
 import config.{ApplicationConfig, WSHttp}
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.http.Status.{BAD_REQUEST, GATEWAY_TIMEOUT, OK}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
@@ -29,10 +30,9 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants.testNino
 import utils.{JsonUtil, WireMockHelper}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper {
+class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -65,8 +65,9 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
             .withBody(expectedNpsResponse))
       )
 
-      val result = Await.result(connectToPayeTaxSummary(testNino, currentYear), 5.seconds)
-      result shouldBe Right(Json.parse(expectedNpsResponse))
+      val result = connectToPayeTaxSummary(testNino, currentYear).flatMap(
+        result => result.json shouldBe Json.parse(expectedNpsResponse)
+      )
     }
 
     "return Failure response" in new NPSConnectorSetUp {
@@ -81,8 +82,9 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
             .withBody("File not found"))
       )
 
-      val result = Await.result(connectToPayeTaxSummary(testNino, invalidTaxYear), 5.seconds)
-      result shouldBe Left(BAD_REQUEST)
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).flatMap(
+        result => result.status shouldBe INTERNAL_SERVER_ERROR
+      )
     }
 
     "return Failure response in case of Exception" in new NPSConnectorSetUp {
@@ -97,8 +99,9 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
             .withBody("File not found"))
       )
 
-      val result = Await.result(connectToPayeTaxSummary(testNino, invalidTaxYear), 5.seconds)
-      result shouldBe Left(GATEWAY_TIMEOUT)
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).flatMap(
+        result => result.status shouldBe INTERNAL_SERVER_ERROR
+      )
     }
   }
 }

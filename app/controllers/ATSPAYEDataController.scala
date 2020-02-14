@@ -16,22 +16,27 @@
 
 package controllers
 
+import controllers.auth.AuthAction
 import controllers.errorHandling._
+import play.api.Play
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import services.NpsService
 import uk.gov.hmrc.play.microservice.controller.BaseController
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object ATSPAYEDataController extends ATSPAYEDataController {
   override val npsService = NpsService
+  override val authAction: AuthAction = Play.current.injector.instanceOf[AuthAction]
 }
 
 trait ATSPAYEDataController extends BaseController {
 
+  val authAction: AuthAction
   def npsService: NpsService
 
-  def getATSData(nino: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
+  def getATSData(nino: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
     npsService.getPayeATSData(nino, tax_year) map {
       case Right(payeJson) => Ok(Json.toJson(payeJson))
       case Left(errorResponse) => {
