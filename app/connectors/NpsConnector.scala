@@ -49,7 +49,7 @@ trait NpsConnector {
       hc,
       ec = global) recover {
       case e =>
-        Logger.error(s"Exception blah in connector: ${e.getMessage}")
+        Logger.error(s"Exception in NPSConnector: ${e.getMessage}")
         HttpResponse(INTERNAL_SERVER_ERROR)
     }
 }

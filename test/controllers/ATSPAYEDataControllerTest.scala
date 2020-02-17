@@ -19,7 +19,6 @@ package controller
 import akka.util.Timeout
 import controllers.ATSPAYEDataController
 import controllers.auth.{AuthAction, FakeAuthAction}
-import controllers.errorHandling.ErrorGenericBadRequest
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
@@ -29,7 +28,7 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.contentAsJson
 import services.NpsService
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.TestConstants._
 
@@ -60,11 +59,10 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
     "return a failed future" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Left(BAD_REQUEST))
+        .thenReturn(Left(HttpResponse(BAD_REQUEST)))
       val result = getATSData(testNino, 2018)(request)
 
       status(result) shouldBe 400
-      contentAsJson(result) shouldBe Json.toJson(ErrorGenericBadRequest)
     }
   }
 }

@@ -22,7 +22,7 @@ import config.{ApplicationConfig, WSHttp}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
@@ -83,7 +83,7 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
       )
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear).flatMap(
-        result => result.status shouldBe INTERNAL_SERVER_ERROR
+        result => result.status shouldBe BAD_REQUEST
       )
     }
 

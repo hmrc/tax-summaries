@@ -33,6 +33,8 @@ import utils.{JsonUtil, PayeAtsDataUtil}
 
 import scala.concurrent.Future
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest {
 
   implicit val hc = HeaderCarrier()
@@ -64,11 +66,11 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
     "return a Failure future" in new TestService {
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(BAD_GATEWAY)))
+        .thenReturn(Future.successful(HttpResponse(responseStatus = 502)))
 
-      val result = getPayeATSData(testNino, currentYear).futureValue
-
-      result shouldBe Left(BAD_GATEWAY)
+      getPayeATSData(testNino, currentYear).flatMap(
+        result => result shouldBe Left(HttpResponse(502))
+      )
     }
   }
 }

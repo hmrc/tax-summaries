@@ -17,7 +17,6 @@
 package controllers
 
 import controllers.auth.AuthAction
-import controllers.errorHandling._
 import play.api.Play
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
@@ -34,22 +33,13 @@ object ATSPAYEDataController extends ATSPAYEDataController {
 trait ATSPAYEDataController extends BaseController {
 
   val authAction: AuthAction
+
   def npsService: NpsService
 
-  def getATSData(nino: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
-    npsService.getPayeATSData(nino, tax_year) map {
-      case Right(payeJson) => Ok(Json.toJson(payeJson))
-      case Left(errorResponse) => {
-        errorResponse match {
-          case ErrorNotFound.httpStatusCode            => ErrorNotFound.toResult
-          case ErrorGenericBadRequest.httpStatusCode   => ErrorGenericBadRequest.toResult
-          case ErrorInternalServerError.httpStatusCode => ErrorInternalServerError.toResult
-          case ErrorBadGateway.httpStatusCode          => ErrorBadGateway.toResult
-          case ErrorServiceUnavailable.httpStatusCode  => ErrorServiceUnavailable.toResult
-          case _                                       => ErrorGatewayTimeout.toResult
-        }
-
-      }
+  def getATSData(nino: String, taxYear: Int): Action[AnyContent] = authAction.async { implicit request =>
+    npsService.getPayeATSData(nino, taxYear) map {
+      case Right(response)     => Ok(Json.toJson(response))
+      case Left(errorResponse) => new Status(errorResponse.status).apply(errorResponse.json)
     }
   }
 }

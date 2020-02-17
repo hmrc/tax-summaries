@@ -19,7 +19,8 @@ package services
 import connectors.NpsConnector
 import models.paye._
 import play.api.http.Status.OK
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import play.api.mvc.Results
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -28,11 +29,12 @@ trait NpsService {
 
   def npsConnector: NpsConnector
 
-  def getPayeATSData(nino: String, taxYear: Int)(implicit hc: HeaderCarrier): Future[Either[Int, PayeAtsMiddleTier]] =
+  def getPayeATSData(nino: String, taxYear: Int)(
+    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
     npsConnector.connectToPayeTaxSummary(nino, taxYear) map { response =>
       response status match {
         case OK => Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(nino, taxYear))
-        case _  => Left(response.status)
+        case _  => Left(response)
       }
     }
 }
