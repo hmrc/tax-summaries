@@ -20,12 +20,10 @@ import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants._
@@ -33,9 +31,7 @@ import utils.{JsonUtil, PayeAtsDataUtil}
 
 import scala.concurrent.Future
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest {
+class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest with ScalaFutures {
 
   implicit val hc = HeaderCarrier()
   val expectedNpsResponse: JsValue = Json.parse(load("/paye_annual_tax_summary.json"))
@@ -43,7 +39,7 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(testNino, currentYear)
 
-  class TestService extends NpsService with ScalaFutures {
+  class TestService extends NpsService {
 
     override lazy val npsConnector: NpsConnector = mock[NpsConnector]
   }
@@ -52,7 +48,7 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
 
   "getPayeATSData" should {
 
-    "return a successful future" in new TestService {
+    "return a successful response after transforming NPS data to PAYE model" in new TestService {
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
         .thenReturn(Future.successful(
@@ -65,12 +61,15 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
 
     "return a Failure future" in new TestService {
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(HttpResponse(responseStatus = 502)))
+      val response = HttpResponse(responseStatus = 502)
 
-      getPayeATSData(testNino, currentYear).flatMap(
-        result => result shouldBe Left(HttpResponse(502))
-      )
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(response))
+
+      val result = getPayeATSData(testNino, currentYear).futureValue
+
+      result shouldBe Left(response)
+
     }
   }
 }

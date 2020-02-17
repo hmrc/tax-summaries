@@ -28,7 +28,7 @@ object AppDependencies {
       "org.json4s"              %% "json4s-native"          % "3.5.5",
       "org.mockito"              % "mockito-all"            % "1.10.19",
       "org.scalacheck"          %% "scalacheck"             % "1.14.3",
-      "com.github.tomakehurst"   % "wiremock"               % "2.15.0"
+      "com.github.tomakehurst"   % "wiremock"               % "2.26.0"
     ).map(_ % "test")
 
   val all: Seq[ModuleID] = compile ++ test

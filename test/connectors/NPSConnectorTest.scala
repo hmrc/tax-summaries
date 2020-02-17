@@ -19,20 +19,21 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
 import com.github.tomakehurst.wiremock.http.Fault
 import config.{ApplicationConfig, WSHttp}
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, Upstream4xxResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants.testNino
 import utils.{JsonUtil, WireMockHelper}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures {
+class NPSConnectorTest
+    extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -65,14 +66,13 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear).flatMap(
-        result => result.json shouldBe Json.parse(expectedNpsResponse)
-      )
+      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
+
+      result.json shouldBe Json.parse(expectedNpsResponse)
     }
 
     "return Failure response" in new NPSConnectorSetUp {
 
-      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
       val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
 
       server.stubFor(
@@ -82,14 +82,13 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
             .withBody("File not found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).flatMap(
-        result => result.status shouldBe BAD_REQUEST
-      )
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+
+      result.status shouldBe BAD_REQUEST
     }
 
     "return Failure response in case of Exception" in new NPSConnectorSetUp {
 
-      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
       val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
 
       server.stubFor(
@@ -99,9 +98,9 @@ class NPSConnectorTest extends UnitSpec with GuiceOneAppPerSuite with WireMockHe
             .withBody("File not found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).flatMap(
-        result => result.status shouldBe INTERNAL_SERVER_ERROR
-      )
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+
+      result.status shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }

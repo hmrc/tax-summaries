@@ -48,7 +48,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
     val expectedResponse = PayeAtsMiddleTier(2018, testNino, None, None, None, None, None)
 
-    "return ok" in new TestController {
+    "return success response with ATS data" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
         .thenReturn(Right(expectedResponse))
       val result = getATSData(testNino, 2018)(request)
@@ -59,10 +59,11 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
     "return a failed future" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(2018))(any[HeaderCarrier]))
-        .thenReturn(Left(HttpResponse(BAD_REQUEST)))
+        .thenReturn(Left(HttpResponse(responseStatus = BAD_REQUEST, responseJson = Some(Json.toJson(BAD_REQUEST)))))
       val result = getATSData(testNino, 2018)(request)
 
       status(result) shouldBe 400
+      contentAsJson(result) shouldBe Json.toJson(BAD_REQUEST)
     }
   }
 }

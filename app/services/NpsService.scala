@@ -18,9 +18,9 @@ package services
 
 import connectors.NpsConnector
 import models.paye._
-import play.api.http.Status.OK
+import play.api.Logger
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import play.api.mvc.Results
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -35,6 +35,11 @@ trait NpsService {
       response status match {
         case OK => Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(nino, taxYear))
         case _  => Left(response)
+      }
+    } recover {
+      case e => {
+        Logger.error(s"Exception in NpsService parsing Json: $e")
+        Left(HttpResponse(INTERNAL_SERVER_ERROR))
       }
     }
 }

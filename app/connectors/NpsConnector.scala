@@ -18,10 +18,9 @@ package connectors
 
 import config.{ApplicationConfig, WSHttp}
 import play.api.Mode.Mode
-import play.api.http.Status.{BAD_GATEWAY, GATEWAY_TIMEOUT, INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.json.JsValue
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.{Configuration, Logger, Play}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, _}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, _}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,12 +31,11 @@ object NpsConnector extends NpsConnector with ServicesConfig {
   override val serviceUrl = ApplicationConfig.npsServiceUrl
   override def http = WSHttp
 
+  protected def mode: Mode = Play.current.mode
+  protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait NpsConnector {
-
-  protected def mode: Mode = Play.current.mode
-  protected def runModeConfiguration: Configuration = Play.current.configuration
 
   def http: HttpGet
   def serviceUrl: String
@@ -48,8 +46,11 @@ trait NpsConnector {
       RawReads.readRaw,
       hc,
       ec = global) recover {
-      case e =>
-        Logger.error(s"Exception in NPSConnector: ${e.getMessage}")
+      case e: BadRequestException => HttpResponse(BAD_REQUEST)
+      case e: NotFoundException   => HttpResponse(NOT_FOUND)
+      case e: Exception => {
+        Logger.error(s"Exception in NPSConnector: $e", e)
         HttpResponse(INTERNAL_SERVER_ERROR)
+      }
     }
 }
