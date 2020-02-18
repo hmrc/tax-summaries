@@ -22,7 +22,7 @@ import config.{ApplicationConfig, WSHttp}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, Upstream4xxResponse}
@@ -71,7 +71,7 @@ class NPSConnectorTest
       result.json shouldBe Json.parse(expectedNpsResponse)
     }
 
-    "return Failure response" in new NPSConnectorSetUp {
+    "return BAD_REQUEST response in case of Bad request from NPS" in new NPSConnectorSetUp {
 
       val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
 
@@ -79,7 +79,7 @@ class NPSConnectorTest
         get(urlEqualTo(url)).willReturn(
           aResponse()
             .withStatus(400)
-            .withBody("File not found"))
+            .withBody("Bad Request"))
       )
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
@@ -87,7 +87,23 @@ class NPSConnectorTest
       result.status shouldBe BAD_REQUEST
     }
 
-    "return Failure response in case of Exception" in new NPSConnectorSetUp {
+    "return NOT_FOUND response in case of Not found from NPS" in new NPSConnectorSetUp {
+
+      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(404)
+            .withBody("Not Found"))
+      )
+
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+
+      result.status shouldBe NOT_FOUND
+    }
+
+    "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new NPSConnectorSetUp {
 
       val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
 

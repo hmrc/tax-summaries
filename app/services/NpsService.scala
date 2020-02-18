@@ -20,6 +20,7 @@ import connectors.NpsConnector
 import models.paye._
 import play.api.Logger
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import play.api.libs.json.JsResultException
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,8 +38,8 @@ trait NpsService {
         case _  => Left(response)
       }
     } recover {
-      case e => {
-        Logger.error(s"Exception in NpsService parsing Json: $e")
+      case e: JsResultException => {
+        Logger.error(s"Exception in NpsService parsing Json: $e", e)
         Left(HttpResponse(INTERNAL_SERVER_ERROR))
       }
     }

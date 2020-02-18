@@ -23,12 +23,13 @@ import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import play.api.libs.json.{JsResultException, JsValue, Json}
+import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants._
 import utils.{JsonUtil, PayeAtsDataUtil}
 
+import scala.collection.Seq
 import scala.concurrent.Future
 
 class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest with ScalaFutures {
@@ -59,7 +60,7 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
       result shouldBe Right(transformedData)
     }
 
-    "return a Failure future" in new TestService {
+    "return a Bad Gateway Response in case of Bad Gateway from Connector" in new TestService {
 
       val response = HttpResponse(responseStatus = 502)
 
@@ -70,6 +71,16 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
 
       result shouldBe Left(response)
 
+    }
+
+    "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {
+
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(new JsResultException(List())))
+
+      val result = getPayeATSData(testNino, currentYear).futureValue
+
+      result.left.get.status shouldBe 500
     }
   }
 }
