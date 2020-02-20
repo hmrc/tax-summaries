@@ -30,7 +30,7 @@ class PayeAuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit ex
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
 
-    val nino = """(?<=\/)[A-Z]{2}\d{6}[ABCD](?=\/)""".r.findFirstIn(request.toString())
+    val nino = """(?<=\/)[A-Z]{2}\d{6}[ABCD](?=\/)""".r.findFirstIn(request.uri)
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, None)
