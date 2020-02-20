@@ -18,13 +18,14 @@ package controller
 
 import akka.util.Timeout
 import controllers.ATSPAYEDataController
-import controllers.auth.{AuthAction, FakeAuthAction}
+import controllers.auth.{AuthAction, FakeAuthAction, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.contentAsJson
 import services.NpsService
@@ -32,6 +33,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import utils.TestConstants._
 
+import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
@@ -41,7 +43,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
   class TestController extends ATSPAYEDataController {
     val request = FakeRequest()
     override lazy val npsService: NpsService = mock[NpsService]
-    override val authAction: AuthAction = FakeAuthAction
+    override val payeAuthAction: PayeAuthAction = FakeAuthAction
   }
 
   "getAtsData" should {

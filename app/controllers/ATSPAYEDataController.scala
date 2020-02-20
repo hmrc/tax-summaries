@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.auth.AuthAction
+import controllers.auth.{AuthAction, PayeAuthAction}
 import play.api.Play
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
@@ -27,16 +27,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object ATSPAYEDataController extends ATSPAYEDataController {
   override val npsService = NpsService
-  override val authAction: AuthAction = Play.current.injector.instanceOf[AuthAction]
+  override val payeAuthAction: PayeAuthAction = Play.current.injector.instanceOf[PayeAuthAction]
 }
 
 trait ATSPAYEDataController extends BaseController {
 
-  val authAction: AuthAction
+  val payeAuthAction: PayeAuthAction
 
   def npsService: NpsService
 
-  def getATSData(nino: String, taxYear: Int): Action[AnyContent] = authAction.async { implicit request =>
+  def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     npsService.getPayeATSData(nino, taxYear) map {
       case Right(response)     => Ok(Json.toJson(response))
       case Left(errorResponse) => new Status(errorResponse.status).apply(errorResponse.json)

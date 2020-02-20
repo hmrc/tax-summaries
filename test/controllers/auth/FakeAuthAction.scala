@@ -20,6 +20,6 @@ import play.api.mvc.{Request, Result}
 
 import scala.concurrent.Future
 
-object FakeAuthAction extends AuthAction {
+object FakeAuthAction extends AuthAction with PayeAuthAction {
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = Future.successful(None)
 }
