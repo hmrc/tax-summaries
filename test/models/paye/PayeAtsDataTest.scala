@@ -136,11 +136,7 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
     "create gov spend data" should {
 
       "with nics included if employer contributions are present" in {
-
-
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-
-        println(spendData)
         spendData.totalAmount shouldBe Amount.gbp(4200.00)
       }
 
