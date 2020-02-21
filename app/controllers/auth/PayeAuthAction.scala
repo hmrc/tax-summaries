@@ -18,11 +18,12 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import play.api.Logger
-import play.api.mvc.Results.Unauthorized
+import play.api.mvc.Results._
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.{AuthorisedFunctions, ConfidenceLevel, Nino => AuthNino}
+import uk.gov.hmrc.auth.core.{AuthorisationException, AuthorisedFunctions, ConfidenceLevel, Nino => AuthNino}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class PayeAuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit executionContext: ExecutionContext)
@@ -39,9 +40,12 @@ class PayeAuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit ex
       Future.successful(None)
     }
   }.recover {
-    case t: Throwable =>
-      Logger.debug(s"Debug info - ${t.getMessage}", t)
+    case ae: AuthorisationException =>
+      Logger.debug(s"Authorisation exception", ae)
       Some(Unauthorized)
+    case t: Throwable =>
+      Logger.error(s"Authorisation error", t)
+      Some(InternalServerError)
   }
 }
 

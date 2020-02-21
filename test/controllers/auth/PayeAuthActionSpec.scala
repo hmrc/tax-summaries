@@ -23,12 +23,13 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
+import play.api.http.Status._
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.status
-import uk.gov.hmrc.auth.core.{InsufficientConfidenceLevel, MissingBearerToken}
+import uk.gov.hmrc.auth.core.{InsufficientConfidenceLevel, InternalError, MissingBearerToken}
 import utils.TestConstants._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -83,7 +84,7 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
 
     "return UNAUTHORIZED when NINO is missing or doesn't match URL parameter" in {
 
-      val retrievalResult: Future[Option[String]] = Future.failed(new InternalError())
+      val retrievalResult: Future[Option[String]] = Future.failed(InternalError("IncorrectNino"))
 
       when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
@@ -91,6 +92,18 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
+    }
+
+    "return INTERNAL_SERVER_ERROR when auth call fails for unexpected reason" in {
+
+      val retrievalResult: Future[Option[String]] = Future.failed(new RuntimeException())
+
+      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+        .thenReturn(retrievalResult)
+
+      val result = harness.onPageLoad()(request)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
     }
 
   }
