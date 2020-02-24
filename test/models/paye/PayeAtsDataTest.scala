@@ -35,7 +35,7 @@ package transformers
 import models.LiabilityKey._
 import models.RateKey.{IncomeBasic, IncomeHigher, NICS, Ordinary, Upper}
 import models._
-import models.paye.{PayeAtsData, PayeAtsMiddleTier}
+import models.paye.{NationalInsurance, PayeAtsData, PayeAtsMiddleTier}
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{PayeAtsDataUtil, TestConstants}
@@ -131,6 +131,33 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
       )
 
       incomeTax shouldBe DataHolder(Some(expectedPayloadValues), Some(expectedRatesValues), None)
+    }
+
+    "create gov spend data" should {
+
+      "with nics included if employer contributions are present" in {
+        val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
+        spendData.totalAmount shouldBe Amount.gbp(4200.00)
+      }
+
+      "without nics included if employer contributions are not present" in {
+        val atsDataWithoutNics = atsData.copy(nationalInsurance = Some(NationalInsurance(Some(100.00), None)))
+        val transformedData: PayeAtsMiddleTier =
+          atsDataWithoutNics.transformToPayeMiddleTier(nino, taxYear.toInt)
+
+        val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
+        spendData.totalAmount shouldBe Amount.gbp(4000.00)
+      }
+
+      "without nics included if national insurance section is not present" in {
+        val atsDataWithoutNics = atsData.copy(nationalInsurance = None)
+        val transformedData: PayeAtsMiddleTier =
+          atsDataWithoutNics.transformToPayeMiddleTier(nino, taxYear.toInt)
+
+        val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
+        spendData.totalAmount shouldBe Amount.gbp(4000.00)
+      }
+
     }
   }
 }

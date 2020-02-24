@@ -127,8 +127,18 @@ case class PayeAtsData(
       TotalIncomeBeforeTax               -> optionToAmount(income.flatMap(_.incomeBeforeTax))
     )
 
-  private def createGovSpendData(taxYear: Int): GovernmentSpendingOutputWrapper =
-    GovSpendingDataTransformer(optionToAmount(calculatedTotals.flatMap(_.totalIncomeTaxNics)), taxYear).govSpendReferenceDTO
+  private def createGovSpendData(taxYear: Int): GovernmentSpendingOutputWrapper = {
+    val totalIncome = optionToAmount(
+      if (nationalInsurance.flatMap(_.employeeContributions).isDefined) {
+        calculatedTotals.flatMap(_.totalIncomeTaxNics)
+      }
+      else {
+        calculatedTotals.flatMap(_.totalIncomeTax)
+      }
+    )
+
+    GovSpendingDataTransformer(totalIncome, taxYear).govSpendReferenceDTO
+  }
 
 }
 
