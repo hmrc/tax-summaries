@@ -72,7 +72,8 @@ case class PayeAtsData(
       MarriageAllowanceReceivedAmount -> optionToAmount(adjustments.flatMap(_.marriageAllowanceReceived)),
       LessTaxAdjustmentPrevYear       -> optionToAmount(adjustments.flatMap(_.lessTaxAdjustmentPreviousYear)),
       TaxUnderpaidPrevYear            -> optionToAmount(adjustments.flatMap(_.taxUnderpaidPreviousYear)),
-      TotalIncomeTax                  -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax))
+      TotalIncomeTax                  -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax)),
+      ScottishTotalTax                -> optionToAmount(calculatedTotals.flatMap(_.totalScottishIncomeTax))
     )
 
   private def createIncomeTaxRates: Map[RateKey, ApiRate] =
@@ -131,8 +132,7 @@ case class PayeAtsData(
     val totalIncome = optionToAmount(
       if (nationalInsurance.flatMap(_.employeeContributions).isDefined) {
         calculatedTotals.flatMap(_.totalIncomeTaxNics)
-      }
-      else {
+      } else {
         calculatedTotals.flatMap(_.totalIncomeTax)
       }
     )

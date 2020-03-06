@@ -120,7 +120,8 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
         MarriageAllowanceReceivedAmount -> Amount.gbp(1250.00),
         LessTaxAdjustmentPrevYear       -> Amount.gbp(200.00),
         TaxUnderpaidPrevYear            -> Amount.gbp(200.00),
-        TotalIncomeTax                  -> Amount.gbp(4000.00)
+        TotalIncomeTax                  -> Amount.gbp(4000.00),
+        ScottishTotalTax                -> Amount.gbp(2000.00)
       )
 
       val expectedRatesValues: Map[RateKey, ApiRate] = Map(
