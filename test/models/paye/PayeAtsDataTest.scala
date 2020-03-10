@@ -33,7 +33,7 @@
 package transformers
 
 import models.LiabilityKey._
-import models.RateKey.{IncomeBasic, IncomeHigher, NICS, Ordinary, Upper}
+import models.RateKey._
 import models._
 import models.paye.{NationalInsurance, PayeAtsData, PayeAtsMiddleTier}
 import org.scalatestplus.play.OneAppPerSuite
@@ -108,27 +108,39 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
         transformedData.income_tax.getOrElse(fail("No income tax data"))
 
       val expectedPayloadValues: Map[LiabilityKey, Amount] = Map(
-        BasicRateIncomeTaxAmount        -> Amount.gbp(2000.00),
-        BasicRateIncomeTax              -> Amount.gbp(10000.00),
-        HigherRateIncomeTaxAmount       -> Amount.gbp(2000.00),
-        HigherRateIncomeTax             -> Amount.gbp(10000.00),
-        OrdinaryRateAmount              -> Amount.gbp(200.00),
-        OrdinaryRate                    -> Amount.gbp(2000.00),
-        UpperRateAmount                 -> Amount.gbp(200.00),
-        UpperRate                       -> Amount.gbp(2000.00),
-        MarriedCouplesAllowance         -> Amount.gbp(500.00),
-        MarriageAllowanceReceivedAmount -> Amount.gbp(1250.00),
-        LessTaxAdjustmentPrevYear       -> Amount.gbp(200.00),
-        TaxUnderpaidPrevYear            -> Amount.gbp(200.00),
-        TotalIncomeTax                  -> Amount.gbp(4000.00),
-        ScottishTotalTax                -> Amount.gbp(2000.00)
+        BasicRateIncomeTaxAmount                -> Amount.gbp(2000.00),
+        BasicRateIncomeTax                      -> Amount.gbp(10000.00),
+        HigherRateIncomeTaxAmount               -> Amount.gbp(2000.00),
+        HigherRateIncomeTax                     -> Amount.gbp(10000.00),
+        OrdinaryRateAmount                      -> Amount.gbp(200.00),
+        OrdinaryRate                            -> Amount.gbp(2000.00),
+        UpperRateAmount                         -> Amount.gbp(200.00),
+        UpperRate                               -> Amount.gbp(2000.00),
+        MarriedCouplesAllowance                 -> Amount.gbp(500.00),
+        MarriageAllowanceReceivedAmount         -> Amount.gbp(1250.00),
+        LessTaxAdjustmentPrevYear               -> Amount.gbp(200.00),
+        TaxUnderpaidPrevYear                    -> Amount.gbp(200.00),
+        TotalIncomeTax                          -> Amount.gbp(4000.00),
+        ScottishTotalTax                        -> Amount.gbp(2000.00),
+        ScottishStarterRateIncomeTaxAmount      -> Amount.gbp(380.00),
+        ScottishStarterRateIncomeTax            -> Amount.gbp(2000.00),
+        ScottishBasicRateIncomeTaxAmount        -> Amount.gbp(2030.0),
+        ScottishBasicRateIncomeTax              -> Amount.gbp(10150.0),
+        ScottishIntermediateRateIncomeTaxAmount -> Amount.gbp(4080.3),
+        ScottishIntermediateRateIncomeTax       -> Amount.gbp(19430.0),
+        ScottishHigherRateIncomeTaxAmount       -> Amount.gbp(12943.7),
+        ScottishHigherRateIncomeTax             -> Amount.gbp(31570.0)
       )
 
       val expectedRatesValues: Map[RateKey, ApiRate] = Map(
-        Ordinary     -> ApiRate("7.5%"),
-        IncomeHigher -> ApiRate("40%"),
-        IncomeBasic  -> ApiRate("20%"),
-        Upper        -> ApiRate("32.5%")
+        Ordinary                     -> ApiRate("7.5%"),
+        IncomeHigher                 -> ApiRate("40%"),
+        IncomeBasic                  -> ApiRate("20%"),
+        Upper                        -> ApiRate("32.5%"),
+        PayeScottishStarterRate      -> ApiRate("19%"),
+        PayeScottishBasicRate        -> ApiRate("20%"),
+        PayeScottishIntermediateRate -> ApiRate("21%"),
+        PayeScottishHigherRate       -> ApiRate("41%")
       )
 
       incomeTax shouldBe DataHolder(Some(expectedPayloadValues), Some(expectedRatesValues), None)
