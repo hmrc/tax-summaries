@@ -21,7 +21,6 @@ import models.paye._
 import play.api.Logger
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.JsResultException
-import services.DirectNpsService.npsConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
