@@ -21,13 +21,23 @@ import models.paye._
 import play.api.Logger
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.JsResultException
+import services.DirectNpsService.npsConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait NpsService {
+  def getPayeATSData(nino: String, taxYear: Int)(
+    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]]
+}
 
+object CachingNpsService extends NpsService {
+  override def getPayeATSData(nino: String, taxYear: Int)(
+    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] = ???
+}
+
+trait DirectNpsService extends NpsService {
   def npsConnector: NpsConnector
 
   def getPayeATSData(nino: String, taxYear: Int)(
@@ -45,6 +55,6 @@ trait NpsService {
     }
 }
 
-object NpsService extends NpsService {
+object DirectNpsService extends DirectNpsService {
   override val npsConnector = NpsConnector
 }

@@ -20,13 +20,13 @@ import controllers.auth.{AuthAction, PayeAuthAction}
 import play.api.Play
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
-import services.NpsService
+import services.{DirectNpsService, NpsService}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object ATSPAYEDataController extends ATSPAYEDataController {
-  override val npsService = NpsService
+  override val npsService = DirectNpsService
   override val payeAuthAction: PayeAuthAction = Play.current.injector.instanceOf[PayeAuthAction]
 }
 
