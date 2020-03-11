@@ -110,6 +110,7 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
       val expectedPayloadValues: Map[LiabilityKey, Amount] = Map(
         BasicRateIncomeTaxAmount                -> Amount.gbp(2000.00),
         BasicRateIncomeTax                      -> Amount.gbp(10000.00),
+        TotalUKIncomeTax                        -> Amount.gbp(2000.0),
         HigherRateIncomeTaxAmount               -> Amount.gbp(2000.00),
         HigherRateIncomeTax                     -> Amount.gbp(10000.00),
         OrdinaryRateAmount                      -> Amount.gbp(200.00),
@@ -133,10 +134,10 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
       )
 
       val expectedRatesValues: Map[RateKey, ApiRate] = Map(
-        Ordinary                     -> ApiRate("7.5%"),
-        IncomeHigher                 -> ApiRate("40%"),
-        IncomeBasic                  -> ApiRate("20%"),
-        Upper                        -> ApiRate("32.5%"),
+        PayeDividendOrdinaryRate     -> ApiRate("7.5%"),
+        PayeHigherRateIncomeTax      -> ApiRate("40%"),
+        PayeBasicRateIncomeTax       -> ApiRate("20%"),
+        PayeDividendUpperRate        -> ApiRate("32.5%"),
         PayeScottishStarterRate      -> ApiRate("19%"),
         PayeScottishBasicRate        -> ApiRate("20%"),
         PayeScottishIntermediateRate -> ApiRate("21%"),
