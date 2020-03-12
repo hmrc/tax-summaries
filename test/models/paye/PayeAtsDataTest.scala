@@ -30,7 +30,7 @@
  * limitations under the License.
  */
 
-package transformers
+package models.paye
 
 import models.LiabilityKey._
 import models.RateKey._
@@ -98,7 +98,8 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
         IncomeAfterTaxAndNics -> Amount.gbp(5000.00),
         TotalIncomeTax        -> Amount.gbp(4010.00),
         EmployeeNicAmount     -> Amount.gbp(200.00),
-        EmployerNicAmount     -> Amount.gbp(100.00)
+        EmployerNicAmount     -> Amount.gbp(100.00),
+        LiableTaxAmount       -> Amount.gbp(15000.00)
       )
 
       summaryData shouldBe DataHolder(Some(expectedValues), Some(Map(NICS -> ApiRate("25%"))), None)
