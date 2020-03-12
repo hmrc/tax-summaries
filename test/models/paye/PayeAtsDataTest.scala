@@ -127,6 +127,7 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
         ScottishStarterRateIncomeTax            -> Amount.gbp(2000.00),
         ScottishBasicRateIncomeTaxAmount        -> Amount.gbp(2030.0),
         ScottishBasicRateIncomeTax              -> Amount.gbp(10150.0),
+        TotalIncomeTax2                         -> Amount.gbp(4010.0),
         ScottishIntermediateRateIncomeTaxAmount -> Amount.gbp(4080.3),
         ScottishIntermediateRateIncomeTax       -> Amount.gbp(19430.0),
         ScottishHigherRateIncomeTaxAmount       -> Amount.gbp(12943.7),
