@@ -19,7 +19,6 @@ package models
 import java.text.NumberFormat
 import java.util.Locale
 
-import models.LiabilityKey.allItems
 import play.api.libs.json.{Format, Json, Reads}
 
 case class Rate(percent: Double) {
@@ -66,6 +65,10 @@ object RateKey {
   case object TotalCapitalGains extends ApiValue("total_cg_tax_rate") with RateKey
   case object Upper extends ApiValue("upper_rate_rate") with RateKey
 
+  case object PayeScottishStarterRate extends ApiValue("paye_scottish_starter_rate") with RateKey
+  case object PayeScottishBasicRate extends ApiValue("paye_scottish_basic_rate") with RateKey
+  case object PayeScottishIntermediateRate extends ApiValue("paye_scottish_intermediate_rate") with RateKey
+  case object PayeScottishHigherRate extends ApiValue("paye_scottish_higher_rate") with RateKey
   case object ScottishStarterRate extends ApiValue("scottish_starter_rate") with RateKey
   case object ScottishBasicRate extends ApiValue("scottish_basic_rate") with RateKey
   case object ScottishIntermediateRate extends ApiValue("scottish_intermediate_rate") with RateKey

@@ -89,6 +89,19 @@ object LiabilityKey extends DefaultReads {
   case object ScottishAdditionalRateTax extends ApiValue("scottish_additional_rate_tax") with LiabilityKey
 
   case object ScottishTotalTax extends ApiValue("scottish_total_tax") with LiabilityKey
+  case object ScottishStarterRateIncomeTaxAmount
+      extends ApiValue("scottish_starter_rate_income_tax_amount") with LiabilityKey
+  case object ScottishStarterRateIncomeTax extends ApiValue("scottish_starter_rate_income_tax") with LiabilityKey
+  case object ScottishBasicRateIncomeTaxAmount
+      extends ApiValue("scottish_basic_rate_income_tax_amount") with LiabilityKey
+  case object ScottishBasicRateIncomeTax extends ApiValue("scottish_basic_rate_income_tax") with LiabilityKey
+  case object ScottishIntermediateRateIncomeTaxAmount
+      extends ApiValue("scottish_intermediate_rate_income_tax_amount") with LiabilityKey
+  case object ScottishIntermediateRateIncomeTax
+      extends ApiValue("scottish_intermediate_rate_income_tax") with LiabilityKey
+  case object ScottishHigherRateIncomeTaxAmount
+      extends ApiValue("scottish_higher_rate_income_tax_amount") with LiabilityKey
+  case object ScottishHigherRateIncomeTax extends ApiValue("scottish_higher_rate_income_tax") with LiabilityKey
 
   case object ScottishStarterIncome extends ApiValue("scottish_starter_income") with LiabilityKey
   case object ScottishBasicIncome extends ApiValue("scottish_basic_income") with LiabilityKey
