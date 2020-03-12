@@ -112,7 +112,8 @@ case class PayeAtsData(
       TotalIncomeTax        -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2)),
       TotalIncomeTax2Nics   -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2Nics)),
       EmployeeNicAmount     -> optionToAmount(nationalInsurance.flatMap(_.employeeContributions)),
-      EmployerNicAmount     -> optionToAmount(nationalInsurance.flatMap(_.employerContributions))
+      EmployerNicAmount     -> optionToAmount(nationalInsurance.flatMap(_.employerContributions)),
+      LiableTaxAmount       -> optionToAmount(calculatedTotals.flatMap(_.liableTaxAmount))
     )
 
   private def createSummaryRates: Map[RateKey, ApiRate] = Map(
