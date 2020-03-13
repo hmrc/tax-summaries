@@ -110,6 +110,7 @@ case class PayeAtsData(
       TotalIncomeTaxAndNics -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTaxNics)),
       IncomeAfterTaxAndNics -> optionToAmount(calculatedTotals.flatMap(_.incomeAfterTaxNics)),
       TotalIncomeTax        -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2)),
+      TotalIncomeTax2Nics   -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2Nics)),
       EmployeeNicAmount     -> optionToAmount(nationalInsurance.flatMap(_.employeeContributions)),
       EmployerNicAmount     -> optionToAmount(nationalInsurance.flatMap(_.employerContributions))
     )
