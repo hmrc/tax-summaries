@@ -41,8 +41,9 @@ trait NpsConnector {
   def serviceUrl: String
   def url(path: String) = s"$serviceUrl$path"
 
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + NINO + "/" + TAX_YEAR))(
+  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    val ninoWithoutSuffix = NINO.take(8)
+    http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR))(
       RawReads.readRaw,
       hc,
       ec = global) recover {
@@ -53,4 +54,5 @@ trait NpsConnector {
         HttpResponse(INTERNAL_SERVER_ERROR)
       }
     }
+  }
 }

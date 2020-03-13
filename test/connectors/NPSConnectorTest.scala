@@ -46,6 +46,8 @@ class NPSConnectorTest
   private val currentYear = 2018
   private val invalidTaxYear = 201899
 
+  private val testNinoWithoutSuffix = testNino.take(8)
+
   trait NPSConnectorSetUp extends NpsConnector with JsonUtil {
 
     override def http: HttpGet = WSHttp
@@ -54,10 +56,10 @@ class NPSConnectorTest
 
   "connectToPayeTaxSummary" should {
 
-    "return successful response" in new NPSConnectorSetUp {
+    "return successful response when provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
-      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + currentYear
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
@@ -71,9 +73,26 @@ class NPSConnectorTest
       result.json shouldBe Json.parse(expectedNpsResponse)
     }
 
+    "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
+
+      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody(expectedNpsResponse))
+      )
+
+      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
+
+      result.json shouldBe Json.parse(expectedNpsResponse)
+    }
+
     "return BAD_REQUEST response in case of Bad request from NPS" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
@@ -89,7 +108,7 @@ class NPSConnectorTest
 
     "return NOT_FOUND response in case of Not found from NPS" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
@@ -105,7 +124,7 @@ class NPSConnectorTest
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNino + "/" + invalidTaxYear
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
