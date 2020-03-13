@@ -16,6 +16,8 @@
 
 package connectors
 
+import java.util.UUID
+
 import config.{ApplicationConfig, WSHttp}
 import play.api.Mode.Mode
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
@@ -41,8 +43,18 @@ trait NpsConnector {
   def serviceUrl: String
   def url(path: String) = s"$serviceUrl$path"
 
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  val commonHeaderValues = Seq(
+    "Authorization" -> ApplicationConfig.authorization,
+    "Environment"   -> ApplicationConfig.environment,
+    "OriginatorId"  -> ApplicationConfig.originatorId)
+
+  val header: HeaderCarrier = HeaderCarrier(extraHeaders = commonHeaderValues)
+
+  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int): Future[HttpResponse] = {
     val ninoWithoutSuffix = NINO.take(8)
+
+    implicit val hc: HeaderCarrier = header
+
     http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR))(
       RawReads.readRaw,
       hc,

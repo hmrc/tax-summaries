@@ -63,4 +63,14 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
   override def governmentSpend(year: Int) = governmentSpendByYear(year)
 
   override def npsServiceUrl = baseUrl("tax-summaries-hod")
+
+  lazy val environment: String =
+    runModeConfiguration.getString(s"$rootServices.tax-summaries-hod.env").getOrElse("local")
+
+  lazy val authorization: String = "Bearer " + runModeConfiguration
+    .getString(s"$rootServices.tax-summaries-hod.authorizationToken")
+    .getOrElse("local")
+
+  lazy val originatorId: String =
+    runModeConfiguration.getString(s"$rootServices.tax-summaries-hod.originatorId").getOrElse("local")
 }
