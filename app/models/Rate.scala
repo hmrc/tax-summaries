@@ -65,6 +65,10 @@ object RateKey {
   case object TotalCapitalGains extends ApiValue("total_cg_tax_rate") with RateKey
   case object Upper extends ApiValue("upper_rate_rate") with RateKey
 
+  case object PayeDividendOrdinaryRate extends ApiValue("paye_ordinary_rate") with RateKey
+  case object PayeHigherRateIncomeTax extends ApiValue("paye_higher_rate_income_tax") with RateKey
+  case object PayeBasicRateIncomeTax extends ApiValue("paye_basic_rate_income_tax") with RateKey
+  case object PayeDividendUpperRate extends ApiValue("paye_upper_rate") with RateKey
   case object PayeScottishStarterRate extends ApiValue("paye_scottish_starter_rate") with RateKey
   case object PayeScottishBasicRate extends ApiValue("paye_scottish_basic_rate") with RateKey
   case object PayeScottishIntermediateRate extends ApiValue("paye_scottish_intermediate_rate") with RateKey

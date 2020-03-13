@@ -73,6 +73,7 @@ case class PayeAtsData(
       LessTaxAdjustmentPrevYear          -> optionToAmount(adjustments.flatMap(_.lessTaxAdjustmentPreviousYear)),
       TaxUnderpaidPrevYear               -> optionToAmount(adjustments.flatMap(_.taxUnderpaidPreviousYear)),
       TotalIncomeTax                     -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax)),
+      TotalUKIncomeTax                   -> optionToAmount(calculatedTotals.flatMap(_.totalUKIncomeTax)),
       ScottishTotalTax                   -> optionToAmount(calculatedTotals.flatMap(_.totalScottishIncomeTax)),
       ScottishStarterRateIncomeTaxAmount -> optionToAmount(scottishStarterBand.map(_.scottishStarterRateTax)),
       ScottishStarterRateIncomeTax       -> optionToAmount(scottishStarterBand.map(_.scottishStarterRateTaxAmount)),
@@ -88,10 +89,10 @@ case class PayeAtsData(
 
   private def createIncomeTaxRates: Map[RateKey, ApiRate] =
     Map(
-      Ordinary                     -> optionToRate(dividendLowerBand.map(_.dividendLowRate)),
-      IncomeHigher                 -> optionToRate(higherRateBand.map(_.higherRate)),
-      IncomeBasic                  -> optionToRate(basicRateBand.map(_.basicRate)),
-      Upper                        -> optionToRate(dividendHigherBand.map(_.dividendHigherRate)),
+      PayeDividendOrdinaryRate     -> optionToRate(dividendLowerBand.map(_.dividendLowRate)),
+      PayeHigherRateIncomeTax      -> optionToRate(higherRateBand.map(_.higherRate)),
+      PayeBasicRateIncomeTax       -> optionToRate(basicRateBand.map(_.basicRate)),
+      PayeDividendUpperRate        -> optionToRate(dividendHigherBand.map(_.dividendHigherRate)),
       PayeScottishStarterRate      -> optionToRate(scottishStarterBand.map(_.scottishStarterRate)),
       PayeScottishBasicRate        -> optionToRate(scottishBasicBand.map(_.scottishBasicRate)),
       PayeScottishIntermediateRate -> optionToRate(scottishIntermediateBand.map(_.scottishIntermediateRate)),
