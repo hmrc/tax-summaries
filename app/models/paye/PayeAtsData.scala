@@ -74,6 +74,7 @@ case class PayeAtsData(
       TaxUnderpaidPrevYear               -> optionToAmount(adjustments.flatMap(_.taxUnderpaidPreviousYear)),
       TotalIncomeTax                     -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax)),
       TotalUKIncomeTax                   -> optionToAmount(calculatedTotals.flatMap(_.totalUKIncomeTax)),
+      TotalIncomeTax2                    -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2)),
       ScottishTotalTax                   -> optionToAmount(calculatedTotals.flatMap(_.totalScottishIncomeTax)),
       ScottishStarterRateIncomeTaxAmount -> optionToAmount(scottishStarterBand.map(_.scottishStarterRateTax)),
       ScottishStarterRateIncomeTax       -> optionToAmount(scottishStarterBand.map(_.scottishStarterRateTaxAmount)),

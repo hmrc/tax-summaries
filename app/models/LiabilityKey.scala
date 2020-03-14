@@ -77,6 +77,7 @@ object LiabilityKey extends DefaultReads {
   case object TotalIncomeBeforeTax extends ApiValue("total_income_before_tax") with LiabilityKey
   case object TotalIncomeTax extends ApiValue("total_income_tax") with LiabilityKey
   case object TotalUKIncomeTax extends ApiValue("total_UK_income_tax") with LiabilityKey
+  case object TotalIncomeTax2 extends ApiValue("total_income_tax_2") with LiabilityKey
   case object TotalIncomeTaxAndNics extends ApiValue("total_income_tax_and_nics") with LiabilityKey
   case object TotalTaxFreeAmount extends ApiValue("total_tax_free_amount") with LiabilityKey
   case object UpperRate extends ApiValue("upper_rate") with LiabilityKey
