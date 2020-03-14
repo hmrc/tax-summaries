@@ -94,6 +94,7 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
         TotalIncomeBeforeTax  -> Amount.gbp(28000.00),
         TotalTaxFreeAmount    -> Amount.gbp(25500.00),
         TotalIncomeTaxAndNics -> Amount.gbp(4200.00),
+        TotalIncomeTax2Nics   -> Amount.gbp(2500.00),
         IncomeAfterTaxAndNics -> Amount.gbp(5000.00),
         TotalIncomeTax        -> Amount.gbp(4010.00),
         EmployeeNicAmount     -> Amount.gbp(200.00),
