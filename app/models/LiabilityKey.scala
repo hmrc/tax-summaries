@@ -55,6 +55,7 @@ object LiabilityKey extends DefaultReads {
   case object TaxUnderpaidPrevYear extends ApiValue("tax_underpaid_previous_year") with LiabilityKey
   case object IncomeAfterTaxAndNics extends ApiValue("income_after_tax_and_nics") with LiabilityKey
   case object EmployerNicAmount extends ApiValue("employer_nic_amount") with LiabilityKey
+  case object LiableTaxAmount extends ApiValue("liable_tax_amount") with LiabilityKey
   case object NicsAndTaxRate extends ApiValue("nics_and_tax_rate") with LiabilityKey
   case object OrdinaryRate extends ApiValue("ordinary_rate") with LiabilityKey
   case object OrdinaryRateAmount extends ApiValue("ordinary_rate_amount") with LiabilityKey
