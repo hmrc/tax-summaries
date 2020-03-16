@@ -16,66 +16,15 @@
 
 package models.paye
 
-import errors.AtsError
-import models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, RateKey, SpendData}
-import org.scalacheck.Gen
 import org.scalatest.prop.PropertyChecks
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
-import org.scalacheck.Arbitrary.arbitrary
-import services.GoodsAndServices
+import utils.Generators
 
 class PayeAtsMiddleTierTest extends UnitSpec with PropertyChecks {
 
-  def keyValueGen[T, U](keys: List[T], valGen: Gen[U]): Gen[Map[T, U]] =
-    Gen
-      .listOf(for {
-        key   <- Gen.oneOf(keys)
-        value <- valGen
-      } yield (key, value))
-      .map(Map.apply(_: _*))
-
-  val genGbpAmount: Gen[Amount] = arbitrary[Double].map(Amount.gbp(_))
-
-  val genLiabilityMap: Gen[Map[LiabilityKey, Amount]] =
-    keyValueGen(LiabilityKey.allItems, genGbpAmount)
-
-  val genRateMap: Gen[Map[RateKey, ApiRate]] =
-    keyValueGen(RateKey.allItems, arbitrary[String].map(ApiRate.apply))
-
-  val genDataHolder: Gen[DataHolder] = for {
-    payload <- Gen.option(genLiabilityMap)
-    rates   <- Gen.option(genRateMap)
-    status  <- Gen.option(arbitrary[String])
-  } yield DataHolder(payload, rates, status)
-
-  val genSpendData: Gen[SpendData] = for {
-    a <- genGbpAmount
-    p <- arbitrary[Double]
-  } yield SpendData(a, p)
-
-  val genSpendDataMap: Gen[Map[GoodsAndServices, SpendData]] =
-    keyValueGen(GoodsAndServices.allItems, genSpendData)
-
-  val genGovernmentSpending: Gen[GovernmentSpendingOutputWrapper] = for {
-    taxYear <- arbitrary[Int]
-    spend   <- genSpendDataMap
-    total   <- arbitrary[Double].map(Amount.gbp(_))
-    errors  <- Gen.option(arbitrary[String].map(AtsError.apply(_)))
-  } yield GovernmentSpendingOutputWrapper(taxYear, spend, total, errors)
-
-  val genPayeAsMiddleTier: Gen[PayeAtsMiddleTier] = for {
-    taxYear     <- arbitrary[Int]
-    nino        <- arbitrary[String]
-    incomeTax   <- Gen.option(genDataHolder)
-    summary     <- Gen.option(genDataHolder)
-    income      <- Gen.option(genDataHolder)
-    allowance   <- Gen.option(genDataHolder)
-    govSpending <- Gen.option(genGovernmentSpending)
-  } yield PayeAtsMiddleTier(taxYear, nino, incomeTax, summary, income, allowance, govSpending)
-
   "PayeAtsMiddleTier should round trip through Json " in {
-    forAll(genPayeAsMiddleTier) { data =>
+    forAll(Generators.genPayeAsMiddleTier) { data =>
       val json = Json.toJson(data)
       val obj = json.as[PayeAtsMiddleTier]
 
