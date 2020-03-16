@@ -15,7 +15,8 @@ object AppDependencies {
     "com.github.fge"     % "json-schema-validator"  % "2.2.6",
     "org.json4s"        %% "json4s-native"          % "3.5.5",
     "com.typesafe.play" %% "play-json"              % "2.6.0-M7", //This specific version resolves binary incompatibility
-    "uk.gov.hmrc"       %% "auth-client"            % "2.31.0-play-25"
+    "uk.gov.hmrc"       %% "auth-client"            % "2.31.0-play-25",
+    "org.reactivemongo" %% "play2-reactivemongo"    % "0.20.3-play25"
   )
 
   val test: Seq[ModuleID] = Seq(

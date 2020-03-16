@@ -16,9 +16,8 @@
 
 package models.paye
 
-import errors.AtsError
 import models.{DataHolder, GovernmentSpendingOutputWrapper}
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Format, Json}
 
 case class PayeAtsMiddleTier(
   taxYear: Int,
@@ -31,15 +30,5 @@ case class PayeAtsMiddleTier(
 )
 
 object PayeAtsMiddleTier {
-  implicit val writes: Writes[PayeAtsMiddleTier] = Json.writes[PayeAtsMiddleTier]
-
-  def apply(
-    taxYear: Int,
-    nino: String,
-    incomeTax: DataHolder,
-    summary: DataHolder,
-    income: DataHolder,
-    allowance: DataHolder,
-    govSpending: GovernmentSpendingOutputWrapper): PayeAtsMiddleTier =
-    PayeAtsMiddleTier(taxYear, nino, Some(incomeTax), Some(summary), Some(income), Some(allowance), Some(govSpending))
+  implicit val format: Format[PayeAtsMiddleTier] = Json.format[PayeAtsMiddleTier]
 }

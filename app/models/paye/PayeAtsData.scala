@@ -45,11 +45,11 @@ case class PayeAtsData(
     PayeAtsMiddleTier(
       taxYear,
       nino,
-      createIncomeTaxData,
-      createSummaryData,
-      createIncomeData,
-      createAllowanceData,
-      createGovSpendData(taxYear)
+      Some(createIncomeTaxData),
+      Some(createSummaryData),
+      Some(createIncomeData),
+      Some(createAllowanceData),
+      Some(createGovSpendData(taxYear))
     )
 
   def optionToAmount(opt: Option[Double]): Amount = opt.fold(Amount.empty)(Amount.gbp(_))
