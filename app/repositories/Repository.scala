@@ -22,9 +22,8 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import models.paye.PayeAtsMiddleTier
 import org.slf4j.LoggerFactory
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json, Reads, __}
 import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.api.commands.{Collation, WriteConcern}
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.JSONCollection
@@ -65,6 +64,9 @@ class Repository @Inject()(mongo: ReactiveMongoApi) {
         "expiresAt" -> Json.obj("$date" -> Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)))
       )
     )
+
+    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
+      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
 
     collection.flatMap {
       _.findAndUpdate(selector, modifier).map(_.result[PayeAtsMiddleTier])

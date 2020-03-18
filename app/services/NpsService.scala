@@ -57,7 +57,11 @@ trait CachingNpsService extends NpsService {
         case Some(data) => Future.successful(Right(data))
         case None       => refreshCache(nino, taxYear)
       }
-      .recover { case _ => Left(HttpResponse(INTERNAL_SERVER_ERROR)) }
+      .recover {
+        case ex =>
+          Logger.error("Failed to fetch data from cache", ex)
+          Left(HttpResponse(INTERNAL_SERVER_ERROR))
+      }
 }
 
 object CachingNpsService extends CachingNpsService {
