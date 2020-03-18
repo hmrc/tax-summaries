@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsObject, Json, Reads, __}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.indexes.{Index, IndexType}
+import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.JSONCollection
 
@@ -42,7 +43,10 @@ class Repository @Inject()(mongo: ReactiveMongoApi) {
   private def collection: Future[JSONCollection] =
     mongo.database.map(_.collection[JSONCollection](collectionName))
 
-  private val lastUpdatedIndex = Index(key = Seq("expiresAt" -> IndexType.Ascending), name = Some("expires-at-index"))
+  private val lastUpdatedIndex = Index(
+    Seq("expiresAt" -> IndexType.Ascending),
+    name = Some("expires-at-index"),
+    options = BSONDocument("expireAfterSeconds" -> 0))
 
   def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
 
