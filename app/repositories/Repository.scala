@@ -28,7 +28,7 @@ import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.JSONCollection
-
+import reactivemongo.api.WriteConcern
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import reactivemongo.play.json.collection._
@@ -36,8 +36,6 @@ import reactivemongo.play.json.collection._
 import scala.concurrent.duration.FiniteDuration
 
 class Repository @Inject()(mongo: ReactiveMongoApi) {
-  val logger = LoggerFactory.getLogger("application." + getClass.getCanonicalName)
-
   private val collectionName: String = "tax-summaries"
 
   private def collection: Future[JSONCollection] =
@@ -58,6 +56,8 @@ class Repository @Inject()(mongo: ReactiveMongoApi) {
     }
     .map(_ => ())
 
+  private def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15))
+
   def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTier]] = {
     val selector = Json.obj(
       "_id" -> buildId(nino, taxYear)
@@ -65,15 +65,29 @@ class Repository @Inject()(mongo: ReactiveMongoApi) {
 
     val modifier = Json.obj(
       "$set" -> Json.obj(
-        "expiresAt" -> Json.obj("$date" -> Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)))
+        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
       )
     )
 
     implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
       (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
 
-    collection.flatMap {
-      _.findAndUpdate(selector, modifier).map(_.result[PayeAtsMiddleTier])
+    collection.flatMap { coll =>
+      coll
+        .findAndUpdate(
+          selector = selector,
+          update = modifier,
+          fetchNewObject = false,
+          upsert = false,
+          sort = None,
+          fields = None,
+          bypassDocumentValidation = false,
+          writeConcern = WriteConcern.Default,
+          maxTime = None,
+          collation = None,
+          arrayFilters = Seq.empty
+        )
+        .map(_.result[PayeAtsMiddleTier])
     }
   }
 
@@ -87,7 +101,7 @@ class Repository @Inject()(mongo: ReactiveMongoApi) {
       "$set" -> Json.obj(
         "_id"       -> buildId(nino, taxYear),
         "data"      -> data,
-        "expiresAt" -> Json.obj("$date" -> Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)))
+        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
       )
     )
 
