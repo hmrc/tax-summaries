@@ -18,19 +18,16 @@ package repositories
 
 import models.paye.PayeAtsMiddleTier
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.time.Span
 import org.scalatest.{FreeSpec, MustMatchers}
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
 import play.api.test.Helpers.running
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.{DefaultDB, MongoConnection}
-import repositories.Repository
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.util.Try
 
 class RepositorySpec extends FreeSpec with MustMatchers with ScalaFutures with IntegrationPatience {
