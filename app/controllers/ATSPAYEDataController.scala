@@ -16,21 +16,29 @@
 
 package controllers
 
-import controllers.auth.{AuthAction, PayeAuthAction}
+import controllers.auth.PayeAuthAction
+import org.slf4j.LoggerFactory
 import play.api.Play
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
-import services.NpsService
+import services.{CachingNpsService, DirectNpsService, NpsService}
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object ATSPAYEDataController extends ATSPAYEDataController {
-  override val npsService = NpsService
+  override lazy val npsService = if (Play.current.configuration.getBoolean("payeNpsCachingEnabled").getOrElse(false)) {
+    CachingNpsService
+  } else {
+    DirectNpsService
+  }
   override val payeAuthAction: PayeAuthAction = Play.current.injector.instanceOf[PayeAuthAction]
+
 }
 
 trait ATSPAYEDataController extends BaseController {
+
+  val logger = LoggerFactory.getLogger("application." + getClass.getCanonicalName)
 
   val payeAuthAction: PayeAuthAction
 

@@ -86,9 +86,11 @@ object RateKey {
   val allItems: List[RateKey] =
     List(
       Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic,
-      IncomeHigher, InterestHigher, InterestLower, NICS, Ordinary, Savings, TotalCapitalGains, Upper, ScottishStarterRate,
-      ScottishBasicRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate, SavingsLowerRate,
-      SavingsHigherRate, SavingsAdditionalRate
+      IncomeHigher, InterestHigher, InterestLower, NICS, Ordinary, Savings, TotalCapitalGains, Upper,
+      PayeDividendOrdinaryRate, PayeHigherRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendUpperRate,
+      PayeScottishStarterRate, PayeScottishBasicRate, PayeScottishIntermediateRate, PayeScottishHigherRate,
+      ScottishStarterRate, ScottishBasicRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate,
+      SavingsLowerRate, SavingsHigherRate, SavingsAdditionalRate
     )
   // format: on
 

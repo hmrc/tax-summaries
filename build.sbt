@@ -13,6 +13,8 @@ import DefaultBuildSettings._
 
 val appName = "tax-summaries"
 
+lazy val IntegrationTest = config("it") extend (Test)
+
 lazy val plugins: Seq[Plugins] =
   Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
 
@@ -56,3 +58,13 @@ lazy val microservice = Project(appName, file("."))
     scalafmtOnCompile := true,
     resolvers ++= Seq(Resolver.bintrayRepo("hmrc", "releases"), Resolver.jcenterRepo)
   )
+  .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(itSettings): _*)
+
+lazy val itSettings = Defaults.itSettings ++ Seq(
+  unmanagedSourceDirectories := Seq(
+    baseDirectory.value / "it"
+  ),
+  parallelExecution := false,
+  fork := true
+)

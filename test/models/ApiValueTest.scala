@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package models.paye
+package models
 
-import models.{DataHolder, GovernmentSpendingOutputWrapper}
-import play.api.libs.json.{Format, Json}
+import org.scalatest.prop.PropertyChecks
+import play.api.libs.json.Json
+import uk.gov.hmrc.play.test.UnitSpec
+import utils.Generators.genLiabilityMap
 
-case class PayeAtsMiddleTier(
-  taxYear: Int,
-  nino: String,
-  income_tax: Option[DataHolder],
-  summary_data: Option[DataHolder],
-  income_data: Option[DataHolder],
-  allowance_data: Option[DataHolder],
-  gov_spending: Option[GovernmentSpendingOutputWrapper]
-)
-
-object PayeAtsMiddleTier {
-  implicit val format: Format[PayeAtsMiddleTier] = Json.format[PayeAtsMiddleTier]
+class ApiValueTest extends UnitSpec with PropertyChecks {
+  "Round trip map through Json" in
+    forAll(genLiabilityMap) { map =>
+      val OUT = ApiValue.formatMap(LiabilityKey.allItems)(Amount.formats)
+      val json = Json.toJson(map)(OUT)
+      val result = json.as[Map[LiabilityKey, Amount]](OUT)
+      result shouldBe (map)
+    }
 }

@@ -32,7 +32,7 @@ import utils.{JsonUtil, PayeAtsDataUtil}
 import scala.collection.Seq
 import scala.concurrent.Future
 
-class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest with ScalaFutures {
+class DirectNpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest with ScalaFutures {
 
   implicit val hc = HeaderCarrier()
   val expectedNpsResponse: JsValue = Json.parse(load("/paye_annual_tax_summary.json"))
@@ -40,7 +40,7 @@ class NpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with Guice
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(testNino, currentYear)
 
-  class TestService extends NpsService {
+  class TestService extends DirectNpsService {
 
     override lazy val npsConnector: NpsConnector = mock[NpsConnector]
   }

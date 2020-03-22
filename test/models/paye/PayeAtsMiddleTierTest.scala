@@ -16,19 +16,19 @@
 
 package models.paye
 
-import models.{DataHolder, GovernmentSpendingOutputWrapper}
-import play.api.libs.json.{Format, Json}
+import org.scalatest.prop.PropertyChecks
+import play.api.libs.json.Json
+import uk.gov.hmrc.play.test.UnitSpec
+import utils.Generators
 
-case class PayeAtsMiddleTier(
-  taxYear: Int,
-  nino: String,
-  income_tax: Option[DataHolder],
-  summary_data: Option[DataHolder],
-  income_data: Option[DataHolder],
-  allowance_data: Option[DataHolder],
-  gov_spending: Option[GovernmentSpendingOutputWrapper]
-)
+class PayeAtsMiddleTierTest extends UnitSpec with PropertyChecks {
 
-object PayeAtsMiddleTier {
-  implicit val format: Format[PayeAtsMiddleTier] = Json.format[PayeAtsMiddleTier]
+  "PayeAtsMiddleTier should round trip through Json " in {
+    forAll(Generators.genPayeAsMiddleTier) { data =>
+      val json = Json.toJson(data)
+      val obj = json.as[PayeAtsMiddleTier]
+
+      obj shouldBe data
+    }
+  }
 }
