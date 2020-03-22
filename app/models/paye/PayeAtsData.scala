@@ -155,7 +155,7 @@ case class PayeAtsData(
       }
     )
 
-    GovSpendingDataTransformer(totalIncome, taxYear).govSpendReferenceDTO
+    GovSpendingDataTransformer(totalIncome, taxYear + 1).govSpendReferenceDTO
   }
 
 }
