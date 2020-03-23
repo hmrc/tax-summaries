@@ -154,8 +154,8 @@ case class PayeAtsData(
         calculatedTotals.flatMap(_.totalIncomeTax)
       }
     )
-
-    GovSpendingDataTransformer(totalIncome, taxYear + 1).govSpendReferenceDTO
+    val correctYearForGovSpendCategories = taxYear + 1
+    GovSpendingDataTransformer(totalIncome, correctYearForGovSpendCategories).govSpendReferenceDTO
   }
 
 }
