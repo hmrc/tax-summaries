@@ -35,8 +35,9 @@ package models.paye
 import models.LiabilityKey._
 import models.RateKey._
 import models._
-import models.paye.{NationalInsurance, PayeAtsData, PayeAtsMiddleTier}
 import org.scalatestplus.play.OneAppPerSuite
+import services.GoodsAndServices
+import services.GoodsAndServices._
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{PayeAtsDataUtil, TestConstants}
 
@@ -44,7 +45,7 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
 
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
   val nino: String = TestConstants.testNino
-  val taxYear = "2020"
+  val taxYear = "2018"
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(nino, taxYear.toInt)
 
@@ -151,6 +152,29 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
     }
 
     "create gov spend data" should {
+
+      "gov spend data contains correct amount with percentages" in {
+
+        val expectedValues: Map[GoodsAndServices, SpendData] = Map(
+          PublicOrderAndSafety     -> SpendData(Amount(180.60, "GBP"), 4.3),
+          Environment              -> SpendData(Amount(63.00, "GBP"), 1.5),
+          OverseasAid              -> SpendData(Amount(50.40, "GBP"), 1.2),
+          BusinessAndIndustry      -> SpendData(Amount(151.20, "GBP"), 3.6),
+          NationalDebtInterest     -> SpendData(Amount(214.20, "GBP"), 5.1),
+          Defence                  -> SpendData(Amount(222.60, "GBP"), 5.3),
+          Health                   -> SpendData(Amount(848.40, "GBP"), 20.2),
+          Culture                  -> SpendData(Amount(63.00, "GBP"), 1.5),
+          UkContributionToEuBudget -> SpendData(Amount(42.00, "GBP"), 1.0),
+          HousingAndUtilities      -> SpendData(Amount(67.20, "GBP"), 1.6),
+          Transport                -> SpendData(Amount(180.60, "GBP"), 4.3),
+          Welfare                  -> SpendData(Amount(987.00, "GBP"), 23.5),
+          GovernmentAdministration -> SpendData(Amount(88.20, "GBP"), 2.1),
+          Education                -> SpendData(Amount(495.60, "GBP"), 11.8),
+          StatePensions            -> SpendData(Amount(537.60, "GBP"), 12.8)
+        )
+        val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
+        spendData.govSpendAmountData shouldBe expectedValues
+      }
 
       "with nics included if employer contributions are present" in {
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
