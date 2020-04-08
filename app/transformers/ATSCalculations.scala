@@ -21,7 +21,7 @@ import models.Liability._
 import models.LiabilityKey.StartingRateForSavingsAmount
 import play.api.Logger
 import services._
-import utils.DoubleUtils
+import utils.{CalculationHelper, DoubleUtils}
 
 sealed trait ATSCalculations extends DoubleUtils {
 
@@ -197,9 +197,11 @@ sealed trait ATSCalculations extends DoubleUtils {
       otherAdjustmentsReducing -
       getWithDefaultAmount(MarriageAllceIn)
 
-  def totalAmountTaxAndNics: Amount =
-    totalAmountEmployeeNic +
-      totalIncomeTaxAmount
+  def totalAmountTaxAndNics: Amount = {
+    val unprocessedTotal = totalAmountEmployeeNic + totalIncomeTaxAmount
+
+    CalculationHelper.positiveOrZero(unprocessedTotal)
+  }
 
   def totalTax: Amount =
     totalAmountTaxAndNics +
