@@ -17,28 +17,40 @@
 package utils
 
 import models.Amount
-import org.scalatestplus.play.PlaySpec
+import org.scalatest.prop.PropertyChecks
+import uk.gov.hmrc.play.test.UnitSpec
 
-class CalculationHelperSpec extends PlaySpec {
+class CalculationHelperSpec extends UnitSpec with PropertyChecks {
 
   "CalculationHelper" when {
 
     "positiveOrZero is called" should {
 
-      "return the given amount object if the amount is positive" in {
-        val amount = Amount(BigDecimal(0.1), "gdp")
+      def createAmount(dec: BigDecimal) = Amount(dec, "gdp")
 
-        CalculationHelper.positiveOrZero(amount) mustBe amount
+      "return the given amount object if the amount is positive" in {
+
+        forAll { dec: BigDecimal =>
+          whenever(dec > 0) {
+            val amount = createAmount(dec)
+            CalculationHelper.positiveOrZero(amount) shouldBe amount
+          }
+        }
       }
 
       "return the given amount object if the amount is zero" in {
         val amount = Amount(BigDecimal(0), "gdp")
 
-        CalculationHelper.positiveOrZero(amount) mustBe amount
+        CalculationHelper.positiveOrZero(amount) shouldBe amount
       }
 
       "return an amount object with zero as the amount if the given amount is negative" in {
-        CalculationHelper.positiveOrZero(Amount(BigDecimal(-0.1), "gdp")) mustBe Amount(BigDecimal(0), "gdp")
+        forAll { dec: BigDecimal =>
+          whenever(dec < 0) {
+            CalculationHelper.positiveOrZero(createAmount(dec)) shouldBe
+              createAmount(BigDecimal(0))
+          }
+        }
       }
     }
   }
