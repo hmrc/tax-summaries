@@ -185,23 +185,23 @@ sealed trait ATSCalculations extends DoubleUtils {
         getWithDefaultAmount(LFIRelief)
     ).roundAmountUp()
 
-  def totalIncomeTaxAmount: Amount =
-    savingsRateAmount +
-      basicRateIncomeTaxAmount +
-      higherRateIncomeTaxAmount +
-      additionalRateIncomeTaxAmount +
-      get(DividendTaxLowRate) +
-      get(DividendTaxHighRate) +
-      get(DividendTaxAddHighRate) +
-      otherAdjustmentsIncreasing -
-      otherAdjustmentsReducing -
-      getWithDefaultAmount(MarriageAllceIn)
-
-  def totalAmountTaxAndNics: Amount = {
-    val unprocessedTotal = totalAmountEmployeeNic + totalIncomeTaxAmount
+  def totalIncomeTaxAmount: Amount = {
+    val unprocessedTotal =
+      savingsRateAmount +
+        basicRateIncomeTaxAmount +
+        higherRateIncomeTaxAmount +
+        additionalRateIncomeTaxAmount +
+        get(DividendTaxLowRate) +
+        get(DividendTaxHighRate) +
+        get(DividendTaxAddHighRate) +
+        otherAdjustmentsIncreasing -
+        otherAdjustmentsReducing -
+        getWithDefaultAmount(MarriageAllceIn)
 
     CalculationHelper.positiveOrZero(unprocessedTotal)
   }
+
+  def totalAmountTaxAndNics: Amount = totalAmountEmployeeNic + totalIncomeTaxAmount
 
   def totalTax: Amount =
     totalAmountTaxAndNics +
