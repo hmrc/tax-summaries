@@ -138,9 +138,9 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
 
     "return zero for totalIncomeTaxAmount" when {
 
-      val fixture = new Fixture(2019, false)
-
       "totalIncomeTaxAmount is initially negative" in {
+
+        val fixture = new Fixture(2019, false)
 
         forAll { dec: BigDecimal =>
           whenever(dec > BigDecimal(1)) {
