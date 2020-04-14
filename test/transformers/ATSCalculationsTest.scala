@@ -135,6 +135,31 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
         calculation shouldBe a[DefaultATSCalculations]
       }
     }
+
+    "return zero for totalIncomeTaxAmount" when {
+
+      val fixture = new Fixture(2019, false)
+
+      "totalIncomeTaxAmount is initially negative" in {
+
+        forAll { dec: BigDecimal =>
+          whenever(dec > BigDecimal(1)) {
+            val amount = Amount.gbp(dec)
+            val sut = fixture(
+              (IncomeTaxBasicRate, amount),
+              (SavingsTaxLowerRate, amount),
+              (IncomeTaxHigherRate, amount),
+              (SavingsTaxHigherRate, amount),
+              (IncomeTaxAddHighRate, amount),
+              (SavingsTaxAddHighRate, amount),
+              (MarriageAllceIn, Amount.gbp(dec * 10))
+            )
+
+            sut.calculation.totalIncomeTaxAmount shouldBe Amount.gbp(BigDecimal(0))
+          }
+        }
+      }
+    }
   }
 
   "DefaultATSCalculations" should {
