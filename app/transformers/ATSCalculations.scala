@@ -21,7 +21,7 @@ import models.Liability._
 import models.LiabilityKey.StartingRateForSavingsAmount
 import play.api.Logger
 import services._
-import utils.DoubleUtils
+import utils.{CalculationHelper, DoubleUtils}
 
 sealed trait ATSCalculations extends DoubleUtils {
 
@@ -185,17 +185,21 @@ sealed trait ATSCalculations extends DoubleUtils {
         getWithDefaultAmount(LFIRelief)
     ).roundAmountUp()
 
-  def totalIncomeTaxAmount: Amount =
-    savingsRateAmount +
-      basicRateIncomeTaxAmount +
-      higherRateIncomeTaxAmount +
-      additionalRateIncomeTaxAmount +
-      get(DividendTaxLowRate) +
-      get(DividendTaxHighRate) +
-      get(DividendTaxAddHighRate) +
-      otherAdjustmentsIncreasing -
-      otherAdjustmentsReducing -
-      getWithDefaultAmount(MarriageAllceIn)
+  def totalIncomeTaxAmount: Amount = {
+    val unprocessedTotal =
+      savingsRateAmount +
+        basicRateIncomeTaxAmount +
+        higherRateIncomeTaxAmount +
+        additionalRateIncomeTaxAmount +
+        get(DividendTaxLowRate) +
+        get(DividendTaxHighRate) +
+        get(DividendTaxAddHighRate) +
+        otherAdjustmentsIncreasing -
+        otherAdjustmentsReducing -
+        getWithDefaultAmount(MarriageAllceIn)
+
+    CalculationHelper.positiveOrZero(unprocessedTotal)
+  }
 
   def totalAmountTaxAndNics: Amount =
     totalAmountEmployeeNic +
