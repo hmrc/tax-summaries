@@ -16,6 +16,7 @@
 
 package connectors
 
+import models.ODSModels.SelfAssessmentList
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.JsValue
@@ -76,24 +77,24 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
     "return a successful future" in new TestConnector {
 
       when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
-          any[HttpReads[JsValue]],
+        http.GET[SelfAssessmentList](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
+          any[HttpReads[SelfAssessmentList]],
           any[HeaderCarrier],
           any[ExecutionContext]))
-        .thenReturn(Future.successful(mock[JsValue]))
+        .thenReturn(Future.successful(mock[SelfAssessmentList]))
 
       val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) {
-        _ shouldBe a[JsValue]
+        _ shouldBe a[SelfAssessmentList]
       }
     }
 
     "return failed future" in new TestConnector {
 
       when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
-          any[HttpReads[JsValue]],
+        http.GET[SelfAssessmentList](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
+          any[HttpReads[SelfAssessmentList]],
           any[HeaderCarrier],
           any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception()))

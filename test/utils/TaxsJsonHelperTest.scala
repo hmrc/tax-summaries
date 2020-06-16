@@ -16,6 +16,7 @@
 
 package utils
 
+import models.ODSModels.{AnnualTaxSummary, SelfAssessmentList}
 import transformers.ATSParsingException
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
@@ -25,49 +26,45 @@ import utils.TestConstants._
 
 class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
+  val populatedSaList: SelfAssessmentList = SelfAssessmentList(
+    List(
+      AnnualTaxSummary(Some(2014), List.empty),
+      AnnualTaxSummary(Some(2015), List.empty)
+    ),
+    List.empty)
+
   "hasAtsForPreviousPeriod" should {
 
     "return true when json response has non empty annual tax summaries data" in new TaxsJsonHelper {
 
-      val rawJson = Json.parse("""
-                                 | {
-                                 |   "annualTaxSummaries" : [
-                                 |   { "taxYearEnd" : 2014 },
-                                 |   { "taxYearEnd" : 2015 }
-                                 |   ]
-                                 | }
-        """.stripMargin)
-
-      val result = hasAtsForPreviousPeriod(rawJson)
+      val result = hasAtsForPreviousPeriod(populatedSaList)
 
       result shouldBe true
     }
 
     "return false when json response has no annual tax summaries data" in new TaxsJsonHelper {
 
-      val rawJson = Json.parse("""
-                                 | {
-                                 |   "annualTaxSummaries" : []
-                                 | }
-        """.stripMargin)
+      val list: SelfAssessmentList = SelfAssessmentList(
+        List(
+          AnnualTaxSummary(None, List.empty)
+        ),
+        List.empty)
 
-      val result = hasAtsForPreviousPeriod(rawJson)
+      val result = hasAtsForPreviousPeriod(list)
 
       result shouldBe false
     }
 
-    "return false for badly formed json" in new TaxsJsonHelper {
+    "return false when json response has partial annual tax summaries data" in new TaxsJsonHelper {
 
-      val rawJson = Json.parse("""
-                                 | {
-                                 |   "annualTaxSummaries" : [
-                                 |   { "userName" : "" }
-                                 |   ],
-                                 |   "taxYearEnd" : 2014
-                                 | }
-        """.stripMargin)
+      val list: SelfAssessmentList = SelfAssessmentList(
+        List(
+          AnnualTaxSummary(None, List.empty),
+          AnnualTaxSummary(Some(2015), List.empty)
+        ),
+        List.empty)
 
-      val result = hasAtsForPreviousPeriod(rawJson)
+      val result = hasAtsForPreviousPeriod(list)
 
       result shouldBe false
     }
@@ -76,15 +73,6 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
   "createTaxYearJson" should {
 
     "return a jsvalue with correct data when passed correct format" in new TaxsJsonHelper {
-
-      val rawJson = Json.parse("""
-                                 | {
-                                 |   "annualTaxSummaries" : [
-                                 |   { "taxYearEnd" : 2014 },
-                                 |   { "taxYearEnd" : 2015 }
-                                 |   ]
-                                 | }
-        """.stripMargin)
 
       val rawTaxpayerJson = Json.parse("""
                                          |{
@@ -96,7 +84,7 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
                                          | }
         """.stripMargin)
 
-      val result = createTaxYearJson(rawJson, testUtr, rawTaxpayerJson)
+      val result = createTaxYearJson(populatedSaList, testUtr, rawTaxpayerJson)
 
       result \ "utr" shouldBe JsDefined(JsString(testUtr))
       result \ "taxPayer" shouldBe JsDefined(
@@ -105,14 +93,6 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
     }
 
     "return an exception when passed badly formed json" in new TaxsJsonHelper {
-
-      val rawJson = Json.parse("""
-                                 | {
-                                 |   "annualTaxSummaries" : [
-                                 |   { "taxYearEnd" : 2015 }
-                                 |   ]
-                                 | }
-        """.stripMargin)
 
       val rawTaxpayerJson = Json.parse("""
                                          |{
@@ -125,10 +105,8 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
         """.stripMargin)
 
       intercept[ATSParsingException] {
-        createTaxYearJson(rawJson, testUtr, rawTaxpayerJson)
+        createTaxYearJson(populatedSaList, testUtr, rawTaxpayerJson)
       }
     }
-
   }
-
 }

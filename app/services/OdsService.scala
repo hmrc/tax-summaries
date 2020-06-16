@@ -57,7 +57,11 @@ trait OdsService {
     for {
       taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
       taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
-    } yield Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
+    } yield {
+      println(s"\n\nconnectToSelfAssessmentList: $taxSummariesIn\n")
+      println(s"connectToSATaxpayerDetails: $taxpayer\n")
+      Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
+    }
   } recover {
     case error: JsonParseException =>
       Logger.error("Malformed JSON", error)
