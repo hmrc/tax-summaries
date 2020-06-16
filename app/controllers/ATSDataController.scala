@@ -17,7 +17,8 @@
 package controllers
 
 import controllers.auth.AuthAction
-import play.api.Play
+import models.{AtsServiceError, GenericError, JsonParseError, NotFoundError, ServiceUnavailableError}
+import play.api.{Logger, Play}
 import play.api.mvc.{Action, AnyContent}
 import services.OdsService
 import uk.gov.hmrc.play.microservice.controller.BaseController
@@ -46,6 +47,18 @@ trait ATSDataController extends BaseController {
   }
 
   def getATSList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getATSList(utr) map { Ok(_) }
+    odsService.getATSList(utr) map {
+      case Right(atsList) => Ok(atsList)
+      case Left(error) =>
+        error match {
+          case NotFoundError(message)           => NotFound(message)
+          case ServiceUnavailableError(message) => ServiceUnavailable(message)
+          case GenericError(message)            => InternalServerError(message)
+        }
+    } recover {
+      case e: Exception =>
+        Logger.error("getATSList encountered an exception", e)
+        InternalServerError(e.getMessage)
+    }
   }
 }

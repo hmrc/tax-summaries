@@ -19,14 +19,14 @@ package services
 import com.fasterxml.jackson.core.JsonParseException
 import connectors.ODSConnector
 import errors.AtsError
-import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
+import models.{AtsCheck, AtsMiddleTierData, AtsServiceError, AtsYearList, GenericError, JsonParseError, NotFoundError, ServiceUnavailableError}
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsValue, Json}
 import utils.TaxsJsonHelper
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
 
 trait OdsService {
 
@@ -53,25 +53,28 @@ trait OdsService {
     for (taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR))
       yield Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn)))
 
-  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[AtsServiceError, JsValue]] = {
     for {
       taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
       taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
-    } yield jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer)
+    } yield Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
   } recover {
     case error: JsonParseException =>
       Logger.error("Malformed JSON", error)
-      Json.toJson(AtsYearList(UTR, None, None, Some(AtsError("JsonParsingError"))))
+      Left(JsonParseError("Failed to parse Json for ATS List"))
     case error: NotFoundException =>
       Logger.error("No ATS error", error)
-      Json.toJson(AtsYearList(UTR, None, None, Some(AtsError("NoAtsData"))))
+      Left(NotFoundError("No ATS found"))
+    case error: Upstream5xxResponse =>
+      Logger.error("Received 5xx response or getATSList", error)
+      Left(ServiceUnavailableError("odsConnector received a 5xx response"))
     case error: Throwable =>
       Logger.error("Generic error", error)
-      Json.toJson(AtsYearList(UTR, None, None, Some(AtsError(error.getMessage()))))
+      Left(GenericError("Failed to get ATS List"))
   }
 }
 
 object OdsService extends OdsService {
-  override val odsConnector = ODSConnector
+  override val odsConnector: ODSConnector = ODSConnector
   override val jsonHelper: TaxsJsonHelper = new TaxsJsonHelper {}
 }

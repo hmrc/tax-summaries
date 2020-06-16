@@ -19,7 +19,7 @@ package services
 import com.fasterxml.jackson.core.JsonParseException
 import connectors.ODSConnector
 import errors.AtsError
-import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
+import models.{AtsCheck, AtsMiddleTierData, AtsYearList, GenericError, JsonParseError, NotFoundError, ServiceUnavailableError}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -27,12 +27,14 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => eqTo, _}
+import org.scalatest.EitherValues
 import utils.TaxsJsonHelper
 import utils.TestConstants._
-import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
-class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
+import scala.concurrent.Future
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
+
+class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with EitherValues {
 
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
@@ -149,7 +151,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
   "getATSList" should {
 
-    "return a successful future" in new TestService {
+    "return a right containing the ATS data" in new TestService {
 
       when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mock[JsValue]))
@@ -161,7 +163,7 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getATSList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-        result shouldBe a[JsValue]
+        result.isRight shouldBe true
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -169,62 +171,72 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       }
     }
 
-    "return a successful future (JsonParsingError)" in new TestService {
+    "return a left" when {
+      "parsing json throws an exception" in new TestService {
 
-      when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(mock[JsonParseException]))
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(mock[JsonParseException]))
 
-      val result = getATSList(testUtr)(mock[HeaderCarrier])
+        val result = getATSList(testUtr)(mock[HeaderCarrier])
 
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
+        whenReady(result) { result =>
+          result shouldBe Left(JsonParseError("Failed to parse Json for ATS List"))
 
-        verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-        verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+          verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
+          verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
 
-        Json.fromJson[AtsYearList](result).asOpt shouldBe
-          Some(AtsYearList(testUtr, None, None, Some(AtsError("JsonParsingError"))))
+        }
       }
-    }
 
-    "return a successful future (NoAtsData)" in new TestService {
+      "No Ats Data is found" in new TestService {
 
-      when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(mock[JsValue]))
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(mock[NotFoundException]))
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(mock[JsValue]))
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(mock[NotFoundException]))
 
-      val result = getATSList(testUtr)(mock[HeaderCarrier])
+        val result = getATSList(testUtr)(mock[HeaderCarrier])
 
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
+        whenReady(result) { result =>
+          result shouldBe Left(NotFoundError("No ATS found"))
 
-        verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-        verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
-
-        Json.fromJson[AtsYearList](result).asOpt shouldBe
-          Some(AtsYearList(testUtr, None, None, Some(AtsError("NoAtsData"))))
+          verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
+          verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+        }
       }
-    }
 
-    "return a successful future (GenericError)" in new TestService {
+      "an upstream 5xx response is received" in new TestService {
 
-      when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new Exception("raw exception")))
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(Upstream5xxResponse("raw exception", 500, 500)))
 
-      val result = getATSList(testUtr)(mock[HeaderCarrier])
+        val result = getATSList(testUtr)(mock[HeaderCarrier])
 
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
+        whenReady(result) { result =>
+          result shouldBe Left(ServiceUnavailableError("odsConnector received a 5xx response"))
 
-        verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-        verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+          verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
+          verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+        }
+      }
 
-        Json.fromJson[AtsYearList](result).asOpt shouldBe
-          Some(AtsYearList(testUtr, None, None, Some(AtsError("raw exception"))))
+      "an unknown error occurs" in new TestService {
+
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(new Exception("raw exception")))
+
+        val result = getATSList(testUtr)(mock[HeaderCarrier])
+
+        whenReady(result) { result =>
+          result shouldBe Left(GenericError("Failed to get ATS List"))
+
+          verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
+          verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+        }
       }
     }
   }
