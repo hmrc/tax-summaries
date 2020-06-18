@@ -16,7 +16,7 @@
 
 package utils
 
-import models.ODSModels.{AnnualTaxSummary, SelfAssessmentList}
+import models.ODSModels.{Address, AnnualTaxSummary, Contact, Email, Name, SaTaxpayerDetails, SelfAssessmentList, Telephone}
 import transformers.ATSParsingException
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
@@ -74,39 +74,21 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return a jsvalue with correct data when passed correct format" in new TaxsJsonHelper {
 
-      val rawTaxpayerJson = Json.parse("""
-                                         |{
-                                         |  "name": {
-                                         |    "title": "Mr",
-                                         |    "forename": "forename",
-                                         |    "surname": "surname"
-                                         |  }
-                                         | }
-        """.stripMargin)
+      val taxpayerDetails = SaTaxpayerDetails(
+        Name("Mr", "forename", None, "surname", None),
+        Address("123 Test Street", "Test Road", "Test Town", None, None, "TE5 1NG", None, false, None),
+        Contact(
+          Telephone("0123456789", None, "9876543210", "0712345678"),
+          Email("test@test.com")
+        )
+      )
 
-      val result = createTaxYearJson(populatedSaList, testUtr, rawTaxpayerJson)
+      val result = createTaxYearJson(populatedSaList, testUtr, taxpayerDetails)
 
       result \ "utr" shouldBe JsDefined(JsString(testUtr))
       result \ "taxPayer" shouldBe JsDefined(
         Json.parse("""{"taxpayer_name":{"title":"Mr","forename":"forename","surname":"surname"}}"""))
       result \ "atsYearList" shouldBe JsDefined(Json.parse("[2014, 2015]"))
-    }
-
-    "return an exception when passed badly formed json" in new TaxsJsonHelper {
-
-      val rawTaxpayerJson = Json.parse("""
-                                         |{
-                                         |  "name": {
-                                         |    "title": "Mr"
-                                         |  },
-                                         |  "forename": "forename",
-                                         |  "surname": "surname"
-                                         |}
-        """.stripMargin)
-
-      intercept[ATSParsingException] {
-        createTaxYearJson(populatedSaList, testUtr, rawTaxpayerJson)
-      }
     }
   }
 }

@@ -17,6 +17,7 @@
 package transformers
 
 import models.LiabilityKey._
+import models.ODSModels.SaTaxpayerDetails
 import models.{Amount, LiabilityKey, TaxSummaryLiability}
 import org.scalatest.OptionValues
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -30,7 +31,7 @@ import scala.io.Source
 class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
+  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson).as[SaTaxpayerDetails]
   val taxYear: Int = 2014
 
   "With base data for utr" should {

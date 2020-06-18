@@ -16,66 +16,50 @@
 
 package services
 
-import com.fasterxml.jackson.core.JsonParseException
 import connectors.ODSConnector
-import errors.AtsError
-import models.{AtsCheck, AtsMiddleTierData, AtsServiceError, AtsYearList, GenericError, JsonParseError, NotFoundError, ServiceUnavailableError}
-import play.api.Logger
+import models.AtsCheck
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.TaxsJsonHelper
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, Upstream5xxResponse}
 
 trait OdsService {
 
   def jsonHelper: TaxsJsonHelper
   def odsConnector: ODSConnector
 
-  def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
     for {
       taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
       taxSummariesIn <- odsConnector.connectToSelfAssessment(UTR, TAX_YEAR)
-    } yield jsonHelper.getAllATSData(taxpayer, taxSummariesIn, UTR, TAX_YEAR)
-  } recover {
-    case parsingError: JsonParseException =>
-      Logger.error("Malformed JSON for tax year: " + TAX_YEAR, parsingError)
-      Json.toJson(
-        AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("JsonParsingError"))))
-    case throwable: Throwable =>
-      Logger.error("Generic error for tax year: " + TAX_YEAR, throwable)
-      Json.toJson(
-        AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("GenericError"))))
-  }
+    } yield {
+      (taxpayer, taxSummariesIn) match {
+        case (Some(tp), Some(summaries)) =>
+          Some(jsonHelper.getAllATSData(tp, summaries, UTR, TAX_YEAR))
+        case _ => None
+      }
+    }
 
-  def getList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
+  def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
     for (taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR))
-      yield Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn)))
+      yield
+        taxSummariesIn.map { summary =>
+          Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(summary)))
+        }
 
-  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[AtsServiceError, JsValue]] = {
+  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
     for {
       taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
       taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
     } yield {
-      println(s"\n\nconnectToSelfAssessmentList: $taxSummariesIn\n")
-      println(s"connectToSATaxpayerDetails: $taxpayer\n")
-      Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
+      (taxSummariesIn, taxpayer) match {
+        case (Some(summary), Some(tp)) =>
+          Some(jsonHelper.createTaxYearJson(summary, UTR, tp))
+        case _ => None
+      }
     }
-  } recover {
-    case error: JsonParseException =>
-      Logger.error("Malformed JSON", error)
-      Left(JsonParseError("Failed to parse Json for ATS List"))
-    case error: NotFoundException =>
-      Logger.error("No ATS error", error)
-      Left(NotFoundError("No ATS found"))
-    case error: Upstream5xxResponse =>
-      Logger.error("Received 5xx response or getATSList", error)
-      Left(ServiceUnavailableError("odsConnector received a 5xx response"))
-    case error: Throwable =>
-      Logger.error("Generic error", error)
-      Left(GenericError("Failed to get ATS List"))
-  }
 }
 
 object OdsService extends OdsService {

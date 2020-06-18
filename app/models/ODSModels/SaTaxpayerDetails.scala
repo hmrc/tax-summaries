@@ -16,12 +16,19 @@
 
 package models.ODSModels
 
+import models.AtsMiddleTierTaxpayerData
 import play.api.libs.json.{Json, OFormat}
 
-case class SATaxpayerDetails(name: Name, address: Address, contact: Contact, email: Email)
+case class SaTaxpayerDetails(name: Name, address: Address, contact: Contact) {
 
-object SATaxpayerDetails {
-  implicit val formats: OFormat[SATaxpayerDetails] = Json.format[SATaxpayerDetails]
+  def atsTaxpayerDataDTO: AtsMiddleTierTaxpayerData = AtsMiddleTierTaxpayerData(Some(getNameAsMap), None)
+
+  private def getNameAsMap: Map[String, String] =
+    Map("title" -> name.title, "forename" -> name.forename, "surname" -> name.surname)
+}
+
+object SaTaxpayerDetails {
+  implicit val formats: OFormat[SaTaxpayerDetails] = Json.format[SaTaxpayerDetails]
 }
 
 case class Name(
@@ -50,7 +57,7 @@ object Address {
   implicit val formats: OFormat[Address] = Json.format[Address]
 }
 
-case class Contact(telephone: Telephone)
+case class Contact(telephone: Telephone, email: Email)
 
 object Contact {
   implicit val formats: OFormat[Contact] = Json.format[Contact]
