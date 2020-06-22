@@ -23,6 +23,7 @@ import models.{Amount, AtsCheck, PensionTaxRate, TaxSummaryLiability}
 import models.ODSModels.{SaTaxpayerDetails, SelfAssessmentList}
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
+import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.mockito.MockitoSugar
@@ -68,7 +69,9 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-        result.get shouldBe a[JsValue]
+        result.fold(fail("Result was None")) { res =>
+          res shouldBe a[JsValue]
+        }
 
         verify(jsonHelper, times(1))
           .getAllATSData(any[SaTaxpayerDetails], any[TaxSummaryLiability], eqTo(testUtr), eqTo(2014))
@@ -164,7 +167,9 @@ class OdsServiceTest extends UnitSpec with MockitoSugar with ScalaFutures {
       val result = getATSList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-        result.get shouldBe a[JsValue]
+        result.fold(fail("Result was None")) { res =>
+          res shouldBe a[JsValue]
+        }
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])

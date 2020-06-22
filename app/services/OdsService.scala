@@ -20,7 +20,7 @@ import connectors.ODSConnector
 import models.AtsCheck
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import utils.TaxsJsonHelper
 
 import scala.concurrent.Future

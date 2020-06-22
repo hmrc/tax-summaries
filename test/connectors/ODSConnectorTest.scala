@@ -16,80 +16,154 @@
 
 package connectors
 
-import models.Liability.IncomeTaxDue
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
+import com.github.tomakehurst.wiremock.http.Fault
+import config.{ApplicationConfig, WSHttp}
 import models.ODSModels.{SaTaxpayerDetails, SelfAssessmentList}
-import models.{Amount, PensionTaxRate, TaxSummaryLiability}
-import org.mockito.Matchers.{eq => eqTo, _}
-import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads}
+import models.TaxSummaryLiability
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.http.Status.{BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SERVICE_UNAVAILABLE, UNAUTHORIZED}
+import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpGet, Upstream4xxResponse, Upstream5xxResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestConstants._
+import utils.{JsonUtil, WireMockHelper}
 
-import scala.concurrent.{ExecutionContext, Future}
+class ODSConnectorTest
+    extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience
+    with JsonUtil {
 
-class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder()
+      .configure(
+        "microservice.services.tax-summaries-hod.port" -> server.port()
+      )
+      .build()
+
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   class TestConnector extends ODSConnector with ServicesConfig {
-    override lazy val serviceUrl = ""
-    override lazy val http = mock[HttpGet]
+    override def http: HttpGet = WSHttp
+    override def serviceUrl: String = ApplicationConfig.npsServiceUrl
+    val taxYear: Int = 2014
+    val url: String = s"/self-assessment/individuals/$testUtr/annual-tax-summaries/$taxYear"
   }
 
   "connectToSelfAssessment" should {
 
     "return an instance of TaxSummaryLiability" in new TestConnector {
 
-      val fakeTaxSummaryLiability =
-        TaxSummaryLiability(
-          2014,
-          PensionTaxRate(5.0),
-          None,
-          Map(IncomeTaxDue -> Amount(BigDecimal(12.0), "gbp")),
-          Map(IncomeTaxDue -> Amount(BigDecimal(12.0), "gbp"))
-        )
+      val expectedResponse = load("/utr_2014.json")
 
-      when(
-        http.GET[Option[TaxSummaryLiability]](
-          eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries/2014")))(
-          any[HttpReads[Option[TaxSummaryLiability]]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.successful(Some(fakeTaxSummaryLiability)))
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody(expectedResponse))
+      )
 
-      val result = connectToSelfAssessment(testUtr, 2014)(mock[HeaderCarrier])
+      val result = connectToSelfAssessment(testUtr, taxYear)
 
       await(result).get shouldBe a[TaxSummaryLiability]
     }
 
     "return None" when {
-      "http call returns None" in new TestConnector {
-        when(
-          http.GET[Option[TaxSummaryLiability]](
-            eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries/2014")))(
-            any[HttpReads[Option[TaxSummaryLiability]]],
-            any[HeaderCarrier],
-            any[ExecutionContext]))
-          .thenReturn(Future.successful(None))
+      "http call returns Not Found" in new TestConnector {
 
-        val result = connectToSelfAssessment(testUtr, 2014)(mock[HeaderCarrier])
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          ))
+
+        val result = connectToSelfAssessment(testUtr, taxYear)
 
         await(result) shouldBe None
       }
     }
 
+    "throw a BadRequestException" when {
+      "http call returns Bad Request" in new TestConnector {
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+              .withBody("Bad Request")
+          ))
+
+        val result = connectToSelfAssessment(testUtr, taxYear)
+
+        whenReady(result.failed) { exception =>
+          exception shouldBe a[BadRequestException]
+        }
+      }
+    }
+
+    "throw an Upstream4xxResponse" when {
+      "http call returns other 4xx codes" in new TestConnector {
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(FORBIDDEN)
+              .withBody("Forbidden")
+          ))
+
+        val result = connectToSelfAssessment(testUtr, taxYear)
+
+        whenReady(result.failed) { exception =>
+          exception shouldBe a[Upstream4xxResponse]
+        }
+      }
+    }
+
+    "throw an Upstream5xxResponse" when {
+      "http call returns Internal Server Error" in new TestConnector {
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody("An error occurred")
+          ))
+
+        val result = connectToSelfAssessment(testUtr, taxYear)
+
+        whenReady(result.failed) { exception =>
+          exception shouldBe a[Upstream5xxResponse]
+        }
+      }
+
+      "http call returns Service Unavailable" in new TestConnector {
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(SERVICE_UNAVAILABLE)
+              .withBody("Cannot reach HOD")
+          ))
+
+        val result = connectToSelfAssessment(testUtr, taxYear)
+
+        whenReady(result.failed) { exception =>
+          exception shouldBe a[Upstream5xxResponse]
+        }
+      }
+    }
+
     "throw exceptions when they occur" in new TestConnector {
 
-      when(
-        http.GET[Option[TaxSummaryLiability]](
-          eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries/2014")))(
-          any[HttpReads[Option[TaxSummaryLiability]]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.failed(new Exception))
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withFault(Fault.MALFORMED_RESPONSE_CHUNK)
+        ))
 
-      val result = connectToSelfAssessment(testUtr, 2014)(mock[HeaderCarrier])
+      val result = connectToSelfAssessment(testUtr, taxYear)
 
       whenReady(result.failed) { exception =>
         exception shouldBe a[Exception]
@@ -102,46 +176,126 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return an instance of SelfAssessmentList" in new TestConnector {
 
-      when(
-        http.GET[Option[SelfAssessmentList]](
-          eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
-          any[HttpReads[Option[SelfAssessmentList]]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.successful(Some(mock[SelfAssessmentList])))
+      override val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
 
-      val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
+      val expectedResponse = load("/taxYearList/test_list_1097172501.json")
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody(expectedResponse))
+      )
+
+      val result = connectToSelfAssessmentList(testUtr)
 
       await(result).get shouldBe a[SelfAssessmentList]
     }
 
     "return None" when {
-      "http call returns None" in new TestConnector {
-        when(
-          http.GET[Option[SelfAssessmentList]](
-            eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
-            any[HttpReads[Option[SelfAssessmentList]]],
-            any[HeaderCarrier],
-            any[ExecutionContext]))
-          .thenReturn(Future.successful(None))
+      "http call returns Not Found" in new TestConnector {
 
-        val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
+        override val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(aResponse()
+            .withStatus(NOT_FOUND))
+        )
+
+        val result = connectToSelfAssessmentList(testUtr)
 
         await(result) shouldBe None
       }
     }
 
+    "throw a BadRequestException" when {
+      "http call returns Bad Request" in new TestConnector {
+
+        override val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+              .withBody("Bad Request"))
+        )
+
+        val result = connectToSelfAssessmentList(testUtr)
+
+        assertThrows[BadRequestException] {
+          await(result)
+        }
+      }
+    }
+
+    "throw an Upstream4xxResponse" when {
+      "http call returns other 4xx codes" in new TestConnector {
+
+        override val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(UNAUTHORIZED)
+              .withBody("Unauthorized"))
+        )
+
+        val result = connectToSelfAssessmentList(testUtr)
+
+        assertThrows[Upstream4xxResponse] {
+          await(result)
+        }
+      }
+    }
+
+    "throw an Upstream5xxResponse" when {
+      "http call returns Internal Server Error" in new TestConnector {
+
+        override val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody("An error occurred"))
+        )
+
+        val result = connectToSelfAssessmentList(testUtr)
+
+        assertThrows[Upstream5xxResponse] {
+          await(result)
+        }
+      }
+
+      "http call returns Service Unavailable" in new TestConnector {
+
+        override val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(SERVICE_UNAVAILABLE)
+              .withBody("Cannot reach HOD"))
+        )
+
+        val result = connectToSelfAssessmentList(testUtr)
+
+        assertThrows[Upstream5xxResponse] {
+          await(result)
+        }
+      }
+    }
+
     "throw exceptions when they occur" in new TestConnector {
 
-      when(
-        http.GET[Option[SelfAssessmentList]](
-          eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
-          any[HttpReads[Option[SelfAssessmentList]]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.failed(new Exception()))
+      override val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
 
-      val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(aResponse()
+          .withFault(Fault.EMPTY_RESPONSE))
+      )
+
+      val result = connectToSelfAssessmentList(testUtr)
 
       assertThrows[Exception] {
         await(result)
@@ -154,46 +308,126 @@ class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
     "return an instance of SaTaxpayerDetails" in new TestConnector {
 
-      when(
-        http.GET[Option[SaTaxpayerDetails]](
-          eqTo(url("/self-assessment/individual/" + testUtr + "/designatory-details/taxpayer")))(
-          any[HttpReads[Option[SaTaxpayerDetails]]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.successful(Some(mock[SaTaxpayerDetails])))
+      override val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
 
-      val result = connectToSATaxpayerDetails(testUtr)(mock[HeaderCarrier])
+      val expectedResponse = load("/taxpayerData/test_individual_utr.json")
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(OK)
+            .withBody(expectedResponse))
+      )
+
+      val result = connectToSATaxpayerDetails(testUtr)
 
       await(result).get shouldBe a[SaTaxpayerDetails]
     }
 
     "return None" when {
-      "http call returns None" in new TestConnector {
-        when(
-          http.GET[Option[SaTaxpayerDetails]](
-            eqTo(url("/self-assessment/individual/" + testUtr + "/designatory-details/taxpayer")))(
-            any[HttpReads[Option[SaTaxpayerDetails]]],
-            any[HeaderCarrier],
-            any[ExecutionContext]))
-          .thenReturn(Future.successful(None))
+      "http call returns Not Found" in new TestConnector {
 
-        val result = connectToSATaxpayerDetails(testUtr)(mock[HeaderCarrier])
+        override val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(aResponse()
+            .withStatus(NOT_FOUND))
+        )
+
+        val result = connectToSATaxpayerDetails(testUtr)
 
         await(result) shouldBe None
       }
     }
 
+    "throw a BadRequestException" when {
+      "http call returns Bad Request" in new TestConnector {
+
+        override val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+              .withBody("Bad Request"))
+        )
+
+        val result = connectToSATaxpayerDetails(testUtr)
+
+        assertThrows[BadRequestException] {
+          await(result)
+        }
+      }
+    }
+
+    "throw an Upstream4xxResponse" when {
+      "http call returns other 4xx codes" in new TestConnector {
+
+        override val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(FORBIDDEN)
+              .withBody("Forbidden"))
+        )
+
+        val result = connectToSATaxpayerDetails(testUtr)
+
+        assertThrows[Upstream4xxResponse] {
+          await(result)
+        }
+      }
+    }
+
+    "throw an Upstream5xxResponse" when {
+      "http call returns Internal Server Error" in new TestConnector {
+
+        override val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+              .withBody("An error occurred"))
+        )
+
+        val result = connectToSATaxpayerDetails(testUtr)
+
+        assertThrows[Upstream5xxResponse] {
+          await(result)
+        }
+      }
+
+      "http call returns Service Unavailable" in new TestConnector {
+
+        override val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
+
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(SERVICE_UNAVAILABLE)
+              .withBody("Cannot reach HOD"))
+        )
+
+        val result = connectToSATaxpayerDetails(testUtr)
+
+        assertThrows[Upstream5xxResponse] {
+          await(result)
+        }
+      }
+    }
+
     "throw exceptions when they occur" in new TestConnector {
 
-      when(
-        http.GET[Option[SaTaxpayerDetails]](
-          eqTo(url("/self-assessment/individual/" + testUtr + "/designatory-details/taxpayer")))(
-          any[HttpReads[Option[SaTaxpayerDetails]]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.failed(new Exception))
+      override val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
 
-      val result = connectToSATaxpayerDetails(testUtr)(mock[HeaderCarrier])
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(aResponse()
+          .withFault(Fault.RANDOM_DATA_THEN_CLOSE))
+      )
+
+      val result = connectToSATaxpayerDetails(testUtr)
 
       assertThrows[Exception] {
         await(result)
