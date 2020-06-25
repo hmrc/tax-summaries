@@ -24,8 +24,8 @@
         "evening": "01111111111",
         "mobile": "07777777777"
       },
-    "email": {
-      "primary": "example@example.com"
-    }
+      "email": {
+        "primary": "example@example.com"
+      }
    }
  }

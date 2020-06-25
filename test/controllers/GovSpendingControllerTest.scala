@@ -20,7 +20,8 @@ import connectors.ODSConnector
 import controllers.auth.FakeAuthAction
 import controllers.ATSDataController
 import controllers.auth.AuthAction
-import models.SpendData
+import models.ODSModels.SaTaxpayerDetails
+import models.{SpendData, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
@@ -46,10 +47,12 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
 
   def makeController(inputJson: String) = {
     val odsc = new ODSConnector {
-      override def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-        MockConnections.connectToMockPayloadService(inputJson)
-      override def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-        MockConnections.connectToMockPayloadService(taxPayerDataPath)
+      override def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(
+        implicit hc: HeaderCarrier): Future[Option[TaxSummaryLiability]] =
+        MockConnections.connectToMockPayloadService(inputJson).asOpt[TaxSummaryLiability]
+      override def connectToSATaxpayerDetails(UTR: String)(
+        implicit hc: HeaderCarrier): Future[Option[SaTaxpayerDetails]] =
+        MockConnections.connectToMockPayloadService(taxPayerDataPath).asOpt[SaTaxpayerDetails]
       override def http: HttpGet = null
       override def serviceUrl: String = null
     }

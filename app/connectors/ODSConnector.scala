@@ -17,6 +17,8 @@
 package connectors
 
 import config.WSHttp
+import models.ODSModels.{SaTaxpayerDetails, SelfAssessmentList}
+import models.TaxSummaryLiability
 import play.api.{Configuration, Play}
 import play.api.Mode.Mode
 import play.api.libs.json.JsValue
@@ -46,12 +48,14 @@ trait ODSConnector {
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR))
+  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(
+    implicit hc: HeaderCarrier): Future[Option[TaxSummaryLiability]] =
+    http.GET[Option[TaxSummaryLiability]](
+      url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR))
 
-  def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
+  def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[Option[SelfAssessmentList]] =
+    http.GET[Option[SelfAssessmentList]](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
 
-  def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-    http.GET[JsValue](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))
+  def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[Option[SaTaxpayerDetails]] =
+    http.GET[Option[SaTaxpayerDetails]](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))
 }

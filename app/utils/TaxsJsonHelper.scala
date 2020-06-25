@@ -16,24 +16,26 @@
 
 package utils
 
+import models.ODSModels.{SaTaxpayerDetails, SelfAssessmentList}
 import models.{AtsYearList, TaxSummaryLiability}
 import play.api.libs.json.{JsNumber, JsValue, Json}
-import transformers.{ATSRawDataTransformer, ATSTaxpayerDataTransformer}
+import transformers.ATSRawDataTransformer
 
 trait TaxsJsonHelper {
 
-  def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue =
-    Json.toJson(ATSRawDataTransformer(rawPayloadJson.as[TaxSummaryLiability], rawTaxpayerJson, UTR, taxYear).atsDataDTO)
+  def getAllATSData(
+    taxpayerDetails: SaTaxpayerDetails,
+    taxSummaryLiability: TaxSummaryLiability,
+    UTR: String,
+    taxYear: Int): JsValue =
+    Json.toJson(ATSRawDataTransformer(taxSummaryLiability, taxpayerDetails, UTR, taxYear).atsDataDTO)
 
-  def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
-    val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]
-    annualTaxSummaries.flatMap(item => (item \ "taxYearEnd").asOpt[JsNumber]).nonEmpty
-  }
+  def hasAtsForPreviousPeriod(saList: SelfAssessmentList): Boolean =
+    saList.annualTaxSummaries.map(summary => summary.taxYearEnd.nonEmpty).reduce(_ && _)
 
-  def createTaxYearJson(rawJson: JsValue, utr: String, rawTaxpayerJson: JsValue): JsValue = {
-    val annualTaxSummariesList: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]
-    val atsYearList = annualTaxSummariesList.map(item => (item \ "taxYearEnd").as[JsNumber])
-    val taxPayer = ATSTaxpayerDataTransformer(rawTaxpayerJson).atsTaxpayerDataDTO
+  def createTaxYearJson(saList: SelfAssessmentList, utr: String, taxpayerDetails: SaTaxpayerDetails): JsValue = {
+    val atsYearList = saList.annualTaxSummaries.flatMap(_.taxYearEnd.map(JsNumber(_)))
+    val taxPayer = taxpayerDetails.atsTaxpayerDataDTO
 
     Json.toJson(AtsYearList(utr, Some(taxPayer), Some(atsYearList)))
   }
