@@ -18,7 +18,6 @@ package transformers
 
 import models.Liability.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models.LiabilityKey._
-import models.ODSModels.SaTaxpayerDetails
 import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
@@ -30,7 +29,7 @@ import scala.io.Source
 class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson).as[SaTaxpayerDetails]
+  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
   "The capital gains" should {

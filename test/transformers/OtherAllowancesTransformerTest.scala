@@ -18,20 +18,18 @@ package transformers
 
 import models.Liability.MarriageAllceOut
 import models.LiabilityKey._
-import models.ODSModels.SaTaxpayerDetails
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import uk.gov.hmrc.play.test.UnitSpec
 import utils._
-
 import scala.io.Source
 
 class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest with JsonUtil {
 
   val taxpayerDetailsJson = JsonUtil.load("/taxpayerData/test_individual_utr.json")
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson).as[SaTaxpayerDetails]
+  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
   "The tax free amount" should {

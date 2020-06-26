@@ -17,9 +17,8 @@
 package controllers
 
 import controllers.auth.AuthAction
-import play.api.libs.json.JsValue
-import play.api.mvc.{Action, AnyContent, Result}
-import play.api.{Logger, Play}
+import play.api.Play
+import play.api.mvc.{Action, AnyContent}
 import services.OdsService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
@@ -37,26 +36,16 @@ trait ATSDataController extends BaseController {
   val authAction: AuthAction
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getList(utr) map {
-      handleJsonResult
+    odsService.getList(utr) map (Ok(_)) recover {
+      case error => NotFound
     }
   }
 
   def getATSData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getPayload(utr, tax_year) map {
-      handleJsonResult
-    }
+    odsService.getPayload(utr, tax_year) map { Ok(_) }
   }
 
   def getATSList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getATSList(utr) map {
-      handleJsonResult
-    }
+    odsService.getATSList(utr) map { Ok(_) }
   }
-
-  private def handleJsonResult(wrappedJson: Option[JsValue]): Result =
-    wrappedJson match {
-      case Some(json) => Ok(json)
-      case None       => NotFound("No Json could be retrieved")
-    }
 }

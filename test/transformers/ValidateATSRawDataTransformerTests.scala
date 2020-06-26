@@ -17,7 +17,6 @@
 package transformers
 
 import errors.AtsError
-import models.ODSModels.SaTaxpayerDetails
 import models.TaxSummaryLiability
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsNull, Json}
@@ -29,7 +28,7 @@ import scala.io.Source
 class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson).as[SaTaxpayerDetails]
+  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
   "With base data for utr" should {
@@ -71,6 +70,20 @@ class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate
         ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
       returnValue.income_data shouldBe None
       returnValue.errors shouldBe Some(AtsError("ctnSummaryTotShareOptions"))
+    }
+
+    "return a JSON containing taxpayer name errors" in {
+
+      val taxpayerJson =
+        Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
+      val originalJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
+
+      val parsedJson = Json.parse(originalJson)
+      val parsedTaxpayerDetailsJson = Json.parse(taxpayerJson)
+      val returnValue =
+        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+
+      returnValue.errors shouldBe Some(AtsError("surname"))
     }
   }
 }
