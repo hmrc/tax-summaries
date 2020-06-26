@@ -18,7 +18,6 @@ package transformers
 
 import models.Liability.{StatePension, _}
 import models.LiabilityKey._
-import models.ODSModels.SaTaxpayerDetails
 import models.RateKey._
 import models._
 import play.api.Logger
@@ -29,7 +28,7 @@ case class ATSParsingException(s: String) extends Exception(s)
 
 case class ATSRawDataTransformer(
   summaryLiability: TaxSummaryLiability,
-  taxpayerDetails: SaTaxpayerDetails,
+  rawTaxPayerJson: JsValue,
   UTR: String,
   taxYear: Int) {
 
@@ -79,7 +78,7 @@ case class ATSRawDataTransformer(
   private def createCapitalGainsData =
     DataHolder.make(createCapitalGainsTaxBreakdown, createCapitalGainsTaxRates)
 
-  private def createTaxPayerData = taxpayerDetails.atsTaxpayerDataDTO
+  private def createTaxPayerData = ATSTaxpayerDataTransformer(rawTaxPayerJson).atsTaxpayerDataDTO
 
   private def createCapitalGainsTaxBreakdown: Map[LiabilityKey, Amount] =
     Map(

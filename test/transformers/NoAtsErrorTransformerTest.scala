@@ -17,7 +17,6 @@
 package transformers
 
 import errors.AtsError
-import models.ODSModels.SaTaxpayerDetails
 import models.{Amount, TaxSummaryLiability}
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
@@ -30,7 +29,7 @@ import scala.io.Source
 class NoAtsErrorTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson).as[SaTaxpayerDetails]
+  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
 
   "With base data for utr" should {
 

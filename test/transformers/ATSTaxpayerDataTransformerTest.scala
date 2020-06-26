@@ -17,7 +17,6 @@
 package transformers
 
 import models.AtsMiddleTierTaxpayerData
-import models.ODSModels.SaTaxpayerDetails
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AtsJsonDataUpdate
@@ -31,9 +30,9 @@ class ATSTaxpayerDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
     "be parsed form the income values for utr" in {
 
       val sampleJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-      val parsedJson = Json.parse(sampleJson).as[SaTaxpayerDetails]
+      val parsedJson = Json.parse(sampleJson)
 
-      val returnValue: AtsMiddleTierTaxpayerData = parsedJson.atsTaxpayerDataDTO
+      val returnValue: AtsMiddleTierTaxpayerData = ATSTaxpayerDataTransformer(parsedJson).atsTaxpayerDataDTO
 
       val parsedPayload = returnValue.taxpayer_name.get
       val testPayload =
