@@ -28,14 +28,21 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait NpsService {
-  def getPayeATSData(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]]
-}
+class NpsService @Inject()(repository: Repository, innerService: DirectNpsService) {
 
-trait CachingNpsService extends NpsService {
-  def repository: Repository
-  def innerService: DirectNpsService
+  def getPayeATSData(nino: String, taxYear: Int)(
+    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
+    repository
+      .get(nino, taxYear)
+      .flatMap {
+        case Some(data) => Future.successful(Right(data))
+        case None       => refreshCache(nino, taxYear)
+      }
+      .recover {
+        case ex =>
+          Logger.error("Failed to fetch data from cache", ex)
+          Left(HttpResponse(INTERNAL_SERVER_ERROR))
+      }
 
   private def refreshCache(nino: String, taxYear: Int)(
     implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
@@ -49,25 +56,6 @@ trait CachingNpsService extends NpsService {
             .map(_ => Right(data))
             .recover { case _ => Left(HttpResponse(INTERNAL_SERVER_ERROR)) }
       }
-
-  override def getPayeATSData(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
-    repository
-      .get(nino, taxYear)
-      .flatMap {
-        case Some(data) => Future.successful(Right(data))
-        case None       => refreshCache(nino, taxYear)
-      }
-      .recover {
-        case ex =>
-          Logger.error("Failed to fetch data from cache", ex)
-          Left(HttpResponse(INTERNAL_SERVER_ERROR))
-      }
-}
-
-object CachingNpsService extends CachingNpsService {
-  override lazy val repository: Repository = Play.current.injector.instanceOf[Repository]
-  override lazy val innerService: DirectNpsService = Play.current.injector.instanceOf[DirectNpsService]
 }
 
 class DirectNpsService @Inject()(npsConnector: NpsConnector) {
