@@ -16,9 +16,13 @@
 
 package controllers
 
+import config.WSHttp
 import connectors.ODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData
+import org.mockito.Mockito.when
+import org.mockito.Matchers.any
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
@@ -32,7 +36,7 @@ import utils.TestConstants._
 
 import scala.concurrent.Future
 
-class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
+class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
 
   val request = FakeRequest()
 
@@ -43,14 +47,12 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
   val taxPayerDataPath = "/taxpayerData/test_individual_utr.json"
 
   def makeController(inputJson: String) = {
-    val odsc = new ODSConnector {
-      override def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-        MockConnections.connectToMockPayloadService(inputJson)
-      override def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-        MockConnections.connectToMockPayloadService(taxPayerDataPath)
-      override def http: HttpGet = null
-      override def serviceUrl: String = null
-    }
+
+    val odsc = mock[ODSConnector]
+    when(odsc.connectToSelfAssessment(any(), any())(any()))
+      .thenReturn(MockConnections.connectToMockPayloadService(inputJson))
+    when(odsc.connectToSATaxpayerDetails(any())(any()))
+      .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
     new ATSDataController(odsService, FakeAuthAction)
