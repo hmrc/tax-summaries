@@ -16,11 +16,12 @@
 
 package utils
 
+import com.google.inject.Inject
 import models.{AtsYearList, TaxSummaryLiability}
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import transformers.{ATSRawDataTransformer, ATSTaxpayerDataTransformer}
 
-trait TaxsJsonHelper {
+class TaxsJsonHelper @Inject()() {
 
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue =
     Json.toJson(ATSRawDataTransformer(rawPayloadJson.as[TaxSummaryLiability], rawTaxpayerJson, UTR, taxYear).atsDataDTO)

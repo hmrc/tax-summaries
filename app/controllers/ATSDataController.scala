@@ -16,6 +16,7 @@
 
 package controllers
 
+import com.google.inject.Inject
 import controllers.auth.AuthAction
 import play.api.Play
 import play.api.mvc.{Action, AnyContent}
@@ -24,20 +25,11 @@ import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object ATSDataController extends ATSDataController {
-  override val odsService = OdsService
-  override val authAction: AuthAction = Play.current.injector.instanceOf[AuthAction]
-}
-
-trait ATSDataController extends BaseController {
-
-  def odsService: OdsService
-
-  val authAction: AuthAction
+class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction) extends BaseController {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
     odsService.getList(utr) map (Ok(_)) recover {
-      case error => NotFound
+      case _ => NotFound
     }
   }
 
