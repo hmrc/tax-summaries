@@ -16,13 +16,10 @@
 
 package services
 
-import config.ApplicationConfig
+import com.google.inject.Inject
 import models.Rate
 
-trait TaxRateService {
-
-  val taxYear: Int
-  val configRate: Int => Map[String, Double]
+class TaxRateService @Inject()(val taxYear: Int, configRate: Int => Map[String, Double]) {
 
   private def getRate(rate: String): Rate = {
     val result = configRate(taxYear)
@@ -60,9 +57,4 @@ trait TaxRateService {
   def scottishIntermediateRate: Rate = getRate("scottishIntermediateRate")
   def scottishHigherRate: Rate = getRate("scottishHigherRate")
   def scottishAdditionalRate: Rate = getRate("scottishAdditionalRate")
-}
-
-class DefaultTaxRateService(val taxYear: Int) extends TaxRateService {
-
-  override val configRate: Int => Map[String, Double] = ApplicationConfig.ratePercentages
 }

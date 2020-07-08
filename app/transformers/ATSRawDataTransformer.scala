@@ -16,13 +16,14 @@
 
 package transformers
 
+import config.ApplicationConfig
 import models.Liability.{StatePension, _}
 import models.LiabilityKey._
 import models.RateKey._
 import models._
 import play.api.Logger
 import play.api.libs.json._
-import services.DefaultTaxRateService
+import services.TaxRateService
 
 case class ATSParsingException(s: String) extends Exception(s)
 
@@ -32,7 +33,7 @@ case class ATSRawDataTransformer(
   UTR: String,
   taxYear: Int) {
 
-  val taxRate = new DefaultTaxRateService(taxYear)
+  val taxRate = new TaxRateService(taxYear, ApplicationConfig.ratePercentages)
   val calculations = ATSCalculations.make(summaryLiability, taxRate)
 
   def atsDataDTO: AtsMiddleTierData =
