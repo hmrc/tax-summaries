@@ -48,11 +48,7 @@ class NPSConnectorTest
 
   private val testNinoWithoutSuffix = testNino.take(8)
 
-  trait NPSConnectorSetUp extends NpsConnector with JsonUtil {
-
-    override def http: HttpGet = WSHttp
-    override def serviceUrl: String = ApplicationConfig.npsServiceUrl
-  }
+  class NPSConnectorSetUp extends NpsConnector(WSHttp) with JsonUtil
 
   "connectToPayeTaxSummary" should {
 

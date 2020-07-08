@@ -16,6 +16,7 @@
 
 package services
 
+import com.google.inject.Inject
 import connectors.NpsConnector
 import models.paye._
 import play.api.{Logger, Play}
@@ -34,7 +35,7 @@ trait NpsService {
 
 trait CachingNpsService extends NpsService {
   def repository: Repository
-  def innerService: NpsService
+  def innerService: DirectNpsService
 
   private def refreshCache(nino: String, taxYear: Int)(
     implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
@@ -66,12 +67,10 @@ trait CachingNpsService extends NpsService {
 
 object CachingNpsService extends CachingNpsService {
   override lazy val repository: Repository = Play.current.injector.instanceOf[Repository]
-  override lazy val innerService: NpsService = DirectNpsService
+  override lazy val innerService: DirectNpsService = Play.current.injector.instanceOf[DirectNpsService]
 }
 
-trait DirectNpsService extends NpsService {
-  def npsConnector: NpsConnector
-
+class DirectNpsService @Inject()(npsConnector: NpsConnector) {
   def getPayeATSData(nino: String, taxYear: Int)(
     implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
     npsConnector.connectToPayeTaxSummary(nino, taxYear) map { response =>
@@ -85,8 +84,4 @@ trait DirectNpsService extends NpsService {
         Left(HttpResponse(INTERNAL_SERVER_ERROR))
       }
     }
-}
-
-object DirectNpsService extends DirectNpsService {
-  override val npsConnector = NpsConnector
 }

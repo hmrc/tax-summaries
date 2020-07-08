@@ -40,10 +40,9 @@ class DirectNpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(testNino, currentYear)
 
-  class TestService extends DirectNpsService {
+  val npsConnector = mock[NpsConnector]
 
-    override lazy val npsConnector: NpsConnector = mock[NpsConnector]
-  }
+  class TestService extends DirectNpsService(npsConnector)
 
   private val currentYear = 2018
 

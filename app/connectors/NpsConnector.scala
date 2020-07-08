@@ -16,32 +16,24 @@
 
 package connectors
 
-import java.util.UUID
-
+import com.google.inject.Inject
 import config.{ApplicationConfig, WSHttp}
 import play.api.Mode.Mode
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http.logging.Authorization
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, _}
+import uk.gov.hmrc.http.{HeaderCarrier, _}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object NpsConnector extends NpsConnector with ServicesConfig {
+class NpsConnector @Inject()(http: WSHttp) extends ServicesConfig {
 
-  override val serviceUrl = ApplicationConfig.npsServiceUrl
-  override def http = WSHttp
+  override def mode: Mode = Play.current.mode
+  override def runModeConfiguration: Configuration = Play.current.configuration
 
-  protected def mode: Mode = Play.current.mode
-  protected def runModeConfiguration: Configuration = Play.current.configuration
-}
-
-trait NpsConnector {
-
-  def http: HttpGet
-  def serviceUrl: String
+  def serviceUrl: String = ApplicationConfig.npsServiceUrl
   def url(path: String) = s"$serviceUrl$path"
 
   def header(hc: HeaderCarrier): HeaderCarrier =

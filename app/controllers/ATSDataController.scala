@@ -18,7 +18,6 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.auth.AuthAction
-import play.api.Play
 import play.api.mvc.{Action, AnyContent}
 import services.OdsService
 import uk.gov.hmrc.play.microservice.controller.BaseController

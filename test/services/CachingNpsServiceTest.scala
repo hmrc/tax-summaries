@@ -32,8 +32,8 @@ class CachingNpsServiceTest extends UnitSpec with ScalaFutures with MockitoSugar
   val IM_A_TEAPOT = 418
 
   class Fixture extends CachingNpsService {
-    override val repository: Repository = mock[Repository]
-    override val innerService: NpsService = mock[NpsService]
+    override val repository = mock[Repository]
+    override val innerService = mock[DirectNpsService]
   }
 
   "CachingNpsService" should {
