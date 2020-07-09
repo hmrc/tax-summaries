@@ -18,33 +18,25 @@ package connectors
 
 import com.google.inject.Inject
 import config.ApplicationConfig
-import play.api.Mode.Mode
+import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
-import play.api.{Configuration, Environment, Logger, Play}
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class NpsConnector @Inject()(
-  http: HttpClient,
-  override val runModeConfiguration: Configuration,
-  environment: Environment)
-    extends ServicesConfig {
+class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig) {
 
-  override def mode: Mode = environment.mode
-
-  def serviceUrl: String = ApplicationConfig.npsServiceUrl
+  def serviceUrl: String = applicationConfig.npsServiceUrl
   def url(path: String) = s"$serviceUrl$path"
 
   def header(hc: HeaderCarrier): HeaderCarrier =
-    hc.copy(authorization = Some(Authorization(ApplicationConfig.authorization)))
+    hc.copy(authorization = Some(Authorization(applicationConfig.authorization)))
       .withExtraHeaders(
-        "Environment"  -> ApplicationConfig.environment,
-        "OriginatorId" -> ApplicationConfig.originatorId
+        "Environment"  -> applicationConfig.environment,
+        "OriginatorId" -> applicationConfig.originatorId
       )
 
   def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] = {

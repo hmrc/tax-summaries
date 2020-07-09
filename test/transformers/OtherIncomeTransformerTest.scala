@@ -18,15 +18,13 @@ package transformers
 
 import models.LiabilityKey.OtherIncome
 import models.{Amount, TaxSummaryLiability}
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
 import scala.io.Source
 
-class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
+class OtherIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -40,7 +38,12 @@ class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gu
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       taxYear shouldEqual parsedYear
@@ -69,7 +72,12 @@ class OtherIncomeTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gu
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.income_data.get.payload.get
 
       parsedPayload(OtherIncome) should equal(new Amount(450.00, "GBP"))

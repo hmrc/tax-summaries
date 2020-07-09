@@ -17,21 +17,18 @@
 package transformers
 
 import models.{Amount, GovernmentSpendingOutputWrapper}
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import services.GoodsAndServices._
-import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
-class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
+class GovSpendingTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
   "The Gov spending data" should {
-
     "display correct amounts for a given user in 2014" in {
 
       val testYear: Int = 2014
       val testAmount: Int = 1400
       val returnValue: GovernmentSpendingOutputWrapper =
-        GovSpendingDataTransformer(new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
+        GovSpendingDataTransformer(applicationConfig, new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
 
       val parsedYear = returnValue.taxYear
 
@@ -83,7 +80,7 @@ class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate with
       val testYear: Int = 2014
       val testAmount: Int = 22000
       val returnValue: GovernmentSpendingOutputWrapper =
-        GovSpendingDataTransformer(new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
+        GovSpendingDataTransformer(applicationConfig, new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
 
       val parsedYear = returnValue.taxYear
 
@@ -135,7 +132,7 @@ class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate with
       val testYear: Int = 2015
       val testAmount: Int = 1400
       val returnValue: GovernmentSpendingOutputWrapper =
-        GovSpendingDataTransformer(new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
+        GovSpendingDataTransformer(applicationConfig, new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
 
       val parsedYear = returnValue.taxYear
 
@@ -187,7 +184,7 @@ class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate with
       val testYear: Int = 2015
       val testAmount: Int = 22000
       val returnValue: GovernmentSpendingOutputWrapper =
-        GovSpendingDataTransformer(new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
+        GovSpendingDataTransformer(applicationConfig, new Amount(testAmount, "GBP"), testYear).govSpendReferenceDTO
 
       val parsedYear = returnValue.taxYear
 
@@ -237,7 +234,7 @@ class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate with
 
       val testYear: Int = 2014
       val returnValue: GovernmentSpendingOutputWrapper =
-        GovSpendingDataTransformer(new Amount(1400, "GBP"), testYear).govSpendReferenceDTO
+        GovSpendingDataTransformer(applicationConfig, new Amount(1400, "GBP"), testYear).govSpendReferenceDTO
 
       val govSpendData = returnValue.govSpendAmountData
       govSpendData(Welfare).percentage should equal(24.52)
@@ -261,7 +258,7 @@ class GovSpendingTransformationTest extends UnitSpec with AtsJsonDataUpdate with
 
       val testYear: Int = 2015
       val returnValue: GovernmentSpendingOutputWrapper =
-        GovSpendingDataTransformer(new Amount(1400, "GBP"), testYear).govSpendReferenceDTO
+        GovSpendingDataTransformer(applicationConfig, new Amount(1400, "GBP"), testYear).govSpendReferenceDTO
 
       val govSpendData = returnValue.govSpendAmountData
       govSpendData(Welfare).percentage should equal(25.30)

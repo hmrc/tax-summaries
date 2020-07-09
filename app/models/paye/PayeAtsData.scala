@@ -16,6 +16,7 @@
 
 package models.paye
 
+import config.ApplicationConfig
 import models.LiabilityKey._
 import models.RateKey._
 import models._
@@ -41,7 +42,7 @@ case class PayeAtsData(
   savingsStarterBand: Option[SavingsStarterBand]
 ) {
 
-  def transformToPayeMiddleTier(nino: String, taxYear: Int): PayeAtsMiddleTier =
+  def transformToPayeMiddleTier(applicationConfig: ApplicationConfig, nino: String, taxYear: Int): PayeAtsMiddleTier =
     PayeAtsMiddleTier(
       taxYear,
       nino,
@@ -49,7 +50,7 @@ case class PayeAtsData(
       Some(createSummaryData),
       Some(createIncomeData),
       Some(createAllowanceData),
-      Some(createGovSpendData(taxYear))
+      Some(createGovSpendData(applicationConfig, taxYear))
     )
 
   def optionToAmount(opt: Option[Double]): Amount = opt.fold(Amount.empty)(Amount.gbp(_))
@@ -146,7 +147,9 @@ case class PayeAtsData(
       TotalIncomeBeforeTax               -> optionToAmount(income.flatMap(_.incomeBeforeTax))
     )
 
-  private def createGovSpendData(taxYear: Int): GovernmentSpendingOutputWrapper = {
+  private def createGovSpendData(
+    applicationConfig: ApplicationConfig,
+    taxYear: Int): GovernmentSpendingOutputWrapper = {
     val totalIncome = optionToAmount(
       if (nationalInsurance.flatMap(_.employeeContributions).isDefined) {
         calculatedTotals.flatMap(_.totalIncomeTaxNics)
@@ -155,7 +158,7 @@ case class PayeAtsData(
       }
     )
     val correctYearForGovSpendCategories = taxYear + 1
-    GovSpendingDataTransformer(totalIncome, correctYearForGovSpendCategories).govSpendReferenceDTO
+    GovSpendingDataTransformer(applicationConfig, totalIncome, correctYearForGovSpendCategories).govSpendReferenceDTO
   }
 
 }

@@ -17,14 +17,20 @@
 package utils
 
 import com.google.inject.Inject
+import config.ApplicationConfig
 import models.{AtsYearList, TaxSummaryLiability}
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import transformers.{ATSRawDataTransformer, ATSTaxpayerDataTransformer}
 
-class TaxsJsonHelper @Inject()() {
+class TaxsJsonHelper @Inject()(applicationConfig: ApplicationConfig) {
 
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue =
-    Json.toJson(ATSRawDataTransformer(rawPayloadJson.as[TaxSummaryLiability], rawTaxpayerJson, UTR, taxYear).atsDataDTO)
+    Json.toJson(ATSRawDataTransformer(
+      applicationConfig,
+      rawPayloadJson.as[TaxSummaryLiability],
+      rawTaxpayerJson,
+      UTR,
+      taxYear).atsDataDTO)
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
     val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]

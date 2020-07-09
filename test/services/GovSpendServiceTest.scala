@@ -18,15 +18,15 @@ package services
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import services.GoodsAndServices._
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.BaseSpec
 
-class GovSpendServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerTest {
+class GovSpendServiceTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
   "govSpending" should {
     "return correct amounts for 2016" in {
-      val result: Map[GoodsAndServices, Double] = GovSpendService.govSpending(2016)
+      val result: Map[GoodsAndServices, Double] =
+        new GovSpendService(applicationConfig).govSpending(2016)
 
       result.get(Welfare) shouldBe Some(25.00)
       result.get(Health) shouldBe Some(19.90)

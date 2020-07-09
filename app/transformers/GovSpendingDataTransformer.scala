@@ -16,10 +16,11 @@
 
 package transformers
 
+import config.ApplicationConfig
 import models._
 import services.{GoodsAndServices, GovSpendService}
 
-case class GovSpendingDataTransformer(totalTaxAmount: Amount, taxYear: Int) {
+case class GovSpendingDataTransformer(applicationConfig: ApplicationConfig, totalTaxAmount: Amount, taxYear: Int) {
 
   lazy val govSpendReferenceDTO = createGovSpendingReferenceDTO
 
@@ -32,7 +33,7 @@ case class GovSpendingDataTransformer(totalTaxAmount: Amount, taxYear: Int) {
     SpendData(monetaryAmount, spendPercentage)
   }
 
-  private def createGovernmentSpendingAmounts = GovSpendService.govSpending(taxYear) map {
+  private def createGovernmentSpendingAmounts = new GovSpendService(applicationConfig).govSpending(taxYear) map {
     case (key, value) =>
       (key, createSpendDataItem(key, value, totalTaxAmount))
   }

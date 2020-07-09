@@ -16,9 +16,10 @@
 
 package services
 
-import models.ApiValue
-import play.api.libs.json.{Format, JsError, JsResult, JsString, JsSuccess, JsValue, Json, Writes}
+import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
+import models.ApiValue
+import play.api.libs.json.{Format, JsString, Writes}
 
 sealed trait GoodsAndServices extends ApiValue
 
@@ -69,12 +70,13 @@ object GoodsAndServices {
     ApiValue.formatMap[GoodsAndServices, V](allItems)
 }
 
-object GovSpendService {
+@Singleton
+class GovSpendService @Inject()(applicationConfig: ApplicationConfig) {
 
   import GoodsAndServices._
 
   def govSpending(taxYear: Int): Map[GoodsAndServices, Double] =
-    ApplicationConfig
+    applicationConfig
       .governmentSpend(taxYear)
       .toList
       .map {

@@ -16,17 +16,15 @@
 
 package transformers
 
-import models.Liability.MarriageAllceOut
 import models.LiabilityKey._
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import uk.gov.hmrc.play.test.UnitSpec
 import utils._
+
 import scala.io.Source
 
-class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest with JsonUtil {
+class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate with JsonUtil {
 
   val taxpayerDetailsJson = JsonUtil.load("/taxpayerData/test_individual_utr.json")
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -38,7 +36,12 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -64,7 +67,7 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedJson = Json.parse(sampleJson).as[TaxSummaryLiability]
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(applicationConfig, parsedJson, parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -88,7 +91,12 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
       val amendedJson = JsonUtil.loadAndReplace("/test_case_3.json", data)
 
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(amendedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          amendedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -115,7 +123,12 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -145,7 +158,12 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
       val transformedJson = JsonUtil.loadAndReplace("/utr_2014.json", update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
       parsedPayload(OtherAllowancesAmount) should equal(new Amount(660.0, "GBP"))
@@ -170,7 +188,12 @@ class OtherAllowancesTransformerTest extends UnitSpec with AtsJsonDataUpdate wit
       val transformedJson = JsonUtil.loadAndReplace("/utr_2014.json", update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
       parsedPayload(OtherAllowancesAmount) should equal(new Amount(660.0, "GBP"))

@@ -16,54 +16,44 @@
 
 package config
 
-import com.typesafe.config.ConfigObject
-import play.api.{Configuration, Play}
+import com.google.inject.Inject
 import play.api.Mode.Mode
-import play.api.Play.{configuration, current}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.ServicesConfig
-import collection.JavaConverters._
 
-trait ApplicationConfig {
+import scala.collection.JavaConverters._
 
-  def ratePercentages(year: Int): Map[String, Double]
-  def governmentSpend(year: Int): Map[String, Double]
-  def npsServiceUrl: String
-}
+class ApplicationConfig @Inject()(override val runModeConfiguration: Configuration, playEnvironment: Environment)
+    extends ServicesConfig {
 
-// TODO: ServicesConfig fix and turn this to a class
-object ApplicationConfig extends ApplicationConfig with ServicesConfig {
-
-  override protected def mode: Mode = Play.current.mode
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-  private def taxFieldsDefault = configuration.getStringSeq("taxRates.default.whitelist").getOrElse(Seq())
-  private def taxFieldsByYear(year: Int) = configuration.getStringSeq(s"taxRates.$year.whitelist").getOrElse(Seq())
+  override protected def mode: Mode = playEnvironment.mode
 
   private def defaultRatePercentages: Map[String, Double] =
-    configuration
+    runModeConfiguration
       .getObject("taxRates.default.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def ratePercentagesByYear(year: Int): Map[String, Double] =
-    configuration
+    runModeConfiguration
       .getObject(s"taxRates.$year.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def governmentSpendByYear(year: Int): Map[String, Double] =
-    configuration
+    runModeConfiguration
       .getObject(s"governmentSpend.$year.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
-  override def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
+  def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
 
-  override def governmentSpend(year: Int) = governmentSpendByYear(year)
+  def governmentSpend(year: Int) = governmentSpendByYear(year)
 
-  override def npsServiceUrl = baseUrl("tax-summaries-hod")
+  def npsServiceUrl = baseUrl("tax-summaries-hod")
 
   lazy val environment: String =
     runModeConfiguration.getString(s"$rootServices.tax-summaries-hod.env").getOrElse("local")
@@ -74,4 +64,5 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
 
   lazy val originatorId: String =
     runModeConfiguration.getString(s"$rootServices.tax-summaries-hod.originatorId").getOrElse("local")
+
 }

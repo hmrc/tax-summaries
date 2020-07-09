@@ -32,6 +32,7 @@
 
 package models.paye
 
+import config.ApplicationConfig
 import models.LiabilityKey._
 import models.RateKey._
 import models._
@@ -39,15 +40,15 @@ import org.scalatestplus.play.OneAppPerSuite
 import services.GoodsAndServices
 import services.GoodsAndServices._
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.{PayeAtsDataUtil, TestConstants}
+import utils.{BaseSpec, PayeAtsDataUtil, TestConstants}
 
-class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
+class PayeAtsDataTest extends BaseSpec {
 
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
   val nino: String = TestConstants.testNino
   val taxYear = "2018"
   lazy val transformedData: PayeAtsMiddleTier =
-    atsData.transformToPayeMiddleTier(nino, taxYear.toInt)
+    atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
   "transformToPayeMiddleTier" should {
     "populate the nino and tax year" in {
@@ -184,7 +185,7 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
       "without nics included if employer contributions are not present" in {
         val atsDataWithoutNics = atsData.copy(nationalInsurance = Some(NationalInsurance(Some(100.00), None)))
         val transformedData: PayeAtsMiddleTier =
-          atsDataWithoutNics.transformToPayeMiddleTier(nino, taxYear.toInt)
+          atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
         spendData.totalAmount shouldBe Amount.gbp(4000.00)
@@ -193,7 +194,7 @@ class PayeAtsDataTest extends UnitSpec with OneAppPerSuite {
       "without nics included if national insurance section is not present" in {
         val atsDataWithoutNics = atsData.copy(nationalInsurance = None)
         val transformedData: PayeAtsMiddleTier =
-          atsDataWithoutNics.transformToPayeMiddleTier(nino, taxYear.toInt)
+          atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
         spendData.totalAmount shouldBe Amount.gbp(4000.00)
