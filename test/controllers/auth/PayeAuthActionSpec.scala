@@ -27,7 +27,7 @@ import play.api.http.Status._
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.status
-import uk.gov.hmrc.auth.core.{InsufficientConfidenceLevel, InternalError, MissingBearerToken}
+import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientConfidenceLevel, InternalError, MissingBearerToken}
 import utils.TestConstants._
 
 import scala.concurrent.ExecutionContext.Implicits.global

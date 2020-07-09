@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.WSHttp
 import connectors.ODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData

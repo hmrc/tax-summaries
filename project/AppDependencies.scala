@@ -7,11 +7,10 @@ object AppDependencies {
   val compile: Seq[ModuleID] = Seq(
     filters,
     ws,
-    "uk.gov.hmrc"       %% "microservice-bootstrap" % "10.4.0",
+    "uk.gov.hmrc"       %% "bootstrap-play-25"      % "5.3.0",
     "uk.gov.hmrc"       %% "domain"                 % "5.6.0-play-25",
     "org.json4s"        %% "json4s-jackson"         % "3.6.7",
     "uk.gov.hmrc"       %% "time"                   % "3.6.0",
-    "uk.gov.hmrc"       %% "json-encryption"        % "4.4.0-play-25",
     "com.github.fge"     % "json-schema-validator"  % "2.2.6",
     "org.json4s"        %% "json4s-native"          % "3.5.5",
     "uk.gov.hmrc"       %% "auth-client"            % "2.31.0-play-25",

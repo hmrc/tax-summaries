@@ -30,6 +30,7 @@ trait ApplicationConfig {
   def npsServiceUrl: String
 }
 
+// TODO: ServicesConfig fix and turn this to a class
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
 
   override protected def mode: Mode = Play.current.mode

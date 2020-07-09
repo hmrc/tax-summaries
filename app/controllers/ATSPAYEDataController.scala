@@ -21,7 +21,7 @@ import controllers.auth.PayeAuthAction
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import services.NpsService
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

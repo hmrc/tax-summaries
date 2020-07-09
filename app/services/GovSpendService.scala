@@ -24,6 +24,25 @@ sealed trait GoodsAndServices extends ApiValue
 
 object GoodsAndServices {
 
+  val allItems = List[GoodsAndServices](
+    Welfare,
+    Health,
+    Education,
+    StatePensions,
+    NationalDebtInterest,
+    Defence,
+    CriminalJustice,
+    Transport,
+    BusinessAndIndustry,
+    GovernmentAdministration,
+    Culture,
+    HousingAndUtilities,
+    OverseasAid,
+    UkContributionToEuBudget,
+    PublicOrderAndSafety,
+    Environment
+  )
+
   implicit val formats: Format[GoodsAndServices] = Format(
     ApiValue.readFromList(allItems),
     Writes[GoodsAndServices](o => JsString(o.apiValue))
@@ -45,25 +64,6 @@ object GoodsAndServices {
   case object UkContributionToEuBudget extends ApiValue("UkContributionToEuBudget") with GoodsAndServices
   case object PublicOrderAndSafety extends ApiValue("PublicOrderAndSafety") with GoodsAndServices
   case object Environment extends ApiValue("Environment") with GoodsAndServices
-
-  val allItems = List[GoodsAndServices](
-    Welfare,
-    Health,
-    Education,
-    StatePensions,
-    NationalDebtInterest,
-    Defence,
-    CriminalJustice,
-    Transport,
-    BusinessAndIndustry,
-    GovernmentAdministration,
-    Culture,
-    HousingAndUtilities,
-    OverseasAid,
-    UkContributionToEuBudget,
-    PublicOrderAndSafety,
-    Environment
-  )
 
   implicit def mapFormat[V: Format]: Format[Map[GoodsAndServices, V]] =
     ApiValue.formatMap[GoodsAndServices, V](allItems)
