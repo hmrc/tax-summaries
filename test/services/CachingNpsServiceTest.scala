@@ -21,7 +21,7 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import repositories.Repository
@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class CachingNpsServiceTest extends UnitSpec with ScalaFutures with MockitoSugar with BeforeAndAfterEach {
+class CachingNpsServiceTest extends UnitSpec with ScalaFutures with MockitoSugar with BeforeAndAfterEach with IntegrationPatience {
   val IM_A_TEAPOT = 418
 
   val repository = mock[Repository]
