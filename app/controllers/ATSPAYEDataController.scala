@@ -16,33 +16,16 @@
 
 package controllers
 
+import com.google.inject.Inject
 import controllers.auth.PayeAuthAction
-import org.slf4j.LoggerFactory
-import play.api.Play
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
-import services.{CachingNpsService, DirectNpsService, NpsService}
+import services.NpsService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object ATSPAYEDataController extends ATSPAYEDataController {
-  override lazy val npsService = if (Play.current.configuration.getBoolean("payeNpsCachingEnabled").getOrElse(false)) {
-    CachingNpsService
-  } else {
-    DirectNpsService
-  }
-  override val payeAuthAction: PayeAuthAction = Play.current.injector.instanceOf[PayeAuthAction]
-
-}
-
-trait ATSPAYEDataController extends BaseController {
-
-  val logger = LoggerFactory.getLogger("application." + getClass.getCanonicalName)
-
-  val payeAuthAction: PayeAuthAction
-
-  def npsService: NpsService
+class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction) extends BaseController {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     npsService.getPayeATSData(nino, taxYear) map {

@@ -17,6 +17,7 @@
 package services
 
 import com.fasterxml.jackson.core.JsonParseException
+import com.google.inject.Inject
 import connectors.ODSConnector
 import errors.AtsError
 import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
@@ -28,10 +29,7 @@ import utils.TaxsJsonHelper
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
-trait OdsService {
-
-  def jsonHelper: TaxsJsonHelper
-  def odsConnector: ODSConnector
+class OdsService @Inject()(jsonHelper: TaxsJsonHelper, odsConnector: ODSConnector) {
 
   def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] = {
     for {
@@ -69,9 +67,4 @@ trait OdsService {
       Logger.error("Generic error", error)
       Json.toJson(AtsYearList(UTR, None, None, Some(AtsError(error.getMessage()))))
   }
-}
-
-object OdsService extends OdsService {
-  override val odsConnector = ODSConnector
-  override val jsonHelper: TaxsJsonHelper = new TaxsJsonHelper {}
 }

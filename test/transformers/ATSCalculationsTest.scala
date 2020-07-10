@@ -47,10 +47,7 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
     lazy val taxSummaryLiability =
       TaxSummaryLiability(taxYear, pensionTaxRate, if (isScottish) Some("0002") else None, niData, atsData)
 
-    lazy val taxRateService = new TaxRateService {
-      override val taxYear: Int = self.taxYear
-      override val configRate: Int => Map[String, Double] = _ => configRates
-    }
+    lazy val taxRateService = new TaxRateService(self.taxYear, _ => configRates)
 
     lazy val calculation: ATSCalculations = ATSCalculations.make(taxSummaryLiability, taxRateService)
   }

@@ -18,8 +18,10 @@ package services
 
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.any
+import org.mockito.Mockito
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import repositories.Repository
@@ -28,12 +30,18 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class CachingNpsServiceTest extends UnitSpec with ScalaFutures with MockitoSugar {
+class CachingNpsServiceTest extends UnitSpec with ScalaFutures with MockitoSugar with BeforeAndAfterEach with IntegrationPatience {
   val IM_A_TEAPOT = 418
 
-  class Fixture extends CachingNpsService {
-    override val repository: Repository = mock[Repository]
-    override val innerService: NpsService = mock[NpsService]
+  val repository = mock[Repository]
+  val innerService = mock[DirectNpsService]
+
+  class Fixture extends NpsService(repository, innerService)
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(repository)
+    Mockito.reset(innerService)
+    super.beforeEach()
   }
 
   "CachingNpsService" should {

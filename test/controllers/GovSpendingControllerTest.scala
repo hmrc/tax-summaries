@@ -16,25 +16,27 @@
 
 package controllers
 
+import config.WSHttp
 import connectors.ODSConnector
 import controllers.auth.FakeAuthAction
-import controllers.ATSDataController
-import controllers.auth.AuthAction
 import models.SpendData
+import org.mockito.Mockito.when
+import org.mockito.Matchers.any
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
 import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
 import play.test.WithApplication
 import services.OdsService
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TaxsJsonHelper
 import utils.TestConstants._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 
-class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
+class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
 
   val request = FakeRequest()
 
@@ -45,28 +47,19 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
   val taxPayerDataPath = "/taxpayerData/test_individual_utr.json"
 
   def makeController(inputJson: String) = {
-    val odsc = new ODSConnector {
-      override def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-        MockConnections.connectToMockPayloadService(inputJson)
-      override def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-        MockConnections.connectToMockPayloadService(taxPayerDataPath)
-      override def http: HttpGet = null
-      override def serviceUrl: String = null
-    }
 
-    val odsServiceObject = new OdsService {
-      override val odsConnector = odsc
-      override val jsonHelper = new TaxsJsonHelper {}
-    }
+    val odsc = mock[ODSConnector]
+    when(odsc.connectToSelfAssessment(any(), any())(any()))
+      .thenReturn(MockConnections.connectToMockPayloadService(inputJson))
+    when(odsc.connectToSATaxpayerDetails(any())(any()))
+      .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
-    new ATSDataController {
-      override val odsService = odsServiceObject
-      override val authAction: AuthAction = FakeAuthAction
-    }
+    val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
+    new ATSDataController(odsService, FakeAuthAction)
   }
 
   "Calling Government Spend with no session" should {
-    "return a 200 response" in new WithApplication() {
+    "return a 200 response" in {
 
       val controllerUnderTest = makeController(summaryJson)
       val result2014 = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
@@ -75,7 +68,7 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
       status(result2014) shouldBe 200
       status(result2015) shouldBe 200
     }
-    "have the right data in the output Json" in new WithApplication() {
+    "have the right data in the output Json" in {
 
       val controllerUnderTest = makeController(summaryJson)
       val result2014 = Future.successful(controllerUnderTest.getATSData(testUtr, 2014)(request))
@@ -117,7 +110,7 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
     }
   }
   "Calling Government Spend with only capital gains tax to pay" should {
-    "show the correct figures in the government spend screen" in new WithApplication() {
+    "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(capitalGainsOnlyJson)
       val result2014 = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
@@ -159,7 +152,7 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest {
     }
   }
   "Calling Government Spend with income, NICs and Capital Gains tax to pay" should {
-    "show the correct figures in the government spend screen" in new WithApplication() {
+    "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(allTaxJson)
       val result2014 = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))

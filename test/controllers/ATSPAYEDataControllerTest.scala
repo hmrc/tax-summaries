@@ -39,12 +39,12 @@ import scala.concurrent.duration.Duration
 class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
 
   implicit val timeout = new Timeout(Duration.Zero)
+  val request = FakeRequest()
 
-  class TestController extends ATSPAYEDataController {
-    val request = FakeRequest()
-    override lazy val npsService: NpsService = mock[NpsService]
-    override val payeAuthAction: PayeAuthAction = FakeAuthAction
-  }
+  val npsService: NpsService = mock[NpsService]
+  val payeAuthAction: PayeAuthAction = FakeAuthAction
+
+  class TestController extends ATSPAYEDataController(npsService, payeAuthAction)
 
   "getAtsData" should {
 
