@@ -38,7 +38,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
       )
       .build()
 
-  implicit val hc = HeaderCarrier()
+  val hc = HeaderCarrier()
   private val currentYear = 2018
   private val invalidTaxYear = 201899
 
@@ -60,7 +60,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, currentYear, hc).futureValue
 
       result.json shouldBe Json.parse(expectedNpsResponse)
     }
@@ -77,7 +77,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
+      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear, hc).futureValue
 
       result.json shouldBe Json.parse(expectedNpsResponse)
     }
@@ -93,7 +93,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Bad Request"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
 
       result.status shouldBe BAD_REQUEST
     }
@@ -109,7 +109,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Not Found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
 
       result.status shouldBe NOT_FOUND
     }
@@ -125,7 +125,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("File not found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
 
       result.status shouldBe INTERNAL_SERVER_ERROR
     }

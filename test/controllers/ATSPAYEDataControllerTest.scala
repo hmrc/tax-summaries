@@ -27,7 +27,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.contentAsJson
+import play.api.test.Helpers.{contentAsJson, stubControllerComponents}
 import services.NpsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -38,13 +38,14 @@ import scala.concurrent.duration.Duration
 
 class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
 
+  val cc = stubControllerComponents()
   implicit val timeout = new Timeout(Duration.Zero)
   val request = FakeRequest()
 
   val npsService: NpsService = mock[NpsService]
   val payeAuthAction: PayeAuthAction = FakeAuthAction
 
-  class TestController extends ATSPAYEDataController(npsService, payeAuthAction)
+  class TestController extends ATSPAYEDataController(npsService, payeAuthAction, cc)
 
   "getAtsData" should {
 

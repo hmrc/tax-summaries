@@ -25,7 +25,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, stubControllerComponents}
 import play.test.WithApplication
 import services.OdsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
@@ -37,6 +37,7 @@ import scala.concurrent.Future
 
 class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
 
+  val cc = stubControllerComponents()
   val request = FakeRequest()
 
   val summaryJson = "/utr_2014.json"
@@ -54,7 +55,7 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with Mo
       .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
-    new ATSDataController(odsService, FakeAuthAction)
+    new ATSDataController(odsService, FakeAuthAction, cc)
   }
 
   "Calling Government Spend with no session" should {

@@ -17,33 +17,28 @@
 package config
 
 import com.google.inject.Inject
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
-
+import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.collection.JavaConverters._
 
-class ApplicationConfig @Inject()(override val runModeConfiguration: Configuration, playEnvironment: Environment)
-    extends ServicesConfig {
-
-  override protected def mode: Mode = playEnvironment.mode
+class ApplicationConfig @Inject()(servicesConfig: ServicesConfig, configuration: Configuration) {
 
   private def defaultRatePercentages: Map[String, Double] =
-    runModeConfiguration
+    configuration
       .getObject("taxRates.default.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def ratePercentagesByYear(year: Int): Map[String, Double] =
-    runModeConfiguration
+    configuration
       .getObject(s"taxRates.$year.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def governmentSpendByYear(year: Int): Map[String, Double] =
-    runModeConfiguration
+    configuration
       .getObject(s"governmentSpend.$year.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
@@ -53,16 +48,13 @@ class ApplicationConfig @Inject()(override val runModeConfiguration: Configurati
 
   def governmentSpend(year: Int) = governmentSpendByYear(year)
 
-  def npsServiceUrl = baseUrl("tax-summaries-hod")
+  def npsServiceUrl = servicesConfig.baseUrl("tax-summaries-hod")
 
   lazy val environment: String =
-    runModeConfiguration.getString(s"$rootServices.tax-summaries-hod.env").getOrElse("local")
+    servicesConfig.getConfString("tax-summaries-hod.env", "local")
 
-  lazy val authorization: String = "Bearer " + runModeConfiguration
-    .getString(s"$rootServices.tax-summaries-hod.authorizationToken")
-    .getOrElse("local")
+  lazy val authorization: String = "Bearer " + servicesConfig
+    .getConfString("tax-summaries-hod.authorizationToken", "local")
 
-  lazy val originatorId: String =
-    runModeConfiguration.getString(s"$rootServices.tax-summaries-hod.originatorId").getOrElse("local")
-
+  lazy val originatorId: String = servicesConfig.getConfString("tax-summaries-hod.originatorId", "local")
 }

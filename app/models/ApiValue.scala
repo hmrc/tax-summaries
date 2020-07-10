@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.data.validation.ValidationError
+import play.api.libs.json.JsonValidationError
 import play.api.libs.json._
 
 import scala.annotation.tailrec
@@ -46,7 +46,7 @@ object ApiValue extends DefaultReads {
     ls: List[K],
     reads: Reads[V],
     acc: List[(K, V)],
-    errors: Seq[(JsPath, Seq[ValidationError])]): JsResult[Map[K, V]] =
+    errors: Seq[(JsPath, Seq[JsonValidationError])]): JsResult[Map[K, V]] =
     if (m.isEmpty) {
       if (errors.isEmpty) JsSuccess(Map(acc: _*))
       else JsError(errors)

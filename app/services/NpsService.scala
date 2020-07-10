@@ -62,7 +62,7 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
 class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
   def getPayeATSData(nino: String, taxYear: Int)(
     implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
-    npsConnector.connectToPayeTaxSummary(nino, taxYear) map { response =>
+    npsConnector.connectToPayeTaxSummary(nino, taxYear, hc) map { response =>
       response status match {
         case OK => Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
         case _  => Left(response)

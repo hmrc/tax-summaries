@@ -16,26 +16,27 @@
 
 package controllers.auth
 
-import akka.util.Timeout
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
+import play.api.test.Helpers.stubControllerComponents
 import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
-class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
+class AuthActionSpec
+    extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with ScalaFutures {
 
   val mockAuthConnector = mock[AuthConnector]
+  val cc = stubControllerComponents()
 
   class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { _ =>
@@ -43,18 +44,16 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
     }
   }
 
-  implicit val timeout: Timeout = 5 seconds
-
   "AuthAction" should {
     "return UNAUTHORIZED when the user is not logged in" in {
 
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(new MissingBearerToken))
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-      status(result) mustBe UNAUTHORIZED
+      result.futureValue mustBe UNAUTHORIZED
     }
 
     "return the request when the user is authorised" in {
@@ -62,20 +61,20 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(Future.successful(()))
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
 
-      status(result) mustBe OK
+      result.futureValue mustBe OK
     }
 
     "return BAD_REQUEST when the user is authorised and the uri doesn't match our expected format" in {
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/invalid"))
 
-      status(result) mustBe BAD_REQUEST
+      result.futureValue mustBe BAD_REQUEST
     }
 
     "return UNAUTHORIZED when the IR-SA enrolment is not present" in {
@@ -85,11 +84,11 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
 
-      status(result) mustBe UNAUTHORIZED
+      result.futureValue mustBe UNAUTHORIZED
     }
   }
 

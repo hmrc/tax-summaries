@@ -26,7 +26,8 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayeAuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit executionContext: ExecutionContext)
+class PayeAuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerComponents)(
+  implicit ec: ExecutionContext)
     extends PayeAuthAction with AuthorisedFunctions {
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
@@ -47,7 +48,10 @@ class PayeAuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit ex
       Logger.error(s"Authorisation error", t)
       Some(InternalServerError)
   }
+
+  override val parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override protected def executionContext: ExecutionContext = ec
 }
 
 @ImplementedBy(classOf[PayeAuthActionImpl])
-trait PayeAuthAction extends ActionBuilder[Request] with ActionFilter[Request]
+trait PayeAuthAction extends ActionBuilder[Request, AnyContent] with ActionFilter[Request]

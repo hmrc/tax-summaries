@@ -18,13 +18,14 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.auth.AuthAction
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.OdsService
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction) extends BaseController {
+class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction, cc: ControllerComponents)
+    extends BackendController(cc) {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
     odsService.getList(utr) map (Ok(_)) recover {

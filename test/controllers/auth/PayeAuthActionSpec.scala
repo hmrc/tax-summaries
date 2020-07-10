@@ -16,17 +16,15 @@
 
 package controllers.auth
 
-import akka.util.Timeout
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status._
 import play.api.mvc._
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
+import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientConfidenceLevel, InternalError, MissingBearerToken}
 import utils.TestConstants._
 
@@ -37,7 +35,7 @@ import scala.concurrent.duration._
 class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
 
   val mockAuthConnector = mock[AuthConnector]
-  val payeAuthAction = new PayeAuthActionImpl(mockAuthConnector)
+  val payeAuthAction = new PayeAuthActionImpl(mockAuthConnector, stubControllerComponents())
   val harness = new Harness(payeAuthAction)
   val request = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
 
@@ -46,8 +44,6 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
       Ok
     }
   }
-
-  implicit val timeout: Timeout = 5 seconds
 
   "AuthAction" should {
     "allow a request when authorised is successful" in {
