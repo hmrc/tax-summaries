@@ -19,14 +19,12 @@ package transformers
 import models.Liability.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models.LiabilityKey._
 import models._
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
 import scala.io.Source
 
-class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
+class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -40,7 +38,12 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
       val testRates =
@@ -62,7 +65,12 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       val testPayload =
@@ -105,7 +113,12 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -145,7 +158,12 @@ class CapitalGainsTransformationTest extends UnitSpec with AtsJsonDataUpdate wit
 
       val transformedData = transformation(sourceJson = sampleJson, tliSlpAtsUpdate = update)
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(transformedData.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedData.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       parsedPayload(PayCgTaxOn) should equal(Amount.empty)

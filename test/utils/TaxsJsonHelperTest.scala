@@ -16,18 +16,19 @@
 
 package utils
 
-import transformers.ATSParsingException
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json._
-import uk.gov.hmrc.play.test.UnitSpec
+import transformers.ATSParsingException
 import utils.TestConstants._
 
-class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
+class TaxsJsonHelperTest extends BaseSpec with MockitoSugar with ScalaFutures {
+
+  class SetUp extends TaxsJsonHelper(applicationConfig)
 
   "hasAtsForPreviousPeriod" should {
 
-    "return true when json response has non empty annual tax summaries data" in new TaxsJsonHelper {
+    "return true when json response has non empty annual tax summaries data" in new SetUp {
 
       val rawJson = Json.parse("""
                                  | {
@@ -43,7 +44,7 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
       result shouldBe true
     }
 
-    "return false when json response has no annual tax summaries data" in new TaxsJsonHelper {
+    "return false when json response has no annual tax summaries data" in new SetUp {
 
       val rawJson = Json.parse("""
                                  | {
@@ -56,7 +57,7 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
       result shouldBe false
     }
 
-    "return false for badly formed json" in new TaxsJsonHelper {
+    "return false for badly formed json" in new SetUp {
 
       val rawJson = Json.parse("""
                                  | {
@@ -75,7 +76,7 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
 
   "createTaxYearJson" should {
 
-    "return a jsvalue with correct data when passed correct format" in new TaxsJsonHelper {
+    "return a jsvalue with correct data when passed correct format" in new SetUp {
 
       val rawJson = Json.parse("""
                                  | {
@@ -104,7 +105,7 @@ class TaxsJsonHelperTest extends UnitSpec with MockitoSugar with ScalaFutures {
       result \ "atsYearList" shouldBe JsDefined(Json.parse("[2014, 2015]"))
     }
 
-    "return an exception when passed badly formed json" in new TaxsJsonHelper {
+    "return an exception when passed badly formed json" in new SetUp {
 
       val rawJson = Json.parse("""
                                  | {

@@ -30,7 +30,8 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class CachingNpsServiceTest extends UnitSpec with ScalaFutures with MockitoSugar with BeforeAndAfterEach with IntegrationPatience {
+class CachingNpsServiceTest
+    extends UnitSpec with ScalaFutures with MockitoSugar with BeforeAndAfterEach with IntegrationPatience {
   val IM_A_TEAPOT = 418
 
   val repository = mock[Repository]

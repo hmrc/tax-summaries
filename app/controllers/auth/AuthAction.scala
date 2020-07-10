@@ -17,15 +17,12 @@
 package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
-import config.WSHttp
-import play.api.Mode.Mode
+import play.api.Logger
 import play.api.mvc.Results.{BadRequest, Unauthorized}
 import play.api.mvc.{ActionBuilder, ActionFilter, Request, Result}
-import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.auth.core.{AuthorisedFunctions, ConfidenceLevel, Enrolment, PlayAuthConnector}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -58,10 +55,3 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit execut
 
 @ImplementedBy(classOf[AuthActionImpl])
 trait AuthAction extends ActionBuilder[Request] with ActionFilter[Request]
-
-class AuthConnector @Inject()(val http: WSHttp, val runModeConfiguration: Configuration, environment: Environment)
-    extends PlayAuthConnector with ServicesConfig {
-  override val serviceUrl: String = baseUrl("auth")
-
-  override protected def mode: Mode = environment.mode
-}

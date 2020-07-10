@@ -17,22 +17,20 @@
 package connectors
 
 import com.google.inject.Inject
-import config.WSHttp
+import config.ApplicationConfig
 import play.api.Mode.Mode
 import play.api.libs.json.JsValue
-import play.api.{Configuration, Play}
+import play.api.{Configuration, Environment, Play}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ODSConnector @Inject()(http: WSHttp) extends ServicesConfig {
+class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig) {
 
-  protected def mode: Mode = Play.current.mode
-  protected def runModeConfiguration: Configuration = Play.current.configuration
-
-  val serviceUrl = baseUrl("tax-summaries-hod")
+  val serviceUrl = applicationConfig.npsServiceUrl
 
   def url(path: String) = s"$serviceUrl$path"
 

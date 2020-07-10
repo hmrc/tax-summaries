@@ -20,29 +20,27 @@ import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsResultException, JsValue, Json}
-import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.TestConstants._
-import utils.{JsonUtil, PayeAtsDataUtil}
+import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
-import scala.collection.Seq
 import scala.concurrent.Future
 
-class DirectNpsServiceTest extends UnitSpec with MockitoSugar with JsonUtil with GuiceOneAppPerTest with ScalaFutures {
+class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with ScalaFutures {
 
   implicit val hc = HeaderCarrier()
+
   val expectedNpsResponse: JsValue = Json.parse(load("/paye_annual_tax_summary.json"))
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
   lazy val transformedData: PayeAtsMiddleTier =
-    atsData.transformToPayeMiddleTier(testNino, currentYear)
+    atsData.transformToPayeMiddleTier(applicationConfig, testNino, currentYear)
 
   val npsConnector = mock[NpsConnector]
 
-  class TestService extends DirectNpsService(npsConnector)
+  class TestService extends DirectNpsService(applicationConfig, npsConnector)
 
   private val currentYear = 2018
 

@@ -18,14 +18,12 @@ package transformers
 
 import errors.AtsError
 import models.TaxSummaryLiability
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsNull, Json}
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AtsJsonDataUpdate
+import utils.{AtsJsonDataUpdate, BaseSpec}
 
 import scala.io.Source
 
-class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
+class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -44,7 +42,12 @@ class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       returnValue.income_data shouldBe None
       returnValue.errors shouldBe Some(AtsError("itf4GiftsInvCharitiesAmo"))
     }
@@ -56,7 +59,12 @@ class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate
       val parsedJson = Json.parse(originalJson)
 
       val returnValue =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       returnValue.income_data shouldBe None
       returnValue.errors shouldBe Some(AtsError("itf4GiftsInvCharitiesAmo"))
     }
@@ -67,7 +75,12 @@ class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate
 
       val parsedJson = Json.parse(originalJson)
       val returnValue =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       returnValue.income_data shouldBe None
       returnValue.errors shouldBe Some(AtsError("ctnSummaryTotShareOptions"))
     }
@@ -81,7 +94,12 @@ class ValidateATSRawDataTransformerTests extends UnitSpec with AtsJsonDataUpdate
       val parsedJson = Json.parse(originalJson)
       val parsedTaxpayerDetailsJson = Json.parse(taxpayerJson)
       val returnValue =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       returnValue.errors shouldBe Some(AtsError("surname"))
     }

@@ -18,15 +18,13 @@ package transformers
 
 import models.LiabilityKey.{OtherAdjustmentsIncreasing, OtherAdjustmentsReducing}
 import models.{Amount, TaxSummaryLiability}
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
 import scala.io.Source
 
-class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
+class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -40,7 +38,12 @@ class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate wi
 
       val parsedJson = Json.parse(sampleJson)
       val returnValue =
-        ATSRawDataTransformer(parsedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -61,7 +64,12 @@ class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate wi
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -81,7 +89,12 @@ class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate wi
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -109,7 +122,12 @@ class OtherAdjustmentsTransformerTest extends UnitSpec with AtsJsonDataUpdate wi
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014

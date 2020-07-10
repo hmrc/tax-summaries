@@ -17,6 +17,7 @@
 package services
 
 import com.google.inject.Inject
+import config.ApplicationConfig
 import connectors.NpsConnector
 import models.paye._
 import play.api.{Logger, Play}
@@ -58,12 +59,12 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
       }
 }
 
-class DirectNpsService @Inject()(npsConnector: NpsConnector) {
+class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
   def getPayeATSData(nino: String, taxYear: Int)(
     implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
     npsConnector.connectToPayeTaxSummary(nino, taxYear) map { response =>
       response status match {
-        case OK => Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(nino, taxYear))
+        case OK => Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
         case _  => Left(response)
       }
     } recover {

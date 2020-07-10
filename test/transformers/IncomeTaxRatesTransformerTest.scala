@@ -18,16 +18,13 @@ package transformers
 
 import models.LiabilityKey._
 import models.{Amount, LiabilityKey, TaxSummaryLiability}
-import org.scalatest.OptionValues
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
 import scala.io.Source
 
-class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
+class IncomeTaxRatesTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -47,7 +44,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
 
       parsedPayload(BasicRateIncomeTax) should equal(new Amount(300.0, "GBP"))
@@ -65,7 +67,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
 
       parsedPayload(BasicRateIncomeTaxAmount) should equal(new Amount(700.0, "GBP"))
@@ -83,7 +90,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
 
       parsedPayload(HigherRateIncomeTax) should equal(new Amount(1100.0, "GBP"))
@@ -101,7 +113,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
 
       parsedPayload(HigherRateIncomeTaxAmount) should equal(new Amount(1300.0, "GBP"))
@@ -119,7 +136,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
 
       parsedPayload(AdditionalRateIncomeTax) should equal(new Amount(30.0, "GBP"))
@@ -137,7 +159,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
 
       parsedPayload(AdditionalRateIncomeTaxAmount) should equal(new Amount(198.0, "GBP"))
@@ -161,7 +188,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
@@ -188,7 +220,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
@@ -215,7 +252,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", taxYear).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
@@ -228,7 +270,12 @@ class IncomeTaxRatesTransformerTest extends UnitSpec with AtsJsonDataUpdate with
   "new SRIT values" should {
 
     val json = JsonUtil.load("/srit_values.json")
-    val sut = ATSRawDataTransformer(Json.parse(json).as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2019)
+    val sut = ATSRawDataTransformer(
+      applicationConfig,
+      Json.parse(json).as[TaxSummaryLiability],
+      parsedTaxpayerDetailsJson,
+      "",
+      2019)
 
     def payload(key: LiabilityKey): Option[Amount] =
       sut.atsDataDTO.income_tax.flatMap(_.payload.flatMap(_.get(key)))

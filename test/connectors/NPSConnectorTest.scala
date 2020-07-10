@@ -18,22 +18,18 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
 import com.github.tomakehurst.wiremock.http.Fault
-import config.{ApplicationConfig, WSHttp}
+import config.ApplicationConfig
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, Upstream4xxResponse}
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.TestConstants.testNino
-import utils.{JsonUtil, WireMockHelper}
+import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class NPSConnectorTest
-    extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
+class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -48,7 +44,7 @@ class NPSConnectorTest
 
   private val testNinoWithoutSuffix = testNino.take(8)
 
-  class NPSConnectorSetUp extends NpsConnector(WSHttp) with JsonUtil
+  class NPSConnectorSetUp extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig) with JsonUtil
 
   "connectToPayeTaxSummary" should {
 

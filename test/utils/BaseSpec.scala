@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package config
+package utils
 
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import config.ApplicationConfig
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.play.test.UnitSpec
 
-class ATSModule extends Module {
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
-    )
+class BaseSpec extends UnitSpec with GuiceOneAppPerSuite {
+  lazy val applicationConfig = app.injector.instanceOf[ApplicationConfig]
 }

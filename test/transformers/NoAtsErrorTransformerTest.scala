@@ -18,15 +18,13 @@ package transformers
 
 import errors.AtsError
 import models.{Amount, TaxSummaryLiability}
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import uk.gov.hmrc.play.test.UnitSpec
 import utils._
 
 import scala.io.Source
 
-class NoAtsErrorTransformerTest extends UnitSpec with AtsJsonDataUpdate with GuiceOneAppPerTest {
+class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
@@ -44,7 +42,12 @@ class NoAtsErrorTransformerTest extends UnitSpec with AtsJsonDataUpdate with Gui
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
 
       val returnValue =
-        ATSRawDataTransformer(transformedJson.as[TaxSummaryLiability], parsedTaxpayerDetailsJson, "", 2014).atsDataDTO
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          2014).atsDataDTO
 
       returnValue.errors shouldBe Some(AtsError("NoAtsError"))
     }

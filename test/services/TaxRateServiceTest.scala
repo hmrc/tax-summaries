@@ -16,16 +16,14 @@
 
 package services
 
-import config.ApplicationConfig
+import models.Rate
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.play.test.UnitSpec
-import models.Rate
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import utils.BaseSpec
 
-class TaxRateServiceTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerTest {
+class TaxRateServiceTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
-  val ratePercentages: Int => Map[String, Double] = ApplicationConfig.ratePercentages
+  val ratePercentages: Int => Map[String, Double] = applicationConfig.ratePercentages
 
   "taxRateService" should {
 

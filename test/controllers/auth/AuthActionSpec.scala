@@ -27,7 +27,7 @@ import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.status
-import uk.gov.hmrc.auth.core.{InsufficientEnrolments, MissingBearerToken}
+import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

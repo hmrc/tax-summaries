@@ -17,15 +17,13 @@
 package config
 
 import org.scalatest.TestData
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.BaseSpec
 
-class ApplicationConfigSpec extends UnitSpec with GuiceOneAppPerTest {
+class ApplicationConfigSpec extends BaseSpec {
 
-  override def newAppForTest(testData: TestData): Application = {
-
+  override implicit lazy val app: Application = {
     def appWithConfig(config: Map[String, Any]): Application =
       new GuiceApplicationBuilder().configure(Map("taxRates" -> "")).configure(config).build()
 
@@ -39,14 +37,14 @@ class ApplicationConfigSpec extends UnitSpec with GuiceOneAppPerTest {
 
   "calling ratePercentages" should {
     "return default percentage rates when no overriding year" in {
-      ApplicationConfig.ratePercentages(2016) shouldBe Map(
+      applicationConfig.ratePercentages(2016) shouldBe Map(
         "percentageRate1" -> 10,
         "percentageRate2" -> 20,
         "percentageRate3" -> 30)
     }
 
     "return default percentage but override where later year uprates" in {
-      ApplicationConfig.ratePercentages(2017) shouldBe Map(
+      applicationConfig.ratePercentages(2017) shouldBe Map(
         "percentageRate1" -> 10,
         "percentageRate2" -> 60,
         "percentageRate3" -> 30)

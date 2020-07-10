@@ -15,25 +15,23 @@
  */
 
 package connectors
-
-import config.WSHttp
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import utils.BaseSpec
 import utils.TestConstants._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ODSConnectorTest extends UnitSpec with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+class ODSConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
-  val http = mock[WSHttp]
+  val http = mock[HttpClient]
 
-  class TestConnector extends ODSConnector(http)
+  class TestConnector extends ODSConnector(http, applicationConfig)
 
   "connectToSelfAssessment" should {
 
