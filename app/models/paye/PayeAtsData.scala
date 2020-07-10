@@ -21,7 +21,6 @@ import models.LiabilityKey._
 import models.RateKey._
 import models._
 import play.api.libs.json.{Json, Reads}
-import transformers.GovSpendingDataTransformer
 
 case class PayeAtsData(
   taxableStateBenefits: Option[Double],
@@ -158,7 +157,7 @@ case class PayeAtsData(
       }
     )
     val correctYearForGovSpendCategories = taxYear + 1
-    GovSpendingDataTransformer(applicationConfig, totalIncome, correctYearForGovSpendCategories).govSpendReferenceDTO
+    GovernmentSpendingOutputWrapper(applicationConfig, totalIncome, correctYearForGovSpendCategories)
   }
 
 }

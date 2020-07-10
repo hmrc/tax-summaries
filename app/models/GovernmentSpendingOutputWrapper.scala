@@ -16,9 +16,10 @@
 
 package models
 
+import config.ApplicationConfig
 import errors.AtsError
 import play.api.libs.json.Json
-import services.GoodsAndServices
+import services.{GoodsAndServices, GovSpendService}
 
 case class GovernmentSpendingOutputWrapper(
   taxYear: Int,
@@ -28,4 +29,26 @@ case class GovernmentSpendingOutputWrapper(
 
 object GovernmentSpendingOutputWrapper {
   implicit val formats = Json.format[GovernmentSpendingOutputWrapper]
+
+  def apply(
+    applicationConfig: ApplicationConfig,
+    totalTaxAmount: Amount,
+    taxYear: Int): GovernmentSpendingOutputWrapper = {
+
+    def createSpendDataItem(spendCategory: GoodsAndServices, spendPercentage: BigDecimal, amount: Amount): SpendData = {
+      val monetaryBD = getMonetaryAmount(spendPercentage, amount)
+      val monetaryAmount = Amount.gbp(monetaryBD)
+      SpendData(monetaryAmount, spendPercentage)
+    }
+
+    def createGovernmentSpendingAmounts = new GovSpendService(applicationConfig).govSpending(taxYear) map {
+      case (key, value) =>
+        (key, createSpendDataItem(key, value, totalTaxAmount))
+    }
+
+    def getMonetaryAmount(percentage: BigDecimal, amount: Amount) =
+      ((percentage / 100) * amount.amount).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+
+    GovernmentSpendingOutputWrapper(taxYear, createGovernmentSpendingAmounts, totalTaxAmount, None)
+  }
 }

@@ -63,7 +63,7 @@ case class ATSRawDataTransformer(
     }
 
   private def createGovSpendData =
-    GovSpendingDataTransformer(applicationConfig, calculations.totalTax, taxYear).govSpendReferenceDTO
+    GovernmentSpendingOutputWrapper(applicationConfig, calculations.totalTax, taxYear)
 
   private def createSummaryData =
     DataHolder.make(createSummaryPageBreakdown, createSummaryPageRates)
