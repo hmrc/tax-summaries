@@ -42,7 +42,7 @@ class Repository @Inject()(mongo: ReactiveMongoApi) {
     mongo.database.map(_.collection[JSONCollection](collectionName))
 
   private val lastUpdatedIndex = Index(
-    Seq("expiresAt" -> IndexType.Ascending),
+    key = Seq("expiresAt" -> IndexType.Ascending),
     name = Some("expires-at-index"),
     options = BSONDocument("expireAfterSeconds" -> 0))
 

@@ -19,13 +19,14 @@ package controllers
 import com.google.inject.Inject
 import controllers.auth.PayeAuthAction
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.NpsService
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction) extends BaseController {
+class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)
+    extends BackendController(cc) {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     npsService.getPayeATSData(nino, taxYear) map {

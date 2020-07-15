@@ -16,10 +16,16 @@
 
 package controllers.auth
 
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{AnyContent, BodyParser, Request, Result}
+import play.api.test.Helpers.stubControllerComponents
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object FakeAuthAction extends AuthAction with PayeAuthAction {
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = Future.successful(None)
+
+  lazy val cc = stubControllerComponents()
+
+  override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override protected def executionContext: ExecutionContext = cc.executionContext
 }

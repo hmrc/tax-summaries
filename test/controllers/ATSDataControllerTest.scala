@@ -23,6 +23,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.test.FakeRequest
+import play.api.test.Helpers.stubControllerComponents
 import services.OdsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -32,13 +33,14 @@ import scala.concurrent.Future
 
 class ATSDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
 
+  val cc = stubControllerComponents()
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
   val request = FakeRequest()
 
   val odsService: OdsService = mock[OdsService]
-  val controller = new ATSDataController(odsService, FakeAuthAction)
+  val controller = new ATSDataController(odsService, FakeAuthAction, cc)
 
   "getAtsData" should {
 

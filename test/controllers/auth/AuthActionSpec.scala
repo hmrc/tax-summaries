@@ -27,6 +27,7 @@ import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.status
+import play.api.test.Helpers.stubControllerComponents
 import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,6 +36,7 @@ import scala.concurrent.duration._
 
 class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
 
+  val cc = stubControllerComponents()
   val mockAuthConnector = mock[AuthConnector]
 
   class Harness(authAction: AuthAction) extends Controller {
@@ -51,7 +53,7 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(new MissingBearerToken))
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
       status(result) mustBe UNAUTHORIZED
@@ -62,7 +64,7 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(Future.successful(()))
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
 
@@ -71,7 +73,7 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
 
     "return BAD_REQUEST when the user is authorised and the uri doesn't match our expected format" in {
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/invalid"))
 
@@ -85,7 +87,7 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new AuthActionImpl(mockAuthConnector)
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
       val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
 

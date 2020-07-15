@@ -19,14 +19,15 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import play.api.Logger
 import play.api.mvc.Results.{BadRequest, Unauthorized}
-import play.api.mvc.{ActionBuilder, ActionFilter, Request, Result}
+import play.api.mvc.{ActionBuilder, ActionFilter, AnyContent, BodyParser, ControllerComponents, Request, Result}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit executionContext: ExecutionContext)
+class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerComponents)(
+  implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
@@ -51,7 +52,10 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector)(implicit execut
       }
     }
   }
+
+  override val parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override protected def executionContext: ExecutionContext = ec
 }
 
 @ImplementedBy(classOf[AuthActionImpl])
-trait AuthAction extends ActionBuilder[Request] with ActionFilter[Request]
+trait AuthAction extends ActionBuilder[Request, AnyContent] with ActionFilter[Request]

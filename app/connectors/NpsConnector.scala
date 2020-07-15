@@ -22,7 +22,7 @@ import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, _}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -39,15 +39,12 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
         "OriginatorId" -> applicationConfig.originatorId
       )
 
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int, hc: HeaderCarrier): Future[HttpResponse] = {
     val ninoWithoutSuffix = NINO.take(8)
 
     implicit val desHeaderCarrier: HeaderCarrier = header(hc)
 
-    http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR))(
-      RawReads.readRaw,
-      desHeaderCarrier,
-      ec = global) recover {
+    http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR)) recover {
       case _: BadRequestException => HttpResponse(BAD_REQUEST)
       case _: NotFoundException   => HttpResponse(NOT_FOUND)
       case e => {
