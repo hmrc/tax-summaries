@@ -60,6 +60,7 @@ lazy val microservice = Project(appName, file("."))
     scoverageSettings,
     publishingSettings,
     scalaSettings,
+    scalaVersion := "2.12.12",
     majorVersion := 1,
     libraryDependencies ++= AppDependencies.all,
     retrieveManaged := true,
