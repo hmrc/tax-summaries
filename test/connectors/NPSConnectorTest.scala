@@ -29,6 +29,8 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import utils.TestConstants.testNino
 import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
+import scala.concurrent.ExecutionContext
+
 class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience {
 
   override def fakeApplication(): Application =
@@ -44,7 +46,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
 
   private val testNinoWithoutSuffix = testNino.take(8)
 
-  class NPSConnectorSetUp extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig) with JsonUtil
+  class NPSConnectorSetUp
+      extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig)(
+        app.injector.instanceOf[ExecutionContext]) with JsonUtil
 
   "connectToPayeTaxSummary" should {
 

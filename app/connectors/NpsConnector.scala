@@ -24,10 +24,9 @@ import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 import uk.gov.hmrc.http.HttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig) {
+class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext) {
 
   def serviceUrl: String = applicationConfig.npsServiceUrl
   def url(path: String) = s"$serviceUrl$path"
