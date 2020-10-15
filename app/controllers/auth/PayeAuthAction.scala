@@ -23,16 +23,19 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, ConfidenceLevel, Nino => AuthNino}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import utils.NinoHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayeAuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerComponents)(
-  implicit ec: ExecutionContext)
+class PayeAuthActionImpl @Inject()(
+  val authConnector: AuthConnector,
+  ninoRegexHelper: NinoHelper,
+  cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends PayeAuthAction with AuthorisedFunctions {
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
 
-    val nino = """(?<=\/)[A-Z]{2}\d{6}[ABCD](?=\/)""".r.findFirstIn(request.uri)
+    val nino = ninoRegexHelper.findNinoIn(request.uri)
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, None)
