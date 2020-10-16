@@ -24,7 +24,7 @@ class NinoHelper @Inject()(nino: String) {
 
   def findNinoIn(target: String): Option[String] =
     Try(Nino(target)) match {
-      case Failure(exception) => None
-      case Success(value)     => Some(value.nino)
+      case Failure(_)     => None
+      case Success(value) => Some(value.nino)
     }
 }

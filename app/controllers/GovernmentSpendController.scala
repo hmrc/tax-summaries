@@ -33,10 +33,9 @@ class GovernmentSpendController @Inject()(
 ) extends BackendController(cc) {
 
   def getGovernmentSpend(taxYear: Int, identifier: String): Action[AnyContent] =
-    if (ninoHelper.findNinoIn(identifier).isDefined) {
-      payeGovSpend(taxYear)
-    } else {
-      saGovSpend(taxYear)
+    ninoHelper.findNinoIn(identifier) match {
+      case Some(_) => payeGovSpend(taxYear)
+      case _       => saGovSpend(taxYear)
     }
 
   private def payeGovSpend(taxYear: Int): Action[AnyContent] = payeAuthAction {

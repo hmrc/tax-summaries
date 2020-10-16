@@ -17,12 +17,12 @@
 package controllers
 
 import akka.stream.Materializer
-import controllers.auth.FakeAuthAction
+import controllers.auth.{AuthAction, FakeAuthAction, PayeAuthAction}
 import org.mockito.Matchers.{eq => meq}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import play.api.http.Status.OK
+import play.api.http.Status.{BAD_REQUEST, OK}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubControllerComponents
 import services.GoodsAndServices.Environment
@@ -38,21 +38,21 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
 
   implicit val mat = app.injector.instanceOf[Materializer]
 
-  def sut = new GovernmentSpendController(
-    mockGovSpendService,
-    app.injector.instanceOf[NinoHelper],
-    FakeAuthAction,
-    FakeAuthAction,
-    stubControllerComponents()
-  )
-
-  when(mockGovSpendService.govSpending(meq(year))) thenReturn Map[GoodsAndServices, Double](Environment -> 5.5)
-
   val expectedBody = """{"Environment":5.5}"""
 
   "GovernmentSpendController" should {
 
     "return government spend figures" when {
+
+      def sut = new GovernmentSpendController(
+        mockGovSpendService,
+        app.injector.instanceOf[NinoHelper],
+        FakeAuthAction,
+        FakeAuthAction,
+        stubControllerComponents()
+      )
+
+      when(mockGovSpendService.govSpending(meq(year))) thenReturn Map[GoodsAndServices, Double](Environment -> 5.5)
 
       "the URI contains a valid nino" in {
 
@@ -68,11 +68,24 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
       }
     }
 
-    "return not authorised" when {
+    "return BadRequest" when {
+
+      def sut = new GovernmentSpendController(
+        app.injector.instanceOf[GovSpendService],
+        app.injector.instanceOf[NinoHelper],
+        app.injector.instanceOf[AuthAction],
+        app.injector.instanceOf[PayeAuthAction],
+        stubControllerComponents()
+      )
+
+      "an invalid nino is given" in {
+        val result = sut.getGovernmentSpend(year, "A123456")(FakeRequest("GET", "/"))
+        status(result) shouldBe BAD_REQUEST
+      }
 
       "an invalid utr is given" in {
         val result = sut.getGovernmentSpend(year, "foobar123")(FakeRequest("GET", "/"))
-        status(result) shouldBe OK
+        status(result) shouldBe BAD_REQUEST
       }
     }
   }

@@ -16,16 +16,26 @@
 
 package utils
 
+import org.scalatest.prop.PropertyChecks
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.test.UnitSpec
 
-class NinoHelperSpec extends UnitSpec with GuiceOneAppPerSuite {
+import scala.util.{Failure, Success, Try}
+
+class NinoHelperSpec extends UnitSpec with GuiceOneAppPerSuite with PropertyChecks {
 
   lazy val sut = app.injector.instanceOf[NinoHelper]
 
   val nino = TestConstants.testNino
 
+  def isInvalidFormat(str: String): Boolean = Try(Nino(str)) match {
+    case Failure(_) => true
+    case Success(_) => false
+  }
+
   "NinoRegexHelper.findNinoIn" should {
+    import scala.util.{Failure, Success}
 
     "return a nino" when {
 
@@ -37,7 +47,12 @@ class NinoHelperSpec extends UnitSpec with GuiceOneAppPerSuite {
     "return None" when {
 
       "given string is not a valid nino" in {
-        sut.findNinoIn("foo") shouldBe None
+
+        forAll { fakeNino: String =>
+          whenever(isInvalidFormat(fakeNino)) {
+            sut.findNinoIn(fakeNino) shouldBe None
+          }
+        }
       }
     }
   }
