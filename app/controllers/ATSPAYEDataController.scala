@@ -17,21 +17,50 @@
 package controllers
 
 import com.google.inject.Inject
+import com.typesafe.scalalogging.LazyLogging
 import controllers.auth.PayeAuthAction
-import play.api.libs.json.Json
+import models.paye.PayeAtsMiddleTier
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.NpsService
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.collection.immutable.Seq
+import scala.concurrent.{ExecutionContext, Future}
 
-class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)
-    extends BackendController(cc) {
+class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)(
+  implicit ec: ExecutionContext)
+    extends BackendController(cc) with LazyLogging {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
-    npsService.getPayeATSData(nino, taxYear) map {
+    callConnector(nino, taxYear) map {
       case Right(response)     => Ok(Json.toJson(response))
       case Left(errorResponse) => new Status(errorResponse.status).apply(errorResponse.json)
     }
   }
+
+  def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
+    implicit request =>
+      def dataList: Seq[Future[Option[JsValue]]] = (yearFrom to yearTo).toList map { year =>
+        callConnector(nino, year) map {
+          case Right(response) => Some(Json.toJson(response))
+          case Left(error) =>
+            logger.error(s"Fetching $year data for $nino returned ${error.status}")
+            None
+        }
+      }
+      Future.sequence(dataList) map { data =>
+        val flattenedData = data.flatten
+        if (flattenedData.isEmpty) NotFound(s"No data found for $nino") else Ok(Json.toJson(flattenedData))
+      } recover {
+        case e =>
+          logger.error(e.getMessage)
+          InternalServerError(e.getMessage)
+      }
+  }
+
+  private def callConnector(nino: String, taxYear: Int)(
+    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
+    npsService.getPayeATSData(nino, taxYear)
 }
