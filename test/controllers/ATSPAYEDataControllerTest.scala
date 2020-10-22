@@ -113,7 +113,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
       "an exception occurs when retrieving data" in new TestController {
 
-        val exMessage = "Oh dear"
+        val exMessage = "An error occurred"
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.failed(
           new Exception(exMessage))
