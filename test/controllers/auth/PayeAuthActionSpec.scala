@@ -26,16 +26,21 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientConfidenceLevel, InternalError, MissingBearerToken}
+import utils.NinoHelper
 import utils.TestConstants._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
 
+  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+
   val mockAuthConnector = mock[AuthConnector]
-  val payeAuthAction = new PayeAuthActionImpl(mockAuthConnector, stubControllerComponents())
+  val payeAuthAction = new PayeAuthActionImpl(
+    mockAuthConnector,
+    app.injector.instanceOf[NinoHelper],
+    stubControllerComponents()
+  )
   val harness = new Harness(payeAuthAction)
   val request = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
 
