@@ -156,6 +156,17 @@ sealed trait ATSCalculations extends DoubleUtils {
   def savingsHigherRateIncome: Amount = Amount.empty
   def savingsAdditionalRateIncome: Amount = Amount.empty
 
+  def welshIncomeTax: Amount = {
+    val welshRate = 0.1
+
+    Amount.gbp(
+      (
+        getWithDefaultAmount(IncomeChargeableBasicRate) +
+          getWithDefaultAmount(IncomeChargeableHigherRate) +
+          getWithDefaultAmount(IncomeChargeableAddHRate)
+      ).amount * welshRate)
+  }
+
   def otherAdjustmentsIncreasing: Amount =
     (
       get(NonDomCharge) +

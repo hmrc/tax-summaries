@@ -158,6 +158,7 @@ case class ATSRawDataTransformer(
       OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing,
       TotalIncomeTax                  -> calculations.totalIncomeTaxAmount,
       ScottishIncomeTax               -> calculations.scottishIncomeTax,
+      WelshIncomeTax                  -> calculations.welshIncomeTax,
       ScottishStarterRateTax          -> calculations.scottishStarterRateTax,
       ScottishBasicRateTax            -> calculations.scottishBasicRateTax,
       ScottishIntermediateRateTax     -> calculations.scottishIntermediateRateTax,
