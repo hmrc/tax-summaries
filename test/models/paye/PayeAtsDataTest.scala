@@ -96,7 +96,7 @@ class PayeAtsDataTest extends BaseSpec {
     "create income data with ScottishIncomeTax as zero when writ changes are disabled" in {
 
       class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
-        override val writEnabled = false
+        override val isPayeWritEnabled = false
       }
 
       lazy val transformedData: PayeAtsMiddleTier =

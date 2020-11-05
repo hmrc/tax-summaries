@@ -125,7 +125,7 @@ case class PayeAtsData(
 
   private def createIncomePayload(applicationConfig: ApplicationConfig): Map[LiabilityKey, Amount] = {
 
-    val scottishIncomeTaxValue: Option[Double] = if (applicationConfig.writEnabled) scottishIncomeTax else None
+    val scottishIncomeTaxValue: Option[Double] = if (applicationConfig.isPayeWritEnabled) scottishIncomeTax else None
     Map(
       IncomeFromEmployment   -> optionToAmount(income.flatMap(_.incomeFromEmployment)),
       StatePension           -> optionToAmount(income.flatMap(_.statePension)),
