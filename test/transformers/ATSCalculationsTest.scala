@@ -19,10 +19,10 @@ package transformers
 import config.ApplicationConfig
 import models.Liability._
 import models._
-import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.PropertyChecks
+import play.api.Configuration
 import services.TaxRateService
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
@@ -32,7 +32,7 @@ final case object Scottish extends Origin
 final case object Welsh extends Origin
 final case object RestUK extends Origin
 
-class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils with MockitoSugar {
+class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils {
 
   class CalcFixtures(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig)(
     pensionTaxRate: PensionTaxRate,
@@ -574,10 +574,14 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
     "writ is disabled" should {
       "return empty for welshIncomeTax" in {
-        val writDisabledConfig = mock[ApplicationConfig]
-        when(writDisabledConfig.isSAWritEnabled).thenReturn(false)
+        val servicesConfig = app.injector.instanceOf[ServicesConfig]
+        val configuration = app.injector.instanceOf[Configuration]
 
-        val welshFixture = new Fixture(taxYear = 2019, Welsh, writDisabledConfig)
+        class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
+          override lazy val isSAWritEnabled = false
+        }
+
+        val welshFixture = new Fixture(taxYear = 2019, Welsh, new ApplicationConfigStub)
 
         forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
           val sut = welshFixture(
@@ -586,7 +590,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
             IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
           )
 
-          welshFixture().calculation.welshIncomeTax shouldBe Amount.empty
+          sut.calculation.welshIncomeTax shouldBe Amount.empty
         }
       }
     }
