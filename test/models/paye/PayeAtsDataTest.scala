@@ -36,45 +36,22 @@ import config.ApplicationConfig
 import models.LiabilityKey._
 import models.RateKey._
 import models._
-import org.mockito.Mockito.when
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import play.api.Configuration
 import services.GoodsAndServices
 import services.GoodsAndServices._
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.{PayeAtsDataUtil, TestConstants}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import utils.{BaseSpec, PayeAtsDataUtil, TestConstants}
 
-class PayeAtsDataTest extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
+class PayeAtsDataTest extends BaseSpec {
 
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
   val nino: String = TestConstants.testNino
   val taxYear = "2018"
-
-  val mockAppConfig = mock[ApplicationConfig]
-
-  when(mockAppConfig.writEnabled).thenReturn(true)
+  lazy val servicesConfig = app.injector.instanceOf[ServicesConfig]
+  lazy val configuration = app.injector.instanceOf[Configuration]
 
   lazy val transformedData: PayeAtsMiddleTier =
-    atsData.transformToPayeMiddleTier(mockAppConfig, nino, taxYear.toInt)
-
-  when(mockAppConfig.governmentSpend(taxYear.toInt + 1)).thenReturn(
-    Map[String, Double](
-      "Welfare"                  -> 23.50,
-      "Health"                   -> 20.20,
-      "StatePensions"            -> 12.80,
-      "Education"                -> 11.80,
-      "Defence"                  -> 5.30,
-      "NationalDebtInterest"     -> 5.10,
-      "PublicOrderAndSafety"     -> 4.30,
-      "Transport"                -> 4.30,
-      "BusinessAndIndustry"      -> 3.60,
-      "GovernmentAdministration" -> 2.10,
-      "HousingAndUtilities"      -> 1.60,
-      "Culture"                  -> 1.50,
-      "Environment"              -> 1.50,
-      "OverseasAid"              -> 1.20,
-      "UkContributionToEuBudget" -> 1.00
-    ))
+    atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
   "transformToPayeMiddleTier" should {
     "populate the nino and tax year" in {
@@ -98,7 +75,7 @@ class PayeAtsDataTest extends UnitSpec with MockitoSugar with BeforeAndAfterEach
 
     }
 
-    "create income data with ScottishIncomeTax as correct value when writ changes are enabled" in {
+    "create income data with ScottishIncomeTax as zero when writ changes are enabled" in {
 
       val incomeData: DataHolder =
         transformedData.income_data.getOrElse(fail("No income data"))
@@ -118,10 +95,12 @@ class PayeAtsDataTest extends UnitSpec with MockitoSugar with BeforeAndAfterEach
 
     "create income data with ScottishIncomeTax as zero when writ changes are disabled" in {
 
-      when(mockAppConfig.writEnabled).thenReturn(false)
+      class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
+        override val writEnabled = false
+      }
 
-      val transformedData: PayeAtsMiddleTier =
-        atsData.transformToPayeMiddleTier(mockAppConfig, nino, taxYear.toInt)
+      lazy val transformedData: PayeAtsMiddleTier =
+        atsData.transformToPayeMiddleTier(new ApplicationConfigStub, nino, taxYear.toInt)
 
       val incomeData: DataHolder =
         transformedData.income_data.getOrElse(fail("No income data"))
@@ -236,7 +215,7 @@ class PayeAtsDataTest extends UnitSpec with MockitoSugar with BeforeAndAfterEach
       "without nics included if employer contributions are not present" in {
         val atsDataWithoutNics = atsData.copy(nationalInsurance = Some(NationalInsurance(Some(100.00), None)))
         val transformedData: PayeAtsMiddleTier =
-          atsDataWithoutNics.transformToPayeMiddleTier(mockAppConfig, nino, taxYear.toInt)
+          atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
         spendData.totalAmount shouldBe Amount.gbp(4000.00)
@@ -245,7 +224,7 @@ class PayeAtsDataTest extends UnitSpec with MockitoSugar with BeforeAndAfterEach
       "without nics included if national insurance section is not present" in {
         val atsDataWithoutNics = atsData.copy(nationalInsurance = None)
         val transformedData: PayeAtsMiddleTier =
-          atsDataWithoutNics.transformToPayeMiddleTier(mockAppConfig, nino, taxYear.toInt)
+          atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
         spendData.totalAmount shouldBe Amount.gbp(4000.00)
