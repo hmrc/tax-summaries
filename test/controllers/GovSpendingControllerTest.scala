@@ -19,16 +19,14 @@ package controllers
 import connectors.ODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData
-import org.mockito.Mockito.when
 import org.mockito.Matchers.any
+import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, stubControllerComponents}
-import play.test.WithApplication
 import services.OdsService
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TaxsJsonHelper
 import utils.TestConstants._

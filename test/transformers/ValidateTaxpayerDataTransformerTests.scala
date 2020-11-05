@@ -16,12 +16,9 @@
 
 package transformers
 
-import config.ApplicationConfig
 import errors.AtsError
 import models.TaxSummaryLiability
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.{JsNull, Json}
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.{AtsJsonDataUpdate, BaseSpec}
 
 import scala.io.Source

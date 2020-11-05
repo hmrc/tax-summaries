@@ -32,14 +32,11 @@
 
 package models.paye
 
-import config.ApplicationConfig
 import models.LiabilityKey._
 import models.RateKey._
 import models._
-import org.scalatestplus.play.OneAppPerSuite
 import services.GoodsAndServices
 import services.GoodsAndServices._
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.{BaseSpec, PayeAtsDataUtil, TestConstants}
 
 class PayeAtsDataTest extends BaseSpec {
