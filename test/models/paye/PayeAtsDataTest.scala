@@ -82,6 +82,7 @@ class PayeAtsDataTest extends BaseSpec {
         OtherPensionIncome     -> Amount.gbp(500.00),
         OtherIncome            -> Amount.gbp(3000.00),
         TotalIncomeBeforeTax   -> Amount.gbp(28000.00),
+        ScottishIncomeTax      -> Amount.gbp(2550.00),
         BenefitsFromEmployment -> Amount.gbp(200.00),
         TaxableStateBenefits   -> Amount.gbp(500.00)
       )
