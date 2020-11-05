@@ -358,7 +358,7 @@ object ATSCalculations {
     applicationConfig: ApplicationConfig): ATSCalculations =
     if (summaryData.taxYear > 2018 && summaryData.isScottish) {
       new Post2018ScottishATSCalculations(summaryData, taxRates)
-    } else if (applicationConfig.isWritEnabled && summaryData.taxYear >= 2019 && summaryData.isWelsh) {
+    } else if (applicationConfig.isSAWritEnabled && summaryData.taxYear >= 2019 && summaryData.isWelsh) {
       new WelshATSCalculations(summaryData, taxRates)
     } else if (summaryData.taxYear > 2018) {
       new Post2018rUKATSCalculations(summaryData, taxRates)

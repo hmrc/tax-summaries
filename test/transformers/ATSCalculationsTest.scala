@@ -575,7 +575,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
     "writ is disabled" should {
       "return empty for welshIncomeTax" in {
         val writDisabledConfig = mock[ApplicationConfig]
-        when(writDisabledConfig.isWritEnabled).thenReturn(false)
+        when(writDisabledConfig.isSAWritEnabled).thenReturn(false)
 
         val welshFixture = new Fixture(taxYear = 2019, Welsh, writDisabledConfig)
 

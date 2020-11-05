@@ -58,5 +58,5 @@ class ApplicationConfig @Inject()(servicesConfig: ServicesConfig, configuration:
 
   lazy val originatorId: String = servicesConfig.getConfString("tax-summaries-hod.originatorId", "local")
 
-  lazy val isWritEnabled: Boolean = servicesConfig.getBoolean("features.writ.enabled")
+  lazy val isSAWritEnabled: Boolean = servicesConfig.getBoolean("features.sa.writ.enabled")
 }
