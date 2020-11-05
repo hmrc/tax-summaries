@@ -16,12 +16,14 @@
 
 package transformers
 
+import config.ApplicationConfig
 import models.Liability._
 import models._
+import org.mockito.Mockito.when
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.PropertyChecks
 import services.TaxRateService
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.DoubleUtils
+import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
 
@@ -30,9 +32,9 @@ final case object Scottish extends Origin
 final case object Welsh extends Origin
 final case object RestUK extends Origin
 
-class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils {
+class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils with MockitoSugar {
 
-  class CalcFixtures(val taxYear: Int, val origin: Origin)(
+  class CalcFixtures(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig)(
     pensionTaxRate: PensionTaxRate,
     newAtsData: (Liability, Amount)*) { self =>
 
@@ -60,22 +62,22 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
 
     lazy val taxRateService = new TaxRateService(self.taxYear, _ => configRates)
 
-    lazy val calculation: ATSCalculations = ATSCalculations.make(taxSummaryLiability, taxRateService)
+    lazy val calculation: ATSCalculations = ATSCalculations.make(taxSummaryLiability, taxRateService, applicationConfig)
   }
 
-  class Fixture(val taxYear: Int, val origin: Origin) {
+  class Fixture(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig = applicationConfig) {
 
     def apply(): CalcFixtures =
-      new CalcFixtures(taxYear, origin)(PensionTaxRate(0))
+      new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0))
 
     def apply(newPensionTaxRate: PensionTaxRate, newAtsData: (Liability, Amount)*): CalcFixtures =
-      new CalcFixtures(taxYear, origin)(newPensionTaxRate, newAtsData: _*)
+      new CalcFixtures(taxYear, origin, applicationConfig)(newPensionTaxRate, newAtsData: _*)
 
     def apply(newAtsData: (Liability, Amount)*): CalcFixtures =
-      new CalcFixtures(taxYear, origin)(PensionTaxRate(0), newAtsData: _*)
+      new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0), newAtsData: _*)
 
     def apply(newAtsData: List[(Liability, Amount)]): CalcFixtures =
-      new CalcFixtures(taxYear, origin)(PensionTaxRate(0), newAtsData: _*)
+      new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0), newAtsData: _*)
   }
 
   val emptyValues = List(
@@ -554,17 +556,38 @@ class ATSCalculationsTest extends UnitSpec with PropertyChecks with DoubleUtils 
   }
 
   "WelshATSCalculations" should {
-    "calculate the welshIncomeTax" in {
-      val welshFixture = new Fixture(taxYear = 2019, Welsh)
+    "writ is enabled" should {
+      "calculate the welshIncomeTax" in {
+        val welshFixture = new Fixture(taxYear = 2019, Welsh)
 
-      forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
-        val sut = welshFixture(
-          IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
-          IncomeChargeableHigherRate -> Amount.gbp(higherRate),
-          IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
-        )
+        forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
+          val sut = welshFixture(
+            IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
+            IncomeChargeableHigherRate -> Amount.gbp(higherRate),
+            IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
+          )
 
-        sut.calculation.welshIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
+          sut.calculation.welshIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
+        }
+      }
+    }
+
+    "writ is disabled" should {
+      "return empty for welshIncomeTax" in {
+        val writDisabledConfig = mock[ApplicationConfig]
+        when(writDisabledConfig.isWritEnabled).thenReturn(false)
+
+        val welshFixture = new Fixture(taxYear = 2019, Welsh, writDisabledConfig)
+
+        forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
+          val sut = welshFixture(
+            IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
+            IncomeChargeableHigherRate -> Amount.gbp(higherRate),
+            IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
+          )
+
+          welshFixture().calculation.welshIncomeTax shouldBe Amount.empty
+        }
       }
     }
   }

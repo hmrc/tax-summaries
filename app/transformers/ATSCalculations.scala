@@ -16,6 +16,7 @@
 
 package transformers
 
+import config.ApplicationConfig
 import models.Liability._
 import models._
 import play.api.Logger
@@ -351,10 +352,13 @@ sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
 
 object ATSCalculations {
 
-  def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
+  def make(
+    summaryData: TaxSummaryLiability,
+    taxRates: TaxRateService,
+    applicationConfig: ApplicationConfig): ATSCalculations =
     if (summaryData.taxYear > 2018 && summaryData.isScottish) {
       new Post2018ScottishATSCalculations(summaryData, taxRates)
-    } else if (summaryData.taxYear >= 2019 && summaryData.isWelsh) {
+    } else if (applicationConfig.isWritEnabled && summaryData.taxYear >= 2019 && summaryData.isWelsh) {
       new WelshATSCalculations(summaryData, taxRates)
     } else if (summaryData.taxYear > 2018) {
       new Post2018rUKATSCalculations(summaryData, taxRates)
