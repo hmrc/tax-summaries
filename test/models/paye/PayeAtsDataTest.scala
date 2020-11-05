@@ -75,7 +75,7 @@ class PayeAtsDataTest extends BaseSpec {
 
     }
 
-    "create income data with ScottishIncomeTax as zero when writ changes are enabled" in {
+    "create income data with ScottishIncomeTax as correct value when writ changes are enabled" in {
 
       val incomeData: DataHolder =
         transformedData.income_data.getOrElse(fail("No income data"))
