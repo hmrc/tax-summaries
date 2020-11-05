@@ -47,7 +47,7 @@ case class PayeAtsData(
       nino,
       Some(createIncomeTaxData),
       Some(createSummaryData),
-      Some(createIncomeData),
+      Some(createIncomeData(applicationConfig)),
       Some(createAllowanceData),
       Some(createGovSpendData(applicationConfig, taxYear))
     )
@@ -120,10 +120,12 @@ case class PayeAtsData(
     NICS -> optionToRate(averageRateTax.map(_.toDouble))
   )
 
-  private def createIncomeData: DataHolder =
-    DataHolder.make(createIncomePayload)
+  private def createIncomeData(applicationConfig: ApplicationConfig): DataHolder =
+    DataHolder.make(createIncomePayload(applicationConfig))
 
-  private def createIncomePayload: Map[LiabilityKey, Amount] =
+  private def createIncomePayload(applicationConfig: ApplicationConfig): Map[LiabilityKey, Amount] = {
+
+    val scottishIncomeTaxValue: Option[Double] = if (applicationConfig.writEnabled) scottishIncomeTax else None
     Map(
       IncomeFromEmployment   -> optionToAmount(income.flatMap(_.incomeFromEmployment)),
       StatePension           -> optionToAmount(income.flatMap(_.statePension)),
@@ -132,8 +134,9 @@ case class PayeAtsData(
       TotalIncomeBeforeTax   -> optionToAmount(income.flatMap(_.incomeBeforeTax)),
       BenefitsFromEmployment -> optionToAmount(income.flatMap(_.employmentBenefits)),
       TaxableStateBenefits   -> optionToAmount(taxableStateBenefits),
-      ScottishIncomeTax      -> optionToAmount(scottishIncomeTax)
+      ScottishIncomeTax      -> optionToAmount(scottishIncomeTaxValue)
     )
+  }
 
   private def createAllowanceData: DataHolder =
     DataHolder.make(createAllowancePayload)
