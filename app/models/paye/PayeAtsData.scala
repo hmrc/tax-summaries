@@ -131,7 +131,8 @@ case class PayeAtsData(
       OtherIncome            -> optionToAmount(income.flatMap(_.otherIncome)),
       TotalIncomeBeforeTax   -> optionToAmount(income.flatMap(_.incomeBeforeTax)),
       BenefitsFromEmployment -> optionToAmount(income.flatMap(_.employmentBenefits)),
-      TaxableStateBenefits   -> optionToAmount(taxableStateBenefits)
+      TaxableStateBenefits   -> optionToAmount(taxableStateBenefits),
+      ScottishIncomeTax      -> optionToAmount(scottishIncomeTax)
     )
 
   private def createAllowanceData: DataHolder =

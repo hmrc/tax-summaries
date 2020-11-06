@@ -1,6 +1,7 @@
 {
   "taxableStateBenefits": 500.00,
   "averageRateTax": 25,
+  "scottishIncomeTax": 2550.00,
   "adjustments": {
     "taxFreeAmount": 12500.00,
     "marriageAllowanceReceived": 1250.00,

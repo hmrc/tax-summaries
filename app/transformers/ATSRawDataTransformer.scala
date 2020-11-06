@@ -18,7 +18,7 @@ package transformers
 
 import config.ApplicationConfig
 import models.Liability.{StatePension, _}
-import models.LiabilityKey._
+import models.LiabilityKey.{ScottishIncomeTax, _}
 import models.RateKey._
 import models._
 import play.api.Logger
