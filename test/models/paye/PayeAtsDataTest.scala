@@ -36,10 +36,10 @@ import config.ApplicationConfig
 import models.LiabilityKey._
 import models.RateKey._
 import models._
-import org.scalatestplus.play.OneAppPerSuite
+import play.api.Configuration
 import services.GoodsAndServices
 import services.GoodsAndServices._
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{BaseSpec, PayeAtsDataUtil, TestConstants}
 
 class PayeAtsDataTest extends BaseSpec {
@@ -47,6 +47,9 @@ class PayeAtsDataTest extends BaseSpec {
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
   val nino: String = TestConstants.testNino
   val taxYear = "2018"
+  lazy val servicesConfig = app.injector.instanceOf[ServicesConfig]
+  lazy val configuration = app.injector.instanceOf[Configuration]
+
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
@@ -72,7 +75,8 @@ class PayeAtsDataTest extends BaseSpec {
 
     }
 
-    "create income data" in {
+    "create income data with ScottishIncomeTax as correct value when writ changes are enabled" in {
+
       val incomeData: DataHolder =
         transformedData.income_data.getOrElse(fail("No income data"))
 
@@ -83,6 +87,31 @@ class PayeAtsDataTest extends BaseSpec {
         OtherIncome            -> Amount.gbp(3000.00),
         TotalIncomeBeforeTax   -> Amount.gbp(28000.00),
         ScottishIncomeTax      -> Amount.gbp(2550.00),
+        BenefitsFromEmployment -> Amount.gbp(200.00),
+        TaxableStateBenefits   -> Amount.gbp(500.00)
+      )
+      incomeData shouldBe DataHolder(Some(expectedValues), None, None)
+    }
+
+    "create income data with ScottishIncomeTax as zero when writ changes are disabled" in {
+
+      class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
+        override val isPayeWritEnabled = false
+      }
+
+      lazy val transformedData: PayeAtsMiddleTier =
+        atsData.transformToPayeMiddleTier(new ApplicationConfigStub, nino, taxYear.toInt)
+
+      val incomeData: DataHolder =
+        transformedData.income_data.getOrElse(fail("No income data"))
+
+      val expectedValues: Map[LiabilityKey, Amount] = Map(
+        IncomeFromEmployment   -> Amount.gbp(25000.00),
+        StatePension           -> Amount.gbp(1000.00),
+        OtherPensionIncome     -> Amount.gbp(500.00),
+        OtherIncome            -> Amount.gbp(3000.00),
+        TotalIncomeBeforeTax   -> Amount.gbp(28000.00),
+        ScottishIncomeTax      -> Amount.gbp(0),
         BenefitsFromEmployment -> Amount.gbp(200.00),
         TaxableStateBenefits   -> Amount.gbp(500.00)
       )
