@@ -558,7 +558,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
   "WelshATSCalculations" should {
     "writ is enabled" should {
       "calculate the welshIncomeTax" in {
-        val welshFixture = new Fixture(taxYear = 2019, Welsh)
+        val welshFixture = new Fixture(taxYear = 2020, Welsh)
 
         forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
           val sut = welshFixture(
