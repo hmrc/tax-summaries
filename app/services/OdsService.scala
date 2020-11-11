@@ -51,20 +51,20 @@ class OdsService @Inject()(jsonHelper: TaxsJsonHelper, odsConnector: ODSConnecto
     for (taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR))
       yield Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn)))
 
-  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[String, JsValue]] = {
     for {
       taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
       taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
-    } yield jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer)
+    } yield Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
   } recover {
     case error: JsonParseException =>
       Logger.error("Malformed JSON", error)
-      Json.toJson(AtsYearList(UTR, None, None, Some(AtsError("JsonParsingError"))))
+      Left("JsonParsingError")
     case error: NotFoundException =>
       Logger.error("No ATS error", error)
-      Json.toJson(AtsYearList(UTR, None, None, Some(AtsError("NoAtsData"))))
+      Left("NoAtsData")
     case error: Throwable =>
       Logger.error("Generic error", error)
-      Json.toJson(AtsYearList(UTR, None, None, Some(AtsError(error.getMessage()))))
+      Left(error.getMessage())
   }
 }

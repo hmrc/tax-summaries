@@ -16,12 +16,15 @@
 
 package controllers
 
+import akka.stream.Materializer
 import controllers.auth.FakeAuthAction
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.libs.json.{JsString, JsValue}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubControllerComponents
 import services.OdsService
@@ -31,9 +34,12 @@ import utils.TestConstants._
 
 import scala.concurrent.Future
 
-class ATSDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
+class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
 
   val cc = stubControllerComponents()
+
+  implicit lazy val mat = fakeApplication.injector.instanceOf[Materializer]
+
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
@@ -65,6 +71,51 @@ class ATSDataControllerTest extends UnitSpec with MockitoSugar with WithFakeAppl
   }
 
   "getATSList" should {
+
+    "return 200" when {
+
+      "connector returns a right" in {
+
+        val expectedBody: JsValue = JsString("body")
+
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Right(expectedBody))
+
+        val result = controller.getATSList(testUtr)(request)
+
+        status(result) shouldBe OK
+        jsonBodyOf(result).futureValue shouldBe expectedBody
+      }
+    }
+
+    "return 404" when {
+
+      "connector returns a left with the message 'NoAtsData'" in {
+
+        val errorMessage = "NoAtsData"
+
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(errorMessage))
+
+        val result = controller.getATSList(testUtr)(request)
+
+        status(result) shouldBe NOT_FOUND
+        bodyOf(result).futureValue shouldBe errorMessage
+      }
+    }
+
+    "return 500" when {
+
+      "connector returns a left with any other message" in {
+
+        val errorMessage = "Error"
+
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(errorMessage))
+
+        val result = controller.getATSList(testUtr)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result).futureValue shouldBe errorMessage
+      }
+    }
 
     "return a failed future" in {
       when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(Future.failed(new Exception("failed")))
