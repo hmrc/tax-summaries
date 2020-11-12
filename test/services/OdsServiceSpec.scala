@@ -27,6 +27,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
+import play.api.test.Injecting
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
@@ -34,9 +35,10 @@ import utils.{BaseSpec, TaxsJsonHelper}
 import scala.concurrent.{ExecutionContext, Future}
 
 class OdsServiceSpec
-    extends BaseSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with IntegrationPatience {
+    extends BaseSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with IntegrationPatience
+    with Injecting {
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   val odsConnector = mock[ODSConnector]
   val jsonHelper = mock[TaxsJsonHelper]

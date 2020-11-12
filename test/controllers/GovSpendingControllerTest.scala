@@ -24,7 +24,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, stubControllerComponents}
 import services.OdsService
 import uk.gov.hmrc.play.test.UnitSpec
@@ -33,12 +33,12 @@ import utils.TestConstants._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with MockitoSugar {
+class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with MockitoSugar with Injecting {
 
   val cc = stubControllerComponents()
   val request = FakeRequest()
 
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec = inject[ExecutionContext]
 
   val summaryJson = "/utr_2014.json"
   val capitalGainsOnlyJson = "/test_gov_spend_capital_gains_only.json"
