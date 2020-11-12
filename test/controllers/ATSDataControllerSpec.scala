@@ -18,6 +18,7 @@ package controllers
 
 import akka.stream.Materializer
 import controllers.auth.FakeAuthAction
+import models.{GenericError, JsonParseError, NotFoundError}
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
@@ -89,11 +90,12 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
     "return 404" when {
 
-      "connector returns a left with the message 'NoAtsData'" in {
+      "connector returns a left with NotFoundError" in {
 
         val errorMessage = "NoAtsData"
 
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(errorMessage))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(NotFoundError(errorMessage)))
 
         val result = controller.getATSList(testUtr)(request)
 
@@ -104,11 +106,25 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
     "return 500" when {
 
-      "connector returns a left with any other message" in {
+      "connector returns a left with JsonParseError" in {
 
         val errorMessage = "Error"
 
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(errorMessage))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(JsonParseError(errorMessage)))
+
+        val result = controller.getATSList(testUtr)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result).futureValue shouldBe errorMessage
+      }
+
+      "connector returns a left with GenericError" in {
+
+        val errorMessage = "Error"
+
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(GenericError(errorMessage)))
 
         val result = controller.getATSList(testUtr)(request)
 

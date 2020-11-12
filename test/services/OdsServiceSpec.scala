@@ -16,29 +16,27 @@
 
 package services
 
-import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.{JsonParseException, JsonParser}
 import connectors.ODSConnector
 import errors.AtsError
-import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.test.UnitSpec
-import org.mockito.Mockito._
+import models._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import utils.TaxsJsonHelper
-import utils.TestConstants._
-
-import scala.concurrent.Future
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.mockito.MockitoSugar
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import utils.TestConstants._
+import utils.{BaseSpec, TaxsJsonHelper}
 
-class OdsServiceSpec extends UnitSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
+import scala.concurrent.{ExecutionContext, Future}
 
-  implicit val defaultPatience =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
+class OdsServiceSpec
+    extends BaseSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with IntegrationPatience {
+
+  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   val odsConnector = mock[ODSConnector]
   val jsonHelper = mock[TaxsJsonHelper]
@@ -183,13 +181,15 @@ class OdsServiceSpec extends UnitSpec with MockitoSugar with ScalaFutures with B
     "return a left" when {
       "a JsonParseException is caught" in {
 
+        val exception = new JsonParseException(mock[JsonParser], "Malformed Json")
+
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(mock[JsonParseException]))
+          .thenReturn(Future.failed(exception))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result shouldBe Left("JsonParsingError")
+          result shouldBe Left(JsonParseError(exception.getMessage))
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -197,17 +197,37 @@ class OdsServiceSpec extends UnitSpec with MockitoSugar with ScalaFutures with B
         }
       }
 
-      "a NotFoundException is caught" in {
+      "a NotFoundException is caught when getting SA json" in {
+
+        val exceptionMessage = "Connector returned not found"
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(mock[JsValue]))
-        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(mock[NotFoundException]))
+          .thenReturn(Future.failed(new NotFoundException(exceptionMessage)))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result shouldBe Left("NoAtsData")
+          result shouldBe Left(NotFoundError(exceptionMessage))
+
+          verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
+          verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+        }
+      }
+
+      "a NotFoundException is caught when getting taxpayer details" in {
+
+        val exceptionMessage = "Connector returned not found"
+
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(mock[JsValue]))
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(new NotFoundException(exceptionMessage)))
+
+        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
+
+        whenReady(result) { result =>
+          result shouldBe Left(NotFoundError(exceptionMessage))
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -225,7 +245,7 @@ class OdsServiceSpec extends UnitSpec with MockitoSugar with ScalaFutures with B
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result shouldBe Left(exceptionMessage)
+          result shouldBe Left(GenericError(exceptionMessage))
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])

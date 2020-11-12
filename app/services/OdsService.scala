@@ -20,16 +20,18 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.google.inject.Inject
 import connectors.ODSConnector
 import errors.AtsError
-import models.{AtsCheck, AtsMiddleTierData, AtsYearList}
+import models._
 import play.api.Logger
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsValue, Json}
 import utils.TaxsJsonHelper
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
-class OdsService @Inject()(jsonHelper: TaxsJsonHelper, odsConnector: ODSConnector) {
+class OdsService @Inject()(
+  jsonHelper: TaxsJsonHelper,
+  odsConnector: ODSConnector
+)(implicit ec: ExecutionContext) {
 
   def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] = {
     for {
@@ -51,7 +53,7 @@ class OdsService @Inject()(jsonHelper: TaxsJsonHelper, odsConnector: ODSConnecto
     for (taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR))
       yield Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn)))
 
-  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[String, JsValue]] = {
+  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] = {
     for {
       taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
       taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
@@ -59,12 +61,12 @@ class OdsService @Inject()(jsonHelper: TaxsJsonHelper, odsConnector: ODSConnecto
   } recover {
     case error: JsonParseException =>
       Logger.error("Malformed JSON", error)
-      Left("JsonParsingError")
+      Left(JsonParseError(error.getMessage))
     case error: NotFoundException =>
       Logger.error("No ATS error", error)
-      Left("NoAtsData")
+      Left(NotFoundError(error.getMessage))
     case error: Throwable =>
       Logger.error("Generic error", error)
-      Left(error.getMessage())
+      Left(GenericError(error.getMessage))
   }
 }
