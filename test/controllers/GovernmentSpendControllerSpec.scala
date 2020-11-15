@@ -34,7 +34,7 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
 
   val mockGovSpendService: GovSpendService = mock[GovSpendService]
 
-  val year = 2019
+  val taxYear = 2019
 
   implicit val mat = app.injector.instanceOf[Materializer]
 
@@ -52,20 +52,17 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
         stubControllerComponents()
       )
 
-      val correctYearForGovSpendCategories = year + 1
-      when(mockGovSpendService.govSpending(meq(correctYearForGovSpendCategories))) thenReturn Map[
-        GoodsAndServices,
-        Double](Environment -> 5.5)
+      when(mockGovSpendService.govSpending(meq(taxYear))) thenReturn Map[GoodsAndServices, Double](Environment -> 5.5)
 
       "the URI contains a valid nino" in {
 
-        val result = sut.getGovernmentSpend(year, testNino)(FakeRequest("GET", "/"))
+        val result = sut.getGovernmentSpend(taxYear, testNino)(FakeRequest("GET", "/"))
         status(result) shouldBe OK
         bodyOf(result).futureValue shouldBe expectedBody
       }
 
       "the URI contains a valid utr" in {
-        val result = sut.getGovernmentSpend(year, testUtr)(FakeRequest("GET", "/"))
+        val result = sut.getGovernmentSpend(taxYear, testUtr)(FakeRequest("GET", "/"))
         status(result) shouldBe OK
         bodyOf(result).futureValue shouldBe expectedBody
       }
@@ -82,12 +79,12 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
       )
 
       "an invalid nino is given" in {
-        val result = sut.getGovernmentSpend(year, "A123456")(FakeRequest("GET", "/"))
+        val result = sut.getGovernmentSpend(taxYear, "A123456")(FakeRequest("GET", "/"))
         status(result) shouldBe BAD_REQUEST
       }
 
       "an invalid utr is given" in {
-        val result = sut.getGovernmentSpend(year, "foobar123")(FakeRequest("GET", "/"))
+        val result = sut.getGovernmentSpend(taxYear, "foobar123")(FakeRequest("GET", "/"))
         status(result) shouldBe BAD_REQUEST
       }
     }
