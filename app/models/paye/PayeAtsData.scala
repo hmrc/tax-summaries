@@ -160,7 +160,8 @@ case class PayeAtsData(
         calculatedTotals.flatMap(_.totalIncomeTax)
       }
     )
-    GovernmentSpendingOutputWrapper(applicationConfig, totalIncome, taxYear)
+    val correctYearForGovSpendCategories = taxYear + 1
+    GovernmentSpendingOutputWrapper(applicationConfig, totalIncome, correctYearForGovSpendCategories)
   }
 
 }
