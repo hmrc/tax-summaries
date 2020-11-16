@@ -16,9 +16,9 @@
 
 package transformers
 
-import models._
+import config.ApplicationConfig
 import models.Liability._
-import models.LiabilityKey.StartingRateForSavingsAmount
+import models._
 import play.api.Logger
 import services._
 import utils.DoubleUtils
@@ -156,6 +156,8 @@ sealed trait ATSCalculations extends DoubleUtils {
   def savingsHigherRateIncome: Amount = Amount.empty
   def savingsAdditionalRateIncome: Amount = Amount.empty
 
+  def welshIncomeTax: Amount = Amount.empty
+
   def otherAdjustmentsIncreasing: Amount =
     (
       get(NonDomCharge) +
@@ -269,14 +271,24 @@ sealed trait ATSCalculations extends DoubleUtils {
 sealed class DefaultATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations
 
-sealed class Post2018ATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+sealed class Post2018rUKATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
-
   override def scottishIncomeTax: Amount = Amount.empty
-
   override def savingsRate: Amount = Amount.empty
-
   override def savingsRateAmount: Amount = Amount.empty
+}
+
+sealed class WelshATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations {
+  override def welshIncomeTax: Amount = {
+    val welshRate = 0.1
+    Amount.gbp(
+      (
+        getWithDefaultAmount(IncomeChargeableBasicRate) +
+          getWithDefaultAmount(IncomeChargeableHigherRate) +
+          getWithDefaultAmount(IncomeChargeableAddHRate)
+      ).amount * welshRate)
+  }
 }
 
 sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
@@ -340,11 +352,16 @@ sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
 
 object ATSCalculations {
 
-  def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
+  def make(
+    summaryData: TaxSummaryLiability,
+    taxRates: TaxRateService,
+    applicationConfig: ApplicationConfig): ATSCalculations =
     if (summaryData.taxYear > 2018 && summaryData.isScottish) {
       new Post2018ScottishATSCalculations(summaryData, taxRates)
+    } else if (applicationConfig.isSAWritEnabled && summaryData.taxYear > 2019 && summaryData.isWelsh) {
+      new WelshATSCalculations(summaryData, taxRates)
     } else if (summaryData.taxYear > 2018) {
-      new Post2018ATSCalculations(summaryData, taxRates)
+      new Post2018rUKATSCalculations(summaryData, taxRates)
     } else {
       new DefaultATSCalculations(summaryData, taxRates)
     }
