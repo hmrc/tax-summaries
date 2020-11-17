@@ -289,6 +289,10 @@ sealed class WelshATSCalculations(val summaryData: TaxSummaryLiability, val taxR
           getWithDefaultAmount(IncomeChargeableAddHRate)
       ).amount * welshRate)
   }
+
+  override def scottishIncomeTax: Amount = Amount.empty
+  override def savingsRate: Amount = Amount.empty
+  override def savingsRateAmount: Amount = Amount.empty
 }
 
 sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
