@@ -638,8 +638,8 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
             )
 
             sut.calculation.welshIncomeTax shouldBe Amount.empty
-            sut.calculation.savingsRate shouldBe savingsRate
-            sut.calculation.savingsRateAmount shouldBe savingsRateAmount
+            sut.calculation.savingsRate shouldBe Amount(savingsRate,"GBP")
+            sut.calculation.savingsRateAmount shouldBe Amount(savingsRateAmount,"GBP")
             sut.calculation.scottishIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
         }
       }
