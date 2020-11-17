@@ -26,8 +26,8 @@ final case class TaxSummaryLiability(
   nationalInsuranceData: Map[Liability, Amount],
   atsData: Map[Liability, Amount]
 ) {
-
   val isScottish: Boolean = incomeTaxStatus.contains("0002")
+  val isWelsh: Boolean = incomeTaxStatus.contains("0003")
 }
 
 object TaxSummaryLiability {

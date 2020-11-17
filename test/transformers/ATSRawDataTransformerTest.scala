@@ -363,6 +363,21 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       parsedPayload(ScottishIncomeTax) shouldEqual Amount(130.4, "GBP")
     }
 
+    "Calculate the Welsh Income Tax" in {
+
+      val writTaxpayerDetailsJson = Json.parse(JsonUtil.load("/writ_values.json"))
+
+      val returnValue =
+        ATSRawDataTransformer(
+          applicationConfig,
+          writTaxpayerDetailsJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
+      val parsedPayload = returnValue.income_tax.get.payload.get
+      parsedPayload(WelshIncomeTax) shouldEqual Amount(186, "GBP")
+    }
+
     "ATS raw data transformer" should {
       "produce a no ats error if the total income tax is -500 and capital gains tax is 200" in {
 

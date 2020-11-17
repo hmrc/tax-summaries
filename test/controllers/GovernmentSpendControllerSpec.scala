@@ -52,7 +52,10 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
         stubControllerComponents()
       )
 
-      when(mockGovSpendService.govSpending(meq(year))) thenReturn Map[GoodsAndServices, Double](Environment -> 5.5)
+      val correctYearForGovSpendCategories = year + 1
+      when(mockGovSpendService.govSpending(meq(correctYearForGovSpendCategories))) thenReturn Map[
+        GoodsAndServices,
+        Double](Environment -> 5.5)
 
       "the URI contains a valid nino" in {
 

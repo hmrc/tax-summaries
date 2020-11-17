@@ -85,6 +85,7 @@ object LiabilityKey extends DefaultReads {
   case object UpperRate extends ApiValue("upper_rate") with LiabilityKey
   case object UpperRateAmount extends ApiValue("upper_rate_amount") with LiabilityKey
   case object YourTotalTax extends ApiValue("your_total_tax") with LiabilityKey
+  case object WelshIncomeTax extends ApiValue("welsh_income_tax") with LiabilityKey
 
   case object ScottishStarterRateTax extends ApiValue("scottish_starter_rate_tax") with LiabilityKey
   case object ScottishBasicRateTax extends ApiValue("scottish_basic_rate_tax") with LiabilityKey
@@ -136,7 +137,7 @@ object LiabilityKey extends DefaultReads {
     ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount,
     ScottishHigherRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
     ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome
+    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax
   )
     // format: on
 
