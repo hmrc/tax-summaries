@@ -558,89 +558,45 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
   "WelshATSCalculations" should {
     "writ is enabled" should {
       "calculate the welshIncomeTax" in {
+        val welshFixture = new Fixture(taxYear = 2020, Welsh)
 
-        forAll {
-          (
-            basicRate: BigDecimal,
-            higherRate: BigDecimal,
-            additionalRate: BigDecimal,
-            savingsRateAmount: BigDecimal,
-            savingsRate: BigDecimal) =>
-            val sut = new Fixture(taxYear = 2020, Welsh)(
-              IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
-              IncomeChargeableHigherRate -> Amount.gbp(higherRate),
-              IncomeChargeableAddHRate   -> Amount.gbp(additionalRate),
-              SavingsTaxStartingRate     -> Amount.gbp(savingsRateAmount),
-              SavingsChargeableStartRate -> Amount.gbp(savingsRate)
-            )
+        forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
+          val sut = welshFixture(
+            IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
+            IncomeChargeableHigherRate -> Amount.gbp(higherRate),
+            IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
+          )
 
-            sut.calculation.welshIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
-
-            sut.calculation.savingsRate shouldBe Amount.empty
-            sut.calculation.savingsRateAmount shouldBe Amount.empty
-            sut.calculation.scottishIncomeTax shouldBe Amount.empty
+          sut.calculation.welshIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
+          sut.calculation.savingsRate shouldBe Amount.empty
+          sut.calculation.savingsRateAmount shouldBe Amount.empty
+          sut.calculation.scottishIncomeTax shouldBe Amount.empty
         }
       }
     }
 
     "writ is disabled" should {
+      "return empty for welshIncomeTax" in {
+        val servicesConfig = app.injector.instanceOf[ServicesConfig]
+        val configuration = app.injector.instanceOf[Configuration]
 
-      val servicesConfig = app.injector.instanceOf[ServicesConfig]
-      val configuration = app.injector.instanceOf[Configuration]
-
-      class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
-        override lazy val isSAWritEnabled = false
-      }
-
-      "return empty for welshIncomeTax and savings rate for tax year greater than 2018" in {
+        class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
+          override lazy val isSAWritEnabled = false
+        }
 
         val welshFixture = new Fixture(taxYear = 2020, Welsh, new ApplicationConfigStub)
 
-        forAll {
-          (
-            basicRate: BigDecimal,
-            higherRate: BigDecimal,
-            additionalRate: BigDecimal,
-            savingsRateAmount: BigDecimal,
-            savingsRate: BigDecimal) =>
-            val sut = welshFixture(
-              IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
-              IncomeChargeableHigherRate -> Amount.gbp(higherRate),
-              IncomeChargeableAddHRate   -> Amount.gbp(additionalRate),
-              SavingsTaxStartingRate     -> Amount.gbp(savingsRateAmount),
-              SavingsChargeableStartRate -> Amount.gbp(savingsRate)
-            )
+        forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
+          val sut = welshFixture(
+            IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
+            IncomeChargeableHigherRate -> Amount.gbp(higherRate),
+            IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
+          )
 
-            sut.calculation.welshIncomeTax shouldBe Amount.empty
-            sut.calculation.savingsRate shouldBe Amount.empty
-            sut.calculation.savingsRateAmount shouldBe Amount.empty
-            sut.calculation.scottishIncomeTax shouldBe Amount.empty
-        }
-      }
-
-      "return empty for welshIncomeTax and correct value for savings rate for tax year less than 2019" in {
-
-        val welshFixture = new Fixture(taxYear = 2018, Welsh, new ApplicationConfigStub)
-
-        forAll {
-          (
-            basicRate: BigDecimal,
-            higherRate: BigDecimal,
-            additionalRate: BigDecimal,
-            savingsRateAmount: BigDecimal,
-            savingsRate: BigDecimal) =>
-            val sut = welshFixture(
-              IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
-              IncomeChargeableHigherRate -> Amount.gbp(higherRate),
-              IncomeChargeableAddHRate   -> Amount.gbp(additionalRate),
-              SavingsTaxStartingRate     -> Amount.gbp(savingsRateAmount),
-              SavingsChargeableStartRate -> Amount.gbp(savingsRate)
-            )
-
-            sut.calculation.welshIncomeTax shouldBe Amount.empty
-            sut.calculation.savingsRate shouldBe Amount(savingsRate,"GBP")
-            sut.calculation.savingsRateAmount shouldBe Amount(savingsRateAmount,"GBP")
-            sut.calculation.scottishIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
+          sut.calculation.welshIncomeTax shouldBe Amount.empty
+          sut.calculation.savingsRate shouldBe Amount.empty
+          sut.calculation.savingsRateAmount shouldBe Amount.empty
+          sut.calculation.scottishIncomeTax shouldBe Amount.empty
         }
       }
     }
