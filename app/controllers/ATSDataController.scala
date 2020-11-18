@@ -18,7 +18,8 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.auth.AuthAction
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import models.{GenericError, JsonParseError, NotFoundError, ServiceError}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.OdsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -38,6 +39,15 @@ class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction
   }
 
   def getATSList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getATSList(utr) map { Ok(_) }
+    odsService.getATSList(utr) map {
+      case Left(error)  => handleAtsListError(error)
+      case Right(value) => Ok(value)
+    }
+  }
+
+  private def handleAtsListError(error: ServiceError): Result = error match {
+    case NotFoundError(e)  => NotFound(e)
+    case JsonParseError(e) => InternalServerError(e)
+    case GenericError(e)   => InternalServerError(e)
   }
 }
