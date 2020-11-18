@@ -21,19 +21,16 @@ import java.time.LocalDateTime
 
 import javax.inject.Inject
 import models.paye.PayeAtsMiddleTier
-import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsObject, Json, Reads, __}
+import play.api.libs.json.{Json, Reads, __}
 import play.modules.reactivemongo.ReactiveMongoApi
+import reactivemongo.api.WriteConcern
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
-import reactivemongo.play.json.collection.JSONCollection
-import reactivemongo.api.WriteConcern
+import reactivemongo.play.json.collection.{JSONCollection, _}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import reactivemongo.play.json.collection._
-
-import scala.concurrent.duration.FiniteDuration
 
 class Repository @Inject()(mongo: ReactiveMongoApi) {
   private val collectionName: String = "tax-summaries"
