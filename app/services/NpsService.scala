@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ApplicationConfig
 import connectors.NpsConnector
 import models.paye._
-import play.api.{Logger, Play}
+import play.api.Logger
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.JsResultException
 import repositories.Repository

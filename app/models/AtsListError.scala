@@ -16,10 +16,8 @@
 
 package models
 
-import play.api.libs.json.{JsNumber, Json}
+sealed trait ServiceError
 
-case class AtsYearList(utr: String, taxPayer: Option[AtsMiddleTierTaxpayerData], atsYearList: Option[List[JsNumber]])
-
-object AtsYearList {
-  implicit val formats = Json.format[AtsYearList]
-}
+final case class JsonParseError(msg: String) extends ServiceError
+final case class NotFoundError(msg: String) extends ServiceError
+final case class GenericError(msg: String) extends ServiceError
