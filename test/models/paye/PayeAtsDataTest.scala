@@ -46,7 +46,7 @@ class PayeAtsDataTest extends BaseSpec {
 
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
   val nino: String = TestConstants.testNino
-  val taxYear = "2018"
+  val taxYear = "2019"
   lazy val servicesConfig = app.injector.instanceOf[ServicesConfig]
   lazy val configuration = app.injector.instanceOf[Configuration]
 
