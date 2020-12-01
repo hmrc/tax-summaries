@@ -42,13 +42,13 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
 
   class TestService extends DirectNpsService(applicationConfig, npsConnector)
 
-  private val currentYear = 2018
+  private val currentYear = 2019
 
   "getPayeATSData" should {
 
     "return a successful response after transforming NPS data to PAYE model" in new TestService {
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear), any()))
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1), any()))
         .thenReturn(Future.successful(
           HttpResponse(responseStatus = 200, responseJson = Some(expectedNpsResponse), responseHeaders = Map.empty)))
 
@@ -61,7 +61,7 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
 
       val response = HttpResponse(responseStatus = 502)
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear), any()))
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1), any()))
         .thenReturn(Future.successful(response))
 
       val result = getPayeATSData(testNino, currentYear).futureValue
@@ -72,7 +72,7 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear), any()))
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1), any()))
         .thenReturn(Future.failed(new JsResultException(List())))
 
       val result = getPayeATSData(testNino, currentYear).futureValue
