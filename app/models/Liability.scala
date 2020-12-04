@@ -42,6 +42,7 @@ object Liability {
   case object Class4Nic extends ApiValue("class4Nic") with Liability
   case object CommInvTrustRel extends ApiValue("ctnCommInvTrustRelAmt") with Liability
   case object DeficiencyRelief extends ApiValue("ctnDeficiencyRelief") with Liability
+  case object Alimony extends ApiValue("alimony") with Liability
   case object DividendChargeableAddHRate extends ApiValue("ctnDividendChgbleAddHRate") with Liability
   case object DividendChargeableHighRate extends ApiValue("ctnDividendChgbleHighRate") with Liability
   case object DividendChargeableLowRate extends ApiValue("ctnDividendChgbleLowRate") with Liability
@@ -130,7 +131,7 @@ object Liability {
     List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
       CgAnnualExempt, CgAtEntrepreneursRate, CgAtHigherRate, CgAtLowerRate, CgDueEntrepreneursRate, CgDueHigherRate,
       CgDueLowerRate, CgGainsAfterLosses, CgTotGainsAfterLosses, ChildBenefitCharge, Class4Nic, CommInvTrustRel,
-      DeficiencyRelief, DividendChargeableAddHRate, DividendChargeableHighRate, DividendChargeableLowRate,
+      DeficiencyRelief, Alimony, DividendChargeableAddHRate, DividendChargeableHighRate, DividendChargeableLowRate,
       DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, EisRelief, EmploymentBenefits, EmploymentExpenses,
       ExcludedIncome, GiftsInvCharities, HigherRateCgtRPCI, IncBenefitSuppAllow, IncomeChargeableAddHRate,
       IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxDue,

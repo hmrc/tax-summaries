@@ -18,7 +18,7 @@ package transformers
 
 import models.LiabilityKey.{OtherAdjustmentsIncreasing, OtherAdjustmentsReducing}
 import models.{Amount, TaxSummaryLiability}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import utils._
 
@@ -137,6 +137,50 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       parsedPayload(OtherAdjustmentsIncreasing) should equal(new Amount(56.0, "GBP"))
       parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
+    }
+
+    "have a correct 'other_adjustments_reducing' roundup data when alimony is not given in payload" in {
+
+      val originalJson = getClass.getResource("/utr_2014.json")
+
+      val parsedJson = Json.parse(Source.fromURL(originalJson).mkString)
+
+      val returnValue =
+        ATSRawDataTransformer(
+          applicationConfig,
+          parsedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          taxYear).atsDataDTO
+
+      returnValue.taxYear shouldEqual 2014
+
+      val parsedPayload = returnValue.income_tax.get.payload.get
+
+      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
+    }
+
+    "have a correct 'other_adjustments_reducing' roundup data when alimony is given" in {
+
+      val originalJson = getClass.getResource("/utr_2014.json")
+
+      val update = Json.obj("alimony" -> Amount(9.01, "GBP"))
+
+      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
+
+      val returnValue =
+        ATSRawDataTransformer(
+          applicationConfig,
+          transformedJson.as[TaxSummaryLiability],
+          parsedTaxpayerDetailsJson,
+          "",
+          2020).atsDataDTO
+
+      returnValue.taxYear shouldEqual 2020
+
+      val parsedPayload = returnValue.income_tax.get.payload.get
+
+      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(210.0, "GBP"))
     }
   }
 }
