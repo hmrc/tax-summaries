@@ -16,10 +16,14 @@
 
 package services
 
+import com.codahale.metrics.Timer
+import com.kenshoo.play.metrics.Metrics
 import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Mockito.when
+import org.mockito.Mockito
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsResultException, JsValue, Json}
@@ -29,7 +33,7 @@ import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
 import scala.concurrent.Future
 
-class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with ScalaFutures {
+class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with ScalaFutures with BeforeAndAfterEach {
 
   implicit val hc = HeaderCarrier()
 
@@ -39,8 +43,19 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
     atsData.transformToPayeMiddleTier(applicationConfig, testNino, currentYear)
 
   val npsConnector = mock[NpsConnector]
+  lazy val mockMetrics = mock[Metrics]
+  val timer = mock[Timer.Context]
+  val metricIdForGetPayeData = "get-paye-data-response-timer"
 
-  class TestService extends DirectNpsService(applicationConfig, npsConnector)
+  override def beforeEach(): Unit = {
+    Mockito.reset(mockMetrics)
+    super.beforeEach()
+  }
+
+  class TestService extends DirectNpsService(applicationConfig, npsConnector, mockMetrics) {
+    override val localMetrics: LocalMetrics = mock[LocalMetrics]
+    when(localMetrics.startTimer(any())) thenReturn timer
+  }
 
   private val currentYear = 2019
 
@@ -55,6 +70,9 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
       val result = getPayeATSData(testNino, currentYear).futureValue
 
       result shouldBe Right(transformedData)
+      verify(localMetrics, times(1)).startTimer(metricIdForGetPayeData)
+      verify(localMetrics, times(1)).incrementSuccessCounter(metricIdForGetPayeData)
+      verify(localMetrics, times(1)).stopTimer(timer)
     }
 
     "return a Bad Gateway Response in case of Bad Gateway from Connector" in new TestService {
@@ -68,6 +86,10 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
 
       result shouldBe Left(response)
 
+      verify(localMetrics, times(1)).startTimer(metricIdForGetPayeData)
+      verify(localMetrics, times(1)).incrementFailedCounter(metricIdForGetPayeData)
+      verify(localMetrics, times(1)).stopTimer(timer)
+
     }
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {
@@ -78,6 +100,10 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
       val result = getPayeATSData(testNino, currentYear).futureValue
 
       result.left.get.status shouldBe 500
+
+      verify(localMetrics, times(1)).startTimer(metricIdForGetPayeData)
+      verify(localMetrics, times(1)).incrementFailedCounter(metricIdForGetPayeData)
+      verify(localMetrics, times(1)).stopTimer(timer)
     }
   }
 }

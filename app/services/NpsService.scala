@@ -17,11 +17,13 @@
 package services
 
 import com.google.inject.Inject
+import com.kenshoo.play.metrics.Metrics
 import config.ApplicationConfig
 import connectors.NpsConnector
+import metrics.HasMetrics
 import models.paye._
 import play.api.Logger
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.JsResultException
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -59,18 +61,33 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
       }
 }
 
-class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
+class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnector: NpsConnector, val metrics: Metrics)
+    extends HasMetrics {
+
   def getPayeATSData(nino: String, taxYear: Int)(
     implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
-    npsConnector.connectToPayeTaxSummary(nino, taxYear - 1, hc) map { response =>
-      response status match {
-        case OK => Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
-        case _  => Left(response)
-      }
-    } recover {
-      case e: JsResultException => {
-        Logger.error(s"Exception in NpsService parsing Json: $e", e)
-        Left(HttpResponse(INTERNAL_SERVER_ERROR))
+    withMetricsTimerAsync("get-paye-data-response-timer") { timer =>
+      npsConnector.connectToPayeTaxSummary(nino, taxYear - 1, hc) map { response =>
+        response status match {
+          case OK => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
+          }
+          case NOT_FOUND => {
+            timer.completeTimerAndIncrementSuccessCounter()
+            Left(response)
+          }
+          case _ => {
+            timer.completeTimerAndIncrementFailedCounter()
+            Left(response)
+          }
+        }
+      } recover {
+        case e: JsResultException => {
+          timer.completeTimerAndIncrementFailedCounter()
+          Logger.error(s"Exception in NpsService parsing Json: $e", e)
+          Left(HttpResponse(INTERNAL_SERVER_ERROR))
+        }
       }
     }
 }
