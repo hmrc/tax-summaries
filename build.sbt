@@ -71,6 +71,10 @@ lazy val microservice = Project(appName, file("."))
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
+  .settings(
+    HeaderPlugin.autoImport.headerSettings(IntegrationTest),
+    AutomateHeaderPlugin.autoImport.automateHeaderSettings(IntegrationTest)
+  )
 
 lazy val itSettings = Defaults.itSettings ++ Seq(
   unmanagedSourceDirectories := Seq(
