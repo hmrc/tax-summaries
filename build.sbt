@@ -70,12 +70,4 @@ lazy val microservice = Project(appName, file("."))
     resolvers ++= Seq(Resolver.bintrayRepo("hmrc", "releases"), Resolver.jcenterRepo)
   )
   .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(itSettings): _*)
-
-lazy val itSettings = Defaults.itSettings ++ Seq(
-  unmanagedSourceDirectories := Seq(
-    baseDirectory.value / "it"
-  ),
-  parallelExecution := false,
-  fork := true
-)
+  .settings(DefaultBuildSettings.integrationTestSettings())
