@@ -83,8 +83,6 @@ class CachingNpsServiceTest
       }
     }
     "Return an internal server error when retrieving from the cache fails" in new Fixture {
-      val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
-
       when(repository.get(any(), any())).thenReturn(Future.failed(new Exception("Failed")))
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) { result =>

@@ -19,7 +19,6 @@ package transformers
 import config.ApplicationConfig
 import models.Liability._
 import models._
-import play.api.Logger
 import services._
 import utils.DoubleUtils
 
@@ -32,7 +31,6 @@ sealed trait ATSCalculations extends DoubleUtils {
     summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(liability, {
-        Logger.error(s"Unable to retrieve $liability")
         throw ATSParsingException(liability.apiValue)
       })
     )
