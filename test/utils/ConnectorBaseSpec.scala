@@ -18,14 +18,17 @@ package utils
 
 import config.ApplicationConfig
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Injecting
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.ExecutionContext
+
 trait ConnectorBaseSpec
-    extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with Injecting with ScalaFutures
+    extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with Injecting with ScalaFutures with MockitoSugar
     with IntegrationPatience {
   override implicit lazy val app: Application =
     new GuiceApplicationBuilder()
@@ -34,5 +37,6 @@ trait ConnectorBaseSpec
       )
       .build()
 
-  lazy val applicationConfig = app.injector.instanceOf[ApplicationConfig]
+  lazy val applicationConfig = inject[ApplicationConfig]
+  implicit lazy val ec = inject[ExecutionContext]
 }

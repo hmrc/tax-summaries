@@ -18,42 +18,31 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
 import com.github.tomakehurst.wiremock.http.Fault
-import config.ApplicationConfig
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import play.api.Application
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import com.kenshoo.play.metrics.Metrics
+import play.api.http.Status._
+import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads}
+import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, Matchers, Mockito}
+import uk.gov.hmrc.http.logging.Authorization
 import utils.TestConstants.testNino
-import utils.{BaseSpec, JsonUtil, WireMockHelper}
+import utils.{ConnectorBaseSpec, JsonUtil, TestMetrics}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
-class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience {
+class NPSConnectorTest extends ConnectorBaseSpec with JsonUtil {
 
-  override def fakeApplication(): Application =
-    new GuiceApplicationBuilder()
-      .configure(
-        "microservice.services.tax-summaries-hod.port" -> server.port()
-      )
-      .build()
-
-  val hc = HeaderCarrier()
+  implicit val hc = HeaderCarrier()
   private val currentYear = 2018
   private val invalidTaxYear = 201899
 
   private val testNinoWithoutSuffix = testNino.take(8)
 
-  class NPSConnectorSetUp
-      extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig)(
-        app.injector.instanceOf[ExecutionContext]) with JsonUtil
+  lazy val connector = inject[NpsConnector]
 
   "connectToPayeTaxSummary" should {
 
-    "return successful response when provided suffix" in new NPSConnectorSetUp {
-
+    "return successful response when provided suffix" in {
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
       val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
@@ -64,13 +53,12 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear, hc).futureValue
+      val result = connector.connectToPayeTaxSummary(testNino, currentYear).futureValue
 
       result.json shouldBe Json.parse(expectedNpsResponse)
     }
 
-    "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
-
+    "return successful response when NOT provided suffix" in {
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
       val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
@@ -81,13 +69,12 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear, hc).futureValue
+      val result = connector.connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
 
       result.json shouldBe Json.parse(expectedNpsResponse)
     }
 
-    "return BAD_REQUEST response in case of Bad request from NPS" in new NPSConnectorSetUp {
-
+    "return BAD_REQUEST response in case of Bad request from NPS" in {
       val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
 
       server.stubFor(
@@ -97,13 +84,12 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Bad Request"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connector.connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
       result.status shouldBe BAD_REQUEST
     }
 
-    "return NOT_FOUND response in case of Not found from NPS" in new NPSConnectorSetUp {
-
+    "return NOT_FOUND response in case of Not found from NPS" in {
       val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
 
       server.stubFor(
@@ -113,13 +99,12 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Not Found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connector.connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
       result.status shouldBe NOT_FOUND
     }
 
-    "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new NPSConnectorSetUp {
-
+    "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in {
       val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
 
       server.stubFor(
@@ -129,9 +114,39 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("File not found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connector.connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
       result.status shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
+  "headers" should {
+    "contain additional header tracking measures" in {
+      val metrics: Metrics = new TestMetrics
+      val http = mock[HttpClient]
+      val connector = new NpsConnector(http, applicationConfig, metrics)
+
+      when(
+        http.GET[JsValue](Matchers.any[String])(
+          Matchers.any[HttpReads[JsValue]],
+          Matchers.any[HeaderCarrier],
+          Matchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(mock[JsValue]))
+
+      val eventCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
+
+      connector.connectToPayeTaxSummary(testNino, currentYear).futureValue
+
+      Mockito.verify(http).GET(Matchers.any())(Matchers.any(), eventCaptor.capture(), Matchers.any())
+
+      val newHeaders = eventCaptor.getValue
+
+      newHeaders.headers.exists(_._1 == "CorrelationId") shouldBe true
+      newHeaders.headers.exists(_._1 == "X-Session-ID") shouldBe true
+      newHeaders.headers.exists(_._1 == "X-Request-ID") shouldBe true
+      newHeaders.headers.contains("Environment"  -> applicationConfig.environment) shouldBe true
+      newHeaders.headers.contains("OriginatorId" -> applicationConfig.originatorId) shouldBe true
+      newHeaders.authorization.contains(Authorization(applicationConfig.authorization)) shouldBe true
     }
   }
 }

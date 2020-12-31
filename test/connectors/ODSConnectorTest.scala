@@ -21,7 +21,6 @@ import com.kenshoo.play.metrics.Metrics
 import generators.JsValueGenerator
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, Matchers, Mockito}
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import play.api.http.Status._
 import play.api.libs.json.JsValue
@@ -31,8 +30,7 @@ import utils.{ConnectorBaseSpec, TestMetrics}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ODSConnectorTest
-    extends ConnectorBaseSpec with MockitoSugar with GeneratorDrivenPropertyChecks with JsValueGenerator {
+class ODSConnectorTest extends ConnectorBaseSpec with GeneratorDrivenPropertyChecks with JsValueGenerator {
 
   implicit val hc = HeaderCarrier()
   lazy val connector = inject[ODSConnector]
@@ -178,11 +176,11 @@ class ODSConnectorTest
     }
   }
 
-  "ODSConnector" should {
-    "contain additional header tracking measures" in {
+  "ODSConnector headers" should {
+    "contain additional tracking measures" in {
       lazy val metrics: Metrics = new TestMetrics
       val http = mock[HttpClient]
-      val connector = new ODSConnector(http, applicationConfig, metrics)
+      lazy val connector = new ODSConnector(http, applicationConfig, metrics)
 
       when(
         http.GET[JsValue](Matchers.any[String])(
@@ -198,11 +196,11 @@ class ODSConnectorTest
       whenReady(result) { _ =>
         Mockito.verify(http).GET(Matchers.any())(Matchers.any(), eventCaptor.capture(), Matchers.any())
 
-        val headerCarrierWithExtraHeaders = eventCaptor.getValue
+        val newHeaders = eventCaptor.getValue
 
-        headerCarrierWithExtraHeaders.headers.exists(_._1 == "CorrelationId") shouldBe true
-        headerCarrierWithExtraHeaders.headers.exists(_._1 == "X-Session-ID") shouldBe true
-        headerCarrierWithExtraHeaders.headers.exists(_._1 == "X-Request-ID") shouldBe true
+        newHeaders.headers.exists(_._1 == "CorrelationId") shouldBe true
+        newHeaders.headers.exists(_._1 == "X-Session-ID") shouldBe true
+        newHeaders.headers.exists(_._1 == "X-Request-ID") shouldBe true
       }
     }
   }
