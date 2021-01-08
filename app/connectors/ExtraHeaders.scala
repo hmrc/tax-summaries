@@ -21,21 +21,10 @@ import java.util.UUID.randomUUID
 import uk.gov.hmrc.http.HeaderCarrier
 
 trait ExtraHeaders {
-  private def correlationId(hc: HeaderCarrier): String = {
-    val CorrelationIdPattern = """.*([A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}).*""".r
-    hc.requestId match {
-      case Some(requestId) =>
-        requestId.value match {
-          case CorrelationIdPattern(prefix) => prefix + "-" + randomUUID.toString.substring(24)
-          case _                            => randomUUID.toString
-        }
-      case _ => randomUUID.toString
-    }
-  }
 
   def extraHeaders(implicit hc: HeaderCarrier): HeaderCarrier =
     hc.withExtraHeaders(
-      "CorrelationId" -> correlationId(hc),
+      "CorrelationId" -> randomUUID.toString,
       "X-Session-ID"  -> hc.sessionId.fold("-")(_.value),
       "X-Request-ID"  -> hc.requestId.fold("-")(_.value)
     )
