@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,32 @@ package controllers
 import com.google.inject.Inject
 import controllers.auth.AuthAction
 import models.{GenericError, JsonParseError, NotFoundError, ServiceError}
+import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.OdsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction, cc: ControllerComponents)
     extends BackendController(cc) {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getList(utr) map (Ok(_)) recover {
-      case _ => NotFound
-    }
+    handleResponse(odsService.getList(utr))
   }
 
   def getATSData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getPayload(utr, tax_year) map { Ok(_) }
+    handleResponse(odsService.getPayload(utr, tax_year))
   }
 
   def getATSList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService.getATSList(utr) map {
-      case Left(error)  => handleAtsListError(error)
-      case Right(value) => Ok(value)
-    }
+    handleResponse(odsService.getATSList(utr))
+  }
+
+  private def handleResponse(call: Future[Either[ServiceError, JsValue]]): Future[Result] = call map {
+    case Left(error)  => handleAtsListError(error)
+    case Right(value) => Ok(value)
   }
 
   private def handleAtsListError(error: ServiceError): Result = error match {

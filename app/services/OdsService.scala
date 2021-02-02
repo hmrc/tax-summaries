@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package services
 import com.fasterxml.jackson.core.JsonParseException
 import com.google.inject.Inject
 import connectors.ODSConnector
-import errors.AtsError
 import models._
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
@@ -33,40 +32,41 @@ class OdsService @Inject()(
   odsConnector: ODSConnector
 )(implicit ec: ExecutionContext) {
 
-  def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    for {
-      taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
-      taxSummariesIn <- odsConnector.connectToSelfAssessment(UTR, TAX_YEAR)
-    } yield jsonHelper.getAllATSData(taxpayer, taxSummariesIn, UTR, TAX_YEAR)
-  } recover {
-    case parsingError: JsonParseException =>
-      Logger.error("Malformed JSON for tax year: " + TAX_YEAR, parsingError)
-      Json.toJson(
-        AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("JsonParsingError"))))
-    case throwable: Throwable =>
-      Logger.error("Generic error for tax year: " + TAX_YEAR, throwable)
-      Json.toJson(
-        AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("GenericError"))))
-  }
+  def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
+    withErrorHandling {
+      for {
+        taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
+        taxSummariesIn <- odsConnector.connectToSelfAssessment(UTR, TAX_YEAR)
+      } yield {
+        Right(jsonHelper.getAllATSData(taxpayer, taxSummariesIn, UTR, TAX_YEAR))
+      }
+    }
 
-  def getList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-    for (taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR))
-      yield Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn)))
+  def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
+    withErrorHandling {
+      odsConnector.connectToSelfAssessmentList(UTR) map { taxSummariesIn =>
+        Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn))))
+      }
+    }
 
-  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] = {
-    for {
-      taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
-      taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
-    } yield Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
-  } recover {
-    case error: JsonParseException =>
-      Logger.error("Malformed JSON", error)
-      Left(JsonParseError(error.getMessage))
-    case error: NotFoundException =>
-      Logger.error("No ATS error", error)
-      Left(NotFoundError(error.getMessage))
-    case error: Throwable =>
-      Logger.error("Generic error", error)
-      Left(GenericError(error.getMessage))
-  }
+  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
+    withErrorHandling {
+      for {
+        taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
+        taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
+      } yield Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
+    }
+
+  private def withErrorHandling(block: Future[Either[ServiceError, JsValue]]): Future[Either[ServiceError, JsValue]] =
+    block recover {
+      case error: JsonParseException =>
+        Logger.error("Malformed JSON", error)
+        Left(JsonParseError(error.getMessage))
+      case error: NotFoundException =>
+        Logger.error("No ATS error", error)
+        Left(NotFoundError(error.getMessage))
+      case error =>
+        Logger.error("Generic error", error)
+        Left(GenericError(error.getMessage))
+    }
 }
