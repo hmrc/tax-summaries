@@ -357,13 +357,10 @@ sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiabilit
 
 object ATSCalculations {
 
-  def make(
-    summaryData: TaxSummaryLiability,
-    taxRates: TaxRateService,
-    applicationConfig: ApplicationConfig): ATSCalculations =
+  def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
     if (summaryData.taxYear > 2018 && summaryData.isScottish) {
       new Post2018ScottishATSCalculations(summaryData, taxRates)
-    } else if (applicationConfig.isSAWritEnabled && summaryData.taxYear > 2019 && summaryData.isWelsh) {
+    } else if (summaryData.taxYear > 2019 && summaryData.isWelsh) {
       new WelshATSCalculations(summaryData, taxRates)
     } else if (summaryData.taxYear > 2018) {
       new Post2018rUKATSCalculations(summaryData, taxRates)
