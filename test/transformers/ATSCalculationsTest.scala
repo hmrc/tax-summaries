@@ -62,7 +62,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
     lazy val taxRateService = new TaxRateService(self.taxYear, _ => configRates)
 
-    lazy val calculation: ATSCalculations = ATSCalculations.make(taxSummaryLiability, taxRateService, applicationConfig)
+    lazy val calculation: ATSCalculations = ATSCalculations.make(taxSummaryLiability, taxRateService)
   }
 
   class Fixture(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig = applicationConfig) {
@@ -556,48 +556,20 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
   }
 
   "WelshATSCalculations" should {
-    "writ is enabled" should {
-      "calculate the welshIncomeTax" in {
-        val welshFixture = new Fixture(taxYear = 2020, Welsh)
+    "calculate the welshIncomeTax" in {
+      val welshFixture = new Fixture(taxYear = 2020, Welsh)
 
-        forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
-          val sut = welshFixture(
-            IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
-            IncomeChargeableHigherRate -> Amount.gbp(higherRate),
-            IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
-          )
+      forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
+        val sut = welshFixture(
+          IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
+          IncomeChargeableHigherRate -> Amount.gbp(higherRate),
+          IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
+        )
 
-          sut.calculation.welshIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
-          sut.calculation.savingsRate shouldBe Amount.empty
-          sut.calculation.savingsRateAmount shouldBe Amount.empty
-          sut.calculation.scottishIncomeTax shouldBe Amount.empty
-        }
-      }
-    }
-
-    "writ is disabled" should {
-      "return empty for welshIncomeTax" in {
-        val servicesConfig = app.injector.instanceOf[ServicesConfig]
-        val configuration = app.injector.instanceOf[Configuration]
-
-        class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
-          override lazy val isSAWritEnabled = false
-        }
-
-        val welshFixture = new Fixture(taxYear = 2020, Welsh, new ApplicationConfigStub)
-
-        forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
-          val sut = welshFixture(
-            IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
-            IncomeChargeableHigherRate -> Amount.gbp(higherRate),
-            IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
-          )
-
-          sut.calculation.welshIncomeTax shouldBe Amount.empty
-          sut.calculation.savingsRate shouldBe Amount.empty
-          sut.calculation.savingsRateAmount shouldBe Amount.empty
-          sut.calculation.scottishIncomeTax shouldBe Amount.empty
-        }
+        sut.calculation.welshIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
+        sut.calculation.savingsRate shouldBe Amount.empty
+        sut.calculation.savingsRateAmount shouldBe Amount.empty
+        sut.calculation.scottishIncomeTax shouldBe Amount.empty
       }
     }
   }

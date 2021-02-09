@@ -35,7 +35,7 @@ case class ATSRawDataTransformer(
   taxYear: Int) {
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-  val calculations = ATSCalculations.make(summaryLiability, taxRate, applicationConfig)
+  val calculations = ATSCalculations.make(summaryLiability, taxRate)
 
   def atsDataDTO: AtsMiddleTierData =
     try {

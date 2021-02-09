@@ -93,31 +93,6 @@ class PayeAtsDataTest extends BaseSpec {
       incomeData shouldBe DataHolder(Some(expectedValues), None, None)
     }
 
-    "create income data with ScottishIncomeTax as zero when writ changes are disabled" in {
-
-      class ApplicationConfigStub extends ApplicationConfig(servicesConfig, configuration) {
-        override val isPayeWritEnabled = false
-      }
-
-      lazy val transformedData: PayeAtsMiddleTier =
-        atsData.transformToPayeMiddleTier(new ApplicationConfigStub, nino, taxYear.toInt)
-
-      val incomeData: DataHolder =
-        transformedData.income_data.getOrElse(fail("No income data"))
-
-      val expectedValues: Map[LiabilityKey, Amount] = Map(
-        IncomeFromEmployment   -> Amount.gbp(25000.00),
-        StatePension           -> Amount.gbp(1000.00),
-        OtherPensionIncome     -> Amount.gbp(500.00),
-        OtherIncome            -> Amount.gbp(3000.00),
-        TotalIncomeBeforeTax   -> Amount.gbp(28000.00),
-        ScottishIncomeTax      -> Amount.gbp(0),
-        BenefitsFromEmployment -> Amount.gbp(200.00),
-        TaxableStateBenefits   -> Amount.gbp(500.00)
-      )
-      incomeData shouldBe DataHolder(Some(expectedValues), None, None)
-    }
-
     "create summary data" in {
       val summaryData: DataHolder =
         transformedData.summary_data.getOrElse(fail("No summary data"))

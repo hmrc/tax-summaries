@@ -121,11 +121,9 @@ case class PayeAtsData(
   )
 
   private def createIncomeData(applicationConfig: ApplicationConfig): DataHolder =
-    DataHolder.make(createIncomePayload(applicationConfig))
+    DataHolder.make(createIncomePayload)
 
-  private def createIncomePayload(applicationConfig: ApplicationConfig): Map[LiabilityKey, Amount] = {
-
-    val scottishIncomeTaxValue: Option[Double] = if (applicationConfig.isPayeWritEnabled) scottishIncomeTax else None
+  private def createIncomePayload: Map[LiabilityKey, Amount] =
     Map(
       IncomeFromEmployment   -> optionToAmount(income.flatMap(_.incomeFromEmployment)),
       StatePension           -> optionToAmount(income.flatMap(_.statePension)),
@@ -134,9 +132,8 @@ case class PayeAtsData(
       TotalIncomeBeforeTax   -> optionToAmount(income.flatMap(_.incomeBeforeTax)),
       BenefitsFromEmployment -> optionToAmount(income.flatMap(_.employmentBenefits)),
       TaxableStateBenefits   -> optionToAmount(taxableStateBenefits),
-      ScottishIncomeTax      -> optionToAmount(scottishIncomeTaxValue)
+      ScottishIncomeTax      -> optionToAmount(scottishIncomeTax)
     )
-  }
 
   private def createAllowanceData: DataHolder =
     DataHolder.make(createAllowancePayload)
