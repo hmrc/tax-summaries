@@ -25,7 +25,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
-import play.api.libs.json.{JsString, JsValue}
+import play.api.libs.json.JsString
 import play.api.test.FakeRequest
 import play.api.test.Helpers.stubControllerComponents
 import services.OdsService
@@ -49,25 +49,128 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
   val odsService: OdsService = mock[OdsService]
   val controller = new ATSDataController(odsService, FakeAuthAction, cc)
 
+  val taxYear = 2021
+  val json: JsString = JsString("success")
+
   "getAtsData" should {
 
-    "return a failed future" in {
-      when(odsService.getPayload(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new Exception("failed")))
-      val result = controller.getATSData(testUtr, 2014)(request)
+    "return 200" when {
 
-      whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
+      "the service returns a right" in {
+
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
+          Right(json))
+        val result = controller.getATSData(testUtr, taxYear)(request)
+
+        status(result) shouldBe OK
+        jsonBodyOf(result).futureValue shouldBe json
+      }
+    }
+
+    "return 404" when {
+
+      "connector returns a left with NotFoundError" in {
+
+        val msg = "Record not found"
+
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(NotFoundError(msg)))
+
+        val result = controller.getATSData(testUtr, taxYear)(request)
+
+        status(result) shouldBe NOT_FOUND
+        bodyOf(result).futureValue shouldBe msg
+      }
+    }
+
+    "return 500" when {
+
+      "connector returns a left with JsonParseError" in {
+
+        val msg = "Could not parse JSON"
+
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(JsonParseError(msg)))
+
+        val result = controller.getATSData(testUtr, taxYear)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result).futureValue shouldBe msg
+      }
+
+      "connector returns a left with GenericError" in {
+
+        val msg = "Something went wrong"
+
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(GenericError(msg)))
+
+        val result = controller.getATSData(testUtr, taxYear)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result).futureValue shouldBe msg
       }
     }
   }
 
   "hasAts" should {
 
-    "return Not Found (404) on error" in {
-      when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(Future.failed(new Exception("failed")))
-      val result = controller.hasAts(testUtr)(request)
-      status(result) shouldBe 404
+    "return 200" when {
+
+      "the service returns a right" in {
+
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Right(json))
+
+        val result = controller.hasAts(testUtr)(request)
+
+        status(result) shouldBe OK
+        jsonBodyOf(result).futureValue shouldBe json
+      }
+    }
+
+    "return 404" when {
+
+      "connector returns a left with NotFoundError" in {
+
+        val msg = "Record not found"
+
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(NotFoundError(msg)))
+
+        val result = controller.hasAts(testUtr)(request)
+
+        status(result) shouldBe NOT_FOUND
+        bodyOf(result).futureValue shouldBe msg
+      }
+    }
+
+    "return 500" when {
+
+      "connector returns a left with JsonParseError" in {
+
+        val msg = "Could not parse JSON"
+
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(JsonParseError(msg)))
+
+        val result = controller.hasAts(testUtr)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result).futureValue shouldBe msg
+      }
+
+      "connector returns a left with GenericError" in {
+
+        val msg = "Something went wrong"
+
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(GenericError(msg)))
+
+        val result = controller.hasAts(testUtr)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result).futureValue shouldBe msg
+      }
     }
   }
 
@@ -77,14 +180,12 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
       "connector returns a right" in {
 
-        val expectedBody: JsValue = JsString("body")
-
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Right(expectedBody))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Right(json))
 
         val result = controller.getATSList(testUtr)(request)
 
         status(result) shouldBe OK
-        jsonBodyOf(result).futureValue shouldBe expectedBody
+        jsonBodyOf(result).futureValue shouldBe json
       }
     }
 
@@ -134,7 +235,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
     }
 
     "return a failed future" in {
-      when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(Future.failed(new Exception("failed")))
+      when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(new Exception("failed"))
+
       val result = controller.getATSList(testUtr)(request)
 
       whenReady(result.failed) { exception =>

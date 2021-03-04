@@ -16,9 +16,8 @@
 
 package services
 
-import com.fasterxml.jackson.core.{JsonParseException, JsonParser}
+import com.fasterxml.jackson.core.JsonParseException
 import connectors.ODSConnector
-import errors.AtsError
 import models._
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito
@@ -53,55 +52,59 @@ class OdsServiceSpec
 
   "getPayload" should {
 
-    "return a successful future" in {
+    "return json" when {
+      "the call is successful" in {
 
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(mock[JsValue]))
-      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(mock[JsValue]))
-      when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014)))
-        .thenReturn(mock[JsValue])
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(mock[JsValue]))
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(mock[JsValue]))
+        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014)))
+          .thenReturn(mock[JsValue])
 
-      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
+        val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
+        whenReady(result) { res =>
+          res.isRight shouldBe true
 
-        verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+        }
       }
     }
 
-    "return a successful future when the connection fails (SaTaxpayerDetails)" in {
+    "return a service error when no taxpayer details are found" in {
+
+      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+        .thenReturn(Future.failed(mock[NotFoundException]))
+
+      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
+
+      whenReady(result) { res =>
+        res.left.get shouldBe a[NotFoundError]
+
+        verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+        verify(odsConnector, never()).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
+        verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+      }
+    }
+
+    "return a service error when invalid json is returned" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
         .thenReturn(Future.failed(mock[JsonParseException]))
 
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
+      whenReady(result) { res =>
+        res.left.get shouldBe a[JsonParseError]
 
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, never()).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
         verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
-
-        Json.fromJson[AtsMiddleTierData](result).asOpt shouldBe
-          Some(
-            AtsMiddleTierData(
-              2014,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              Option(AtsError("JsonParsingError"))))
       }
     }
 
-    "return a successful future when the connection fails (SelfAssessment)" in {
+    "return a service error when any other exception is thrown by the connector" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
         .thenReturn(Future.successful(mock[JsValue]))
@@ -110,48 +113,76 @@ class OdsServiceSpec
 
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
+      whenReady(result) { res =>
+        res.left.get shouldBe a[GenericError]
 
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
         verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
-
-        Json.fromJson[AtsMiddleTierData](result).asOpt shouldBe
-          Some(
-            AtsMiddleTierData(2014, None, None, None, None, None, None, None, None, Option(AtsError("GenericError"))))
       }
     }
   }
 
   "getList" should {
 
-    "return a successful future" in {
+    "return json" when {
 
-      when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(mock[JsValue]))
-      when(jsonHelper.hasAtsForPreviousPeriod(any[JsValue]))
-        .thenReturn(true)
+      "connector calls are successful" in {
 
-      val result = service.getList(testUtr)(mock[HeaderCarrier])
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(mock[JsValue]))
+        when(jsonHelper.hasAtsForPreviousPeriod(any[JsValue]))
+          .thenReturn(true)
 
-      whenReady(result) { result =>
-        result shouldBe a[JsValue]
+        val result = service.getList(testUtr)(mock[HeaderCarrier])
 
-        Json.fromJson[AtsCheck](result).asOpt shouldBe Some(AtsCheck(true))
+        whenReady(result) { result =>
+          result.isRight shouldBe true
+
+          Json.fromJson[AtsCheck](result.right.get).asOpt shouldBe Some(AtsCheck(true))
+        }
       }
     }
 
-    "return a failed future" in {
+    "return a service error" when {
 
-      when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(new Exception()))
+      "the connector returns invalid json" in {
 
-      val result = service.getList(testUtr)(mock[HeaderCarrier])
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(mock[JsonParseException]))
 
-      whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
-        verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
+        val result = service.getList(testUtr)(mock[HeaderCarrier])
+
+        whenReady(result) { res =>
+          res.left.get shouldBe a[JsonParseError]
+          verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
+        }
+      }
+
+      "the connector returns a not found exception" in {
+
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(new NotFoundException("Not found")))
+
+        val result = service.getList(testUtr)(mock[HeaderCarrier])
+
+        whenReady(result) { res =>
+          res.left.get shouldBe a[NotFoundError]
+          verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
+        }
+      }
+
+      "any other exception is thrown by the connector" in {
+
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(new Exception()))
+
+        val result = service.getList(testUtr)(mock[HeaderCarrier])
+
+        whenReady(result) { res =>
+          res.left.get shouldBe a[GenericError]
+          verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
+        }
       }
     }
   }
@@ -183,15 +214,13 @@ class OdsServiceSpec
     "return a left" when {
       "a JsonParseException is caught" in {
 
-        val exception = new JsonParseException(mock[JsonParser], "Malformed Json")
-
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(exception))
+          .thenReturn(Future.failed(mock[JsonParseException]))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result shouldBe Left(JsonParseError(exception.getMessage))
+          result.left.get shouldBe a[JsonParseError]
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])

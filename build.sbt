@@ -11,22 +11,12 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 import uk.gov.hmrc._
 import DefaultBuildSettings._
 
-val akkaVersion = "2.5.23"
-val akkaHttpVersion = "10.0.15"
-val silencerVersion = "1.6.0"
-
-dependencyOverrides += "com.typesafe.akka" %% "akka-stream"    % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-protobuf"  % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-slf4j"     % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-actor"     % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
-
 val appName = "tax-summaries"
 
 lazy val IntegrationTest = config("it") extend (Test)
 
 lazy val plugins: Seq[Plugins] =
-  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
 
 lazy val excludedPackages: Seq[String] = Seq(
   "<empty>",
