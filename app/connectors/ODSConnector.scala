@@ -19,8 +19,8 @@ package connectors
 import com.google.inject.Inject
 import config.ApplicationConfig
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpResponse}
+import uk.gov.hmrc.play.http.ws.WSHttpResponse
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -31,12 +31,12 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[JsValue] =
-    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR))
+  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
+    http.GET[Option[JsValue]](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR))
 
-  def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-    http.GET[JsValue](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
+  def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
+    http.GET[Option[JsValue]](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
 
-  def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[JsValue] =
-    http.GET[JsValue](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))
+  def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
+    http.GET[Option[JsValue]](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))
 }

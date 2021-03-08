@@ -28,11 +28,11 @@ object MockConnections {
   def connectToServiceWithBrokenIO(URL: String): Future[JsValue] =
     throw new IOException()
 
-  def connectToMockPayloadService(URL: String): Future[JsValue] =
+  def connectToMockPayloadService(URL: String): Future[Option[JsValue]] =
     try {
       val source = Source.fromURL(getClass.getResource(URL)).mkString
       val theJsValue = Json.parse(source)
-      Future.successful(theJsValue)
+      Future.successful(Some(theJsValue))
     } catch {
       case error: Throwable => Future.failed(error)
     }
