@@ -27,7 +27,7 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Injecting
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
 
@@ -56,9 +56,9 @@ class OdsServiceSpec
       "the call is successful" in {
 
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(mock[JsValue]))
+          .thenReturn(Future.successful(Some(mock[JsValue])))
         when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(mock[JsValue]))
+          .thenReturn(Future.successful(Some(mock[JsValue])))
         when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014)))
           .thenReturn(mock[JsValue])
 
@@ -72,18 +72,38 @@ class OdsServiceSpec
       }
     }
 
-    "return a service error when no taxpayer details are found" in {
+    "return a service error when no ats for that year is found" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(mock[NotFoundException]))
+        .thenReturn(Future.successful(Some(mock[JsValue])))
+      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(None))
 
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { res =>
         res.left.get shouldBe a[NotFoundError]
 
-        verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(odsConnector, never()).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
+        verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+        verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
+        verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+      }
+    }
+
+    "return a service error when no taxpayer details are found" in {
+
+      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(None))
+      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Some(mock[JsValue])))
+
+      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
+
+      whenReady(result) { res =>
+        res.left.get shouldBe a[NotFoundError]
+
+        verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+        verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
         verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
       }
     }
@@ -107,7 +127,7 @@ class OdsServiceSpec
     "return a service error when any other exception is thrown by the connector" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(mock[JsValue]))
+        .thenReturn(Future.successful(Some(mock[JsValue])))
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
         .thenReturn(Future.failed(new Exception("raw exception")))
 
@@ -130,7 +150,7 @@ class OdsServiceSpec
       "connector calls are successful" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(mock[JsValue]))
+          .thenReturn(Future.successful(Some(mock[JsValue])))
         when(jsonHelper.hasAtsForPreviousPeriod(any[JsValue]))
           .thenReturn(true)
 
@@ -159,10 +179,10 @@ class OdsServiceSpec
         }
       }
 
-      "the connector returns a not found exception" in {
+      "the connector returns not found" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(new NotFoundException("Not found")))
+          .thenReturn(Future.successful(None))
 
         val result = service.getList(testUtr)(mock[HeaderCarrier])
 
@@ -194,9 +214,9 @@ class OdsServiceSpec
       val json = mock[JsValue]
 
       when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(json))
+        .thenReturn(Future.successful(Some(json)))
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(json))
+        .thenReturn(Future.successful(Some(json)))
       when(jsonHelper.createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue]))
         .thenReturn(Future.successful(json))
 
@@ -228,37 +248,35 @@ class OdsServiceSpec
         }
       }
 
-      "a NotFoundException is caught when getting SA json" in {
-
-        val exceptionMessage = "Connector returned not found"
+      "a not found is returned when getting SA json" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(new NotFoundException(exceptionMessage)))
+          .thenReturn(Future.successful(None))
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Some(mock[JsValue])))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result shouldBe Left(NotFoundError(exceptionMessage))
+          result.left.get shouldBe a[NotFoundError]
 
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+          verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
           verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
         }
       }
 
-      "a NotFoundException is caught when getting taxpayer details" in {
-
-        val exceptionMessage = "Connector returned not found"
+      "a Not Found is returned when getting taxpayer details" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(mock[JsValue]))
+          .thenReturn(Future.successful(Some(mock[JsValue])))
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(new NotFoundException(exceptionMessage)))
+          .thenReturn(Future.successful(None))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result shouldBe Left(NotFoundError(exceptionMessage))
+          result.left.get shouldBe a[NotFoundError]
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])

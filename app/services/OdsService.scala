@@ -35,26 +35,40 @@ class OdsService @Inject()(
   def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
     withErrorHandling {
       for {
-        taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
-        taxSummariesIn <- odsConnector.connectToSelfAssessment(UTR, TAX_YEAR)
+        taxpayerOpt       <- odsConnector.connectToSATaxpayerDetails(UTR)
+        taxSummariesInOpt <- odsConnector.connectToSelfAssessment(UTR, TAX_YEAR)
       } yield {
-        Right(jsonHelper.getAllATSData(taxpayer, taxSummariesIn, UTR, TAX_YEAR))
+        (taxpayerOpt, taxSummariesInOpt) match {
+          case (Some(taxpayer), Some(annualSummary)) =>
+            Right(jsonHelper.getAllATSData(taxpayer, annualSummary, UTR, TAX_YEAR))
+          case (None, _) => Left(NotFoundError("Could not find Taxpayer details"))
+          case (_, None) => Left(NotFoundError("Could not find annual summary"))
+        }
       }
     }
 
   def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
     withErrorHandling {
-      odsConnector.connectToSelfAssessmentList(UTR) map { taxSummariesIn =>
-        Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn))))
+      odsConnector.connectToSelfAssessmentList(UTR) map {
+        case Some(taxSummariesIn) =>
+          Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(taxSummariesIn))))
+        case None => Left(NotFoundError("Could not find annual summary"))
       }
     }
 
   def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
     withErrorHandling {
       for {
-        taxSummariesIn <- odsConnector.connectToSelfAssessmentList(UTR)
-        taxpayer       <- odsConnector.connectToSATaxpayerDetails(UTR)
-      } yield Right(jsonHelper.createTaxYearJson(taxSummariesIn, UTR, taxpayer))
+        taxSummariesInOpt <- odsConnector.connectToSelfAssessmentList(UTR)
+        taxpayerOpt       <- odsConnector.connectToSATaxpayerDetails(UTR)
+      } yield {
+        (taxpayerOpt, taxSummariesInOpt) match {
+          case (Some(taxpayer), Some(annualSummary)) =>
+            Right(jsonHelper.createTaxYearJson(annualSummary, UTR, taxpayer))
+          case (None, _) => Left(NotFoundError("Could not find Taxpayer details"))
+          case (_, None) => Left(NotFoundError("Could not find annual summaries"))
+        }
+      }
     }
 
   private def withErrorHandling(block: Future[Either[ServiceError, JsValue]]): Future[Either[ServiceError, JsValue]] =
@@ -62,9 +76,6 @@ class OdsService @Inject()(
       case error: JsonParseException =>
         Logger.error("Malformed JSON", error)
         Left(JsonParseError(error.getMessage))
-      case error: NotFoundException =>
-        Logger.error("No ATS error", error)
-        Left(NotFoundError(error.getMessage))
       case error =>
         Logger.error("Generic error", error)
         Left(GenericError(error.getMessage))

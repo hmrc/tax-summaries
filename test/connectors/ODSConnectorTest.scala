@@ -15,55 +15,78 @@
  */
 
 package connectors
-import org.mockito.Matchers.{eq => eqTo, _}
-import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
-import play.api.libs.json.JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import utils.BaseSpec
+
+import com.github.tomakehurst.wiremock.client.WireMock.{get, notFound, ok, serverError}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{JsObject, JsString}
+import play.api.test.Injecting
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse, UpstreamErrorResponse}
 import utils.TestConstants._
+import utils.{BaseSpec, WireMockHelper}
 
-import scala.concurrent.{ExecutionContext, Future}
+class ODSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience with Injecting {
 
-class ODSConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures {
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder()
+      .configure(
+        "microservice.services.tax-summaries-hod.port" -> server.port()
+      )
+      .build()
 
-  val http = mock[HttpClient]
+  lazy val sut: ODSConnector = inject[ODSConnector]
 
-  class TestConnector extends ODSConnector(http, applicationConfig)
+  val json = JsObject(Map("foo" -> JsString("bar")))
+
+  implicit val hc = HeaderCarrier()
 
   "connectToSelfAssessment" should {
 
-    "return successful future" in new TestConnector {
+    val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries/2014"
 
-      when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries/2014")))(
-          any[HttpReads[JsValue]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.successful(mock[JsValue]))
+    "return json" when {
 
-      val result = connectToSelfAssessment(testUtr, 2014)(mock[HeaderCarrier])
+      "200 is returned" in {
 
-      whenReady(result) {
-        _ shouldBe a[JsValue]
+        server.stubFor(
+          get(url).willReturn(ok(json.toString()))
+        )
+
+        val result = sut.connectToSelfAssessment(testUtr, 2014)
+
+        whenReady(result) {
+          _ shouldBe Some(json)
+        }
       }
     }
 
-    "return failed future" in new TestConnector {
+    "return None" when {
 
-      when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries/2014")))(
-          any[HttpReads[JsValue]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.failed(new Exception))
+      "404 is returned" in {
 
-      val result = connectToSelfAssessment(testUtr, 2014)(mock[HeaderCarrier])
+        server.stubFor(
+          get(url).willReturn(notFound())
+        )
+
+        val result = sut.connectToSelfAssessment(testUtr, 2014)
+
+        whenReady(result) {
+          _ shouldBe None
+        }
+      }
+    }
+
+    "return 500" in {
+
+      server.stubFor(
+        get(url).willReturn(serverError())
+      )
+
+      val result = sut.connectToSelfAssessment(testUtr, 2014)
 
       whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
+        exception shouldBe a[UpstreamErrorResponse]
       }
     }
 
@@ -71,75 +94,107 @@ class ODSConnectorTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
   "connectToSelfAssessmentList" should {
 
-    "return a successful future" in new TestConnector {
+    val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
 
-      when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
-          any[HttpReads[JsValue]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.successful(mock[JsValue]))
+    "return json" when {
 
-      val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
+      "200 is returned" in {
 
-      whenReady(result) {
-        _ shouldBe a[JsValue]
+        server.stubFor(
+          get(url).willReturn(ok(json.toString()))
+        )
+
+        val result = sut.connectToSelfAssessmentList(testUtr)
+
+        whenReady(result) {
+          _ shouldBe Some(json)
+        }
       }
     }
 
-    "return failed future" in new TestConnector {
+    "return None" when {
 
-      when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individuals/" + testUtr + "/annual-tax-summaries")))(
-          any[HttpReads[JsValue]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.failed(new Exception()))
+      "404 is returned" in {
 
-      val result = connectToSelfAssessmentList(testUtr)(mock[HeaderCarrier])
+        server.stubFor(
+          get(url).willReturn(notFound())
+        )
 
-      whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
+        val result = sut.connectToSelfAssessmentList(testUtr)
+
+        whenReady(result) {
+          _ shouldBe None
+        }
       }
     }
 
+    "return an exception" when {
+
+      "500 is returned" in {
+
+        server.stubFor(
+          get(url).willReturn(serverError())
+        )
+
+        val result = sut.connectToSelfAssessmentList(testUtr)
+
+        whenReady(result.failed) { exception =>
+          exception shouldBe a[UpstreamErrorResponse]
+        }
+      }
+    }
   }
 
   "connectToSATaxpayerDetails" should {
 
-    "return successful future" in new TestConnector {
+    val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
 
-      when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individual/" + testUtr + "/designatory-details/taxpayer")))(
-          any[HttpReads[JsValue]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.successful(mock[JsValue]))
+    "return json" when {
 
-      val result = connectToSATaxpayerDetails(testUtr)(mock[HeaderCarrier])
+      "200 is returned" in {
 
-      whenReady(result) {
-        _ shouldBe a[JsValue]
+        server.stubFor(
+          get(url).willReturn(ok(json.toString()))
+        )
+
+        val result = sut.connectToSATaxpayerDetails(testUtr)
+
+        whenReady(result) {
+          _ shouldBe Some(json)
+        }
       }
     }
 
-    "return failed future" in new TestConnector {
+    "return None" when {
 
-      when(
-        http.GET[JsValue](eqTo(url("/self-assessment/individual/" + testUtr + "/designatory-details/taxpayer")))(
-          any[HttpReads[JsValue]],
-          any[HeaderCarrier],
-          any[ExecutionContext]))
-        .thenReturn(Future.failed(new Exception))
+      "404 is returned" in {
 
-      val result = connectToSATaxpayerDetails(testUtr)(mock[HeaderCarrier])
+        server.stubFor(
+          get(url).willReturn(notFound())
+        )
 
-      whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
+        val result = sut.connectToSATaxpayerDetails(testUtr)
+
+        whenReady(result) {
+          _ shouldBe None
+        }
       }
-
     }
 
+    "return an exception" when {
+
+      "500 is returned" in {
+
+        server.stubFor(
+          get(url).willReturn(serverError())
+        )
+
+        val result = sut.connectToSATaxpayerDetails(testUtr)
+
+        whenReady(result.failed) { exception =>
+          exception shouldBe a[UpstreamErrorResponse]
+        }
+      }
+    }
   }
-
 }
