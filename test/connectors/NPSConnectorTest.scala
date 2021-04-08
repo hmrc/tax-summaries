@@ -131,5 +131,21 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
 
       result.status shouldBe INTERNAL_SERVER_ERROR
     }
+
+    "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
+
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(503)
+            .withBody("SERVICE_UNAVAILABLE"))
+      )
+
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+
+      result.status shouldBe INTERNAL_SERVER_ERROR
+    }
   }
 }

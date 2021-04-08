@@ -46,6 +46,8 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR)) recover {
       case _: BadRequestException => HttpResponse(BAD_REQUEST)
       case _: NotFoundException   => HttpResponse(NOT_FOUND)
+      case _: Upstream5xxResponse =>
+        HttpResponse(INTERNAL_SERVER_ERROR)
       case e => {
         Logger.error(s"Exception in NPSConnector: $e", e)
         HttpResponse(INTERNAL_SERVER_ERROR)
