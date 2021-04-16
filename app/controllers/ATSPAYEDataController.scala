@@ -40,23 +40,46 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
     }
   }
 
+//  def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
+//    implicit request =>
+//      def dataList: Seq[Future[Option[JsValue]]] = (yearFrom to yearTo).toList map { year =>
+//        callConnector(nino, year) map {
+//          case Right(response) => Some(Json.toJson(response))
+//          case Left(error) =>
+//            logger.error(s"Fetching $year data for $nino returned ${error.status}")
+//            None
+//        }
+//      }
+//      Future.sequence(dataList) map { data =>
+//        val flattenedData = data.flatten
+//        if (flattenedData.isEmpty) NotFound(s"No data found for $nino") else Ok(Json.toJson(flattenedData))
+//      } recover {
+//        case e =>
+//          logger.error(e.getMessage)
+//          InternalServerError(e.getMessage)
+//      }
+//  }
+
   def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
     implicit request =>
-      def dataList: Seq[Future[Option[JsValue]]] = (yearFrom to yearTo).toList map { year =>
+      def dataList: Seq[Future[Either[HttpResponse, JsValue]]] = (yearFrom to yearTo).toList map { year =>
         callConnector(nino, year) map {
-          case Right(response) => Some(Json.toJson(response))
+          case Right(response) => Right(Json.toJson(response))
           case Left(error) =>
             logger.error(s"Fetching $year data for $nino returned ${error.status}")
-            None
+            Left(error)
         }
       }
-      Future.sequence(dataList) map { data =>
-        val flattenedData = data.flatten
-        if (flattenedData.isEmpty) NotFound(s"No data found for $nino") else Ok(Json.toJson(flattenedData))
-      } recover {
-        case e =>
-          logger.error(e.getMessage)
-          InternalServerError(e.getMessage)
+      Future.sequence(dataList) map { SeqEither =>
+        //if there is any rights in the sequence we can send the rights back to frontend to match current functionality
+        val seqJsValue = SeqEither.filter(x => x.isRight) map { right =>
+          right.toOption.get
+        }
+        if (seqJsValue.nonEmpty) Ok(Json.toJson(seqJsValue))
+        //we have sent the rights back if there are any, now we need to send back any lefts that we get.
+        //we know that if it has not matched ^ it is empty and there are some left(error), return the errors
+        else if (SeqEither.filter(x => x.isLeft).head == Left(NotFound)) NotFound
+        else InternalServerError
       }
   }
 
