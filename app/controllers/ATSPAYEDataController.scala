@@ -31,11 +31,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)(
   implicit ec: ExecutionContext)
-  extends BackendController(cc) with LazyLogging {
+    extends BackendController(cc) with LazyLogging {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     callConnector(nino, taxYear) map {
-      case Right(response) => Ok(Json.toJson(response))
+      case Right(response)     => Ok(Json.toJson(response))
       case Left(errorResponse) => new Status(errorResponse.status).apply(errorResponse.json)
     }
   }
@@ -57,10 +57,14 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
         }
 
         if (seqJsValue.nonEmpty) Ok(Json.toJson(seqJsValue))
-        else if (seqEither.find(either => either.isLeft).contains(Left(NOT_FOUND))) NotFound
-        else if (seqEither.find(either => either.isLeft).contains(Left(INTERNAL_SERVER_ERROR))) InternalServerError
+        else if (seqEither.find(either => either.isLeft).contains(Left(NOT_FOUND))) NotFound(s"No data found for $nino")
+        else if (seqEither.find(either => either.isLeft).contains(Left(BAD_REQUEST))) BadRequest
         else InternalServerError
 
+      } recover {
+        case e =>
+          logger.error(e.getMessage)
+          InternalServerError(e.getMessage)
       }
   }
 

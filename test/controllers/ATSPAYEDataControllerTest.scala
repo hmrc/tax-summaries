@@ -98,9 +98,9 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
       "the service returns no data" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(HttpResponse(BAD_REQUEST, "Not found")))
+          Left(HttpResponse(NOT_FOUND, "Not found")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(HttpResponse(BAD_REQUEST, "Not found")))
+          Left(HttpResponse(NOT_FOUND, "Not found")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
