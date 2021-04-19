@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.LazyLogging
 import controllers.auth.PayeAuthAction
 import models.paye.PayeAtsMiddleTier
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.NpsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -31,55 +31,36 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)(
   implicit ec: ExecutionContext)
-    extends BackendController(cc) with LazyLogging {
+  extends BackendController(cc) with LazyLogging {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     callConnector(nino, taxYear) map {
-      case Right(response)     => Ok(Json.toJson(response))
+      case Right(response) => Ok(Json.toJson(response))
       case Left(errorResponse) => new Status(errorResponse.status).apply(errorResponse.json)
     }
   }
 
-//  def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
-//    implicit request =>
-//      def dataList: Seq[Future[Option[JsValue]]] = (yearFrom to yearTo).toList map { year =>
-//        callConnector(nino, year) map {
-//          case Right(response) => Some(Json.toJson(response))
-//          case Left(error) =>
-//            logger.error(s"Fetching $year data for $nino returned ${error.status}")
-//            None
-//        }
-//      }
-//      Future.sequence(dataList) map { data =>
-//        val flattenedData = data.flatten
-//        if (flattenedData.isEmpty) NotFound(s"No data found for $nino") else Ok(Json.toJson(flattenedData))
-//      } recover {
-//        case e =>
-//          logger.error(e.getMessage)
-//          InternalServerError(e.getMessage)
-//      }
-//  }
-
   def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
     implicit request =>
-      def dataList: Seq[Future[Either[HttpResponse, JsValue]]] = (yearFrom to yearTo).toList map { year =>
+      def dataList: Seq[Future[Either[Int, JsValue]]] = (yearFrom to yearTo).toList map { year =>
         callConnector(nino, year) map {
           case Right(response) => Right(Json.toJson(response))
           case Left(error) =>
             logger.error(s"Fetching $year data for $nino returned ${error.status}")
-            Left(error)
+            Left(error.status)
         }
       }
-      Future.sequence(dataList) map { SeqEither =>
-        //if there is any rights in the sequence we can send the rights back to frontend to match current functionality
-        val seqJsValue = SeqEither.filter(x => x.isRight) map { right =>
-          right.toOption.get
+
+      Future.sequence(dataList) map { seqEither =>
+        val seqJsValue = seqEither.filter(either => either.isRight) flatMap { right =>
+          right.toOption
         }
+
         if (seqJsValue.nonEmpty) Ok(Json.toJson(seqJsValue))
-        //we have sent the rights back if there are any, now we need to send back any lefts that we get.
-        //we know that if it has not matched ^ it is empty and there are some left(error), return the errors
-        else if (SeqEither.filter(x => x.isLeft).head == Left(NotFound)) NotFound
+        else if (seqEither.find(either => either.isLeft).contains(Left(NOT_FOUND))) NotFound
+        else if (seqEither.find(either => either.isLeft).contains(Left(INTERNAL_SERVER_ERROR))) InternalServerError
         else InternalServerError
+
       }
   }
 
