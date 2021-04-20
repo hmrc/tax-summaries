@@ -57,8 +57,8 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
         }
 
         if (seqJsValue.nonEmpty) Ok(Json.toJson(seqJsValue))
-        else if (seqEither.find(either => either.isLeft).contains(Left(NOT_FOUND))) NotFound(s"No data found for $nino")
-        else if (seqEither.find(either => either.isLeft).contains(Left(BAD_REQUEST))) BadRequest
+        else if (seqEither.contains(Left(NOT_FOUND))) NotFound(s"No data found for $nino")
+        else if (seqEither.contains(Left(BAD_REQUEST))) BadRequest(s"Bad request for $nino")
         else InternalServerError
 
       } recover {

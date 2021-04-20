@@ -109,6 +109,37 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
       }
     }
 
+    "return BAD_REQUEST" when {
+
+      "the service returns bad request" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(BAD_REQUEST, "Bad request")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(BAD_REQUEST, "Bad request")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe BAD_REQUEST
+        bodyOf(result).futureValue shouldBe s"Bad request for $testNino"
+      }
+    }
+
+    "return INTERNAL_SERVER_ERROR" when {
+
+      "the service returns internal server error" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(INTERNAL_SERVER_ERROR, "Internal server error")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(INTERNAL_SERVER_ERROR, "Internal server error")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+    }
+
     "return INTERNAL_SERVER_ERROR" when {
 
       "an exception occurs when retrieving data" in new TestController {

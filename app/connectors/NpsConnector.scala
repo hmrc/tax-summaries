@@ -29,6 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext) {
 
   def serviceUrl: String = applicationConfig.npsServiceUrl
+
   def url(path: String) = s"$serviceUrl$path"
 
   def header(hc: HeaderCarrier): HeaderCarrier =
