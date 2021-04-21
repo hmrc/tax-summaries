@@ -52,14 +52,13 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
       }
 
       Future.sequence(dataList) map { seqEither =>
-        val seqJsValue = seqEither.filter(either => either.isRight) flatMap { right =>
-          right.toOption
-        }
-
-        if (seqJsValue.nonEmpty) Ok(Json.toJson(seqJsValue))
-        else if (seqEither.contains(Left(NOT_FOUND))) NotFound(s"No data found for $nino")
+        val seqJsValue = seqEither.collect { case Right(value) => value }
+        
+        if (seqEither.contains(Left(INTERNAL_SERVER_ERROR)))
+          InternalServerError(s"Internal server error on call to nps for $nino")
         else if (seqEither.contains(Left(BAD_REQUEST))) BadRequest(s"Bad request for $nino")
-        else InternalServerError
+        else if (seqJsValue.nonEmpty) Ok(Json.toJson(seqJsValue))
+        else NotFound(s"No data found for $nino")
 
       } recover {
         case e =>
