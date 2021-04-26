@@ -93,6 +93,37 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
       contentAsJson(result) shouldBe Json.toJson(Seq(expectedResponseCY, expectedResponseCYPlus1))
     }
 
+    "return Ok" when {
+
+      "the service returns Ok and not found" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Right(expectedResponseCY))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(NOT_FOUND, "Not found")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe OK
+        contentAsJson(result) shouldBe Json.toJson(Seq(expectedResponseCY))
+
+      }
+
+      "the service returns not found and ok" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(NOT_FOUND, "NOT_FOUND")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Right(expectedResponseCYPlus1))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe OK
+        contentAsJson(result) shouldBe Json.toJson(Seq(expectedResponseCYPlus1))
+
+      }
+    }
+
     "return NOT_FOUND" when {
 
       "the service returns no data" in new TestController {
@@ -123,6 +154,54 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe BAD_REQUEST
         bodyOf(result).futureValue shouldBe s"Bad request for $testNino"
       }
+
+      "the service returns bad request and ok" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(BAD_REQUEST, "Bad request")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Right(expectedResponseCYPlus1))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "the service returns ok and bad request" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Right(expectedResponseCY))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(BAD_REQUEST, "Bad request")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "the service returns bad request and not found" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(BAD_REQUEST, "Bad request")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(NOT_FOUND, "NOT_FOUND")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "the service returns not found and bad request" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(NOT_FOUND, "Not found")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(BAD_REQUEST, "Bad request")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe BAD_REQUEST
+      }
     }
 
     "return INTERNAL_SERVER_ERROR" when {
@@ -138,9 +217,6 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
-    }
-
-    "return INTERNAL_SERVER_ERROR" when {
 
       "an exception occurs when retrieving data" in new TestController {
 
@@ -154,13 +230,22 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
         status(result) shouldBe INTERNAL_SERVER_ERROR
         bodyOf(result).futureValue shouldBe exMessage
       }
-    }
-
-    "return INTERNAL_SERVER_ERROR" when {
 
       "the service returns internal server error and not found" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(NOT_FOUND, "Not found")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "the service returns not found and internal server error" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(HttpResponse(NOT_FOUND, "Not found")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(HttpResponse(INTERNAL_SERVER_ERROR, "Internal server error")))
@@ -169,67 +254,55 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
-    }
-
-    "return INTERNAL_SERVER_ERROR" when {
 
       "the service returns internal server error and Ok" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(HttpResponse(OK, "Ok")))
+          Left(HttpResponse(INTERNAL_SERVER_ERROR, "Internal server error")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Right(expectedResponseCYPlus1))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+
+      }
+
+      "the service returns ok and internal server error" in new TestController {
+
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Right(expectedResponseCY))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(HttpResponse(INTERNAL_SERVER_ERROR, "Internal server error")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
+
       }
-    }
 
-    "return BAD_REQUEST" when {
+      "the service returns internal server error and bad request" in new TestController {
 
-      "the service returns bad request and ok" in new TestController {
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR")))
+        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(HttpResponse(BAD_REQUEST, "Bad request")))
+
+        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "the service returns bad request and internal server error" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(HttpResponse(BAD_REQUEST, "Bad request")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Right(expectedResponseCYPlus1))
+          Left(HttpResponse(INTERNAL_SERVER_ERROR, "Internal server error")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe BAD_REQUEST
-      }
-    }
-
-    "return BAD_REQUEST" when {
-
-      "the service returns bad request and not found" in new TestController {
-
-        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(HttpResponse(BAD_REQUEST, "Bad request")))
-        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Right(expectedResponseCYPlus1))
-
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
-
-        status(result) shouldBe BAD_REQUEST
-      }
-    }
-
-    "return Ok" when {
-
-      "the service returns Ok and not found" in new TestController {
-
-        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Right(expectedResponseCY))
-        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(HttpResponse(NOT_FOUND, "Not found")))
-
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
-
-        status(result) shouldBe OK
-        contentAsJson(result) shouldBe Json.toJson(Seq(expectedResponseCY))
-
+        status(result) shouldBe INTERNAL_SERVER_ERROR
       }
     }
   }

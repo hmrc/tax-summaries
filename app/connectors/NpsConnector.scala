@@ -51,7 +51,7 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
         HttpResponse(INTERNAL_SERVER_ERROR, s"Internal server error response in connector for $NINO")
       case e => {
         Logger.error(s"Exception in NPSConnector: $e", e)
-        HttpResponse(INTERNAL_SERVER_ERROR, s"Exception in connector for $NINO")
+        HttpResponse(INTERNAL_SERVER_ERROR, s"Exception in connector for $NINO with message ${e.getMessage}")
       }
     }
   }
