@@ -45,10 +45,14 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     implicit val desHeaderCarrier: HeaderCarrier = header(hc)
 
     http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR)) recover {
-      case _: BadRequestException => HttpResponse(BAD_REQUEST, s"Bad request response in connector for $NINO")
-      case _: NotFoundException   => HttpResponse(NOT_FOUND, s"Not found response in connector for $NINO")
-      case _: UpstreamErrorResponse =>
-        HttpResponse(INTERNAL_SERVER_ERROR, s"Internal server error response in connector for $NINO")
+      case e: BadRequestException =>
+        HttpResponse(BAD_REQUEST, s"Bad request response in connector for $NINO with message ${e.message}")
+      case e: NotFoundException =>
+        HttpResponse(NOT_FOUND, s"Not found response in connector for $NINO with message ${e.message}")
+      case e: UpstreamErrorResponse =>
+        Logger.error(
+          s"UpstreamErrorResponse in connector for $NINO with status ${e.statusCode} and message: ${e.getMessage()}")
+        HttpResponse(INTERNAL_SERVER_ERROR, s"Nino: $NINO Status: ${e.statusCode} Message: ${e.getMessage()}")
       case e => {
         Logger.error(s"Exception in NPSConnector: $e", e)
         HttpResponse(INTERNAL_SERVER_ERROR, s"Exception in connector for $NINO with message ${e.getMessage}")

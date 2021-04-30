@@ -28,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)(
   implicit ec: ExecutionContext)
@@ -42,29 +43,34 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
 
   def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
     implicit request =>
-      def dataList: Seq[Future[Either[Int, JsValue]]] = (yearFrom to yearTo).toList map { year =>
+      def dataList: Seq[Future[Either[HttpResponse, JsValue]]] = (yearFrom to yearTo).toList map { year =>
         callConnector(nino, year) map {
           case Right(response) => Right(Json.toJson(response))
           case Left(error) =>
             logger.error(s"Fetching $year data for $nino returned ${error.status}")
-            Left(error.status)
+            Left(error)
         }
       }
 
       Future.sequence(dataList) map { seqEither =>
-        val seqJsValue = seqEither.collect { case Right(value) => value }
+        val seqRights = seqEither.collect { case Right(value) => value }
+        val seqLeftsHttp = seqEither.collect {
+          case Left(value) if value.status == INTERNAL_SERVER_ERROR || value.status == BAD_REQUEST => value
+        }
 
-        if (seqEither.contains(Left(INTERNAL_SERVER_ERROR)))
-          InternalServerError(s"Internal server error on call to nps for $nino")
-        else if (seqEither.contains(Left(BAD_REQUEST))) BadRequest(s"Bad request for $nino")
-        else if (seqJsValue.nonEmpty) Ok(Json.toJson(seqJsValue))
-        else NotFound(s"No data found for $nino")
-
+        (seqLeftsHttp.isEmpty, seqRights.isEmpty) match {
+          case (false, _) =>
+            val firstErr = seqLeftsHttp.head
+            Status(firstErr.status).apply(firstErr.body)
+          case (true, false) => Ok(Json.toJson(seqRights))
+          case _             => NotFound(s"No data found for $nino")
+        }
       } recover {
-        case e =>
+        case NonFatal(e) =>
           logger.error(e.getMessage)
           InternalServerError(e.getMessage)
       }
+
   }
 
   private def callConnector(nino: String, taxYear: Int)(
