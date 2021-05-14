@@ -40,7 +40,7 @@ class PayeAuthActionImpl @Inject()(
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, None)
 
-    authorised(ConfidenceLevel.L200 and AuthNino(hasNino = true, nino = nino)) {
+    authorised(ConfidenceLevel.L50 and AuthNino(hasNino = true, nino = nino)) {
       Future.successful(None)
     }
   }.recover {
