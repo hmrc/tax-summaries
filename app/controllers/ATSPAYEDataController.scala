@@ -21,13 +21,14 @@ import com.typesafe.scalalogging.LazyLogging
 import controllers.auth.PayeAuthAction
 import models.paye.PayeAtsMiddleTier
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.NpsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)(
   implicit ec: ExecutionContext)
@@ -42,22 +43,34 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
 
   def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
     implicit request =>
-      def dataList: Seq[Future[Option[JsValue]]] = (yearFrom to yearTo).toList map { year =>
+      def dataList: Seq[Future[Either[HttpResponse, JsValue]]] = (yearFrom to yearTo).toList map { year =>
         callConnector(nino, year) map {
-          case Right(response) => Some(Json.toJson(response))
+          case Right(response) => Right(Json.toJson(response))
           case Left(error) =>
             logger.error(s"Fetching $year data for $nino returned ${error.status}")
-            None
+            Left(error)
         }
       }
-      Future.sequence(dataList) map { data =>
-        val flattenedData = data.flatten
-        if (flattenedData.isEmpty) NotFound(s"No data found for $nino") else Ok(Json.toJson(flattenedData))
+
+      Future.sequence(dataList) map { seqEither =>
+        val seqRights = seqEither.collect { case Right(value) => value }
+        val seqLeftsHttp = seqEither.collect {
+          case Left(value) if value.status == INTERNAL_SERVER_ERROR || value.status == BAD_REQUEST => value
+        }
+
+        (seqLeftsHttp.isEmpty, seqRights.isEmpty) match {
+          case (false, _) =>
+            val firstErr = seqLeftsHttp.head
+            Status(firstErr.status).apply(firstErr.body)
+          case (true, false) => Ok(Json.toJson(seqRights))
+          case _             => NotFound(s"No data found for $nino")
+        }
       } recover {
-        case e =>
+        case NonFatal(e) =>
           logger.error(e.getMessage)
           InternalServerError(e.getMessage)
       }
+
   }
 
   private def callConnector(nino: String, taxYear: Int)(

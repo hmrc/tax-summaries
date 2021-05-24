@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqual
 import com.github.tomakehurst.wiremock.http.Fault
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Application
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
@@ -125,6 +125,22 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
           aResponse()
             .withFault(Fault.EMPTY_RESPONSE)
             .withBody("File not found"))
+      )
+
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+
+      result.status shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
+
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
+
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          aResponse()
+            .withStatus(503)
+            .withBody("SERVICE_UNAVAILABLE"))
       )
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
