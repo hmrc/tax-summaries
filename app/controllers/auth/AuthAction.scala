@@ -53,7 +53,9 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
                 .map(key => Uar(key.value))
             }
 
-            if (saUtr.isDefined || agentRef.isDefined) {
+            val isAgentActive: Boolean = enrolments.find(_.key == "IR-SA-AGENT").map(_.isActivated).getOrElse(false)
+
+            if (saUtr.isDefined || isAgentActive) {
               Future.successful(None)
             } else {
               Future.successful(Some(Unauthorized))
