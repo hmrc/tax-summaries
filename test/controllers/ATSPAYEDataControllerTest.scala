@@ -29,7 +29,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsJson, stubControllerComponents}
+import play.api.test.Helpers.{contentAsJson, contentAsString, stubControllerComponents}
 import services.NpsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
@@ -70,12 +70,13 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
     }
 
     "return a failed future" in new TestController {
+      val errorMessage = "An error occurred"
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
-        .thenReturn(Left(HttpResponse(BAD_REQUEST, BAD_REQUEST.toString)))
+        .thenReturn(Left(HttpResponse(BAD_REQUEST, errorMessage)))
       val result = getATSData(testNino, cy)(request)
 
       status(result) shouldBe 400
-      contentAsJson(result) shouldBe Json.toJson(BAD_REQUEST)
+      contentAsString(result) shouldBe errorMessage
     }
   }
 
