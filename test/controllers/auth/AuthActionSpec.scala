@@ -26,9 +26,10 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
-import play.api.test.Helpers.stubControllerComponents
-import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientEnrolments, MissingBearerToken}
+import play.api.test.Helpers.{status, stubControllerComponents}
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.domain.SaUtrGenerator
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -44,10 +45,96 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       Ok
     }
   }
+  val utr = new SaUtrGenerator().nextSaUtr.utr
+  val uar = "SomeUar"
 
   implicit val timeout: Timeout = 5 seconds
 
   "AuthAction" should {
+    "return the request when the user has an active IR-SA-AGENT enrolment" in {
+      val retrievalResults: Future[~[Enrolments, Option[String]]] =
+        Future.successful(
+          new ~(
+            Enrolments(Set(Enrolment("IR-SA-AGENT", Seq(EnrolmentIdentifier("IRAgentReference", uar)), "Activated"))),
+            None)
+        )
+
+      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
+        .thenReturn(retrievalResults)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
+      val harness = new Harness(authAction)
+      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
+
+      status(result) mustBe OK
+    }
+
+    "return the request when the user has a UTR enrolment associated with their account" in {
+      val retrievalResults: Future[~[Enrolments, Option[String]]] =
+        Future.successful(
+          new ~(Enrolments(Set.empty), Some(utr))
+        )
+
+      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
+        .thenReturn(retrievalResults)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
+      val harness = new Harness(authAction)
+      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
+
+      status(result) mustBe OK
+    }
+
+    "return the request when the user has a UTR enrolment and an IR-SA-AGENT enrolment" in {
+      val retrievalResults: Future[~[Enrolments, Option[String]]] =
+        Future.successful(
+          new ~(
+            Enrolments(Set(Enrolment("IR-SA-AGENT", Seq(EnrolmentIdentifier("IRAgentReference", uar)), ""))),
+            Some(utr))
+        )
+
+      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
+        .thenReturn(retrievalResults)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
+      val harness = new Harness(authAction)
+      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
+
+      status(result) mustBe OK
+    }
+
+    "return an UNAUTHORIZED when the user has inactive IR-SA-AGENT enrolment" in {
+      val retrievalResults: Future[~[Enrolments, Option[String]]] =
+        Future.successful(
+          new ~(Enrolments(Set(Enrolment("IR-SA-AGENT", Seq(EnrolmentIdentifier("IRAgentReference", uar)), ""))), None)
+        )
+
+      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
+        .thenReturn(retrievalResults)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
+      val harness = new Harness(authAction)
+      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "return an UNAUTHORIZED when a user has neither SA enrolments" in {
+      val retrievalResults: Future[~[Enrolments, Option[String]]] =
+        Future.successful(
+          new ~(Enrolments(Set.empty), None)
+        )
+
+      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
+        .thenReturn(retrievalResults)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, cc)
+      val harness = new Harness(authAction)
+      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
     "return UNAUTHORIZED when the user is not logged in" in {
 
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
@@ -59,18 +146,6 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       status(result) mustBe UNAUTHORIZED
     }
 
-    "return the request when the user is authorised" in {
-
-      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
-        .thenReturn(Future.successful(()))
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe OK
-    }
-
     "return BAD_REQUEST when the user is authorised and the uri doesn't match our expected format" in {
 
       val authAction = new AuthActionImpl(mockAuthConnector, cc)
@@ -78,20 +153,6 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       val result = harness.onPageLoad()(FakeRequest("GET", "/invalid"))
 
       status(result) mustBe BAD_REQUEST
-    }
-
-    "return UNAUTHORIZED when the IR-SA enrolment is not present" in {
-
-      val retrievalResult: Future[Option[String]] = Future.failed(new InsufficientEnrolments)
-
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe UNAUTHORIZED
     }
   }
 

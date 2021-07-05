@@ -20,7 +20,10 @@ import com.google.inject.{ImplementedBy, Inject}
 import play.api.Logger
 import play.api.mvc.Results.{BadRequest, Unauthorized}
 import play.api.mvc.{ActionBuilder, ActionFilter, AnyContent, BodyParser, ControllerComponents, Request, Result}
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolment}
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolment, Enrolments}
+import uk.gov.hmrc.domain.Uar
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -41,15 +44,28 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
     if (matches.isEmpty) {
       Future.successful(Some(BadRequest))
     } else {
-      authorised(
-        ConfidenceLevel.L50 and
-          (Enrolment("IR-SA") or Enrolment("IR-SA-AGENT"))) {
-        Future.successful(None)
-      }.recover {
-        case t: Throwable =>
-          Logger.debug(s"Debug info - ${t.getMessage}", t)
-          Some(Unauthorized)
-      }
+      authorised(ConfidenceLevel.L50)
+        .retrieve(Retrievals.allEnrolments and Retrievals.saUtr) {
+          case Enrolments(enrolments) ~ saUtr =>
+            val agentRef: Option[Uar] = enrolments.find(_.key == "IR-SA-AGENT").flatMap { enrolment =>
+              enrolment.identifiers
+                .find(id => id.key == "IRAgentReference")
+                .map(key => Uar(key.value))
+            }
+
+            val isAgentActive: Boolean = enrolments.find(_.key == "IR-SA-AGENT").map(_.isActivated).getOrElse(false)
+
+            if (saUtr.isDefined || isAgentActive) {
+              Future.successful(None)
+            } else {
+              Future.successful(Some(Unauthorized))
+            }
+        }
+        .recover {
+          case t: Throwable =>
+            Logger.debug(s"Debug info - ${t.getMessage}", t)
+            Some(Unauthorized)
+        }
     }
   }
 
