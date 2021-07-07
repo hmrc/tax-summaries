@@ -29,7 +29,7 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
   def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl)
 
   "Get Paye Ats Data" must {
-    "return a blah for a BAD_REQUEST" in {
+    "return a BAD_REQUEST with an error message when NPS returns a BAD_REQUEST" in {
       server.stubFor(
         get(urlEqualTo(npsAtsDataUrl)).willReturn(
           aResponse()
@@ -39,8 +39,40 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
 
       val result = route(fakeApplication(), request)
       result.map(getStatus) shouldBe Some(BAD_REQUEST)
-      result.map(contentAsString).contains("Bad Request") shouldBe true
+      result.map(contentAsString).map { message =>
+        message should include("Bad Request")
+      }
     }
 
+    "return a NOT_FOUND with an error message when NPS returns a NOT_FOUND" in {
+      server.stubFor(
+        get(urlEqualTo(npsAtsDataUrl)).willReturn(
+          aResponse()
+            .withStatus(NOT_FOUND)
+            .withBody("No data"))
+      )
+
+      val result = route(fakeApplication(), request)
+      result.map(getStatus) shouldBe Some(NOT_FOUND)
+      result.map(contentAsString).map { message =>
+        message should include("No data")
+      }
+    }
+
+    "return a IM_A_TEAPOT with an error message when NPS returns a INTERNAL_SERVER_ERROR" in {
+      server.stubFor(
+        get(urlEqualTo(npsAtsDataUrl)).willReturn(
+          aResponse()
+            .withStatus(IM_A_TEAPOT)
+            .withBody("teapot body")
+        )
+      )
+
+      val result = route(fakeApplication(), request)
+      result.map(getStatus) shouldBe Some(INTERNAL_SERVER_ERROR)
+      result.map(contentAsString).map { message =>
+        message should include("teapot body")
+      }
+    }
   }
 }
