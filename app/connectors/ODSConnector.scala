@@ -19,8 +19,7 @@ package connectors
 import com.google.inject.Inject
 import config.ApplicationConfig
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpReads, HttpResponse}
-import uk.gov.hmrc.play.http.ws.WSHttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

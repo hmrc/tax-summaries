@@ -36,8 +36,9 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     callConnector(nino, taxYear) map {
-      case Right(response)     => Ok(Json.toJson(response))
-      case Left(errorResponse) => new Status(errorResponse.status).apply(errorResponse.json)
+      case Right(response) => Ok(Json.toJson(response))
+      case Left(errorResponse) =>
+        new Status(errorResponse.status).apply(errorResponse.body)
     }
   }
 
@@ -47,7 +48,10 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
         callConnector(nino, year) map {
           case Right(response) => Right(Json.toJson(response))
           case Left(error) =>
-            logger.error(s"Fetching $year data for $nino returned ${error.status}")
+            if (error.status != NOT_FOUND) {
+              logger.error(s"Fetching $year data for $nino returned ${error.status}")
+            }
+
             Left(error)
         }
       }
