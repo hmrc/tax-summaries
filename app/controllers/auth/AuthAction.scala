@@ -47,19 +47,7 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
       authorised(ConfidenceLevel.L50)
         .retrieve(Retrievals.allEnrolments and Retrievals.saUtr) {
           case Enrolments(enrolments) ~ saUtr =>
-            val agentRef: Option[Uar] = enrolments.find(_.key == "IR-SA-AGENT").flatMap { enrolment =>
-              enrolment.identifiers
-                .find(id => id.key == "IRAgentReference")
-                .map(key => Uar(key.value))
-            }
-
-            val isAgentActive: Boolean = enrolments.find(_.key == "IR-SA-AGENT").map(_.isActivated).getOrElse(false)
-
-            if (saUtr.isDefined || isAgentActive) {
-              Future.successful(None)
-            } else {
-              Future.successful(Some(Unauthorized))
-            }
+            Future.successful(None)
         }
         .recover {
           case t: Throwable =>

@@ -103,38 +103,6 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
       status(result) mustBe OK
     }
 
-    "return an UNAUTHORIZED when the user has inactive IR-SA-AGENT enrolment" in {
-      val retrievalResults: Future[~[Enrolments, Option[String]]] =
-        Future.successful(
-          new ~(Enrolments(Set(Enrolment("IR-SA-AGENT", Seq(EnrolmentIdentifier("IRAgentReference", uar)), ""))), None)
-        )
-
-      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResults)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe UNAUTHORIZED
-    }
-
-    "return an UNAUTHORIZED when a user has neither SA enrolments" in {
-      val retrievalResults: Future[~[Enrolments, Option[String]]] =
-        Future.successful(
-          new ~(Enrolments(Set.empty), None)
-        )
-
-      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResults)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe UNAUTHORIZED
-    }
-
     "return UNAUTHORIZED when the user is not logged in" in {
 
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
