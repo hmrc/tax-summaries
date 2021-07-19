@@ -19,8 +19,9 @@ package connectors
 import com.google.inject.Inject
 import config.ApplicationConfig
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient}
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -28,14 +29,31 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
 
   val serviceUrl = applicationConfig.npsServiceUrl
 
+  private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
+    "Authorization" -> applicationConfig.authorization,
+    "Environment"   -> applicationConfig.environment,
+    "OriginatorId"  -> applicationConfig.originatorId,
+    "SessionId"     -> HeaderNames.xSessionId,
+    "RequestId"     -> HeaderNames.xRequestId,
+    "CorrelationId" -> UUID.randomUUID().toString
+  )
+
   def url(path: String) = s"$serviceUrl$path"
 
   def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
-    http.GET[Option[JsValue]](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR))
+    http.GET[Option[JsValue]](
+      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
+      headers = header
+    )
 
   def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
-    http.GET[Option[JsValue]](url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"))
+    http.GET[Option[JsValue]](
+      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
+      headers = header)
 
   def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
-    http.GET[Option[JsValue]](url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"))
+    http.GET[Option[JsValue]](
+      url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
+      headers = header
+    )
 }

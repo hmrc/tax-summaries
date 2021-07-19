@@ -16,14 +16,14 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, get, getRequestedFor, matching, urlEqualTo}
 import com.github.tomakehurst.wiremock.http.Fault
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, RequestId, SessionId}
 import utils.TestConstants.testNino
 import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
@@ -38,9 +38,16 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
       )
       .build()
 
-  val hc = HeaderCarrier()
   private val currentYear = 2018
   private val invalidTaxYear = 201899
+
+  val sessionId = "testSessionId"
+  val requestId = "testRequestId"
+
+  implicit val hc: HeaderCarrier = HeaderCarrier(
+    sessionId = Some(SessionId(sessionId)),
+    requestId = Some(RequestId(requestId))
+  )
 
   private val testNinoWithoutSuffix = testNino.take(8)
 
@@ -62,9 +69,20 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
       result.json shouldBe Json.parse(expectedNpsResponse)
+
+      server.verify(
+        getRequestedFor(urlEqualTo(url))
+          .withHeader("Environment", equalTo("local"))
+          .withHeader("Authorization", equalTo("Bearer local"))
+          .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
+          .withHeader(HeaderNames.xRequestId, equalTo(requestId))
+          .withHeader(
+            "CorrelationId",
+            matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+      )
     }
 
     "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
@@ -79,7 +97,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
 
       result.json shouldBe Json.parse(expectedNpsResponse)
     }
@@ -95,7 +113,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Bad Request"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
       result.status shouldBe BAD_REQUEST
     }
@@ -111,7 +129,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Not Found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
       result.status shouldBe NOT_FOUND
     }
@@ -127,7 +145,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("File not found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
       result.status shouldBe INTERNAL_SERVER_ERROR
     }
@@ -143,7 +161,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("SERVICE_UNAVAILABLE"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
       result.status shouldBe INTERNAL_SERVER_ERROR
     }

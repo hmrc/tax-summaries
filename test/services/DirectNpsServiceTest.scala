@@ -20,7 +20,7 @@ import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -29,7 +29,7 @@ import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
 import scala.concurrent.Future
 
-class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with ScalaFutures {
+class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with ScalaFutures with IntegrationPatience {
 
   implicit val hc = HeaderCarrier()
 
@@ -48,7 +48,7 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
 
     "return a successful response after transforming NPS data to PAYE model" in new TestService {
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1), any()))
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.successful(
           HttpResponse(responseStatus = 200, responseJson = Some(expectedNpsResponse), responseHeaders = Map.empty)))
 
@@ -61,7 +61,7 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
 
       val response = HttpResponse(responseStatus = 502)
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1), any()))
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.successful(response))
 
       val result = getPayeATSData(testNino, currentYear).futureValue
@@ -72,7 +72,7 @@ class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {
 
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1), any()))
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.failed(new JsResultException(List())))
 
       val result = getPayeATSData(testNino, currentYear).futureValue

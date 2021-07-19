@@ -16,13 +16,13 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{get, notFound, ok, serverError}
+import com.github.tomakehurst.wiremock.client.WireMock.{equalTo, get, getRequestedFor, matching, notFound, ok, serverError, urlEqualTo}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, JsString}
 import play.api.test.Injecting
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, Upstream5xxResponse, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, WireMockHelper}
 
@@ -39,7 +39,13 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
 
   val json = JsObject(Map("foo" -> JsString("bar")))
 
-  implicit val hc = HeaderCarrier()
+  val sessionId = "testSessionId"
+  val requestId = "testRequestId"
+
+  implicit val hc: HeaderCarrier = HeaderCarrier(
+    sessionId = Some(SessionId(sessionId)),
+    requestId = Some(RequestId(requestId))
+  )
 
   "connectToSelfAssessment" should {
 
@@ -58,6 +64,17 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
         whenReady(result) {
           _ shouldBe Some(json)
         }
+
+        server.verify(
+          getRequestedFor(urlEqualTo(url))
+            .withHeader("Environment", equalTo("local"))
+            .withHeader("Authorization", equalTo("Bearer local"))
+            .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
+            .withHeader(HeaderNames.xRequestId, equalTo(requestId))
+            .withHeader(
+              "CorrelationId",
+              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+        )
       }
     }
 
