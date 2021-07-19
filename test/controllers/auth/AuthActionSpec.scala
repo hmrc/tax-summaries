@@ -51,57 +51,6 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
   implicit val timeout: Timeout = 5 seconds
 
   "AuthAction" should {
-    "return the request when the user has an active IR-SA-AGENT enrolment" in {
-      val retrievalResults: Future[~[Enrolments, Option[String]]] =
-        Future.successful(
-          new ~(
-            Enrolments(Set(Enrolment("IR-SA-AGENT", Seq(EnrolmentIdentifier("IRAgentReference", uar)), "Activated"))),
-            None)
-        )
-
-      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResults)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe OK
-    }
-
-    "return the request when the user has a UTR enrolment associated with their account" in {
-      val retrievalResults: Future[~[Enrolments, Option[String]]] =
-        Future.successful(
-          new ~(Enrolments(Set.empty), Some(utr))
-        )
-
-      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResults)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe OK
-    }
-
-    "return the request when the user has a UTR enrolment and an IR-SA-AGENT enrolment" in {
-      val retrievalResults: Future[~[Enrolments, Option[String]]] =
-        Future.successful(
-          new ~(
-            Enrolments(Set(Enrolment("IR-SA-AGENT", Seq(EnrolmentIdentifier("IRAgentReference", uar)), ""))),
-            Some(utr))
-        )
-
-      when(mockAuthConnector.authorise[Enrolments ~ Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResults)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
-
-      status(result) mustBe OK
-    }
 
     "return UNAUTHORIZED when the user is not logged in" in {
 
