@@ -44,11 +44,9 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
     if (matches.isEmpty) {
       Future.successful(Some(BadRequest))
     } else {
-      authorised(ConfidenceLevel.L50)
-        .retrieve(Retrievals.allEnrolments and Retrievals.saUtr) {
-          case Enrolments(enrolments) ~ saUtr =>
-            Future.successful(None)
-        }
+      authorised(ConfidenceLevel.L50){
+        Future.successful(None)
+      }
         .recover {
           case t: Throwable =>
             Logger.debug(s"Debug info - ${t.getMessage}", t)
