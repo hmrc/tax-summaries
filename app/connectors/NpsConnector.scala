@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import config.ApplicationConfig
 import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
-import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 import uk.gov.hmrc.http.HttpClient
 

@@ -16,7 +16,7 @@ val appName = "tax-summaries"
 lazy val IntegrationTest = config("it") extend (Test)
 
 lazy val plugins: Seq[Plugins] =
-  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
+  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
 
 lazy val excludedPackages: Seq[String] = Seq(
   "<empty>",
