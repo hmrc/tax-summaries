@@ -24,6 +24,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.domain.SaUtrGenerator
 
 import scala.util.Random
 
@@ -46,6 +47,7 @@ trait IntegrationSpec
          |{
          |    "confidenceLevel": 200,
          |    "nino": "$nino",
+         |    "saUtr": "$utr",
          |    "name": {
          |        "name": "John",
          |        "lastName": "Smith"
@@ -61,7 +63,8 @@ trait IntegrationSpec
          |    "authProviderId": {
          |        "ggCredId": "xyz"
          |    },
-         |    "externalId": "testExternalId"
+         |    "externalId": "testExternalId",
+         |    "allEnrolments": []
          |}
          |""".stripMargin
 
@@ -82,6 +85,7 @@ trait IntegrationSpec
       .build()
 
   val nino = new Generator(new Random).nextNino
+  val utr = new SaUtrGenerator(new Random).nextSaUtr
   val hc = HeaderCarrier()
 
   val taxYear = 2047
