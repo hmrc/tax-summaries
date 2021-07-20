@@ -19,7 +19,7 @@ package transformers
 import config.ApplicationConfig
 import models.Liability._
 import models._
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
 import utils.{BaseSpec, DoubleUtils}
 
@@ -30,7 +30,7 @@ final case object Scottish extends Origin
 final case object Welsh extends Origin
 final case object RestUK extends Origin
 
-class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils {
+class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with DoubleUtils {
 
   class CalcFixtures(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig)(
     pensionTaxRate: PensionTaxRate,
