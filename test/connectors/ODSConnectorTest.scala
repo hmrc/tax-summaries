@@ -29,7 +29,8 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
-        "microservice.services.tax-summaries-hod.port" -> server.port()
+        "microservice.services.tax-summaries-hod.port" -> server.port(),
+        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
       )
       .build()
 

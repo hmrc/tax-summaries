@@ -35,12 +35,12 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
   def url(path: String) = s"$serviceUrl$path"
 
   private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
-    "Authorization" -> applicationConfig.authorization,
-    "Environment"   -> applicationConfig.environment,
-    "OriginatorId"  -> applicationConfig.originatorId,
-    "SessionId"     -> HeaderNames.xSessionId,
-    "RequestId"     -> HeaderNames.xRequestId,
-    "CorrelationId" -> UUID.randomUUID().toString
+    HeaderNames.authorisation -> applicationConfig.authorization,
+    "Environment"             -> applicationConfig.environment,
+    "OriginatorId"            -> applicationConfig.originatorId,
+    HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
+    HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
+    "CorrelationId"           -> UUID.randomUUID().toString
   )
 
   def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] = {

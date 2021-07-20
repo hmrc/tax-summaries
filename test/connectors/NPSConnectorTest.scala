@@ -33,7 +33,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
-        "microservice.services.tax-summaries-hod.port" -> server.port()
+        "microservice.services.tax-summaries-hod.port" -> server.port(),
+        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
       )
       .build()
 
@@ -75,7 +76,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       server.verify(
         getRequestedFor(urlEqualTo(url))
           .withHeader("Environment", equalTo("local"))
-          .withHeader("Authorization", equalTo("Bearer local"))
+          .withHeader(HeaderNames.authorisation, equalTo("Bearer local"))
           .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
           .withHeader(HeaderNames.xRequestId, equalTo(requestId))
           .withHeader(
