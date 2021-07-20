@@ -13,6 +13,8 @@ import DefaultBuildSettings._
 
 val appName = "tax-summaries"
 
+val silencerVersion = "1.7.3"
+
 lazy val IntegrationTest = config("it") extend (Test)
 
 lazy val plugins: Seq[Plugins] =
@@ -50,7 +52,7 @@ lazy val microservice = Project(appName, file("."))
     scoverageSettings,
     publishingSettings,
     scalaSettings,
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.13",
     majorVersion := 1,
     libraryDependencies ++= AppDependencies.all,
     retrieveManaged := true,
@@ -61,3 +63,10 @@ lazy val microservice = Project(appName, file("."))
   )
   .configs(IntegrationTest)
   .settings(DefaultBuildSettings.integrationTestSettings())
+  .settings(
+    scalacOptions += "-P:silencer:pathFilters=views;routes",
+    libraryDependencies ++= Seq(
+      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
+      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
+    )
+  )
