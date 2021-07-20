@@ -29,7 +29,7 @@ import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
 import scala.concurrent.ExecutionContext
 
-class NPSConnectorTest extends BaseSpec with WireMockHelper with IntegrationPatience {
+class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

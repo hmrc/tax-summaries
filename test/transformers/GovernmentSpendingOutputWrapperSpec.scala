@@ -17,12 +17,12 @@
 package transformers
 
 import models.{Amount, GovernmentSpendingOutputWrapper}
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import org.scalatest.prop.PropertyChecks
 import play.api.libs.json.Json
 import services.GoodsAndServices._
 import utils._
 
-class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdate with ScalaCheckDrivenPropertyChecks {
+class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdate with PropertyChecks {
 
   "GovernmentSpendingOutputWrapper should round trip through Json " in {
     forAll(Generators.genGovernmentSpending) { data =>

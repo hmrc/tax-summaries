@@ -17,13 +17,14 @@
 package utils
 
 import config.ApplicationConfig
-import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
 
 class BaseSpec
-    extends WordSpec with Matchers with GuiceOneAppPerSuite with Injecting with MockitoSugar with ScalaFutures {
+    extends WordSpec with Matchers with GuiceOneAppPerSuite with Injecting with MockitoSugar with ScalaFutures
+    with IntegrationPatience {
   lazy val applicationConfig = inject[ApplicationConfig]
 }

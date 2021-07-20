@@ -29,7 +29,7 @@ import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach with IntegrationPatience {
+class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
   val IM_A_TEAPOT = 418
 
   val repository = mock[Repository]

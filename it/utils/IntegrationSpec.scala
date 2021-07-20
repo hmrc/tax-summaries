@@ -18,13 +18,12 @@ package utils
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.{Generator, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.domain.SaUtrGenerator
 
 import scala.util.Random
 
@@ -38,7 +37,7 @@ import scala.util.Random
  */
 
 trait IntegrationSpec
-  extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
+  extends WordSpec with Matchers with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
   override def beforeEach() = {
     super.beforeEach()
 

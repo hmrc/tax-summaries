@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, Upstr
 import utils.TestConstants._
 import utils.{BaseSpec, WireMockHelper}
 
-class ODSConnectorTest extends BaseSpec with WireMockHelper with IntegrationPatience {
+class ODSConnectorTest extends BaseSpec with WireMockHelper {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

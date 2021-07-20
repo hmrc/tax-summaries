@@ -16,7 +16,6 @@
 
 package controllers
 
-import akka.stream.Materializer
 import controllers.auth.FakeAuthAction
 import models.{GenericError, JsonParseError, NotFoundError}
 import org.mockito.Matchers.{eq => eqTo, _}
@@ -36,8 +35,6 @@ import scala.concurrent.Future
 class ATSDataControllerSpec extends BaseSpec {
 
   lazy val cc = stubControllerComponents()
-
-  implicit lazy val mat = fakeApplication.injector.instanceOf[Materializer]
 
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))

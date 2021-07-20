@@ -16,12 +16,12 @@
 
 package utils
 
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import org.scalatest.prop.PropertyChecks
 import uk.gov.hmrc.domain.Nino
 
 import scala.util.{Failure, Success, Try}
 
-class NinoHelperSpec extends BaseSpec with ScalaCheckPropertyChecks {
+class NinoHelperSpec extends BaseSpec with PropertyChecks {
 
   lazy val sut = app.injector.instanceOf[NinoHelper]
 

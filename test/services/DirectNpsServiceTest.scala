@@ -28,7 +28,7 @@ import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
 import scala.concurrent.Future
 
-class DirectNpsServiceTest extends BaseSpec with JsonUtil with IntegrationPatience {
+class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
   implicit val hc = HeaderCarrier()
 

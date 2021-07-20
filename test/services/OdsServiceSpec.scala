@@ -31,7 +31,7 @@ import utils.{BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach with IntegrationPatience {
+class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 

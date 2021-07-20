@@ -16,12 +16,12 @@
 
 package models
 
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import org.scalatest.prop.PropertyChecks
 import play.api.libs.json.Json
 import utils.BaseSpec
 import utils.Generators.genLiabilityMap
 
-class ApiValueTest extends BaseSpec with ScalaCheckPropertyChecks {
+class ApiValueTest extends BaseSpec with PropertyChecks {
   "Round trip map through Json" in
     forAll(genLiabilityMap) { map =>
       val OUT = ApiValue.formatMap(LiabilityKey.allItems)(Amount.formats)

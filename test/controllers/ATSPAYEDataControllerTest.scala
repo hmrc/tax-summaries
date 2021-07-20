@@ -18,7 +18,6 @@ package controller
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
-import akka.util.Timeout
 import controllers.ATSPAYEDataController
 import controllers.auth.{FakeAuthAction, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
@@ -27,19 +26,17 @@ import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsJson, contentAsString, status, stubControllerComponents}
+import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.NpsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.BaseSpec
 import utils.TestConstants._
 
-import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
 class ATSPAYEDataControllerTest extends BaseSpec {
 
   val cc: ControllerComponents = stubControllerComponents()
-  implicit val timeout: Timeout = new Timeout(Duration.Zero)
   implicit val ec: ExecutionContext = cc.executionContext
   implicit val actorSystem: ActorSystem = ActorSystem()
   implicit val mat: Materializer = ActorMaterializer()
