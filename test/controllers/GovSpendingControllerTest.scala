@@ -21,21 +21,18 @@ import controllers.auth.FakeAuthAction
 import models.SpendData
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.libs.json.Json
-import play.api.test.{FakeRequest, Injecting}
-import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, stubControllerComponents}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.TaxsJsonHelper
 import utils.TestConstants._
+import utils.{BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with MockitoSugar with Injecting {
+class GovSpendingControllerTest extends BaseSpec {
 
-  val cc = stubControllerComponents()
+  lazy val cc = stubControllerComponents()
   val request = FakeRequest()
 
   implicit lazy val ec = inject[ExecutionContext]
@@ -65,8 +62,8 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with Mo
       val result2014 = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
       val result2015 = Future.successful(controllerUnderTest.getATSData("user", 2015)(request))
 
-      status(result2014) shouldBe 200
-      status(result2015) shouldBe 200
+      status(result2014.futureValue) shouldBe 200
+      status(result2015.futureValue) shouldBe 200
     }
     "have the right data in the output Json" in {
 
@@ -74,10 +71,10 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with Mo
       val result2014 = Future.successful(controllerUnderTest.getATSData(testUtr, 2014)(request))
       val result2015 = Future.successful(controllerUnderTest.getATSData(testUtr, 2015)(request))
 
-      val rawJsonString2014 = contentAsString(result2014)
+      val rawJsonString2014 = contentAsString(result2014.futureValue)
       val rawJson2014 = Json.parse(rawJsonString2014)
 
-      val rawJsonString2015 = contentAsString(result2015)
+      val rawJsonString2015 = contentAsString(result2015.futureValue)
       val rawJson2015 = Json.parse(rawJsonString2015)
 
       (rawJson2014 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount shouldBe BigDecimal(
@@ -116,10 +113,10 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with Mo
       val result2014 = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
       val result2015 = Future.successful(controllerUnderTest.getATSData("user", 2015)(request))
 
-      val rawJsonString2014 = contentAsString(result2014)
+      val rawJsonString2014 = contentAsString(result2014.futureValue)
       val rawJson2014 = Json.parse(rawJsonString2014)
 
-      val rawJsonString2015 = contentAsString(result2015)
+      val rawJsonString2015 = contentAsString(result2015.futureValue)
       val rawJson2015 = Json.parse(rawJsonString2015)
 
       (rawJson2014 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount shouldBe BigDecimal(
@@ -158,10 +155,10 @@ class GovSpendingControllerTest extends UnitSpec with GuiceOneAppPerTest with Mo
       val result2014 = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
       val result2015 = Future.successful(controllerUnderTest.getATSData("user", 2015)(request))
 
-      val rawJsonString2014 = contentAsString(result2014)
+      val rawJsonString2014 = contentAsString(result2014.futureValue)
       val rawJson2014 = Json.parse(rawJsonString2014)
 
-      val rawJsonString2015 = contentAsString(result2015)
+      val rawJsonString2015 = contentAsString(result2015.futureValue)
       val rawJson2015 = Json.parse(rawJsonString2015)
 
       (rawJson2014 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount shouldBe BigDecimal(

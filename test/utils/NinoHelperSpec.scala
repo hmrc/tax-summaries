@@ -16,14 +16,12 @@
 
 package utils
 
-import org.scalatest.prop.PropertyChecks
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.{Failure, Success, Try}
 
-class NinoHelperSpec extends UnitSpec with GuiceOneAppPerSuite with PropertyChecks {
+class NinoHelperSpec extends BaseSpec with ScalaCheckPropertyChecks {
 
   lazy val sut = app.injector.instanceOf[NinoHelper]
 
@@ -35,7 +33,6 @@ class NinoHelperSpec extends UnitSpec with GuiceOneAppPerSuite with PropertyChec
   }
 
   "NinoRegexHelper.findNinoIn" should {
-    import scala.util.{Failure, Success}
 
     "return a nino" when {
 

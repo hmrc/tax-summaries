@@ -16,12 +16,11 @@
 
 package models.paye
 
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.Generators
+import utils.{BaseSpec, Generators}
 
-class PayeAtsMiddleTierTest extends UnitSpec with PropertyChecks {
+class PayeAtsMiddleTierTest extends BaseSpec with ScalaCheckDrivenPropertyChecks {
 
   "PayeAtsMiddleTier should round trip through Json " in {
     forAll(Generators.genPayeAsMiddleTier) { data =>

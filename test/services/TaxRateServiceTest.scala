@@ -17,11 +17,9 @@
 package services
 
 import models.Rate
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import utils.BaseSpec
 
-class TaxRateServiceTest extends BaseSpec with MockitoSugar with ScalaFutures {
+class TaxRateServiceTest extends BaseSpec {
 
   val ratePercentages: Int => Map[String, Double] = applicationConfig.ratePercentages
 

@@ -16,12 +16,12 @@
 
 package models
 
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.BaseSpec
 import utils.Generators.genLiabilityMap
 
-class ApiValueTest extends UnitSpec with PropertyChecks {
+class ApiValueTest extends BaseSpec with ScalaCheckPropertyChecks {
   "Round trip map through Json" in
     forAll(genLiabilityMap) { map =>
       val OUT = ApiValue.formatMap(LiabilityKey.allItems)(Amount.formats)

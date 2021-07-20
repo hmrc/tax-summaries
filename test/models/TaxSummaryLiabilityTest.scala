@@ -17,10 +17,9 @@
 package models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.JsonUtil
+import utils.{BaseSpec, JsonUtil}
 
-class TaxSummaryLiabilityTest extends UnitSpec {
+class TaxSummaryLiabilityTest extends BaseSpec {
 
   "TaxSummaryLiability Reads" should {
     "correctly parse the data" in {

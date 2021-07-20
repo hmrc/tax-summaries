@@ -16,7 +16,6 @@
 
 package config
 
-import org.scalatest.TestData
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import utils.BaseSpec

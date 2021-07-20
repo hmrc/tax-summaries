@@ -19,19 +19,17 @@ package services
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{mock, verify, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class CachingNpsServiceTest
-    extends UnitSpec with ScalaFutures with MockitoSugar with BeforeAndAfterEach with IntegrationPatience {
+class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach with IntegrationPatience {
   val IM_A_TEAPOT = 418
 
   val repository = mock[Repository]

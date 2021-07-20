@@ -33,6 +33,8 @@ class PayeAuthActionImpl @Inject()(
   cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends PayeAuthAction with AuthorisedFunctions {
 
+  private val logger = Logger(getClass.getName)
+
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
 
     val nino = ninoRegexHelper.findNinoIn(request.uri)
@@ -45,10 +47,10 @@ class PayeAuthActionImpl @Inject()(
     }
   }.recover {
     case ae: AuthorisationException =>
-      Logger.debug(s"Authorisation exception", ae)
+      logger.debug(s"Authorisation exception", ae)
       Some(Unauthorized)
     case t: Throwable =>
-      Logger.error(s"Authorisation error", t)
+      logger.error(s"Authorisation error", t)
       Some(InternalServerError)
   }
 

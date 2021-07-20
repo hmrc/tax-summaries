@@ -22,6 +22,8 @@ import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
 
 case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
 
+  private val logger = Logger(getClass.getName)
+
   def atsTaxpayerDataDTO = createATSDataDTO
 
   private def createATSDataDTO =
@@ -33,7 +35,7 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
     } catch {
       case ATSParsingException(message) => throw new ATSParsingException(message)
       case otherError: Throwable =>
-        Logger.error("Unexpected error has occurred", otherError)
+        logger.error("Unexpected error has occurred", otherError)
         throw new ATSParsingException("Other Error")
     }
 
@@ -55,7 +57,7 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
     theOption match {
       case s: JsSuccess[T] => s.get
       case e: JsError =>
-        Logger.error(
+        logger.error(
           "Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer)
         throw new ATSParsingException(key)
     }

@@ -22,10 +22,10 @@ import connectors.ODSConnector
 import models._
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.TaxsJsonHelper
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
 class OdsService @Inject()(
   jsonHelper: TaxsJsonHelper,
@@ -71,13 +71,15 @@ class OdsService @Inject()(
       }
     }
 
-  private def withErrorHandling(block: Future[Either[ServiceError, JsValue]]): Future[Either[ServiceError, JsValue]] =
+  private def withErrorHandling(block: Future[Either[ServiceError, JsValue]]): Future[Either[ServiceError, JsValue]] = {
+    val logger = Logger(getClass.getName)
     block recover {
       case error: JsonParseException =>
-        Logger.error("Malformed JSON", error)
+        logger.error("Malformed JSON", error)
         Left(JsonParseError(error.getMessage))
       case error =>
-        Logger.error("Generic error", error)
+        logger.error("Generic error", error)
         Left(GenericError(error.getMessage))
     }
+  }
 }

@@ -24,21 +24,19 @@ import controllers.auth.{FakeAuthAction, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsJson, contentAsString, stubControllerComponents}
+import play.api.test.Helpers.{contentAsJson, contentAsString, status, stubControllerComponents}
 import services.NpsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.BaseSpec
 import utils.TestConstants._
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, Future}
 
-class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
+class ATSPAYEDataControllerTest extends BaseSpec {
 
   val cc: ControllerComponents = stubControllerComponents()
   implicit val timeout: Timeout = new Timeout(Duration.Zero)
@@ -62,7 +60,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
     "return success response with ATS data" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
-        .thenReturn(Right(expectedResponseCY))
+        .thenReturn(Future.successful(Right(expectedResponseCY)))
       val result = getATSData(testNino, cy)(request)
 
       status(result) shouldBe 200
@@ -72,7 +70,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
     "return a failed future" in new TestController {
       val errorMessage = "An error occurred"
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
-        .thenReturn(Left(HttpResponse(BAD_REQUEST, errorMessage)))
+        .thenReturn(Future.successful(Left(HttpResponse(BAD_REQUEST, errorMessage))))
       val result = getATSData(testNino, cy)(request)
 
       status(result) shouldBe 400
@@ -239,7 +237,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe exMessage
+        contentAsString(result) shouldBe exMessage
       }
 
       "the service returns internal server error and not found" in new TestController {

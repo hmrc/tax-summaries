@@ -28,6 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext) {
 
+  private val logger = Logger(getClass.getName)
+
   def serviceUrl: String = applicationConfig.npsServiceUrl
 
   def url(path: String) = s"$serviceUrl$path"
@@ -52,11 +54,11 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
       case e: NotFoundException =>
         HttpResponse(NOT_FOUND, s"Not found response in connector for $NINO with message ${e.message}")
       case e: UpstreamErrorResponse =>
-        Logger.error(
+        logger.error(
           s"UpstreamErrorResponse in connector for $NINO with status ${e.statusCode} and message: ${e.getMessage()}")
         HttpResponse(INTERNAL_SERVER_ERROR, s"Nino: $NINO Status: ${e.statusCode} Message: ${e.getMessage()}")
       case e => {
-        Logger.error(s"Exception in NPSConnector: $e", e)
+        logger.error(s"Exception in NPSConnector: $e", e)
         HttpResponse(INTERNAL_SERVER_ERROR, s"Exception in connector for $NINO with message ${e.getMessage}")
       }
     }

@@ -16,9 +16,9 @@
 
 package models
 
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.BaseSpec
 
-class RateTest extends UnitSpec {
+class RateTest extends BaseSpec {
   "Rate class" should {
     "not change given value" in {
       10 shouldEqual Rate(10).percent

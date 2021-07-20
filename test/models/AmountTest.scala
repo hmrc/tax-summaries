@@ -17,9 +17,9 @@
 package models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.BaseSpec
 
-class AmountTest extends UnitSpec {
+class AmountTest extends BaseSpec {
   "Testing Amount" should {
 
     "not change constructor parameter values" in {

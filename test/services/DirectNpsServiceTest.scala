@@ -20,8 +20,7 @@ import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.libs.json.{JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.TestConstants._
@@ -29,7 +28,7 @@ import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
 import scala.concurrent.Future
 
-class DirectNpsServiceTest extends BaseSpec with MockitoSugar with JsonUtil with ScalaFutures with IntegrationPatience {
+class DirectNpsServiceTest extends BaseSpec with JsonUtil with IntegrationPatience {
 
   implicit val hc = HeaderCarrier()
 

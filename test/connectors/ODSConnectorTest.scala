@@ -16,17 +16,16 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{equalTo, get, getRequestedFor, matching, notFound, ok, serverError, urlEqualTo}
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, JsString}
-import play.api.test.Injecting
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, Upstream5xxResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, WireMockHelper}
 
-class ODSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience with Injecting {
+class ODSConnectorTest extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

@@ -16,12 +16,10 @@
 
 package services
 
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import services.GoodsAndServices._
 import utils.BaseSpec
 
-class GovSpendServiceTest extends BaseSpec with MockitoSugar with ScalaFutures {
+class GovSpendServiceTest extends BaseSpec {
 
   "govSpending" should {
     "return correct amounts for 2016" in {

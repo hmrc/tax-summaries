@@ -16,13 +16,11 @@
 
 package utils
 
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json._
 import transformers.ATSParsingException
 import utils.TestConstants._
 
-class TaxsJsonHelperTest extends BaseSpec with MockitoSugar with ScalaFutures {
+class TaxsJsonHelperTest extends BaseSpec {
 
   class SetUp extends TaxsJsonHelper(applicationConfig)
 

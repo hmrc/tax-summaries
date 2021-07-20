@@ -16,9 +16,9 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalTo, get, getRequestedFor, matching, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -29,7 +29,7 @@ import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
 import scala.concurrent.ExecutionContext
 
-class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience {
+class NPSConnectorTest extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

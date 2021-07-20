@@ -18,12 +18,11 @@ package transformers
 
 import models.AtsMiddleTierTaxpayerData
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AtsJsonDataUpdate
+import utils.{AtsJsonDataUpdate, BaseSpec}
 
 import scala.io.Source
 
-class ATSTaxpayerDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
+class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
   "The taxpayers name" should {
 

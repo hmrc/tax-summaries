@@ -23,19 +23,15 @@ import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Injecting
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsServiceSpec
-    extends BaseSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with IntegrationPatience
-    with Injecting {
+class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach with IntegrationPatience {
 
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
@@ -218,7 +214,7 @@ class OdsServiceSpec
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(json)))
       when(jsonHelper.createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue]))
-        .thenReturn(Future.successful(json))
+        .thenReturn(json)
 
       val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
