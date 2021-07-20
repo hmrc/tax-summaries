@@ -30,11 +30,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.BaseSpec
 import utils.TestConstants._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ATSDataControllerSpec extends BaseSpec {
 
   lazy val cc = stubControllerComponents()
+
+  implicit lazy val ec = inject[ExecutionContext]
 
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
