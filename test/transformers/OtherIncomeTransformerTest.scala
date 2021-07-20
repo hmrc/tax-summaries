@@ -18,6 +18,7 @@ package transformers
 
 import models.LiabilityKey.OtherIncome
 import models.{Amount, TaxSummaryLiability}
+import play.api.data.FormBinding.Implicits._
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import utils._

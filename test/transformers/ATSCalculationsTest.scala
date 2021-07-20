@@ -20,9 +20,7 @@ import config.ApplicationConfig
 import models.Liability._
 import models._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.Configuration
 import services.TaxRateService
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
