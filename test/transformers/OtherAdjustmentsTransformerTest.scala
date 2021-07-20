@@ -18,7 +18,7 @@ package transformers
 
 import models.LiabilityKey.{OtherAdjustmentsIncreasing, OtherAdjustmentsReducing}
 import models.{Amount, TaxSummaryLiability}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import utils._
 

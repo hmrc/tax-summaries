@@ -19,9 +19,8 @@ package services
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{mock, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.IntegrationPatience
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}

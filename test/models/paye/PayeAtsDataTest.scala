@@ -32,7 +32,6 @@
 
 package models.paye
 
-import config.ApplicationConfig
 import models.LiabilityKey._
 import models.RateKey._
 import models._

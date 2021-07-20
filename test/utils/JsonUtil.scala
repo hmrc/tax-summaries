@@ -16,9 +16,9 @@
 
 package utils
 
-import play.api.libs.json._
-import utils.TestConstants._
 import play.api.libs.json.{JsObject, Json}
+import utils.TestConstants._
+
 import scala.io.Source
 
 object JsonUtil extends JsonUtil
