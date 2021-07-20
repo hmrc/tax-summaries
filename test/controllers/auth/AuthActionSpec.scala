@@ -24,11 +24,10 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.mvc.{Action, AnyContent, InjectedController}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents}
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.domain.SaUtrGenerator
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,37 +35,40 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
+  implicit val timeout: Timeout = 5 seconds
 
-  val cc = stubControllerComponents()
-  val mockAuthConnector = mock[AuthConnector]
-
-  class Harness(authAction: AuthAction) extends Controller {
+  class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad(): Action[AnyContent] = authAction { _ =>
       Ok
     }
   }
+
+  val cc = stubControllerComponents()
+  val mockAuthConnector = mock[AuthConnector]
   val utr = new SaUtrGenerator().nextSaUtr.utr
   val uar = "SomeUar"
-
-  implicit val timeout: Timeout = 5 seconds
+  val authAction = new AuthActionImpl(mockAuthConnector, cc)
+  val harness = new Harness(authAction)
 
   "AuthAction" should {
 
-    "return UNAUTHORIZED when the user is not logged in" in {
+    "allow a request when authorised is successful" in {
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
+        .thenReturn(Future.successful(()))
 
+      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
+      status(result) mustBe OK
+    }
+
+    "return UNAUTHORIZED when the user is not logged in" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(new MissingBearerToken))
 
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
       status(result) mustBe UNAUTHORIZED
     }
 
     "return BAD_REQUEST when the user is authorised and the uri doesn't match our expected format" in {
-
-      val authAction = new AuthActionImpl(mockAuthConnector, cc)
-      val harness = new Harness(authAction)
       val result = harness.onPageLoad()(FakeRequest("GET", "/invalid"))
 
       status(result) mustBe BAD_REQUEST
