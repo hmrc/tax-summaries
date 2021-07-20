@@ -32,12 +32,12 @@ class NinoHelperSpec extends BaseSpec with ScalaCheckPropertyChecks {
     case Success(_) => false
   }
 
-  "NinoRegexHelper.findNinoIn" should {
+  "NinoRegexHelper.findNinoIn" must {
 
     "return a nino" when {
 
       "a valid nino is given" in {
-        sut.findNinoIn(nino) shouldBe Some(nino)
+        sut.findNinoIn(nino) mustBe Some(nino)
       }
     }
 
@@ -47,7 +47,7 @@ class NinoHelperSpec extends BaseSpec with ScalaCheckPropertyChecks {
 
         forAll { fakeNino: String =>
           whenever(isInvalidFormat(fakeNino)) {
-            sut.findNinoIn(fakeNino) shouldBe None
+            sut.findNinoIn(fakeNino) mustBe None
           }
         }
       }

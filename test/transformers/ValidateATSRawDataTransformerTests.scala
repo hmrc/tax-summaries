@@ -29,7 +29,7 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "gracefully handle a null" in {
 
@@ -48,8 +48,8 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
           parsedTaxpayerDetailsJson,
           "",
           taxYear).atsDataDTO
-      returnValue.income_data shouldBe None
-      returnValue.errors shouldBe Some(AtsError("itf4GiftsInvCharitiesAmo"))
+      returnValue.income_data mustBe None
+      returnValue.errors mustBe Some(AtsError("itf4GiftsInvCharitiesAmo"))
     }
 
     "gracefully handle a missing field" in {
@@ -65,8 +65,8 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
           parsedTaxpayerDetailsJson,
           "",
           taxYear).atsDataDTO
-      returnValue.income_data shouldBe None
-      returnValue.errors shouldBe Some(AtsError("itf4GiftsInvCharitiesAmo"))
+      returnValue.income_data mustBe None
+      returnValue.errors mustBe Some(AtsError("itf4GiftsInvCharitiesAmo"))
     }
 
     "gracefully handle malformed JSON" in {
@@ -81,8 +81,8 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
           parsedTaxpayerDetailsJson,
           "",
           taxYear).atsDataDTO
-      returnValue.income_data shouldBe None
-      returnValue.errors shouldBe Some(AtsError("ctnSummaryTotShareOptions"))
+      returnValue.income_data mustBe None
+      returnValue.errors mustBe Some(AtsError("ctnSummaryTotShareOptions"))
     }
 
     "return a JSON containing taxpayer name errors" in {
@@ -101,7 +101,7 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
           "",
           taxYear).atsDataDTO
 
-      returnValue.errors shouldBe Some(AtsError("surname"))
+      returnValue.errors mustBe Some(AtsError("surname"))
     }
   }
 }

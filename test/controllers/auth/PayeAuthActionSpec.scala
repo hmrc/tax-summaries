@@ -52,7 +52,7 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
     }
   }
 
-  "AuthAction" should {
+  "AuthAction" must {
     "allow a request when authorised is successful" in {
 
       when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))

@@ -22,12 +22,12 @@ import utils.{BaseSpec, Generators}
 
 class PayeAtsMiddleTierTest extends BaseSpec with ScalaCheckPropertyChecks {
 
-  "PayeAtsMiddleTier should round trip through Json " in {
+  "PayeAtsMiddleTier must round trip through Json " in {
     forAll(Generators.genPayeAsMiddleTier) { data =>
       val json = Json.toJson(data)
       val obj = json.as[PayeAtsMiddleTier]
 
-      obj shouldBe data
+      obj mustBe data
     }
   }
 }

@@ -19,9 +19,9 @@ package models
 import utils.BaseSpec
 
 class RateTest extends BaseSpec {
-  "Rate class" should {
+  "Rate class" must {
     "not change given value" in {
-      10 shouldEqual Rate(10).percent
+      10 mustEqual Rate(10).percent
     }
   }
 }

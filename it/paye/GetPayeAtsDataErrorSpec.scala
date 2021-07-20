@@ -38,9 +38,9 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
       )
 
       val result = route(fakeApplication(), request)
-      result.map(getStatus) shouldBe Some(BAD_REQUEST)
+      result.map(getStatus) mustBe Some(BAD_REQUEST)
       result.map(contentAsString).map { message =>
-        message should include("Bad Request")
+        message must include("Bad Request")
       }
     }
 
@@ -53,9 +53,9 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
       )
 
       val result = route(fakeApplication(), request)
-      result.map(getStatus) shouldBe Some(NOT_FOUND)
+      result.map(getStatus) mustBe Some(NOT_FOUND)
       result.map(contentAsString).map { message =>
-        message should include("No data")
+        message must include("No data")
       }
     }
 
@@ -69,9 +69,9 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
       )
 
       val result = route(fakeApplication(), request)
-      result.map(getStatus) shouldBe Some(INTERNAL_SERVER_ERROR)
+      result.map(getStatus) mustBe Some(INTERNAL_SERVER_ERROR)
       result.map(contentAsString).map { message =>
-        message should include("teapot body")
+        message must include("teapot body")
       }
     }
   }

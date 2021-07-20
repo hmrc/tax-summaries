@@ -55,7 +55,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig)(
         app.injector.instanceOf[ExecutionContext]) with JsonUtil
 
-  "connectToPayeTaxSummary" should {
+  "connectToPayeTaxSummary" must {
 
     "return successful response when provided suffix" in new NPSConnectorSetUp {
 
@@ -71,7 +71,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.json shouldBe Json.parse(expectedNpsResponse)
+      result.json mustBe Json.parse(expectedNpsResponse)
 
       server.verify(
         getRequestedFor(urlEqualTo(url))
@@ -99,7 +99,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
 
-      result.json shouldBe Json.parse(expectedNpsResponse)
+      result.json mustBe Json.parse(expectedNpsResponse)
     }
 
     "return BAD_REQUEST response in case of Bad request from NPS" in new NPSConnectorSetUp {
@@ -115,7 +115,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe BAD_REQUEST
+      result.status mustBe BAD_REQUEST
     }
 
     "return NOT_FOUND response in case of Not found from NPS" in new NPSConnectorSetUp {
@@ -131,7 +131,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe NOT_FOUND
+      result.status mustBe NOT_FOUND
     }
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new NPSConnectorSetUp {
@@ -147,7 +147,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe INTERNAL_SERVER_ERROR
+      result.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
@@ -163,7 +163,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe INTERNAL_SERVER_ERROR
+      result.status mustBe INTERNAL_SERVER_ERROR
     }
   }
 }

@@ -34,16 +34,16 @@ class ApplicationConfigSpec extends BaseSpec {
     appWithConfig(percentageRates)
   }
 
-  "calling ratePercentages" should {
+  "calling ratePercentages" must {
     "return default percentage rates when no overriding year" in {
-      applicationConfig.ratePercentages(2016) shouldBe Map(
+      applicationConfig.ratePercentages(2016) mustBe Map(
         "percentageRate1" -> 10,
         "percentageRate2" -> 20,
         "percentageRate3" -> 30)
     }
 
     "return default percentage but override where later year uprates" in {
-      applicationConfig.ratePercentages(2017) shouldBe Map(
+      applicationConfig.ratePercentages(2017) mustBe Map(
         "percentageRate1" -> 10,
         "percentageRate2" -> 60,
         "percentageRate3" -> 30)

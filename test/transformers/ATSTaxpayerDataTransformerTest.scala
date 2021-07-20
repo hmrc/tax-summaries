@@ -24,7 +24,7 @@ import scala.io.Source
 
 class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
-  "The taxpayers name" should {
+  "The taxpayers name" must {
 
     "be parsed form the income values for utr" in {
 
@@ -36,7 +36,7 @@ class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val parsedPayload = returnValue.taxpayer_name.get
       val testPayload =
         Map("title" -> "Mr", "forename" -> "forename", "surname" -> "surname")
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
     }
   }
 }

@@ -40,7 +40,7 @@ class HasSummarySpec extends IntegrationSpec {
 
       val result = route(app, request)
 
-      result.map(status) shouldBe Some(OK)
+      result.map(status) mustBe Some(OK)
     }
 
     "return NOT_FOUND when ODS returns NOT_FOUND response" in {
@@ -54,7 +54,7 @@ class HasSummarySpec extends IntegrationSpec {
 
       val result = route(app, request)
 
-      result.map(status) shouldBe Some(NOT_FOUND)
+      result.map(status) mustBe Some(NOT_FOUND)
     }
 
     "return INTERNAL_SERVER_ERROR when ODS returns an empty ok" in {
@@ -68,7 +68,7 @@ class HasSummarySpec extends IntegrationSpec {
 
       val result = route(app, request)
 
-      result.map(status) shouldBe Some(INTERNAL_SERVER_ERROR)
+      result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
     }
 
     List(
@@ -88,7 +88,7 @@ class HasSummarySpec extends IntegrationSpec {
 
         val result = route(app, request)
 
-        result.map(status) shouldBe Some(INTERNAL_SERVER_ERROR)
+        result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       }
     }
   }

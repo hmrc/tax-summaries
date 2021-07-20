@@ -30,7 +30,7 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "have the correct adjustment data" in {
 
@@ -47,12 +47,12 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsIncreasing) should equal(new Amount(0.0, "GBP"))
-      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsIncreasing) must equal(new Amount(0.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(200.0, "GBP"))
     }
 
     "have the correct adjustment data with Relief for Financial Costs" in {
@@ -73,12 +73,12 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsIncreasing) should equal(new Amount(0.0, "GBP"))
-      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(220.0, "GBP"))
+      parsedPayload(OtherAdjustmentsIncreasing) must equal(new Amount(0.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(220.0, "GBP"))
     }
     "have a correct 'other_adjustments_reducing' roundup data" in {
 
@@ -98,11 +98,11 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(200.0, "GBP"))
     }
 
     "have the correct adjustment increase data" in {
@@ -131,12 +131,12 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsIncreasing) should equal(new Amount(56.0, "GBP"))
-      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsIncreasing) must equal(new Amount(56.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(200.0, "GBP"))
     }
 
     "have a correct 'other_adjustments_reducing' roundup data when alimony is not given in payload" in {
@@ -153,11 +153,11 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           "",
           taxYear).atsDataDTO
 
-      returnValue.taxYear shouldEqual 2014
+      returnValue.taxYear mustEqual 2014
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(200.0, "GBP"))
     }
 
     "have a correct 'other_adjustments_reducing' roundup data when alimony is given" in {
@@ -176,11 +176,11 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           "",
           2020).atsDataDTO
 
-      returnValue.taxYear shouldEqual 2020
+      returnValue.taxYear mustEqual 2020
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsReducing) should equal(new Amount(210.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(210.0, "GBP"))
     }
   }
 }

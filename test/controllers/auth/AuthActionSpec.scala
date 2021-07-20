@@ -51,7 +51,7 @@ class AuthActionSpec
 
   implicit val timeout: Timeout = 5 seconds
 
-  "AuthAction" should {
+  "AuthAction" must {
     "return the request when the user has an active IR-SA-AGENT enrolment" in {
       val retrievalResults: Future[~[Enrolments, Option[String]]] =
         Future.successful(

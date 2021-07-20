@@ -43,7 +43,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
   private val currentYear = 2019
 
-  "getPayeATSData" should {
+  "getPayeATSData" must {
 
     "return a successful response after transforming NPS data to PAYE model" in new TestService {
 
@@ -53,7 +53,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
-      result shouldBe Right(transformedData)
+      result mustBe Right(transformedData)
     }
 
     "return a Bad Gateway Response in case of Bad Gateway from Connector" in new TestService {
@@ -65,7 +65,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
-      result shouldBe Left(response)
+      result mustBe Left(response)
 
     }
 
@@ -76,7 +76,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
-      result.left.get.status shouldBe 500
+      result.left.get.status mustBe 500
     }
   }
 }

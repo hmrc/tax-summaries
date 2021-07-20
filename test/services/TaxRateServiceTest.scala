@@ -23,13 +23,13 @@ class TaxRateServiceTest extends BaseSpec {
 
   val ratePercentages: Int => Map[String, Double] = applicationConfig.ratePercentages
 
-  "taxRateService" should {
+  "taxRateService" must {
 
     Seq(2014, 2015, 2016).foreach { year =>
       s"return correct amounts for Dividends Ordinary Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.dividendsOrdinaryRate()
-        result shouldBe Rate(10)
+        result mustBe Rate(10)
       }
     }
 
@@ -37,7 +37,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"return correct amounts for Dividends Ordinary Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.dividendsOrdinaryRate()
-        result shouldBe Rate(7.5)
+        result mustBe Rate(7.5)
       }
     }
 
@@ -45,7 +45,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"return correct amounts for Dividends Upper Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.dividendUpperRateRate()
-        result shouldBe Rate(32.5)
+        result mustBe Rate(32.5)
       }
     }
 
@@ -53,7 +53,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"return correct amounts for Dividends Additional Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.dividendAdditionalRate()
-        result shouldBe Rate(38.1)
+        result mustBe Rate(38.1)
       }
     }
 
@@ -61,7 +61,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.cgOrdinaryRate()
-        result shouldBe Rate(18)
+        result mustBe Rate(18)
       }
     }
 
@@ -69,7 +69,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.cgOrdinaryRate()
-        result shouldBe Rate(10)
+        result mustBe Rate(10)
       }
     }
 
@@ -77,7 +77,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"return correct percentage rate for Capital Gains upper rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.cgUpperRate()
-        result shouldBe Rate(28)
+        result mustBe Rate(28)
       }
     }
 
@@ -85,7 +85,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"return correct percentage rate for Capital Gains upper rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.cgUpperRate()
-        result shouldBe Rate(20)
+        result mustBe Rate(20)
       }
     }
 
@@ -93,7 +93,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"property tax and carried interest lower rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
-        result shouldBe Rate(18)
+        result mustBe Rate(18)
       }
     }
 
@@ -101,7 +101,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"property tax and carried interest lower rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
-        result shouldBe Rate(0)
+        result mustBe Rate(0)
       }
     }
 
@@ -109,7 +109,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"property tax and carried interest higher rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
-        result shouldBe Rate(28)
+        result mustBe Rate(28)
       }
     }
 
@@ -117,7 +117,7 @@ class TaxRateServiceTest extends BaseSpec {
       s"property tax and carried interest higher rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
-        result shouldBe Rate(0)
+        result mustBe Rate(0)
       }
     }
 

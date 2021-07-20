@@ -38,7 +38,7 @@ class GovernmentSpendControllerSpec extends BaseSpec {
 
   val expectedBody = """{"Environment":5.5}"""
 
-  "GovernmentSpendController" should {
+  "GovernmentSpendController" must {
 
     "return government spend figures" when {
 
@@ -55,14 +55,14 @@ class GovernmentSpendControllerSpec extends BaseSpec {
       "the URI contains a valid nino" in {
 
         val result = sut.getGovernmentSpend(taxYear, testNino)(FakeRequest("GET", "/"))
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedBody
+        status(result) mustBe OK
+        contentAsString(result) mustBe expectedBody
       }
 
       "the URI contains a valid utr" in {
         val result = sut.getGovernmentSpend(taxYear, testUtr)(FakeRequest("GET", "/"))
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedBody
+        status(result) mustBe OK
+        contentAsString(result) mustBe expectedBody
       }
     }
 
@@ -78,12 +78,12 @@ class GovernmentSpendControllerSpec extends BaseSpec {
 
       "an invalid nino is given" in {
         val result = sut.getGovernmentSpend(taxYear, "A123456")(FakeRequest("GET", "/"))
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
 
       "an invalid utr is given" in {
         val result = sut.getGovernmentSpend(taxYear, "foobar123")(FakeRequest("GET", "/"))
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
     }
   }

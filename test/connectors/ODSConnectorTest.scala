@@ -46,7 +46,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
     requestId = Some(RequestId(requestId))
   )
 
-  "connectToSelfAssessment" should {
+  "connectToSelfAssessment" must {
 
     val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries/2014"
 
@@ -61,7 +61,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessment(testUtr, 2014)
 
         whenReady(result) {
-          _ shouldBe Some(json)
+          _ mustBe Some(json)
         }
 
         server.verify(
@@ -88,7 +88,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessment(testUtr, 2014)
 
         whenReady(result) {
-          _ shouldBe None
+          _ mustBe None
         }
       }
     }
@@ -102,13 +102,13 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
       val result = sut.connectToSelfAssessment(testUtr, 2014)
 
       whenReady(result.failed) { exception =>
-        exception shouldBe a[UpstreamErrorResponse]
+        exception mustBe a[UpstreamErrorResponse]
       }
     }
 
   }
 
-  "connectToSelfAssessmentList" should {
+  "connectToSelfAssessmentList" must {
 
     val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
 
@@ -123,7 +123,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessmentList(testUtr)
 
         whenReady(result) {
-          _ shouldBe Some(json)
+          _ mustBe Some(json)
         }
       }
     }
@@ -139,7 +139,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessmentList(testUtr)
 
         whenReady(result) {
-          _ shouldBe None
+          _ mustBe None
         }
       }
     }
@@ -155,13 +155,13 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessmentList(testUtr)
 
         whenReady(result.failed) { exception =>
-          exception shouldBe a[UpstreamErrorResponse]
+          exception mustBe a[UpstreamErrorResponse]
         }
       }
     }
   }
 
-  "connectToSATaxpayerDetails" should {
+  "connectToSATaxpayerDetails" must {
 
     val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
 
@@ -176,7 +176,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSATaxpayerDetails(testUtr)
 
         whenReady(result) {
-          _ shouldBe Some(json)
+          _ mustBe Some(json)
         }
       }
     }
@@ -192,7 +192,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSATaxpayerDetails(testUtr)
 
         whenReady(result) {
-          _ shouldBe None
+          _ mustBe None
         }
       }
     }
@@ -208,7 +208,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSATaxpayerDetails(testUtr)
 
         whenReady(result.failed) { exception =>
-          exception shouldBe a[UpstreamErrorResponse]
+          exception mustBe a[UpstreamErrorResponse]
         }
       }
     }

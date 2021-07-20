@@ -30,7 +30,7 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "have the correct taxable state benefits data" in {
 
@@ -47,11 +47,11 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(TaxableStateBenefits) should equal(new Amount(0.0, "GBP"))
+      parsedPayload(TaxableStateBenefits) must equal(new Amount(0.0, "GBP"))
     }
 
     "have the correct summed other pension income data" in {
@@ -74,7 +74,7 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
           taxYear).atsDataDTO
 
       val parsedPayload = returnValue.income_data.get.payload.get
-      parsedPayload(TaxableStateBenefits) should equal(new Amount(600.0, "GBP"))
+      parsedPayload(TaxableStateBenefits) must equal(new Amount(600.0, "GBP"))
     }
   }
 }

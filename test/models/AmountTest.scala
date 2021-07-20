@@ -20,54 +20,54 @@ import play.api.libs.json.Json
 import utils.BaseSpec
 
 class AmountTest extends BaseSpec {
-  "Testing Amount" should {
+  "Testing Amount" must {
 
     "not change constructor parameter values" in {
       val testValue: Double = 1.0
       val testCurrency: String = "GBP"
       val testAmount: Amount = new Amount(1.0, "GBP")
-      testValue shouldEqual testAmount.amount
-      testCurrency shouldEqual testAmount.currency
+      testValue mustEqual testAmount.amount
+      testCurrency mustEqual testAmount.currency
     }
 
     "calculate this : £1.00 + £2.00 = £3.00" in {
-      Amount(3.0, "GBP") shouldEqual Amount(1.0, "GBP") + Amount(2.0, "GBP")
+      Amount(3.0, "GBP") mustEqual Amount(1.0, "GBP") + Amount(2.0, "GBP")
     }
 
     "calculate this : £3.00 - £1.00 = £2.00" in {
-      Amount(2.0, "GBP") shouldEqual Amount(3.0, "GBP") - Amount(1.0, "GBP")
+      Amount(2.0, "GBP") mustEqual Amount(3.0, "GBP") - Amount(1.0, "GBP")
     }
 
     "properly compare £1.00 < £2.00" in {
-      Amount(1.0, "GBP") should be < Amount(2.0, "GBP")
+      Amount(1.0, "GBP") must be < Amount(2.0, "GBP")
     }
 
     "properly compare £2.00 < £1.00 as false" in {
-      Amount(2.0, "GBP") shouldNot be < Amount(1.0, "GBP")
+      Amount(2.0, "GBP") mustNot be < Amount(1.0, "GBP")
     }
 
     "properly compare £1.00 <= £1.00" in {
-      Amount(1.0, "GBP") should be <= Amount(1.0, "GBP")
+      Amount(1.0, "GBP") must be <= Amount(1.0, "GBP")
     }
 
     "properly divide amounts, (with 4 digit precision 1/3 = 0.3333)" in {
-      Amount(1.0, "GBP").divideWithPrecision(Amount(3.0, "GBP"), 4) should be(Amount(0.3333, "GBP"))
+      Amount(1.0, "GBP").divideWithPrecision(Amount(3.0, "GBP"), 4) must be(Amount(0.3333, "GBP"))
     }
 
     "throw IllegalArgumentException when summing different currencies (£1 + €1)" in {
-      an[IllegalArgumentException] should be thrownBy {
+      an[IllegalArgumentException] must be thrownBy {
         Amount(1.0, "GBP") + Amount(1.0, "EUR")
       }
     }
 
     "throw IllegalArgumentException when subtracting different currencies (£1 - €1)" in {
-      an[IllegalArgumentException] should be thrownBy {
+      an[IllegalArgumentException] must be thrownBy {
         Amount(1.0, "GBP") - Amount(1.0, "EUR")
       }
     }
 
     "throw IllegalArgumentException when comparing different currencies (£1 < €1)" in {
-      an[IllegalArgumentException] should be thrownBy {
+      an[IllegalArgumentException] must be thrownBy {
         Amount(1.0, "GBP") < Amount(1.0, "EUR")
       }
     }
@@ -77,17 +77,17 @@ class AmountTest extends BaseSpec {
       val jsonFromText = Json.parse(amountText)
       val amountObject = Amount(1.0, "GBP")
       val jsonFromObject = Json.toJson(amountObject)
-      jsonFromText shouldEqual jsonFromObject
+      jsonFromText mustEqual jsonFromObject
     }
 
     "return false if isZeroOrLess is called on a positive amount" in {
       val positiveAmount = Amount(1.0, "GBP")
-      positiveAmount.isZeroOrLess shouldBe false
+      positiveAmount.isZeroOrLess mustBe false
     }
 
     "return true if isZeroOrLess is called on a negative amount" in {
       val negativeAmount = Amount(-1.0, "GBP")
-      negativeAmount.isZeroOrLess shouldBe true
+      negativeAmount.isZeroOrLess mustBe true
     }
   }
 }

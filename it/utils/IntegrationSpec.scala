@@ -18,7 +18,8 @@ package utils
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -37,7 +38,7 @@ import scala.util.Random
  */
 
 trait IntegrationSpec
-  extends WordSpec with Matchers with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
+  extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
   override def beforeEach() = {
     super.beforeEach()
 

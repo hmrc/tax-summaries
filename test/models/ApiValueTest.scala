@@ -27,6 +27,6 @@ class ApiValueTest extends BaseSpec with ScalaCheckPropertyChecks {
       val OUT = ApiValue.formatMap(LiabilityKey.allItems)(Amount.formats)
       val json = Json.toJson(map)(OUT)
       val result = json.as[Map[LiabilityKey, Amount]](OUT)
-      result shouldBe (map)
+      result mustBe (map)
     }
 }

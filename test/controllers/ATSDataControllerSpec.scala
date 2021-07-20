@@ -49,7 +49,7 @@ class ATSDataControllerSpec extends BaseSpec {
   val taxYear = 2021
   val json: JsString = JsString("success")
 
-  "getAtsData" should {
+  "getAtsData" must {
 
     "return 200" when {
 
@@ -59,8 +59,8 @@ class ATSDataControllerSpec extends BaseSpec {
           Right(json))
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe OK
-        contentAsJson(result) shouldBe json
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
       }
     }
 
@@ -75,8 +75,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe NOT_FOUND
-        contentAsString(result) shouldBe msg
+        status(result) mustBe NOT_FOUND
+        contentAsString(result) mustBe msg
       }
     }
 
@@ -91,8 +91,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
 
       "connector returns a left with GenericError" in {
@@ -104,13 +104,13 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
     }
   }
 
-  "hasAts" should {
+  "hasAts" must {
 
     "return 200" when {
 
@@ -120,8 +120,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe OK
-        contentAsJson(result) shouldBe json
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
       }
     }
 
@@ -136,8 +136,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe NOT_FOUND
-        contentAsString(result) shouldBe msg
+        status(result) mustBe NOT_FOUND
+        contentAsString(result) mustBe msg
       }
     }
 
@@ -152,8 +152,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
 
       "connector returns a left with GenericError" in {
@@ -165,13 +165,13 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
     }
   }
 
-  "getATSList" should {
+  "getATSList" must {
 
     "return 200" when {
 
@@ -181,8 +181,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe OK
-        contentAsJson(result) shouldBe json
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
       }
     }
 
@@ -197,8 +197,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe NOT_FOUND
-        contentAsString(result) shouldBe errorMessage
+        status(result) mustBe NOT_FOUND
+        contentAsString(result) mustBe errorMessage
       }
     }
 
@@ -213,8 +213,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) shouldBe errorMessage
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe errorMessage
       }
 
       "connector returns a left with GenericError" in {
@@ -226,8 +226,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) shouldBe errorMessage
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe errorMessage
       }
     }
 
@@ -237,7 +237,7 @@ class ATSDataControllerSpec extends BaseSpec {
       val result = controller.getATSList(testUtr)(request)
 
       whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
+        exception mustBe a[Exception]
       }
     }
   }
