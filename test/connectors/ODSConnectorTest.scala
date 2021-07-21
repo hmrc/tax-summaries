@@ -66,8 +66,6 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
 
         server.verify(
           getRequestedFor(urlEqualTo(url))
-            .withHeader("Environment", equalTo("local"))
-            .withHeader("Authorization", equalTo("Bearer local"))
             .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
             .withHeader(HeaderNames.xRequestId, equalTo(requestId))
             .withHeader(

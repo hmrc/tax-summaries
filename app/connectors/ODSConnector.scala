@@ -29,20 +29,28 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
 
   val serviceUrl = applicationConfig.npsServiceUrl
 
+  private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
+    HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
+    HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+    "CorrelationId"        -> UUID.randomUUID().toString
+  )
+
   def url(path: String) = s"$serviceUrl$path"
 
   def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
     http.GET[Option[JsValue]](
-      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR)
+      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
+      headers = header
     )
 
   def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
     http.GET[Option[JsValue]](
-      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries")
-    )
+      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
+      headers = header)
 
   def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
     http.GET[Option[JsValue]](
-      url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer")
+      url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
+      headers = header
     )
 }
