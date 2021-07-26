@@ -41,52 +41,23 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
   val expectedBody = """{"Environment":5.5}"""
 
   "GovernmentSpendController" should {
+    def sut = new GovernmentSpendController(
+      mockGovSpendService,
+      app.injector.instanceOf[NinoHelper],
+      FakeAuthAction,
+      FakeAuthAction,
+      stubControllerComponents()
+    )
 
-    "return government spend figures" when {
+    when(mockGovSpendService.govSpending(meq(taxYear))) thenReturn Map[GoodsAndServices, Double](Environment -> 5.5)
 
-      def sut = new GovernmentSpendController(
-        mockGovSpendService,
-        app.injector.instanceOf[NinoHelper],
-        FakeAuthAction,
-        FakeAuthAction,
-        stubControllerComponents()
-      )
+    "return government spend figures" in {
 
-      when(mockGovSpendService.govSpending(meq(taxYear))) thenReturn Map[GoodsAndServices, Double](Environment -> 5.5)
+      val result = sut.getGovernmentSpend(taxYear)(FakeRequest("GET", "/"))
+      status(result) shouldBe OK
+      bodyOf(result).futureValue shouldBe expectedBody
 
-      "the URI contains a valid nino" in {
-
-        val result = sut.getGovernmentSpend(taxYear, testNino)(FakeRequest("GET", "/"))
-        status(result) shouldBe OK
-        bodyOf(result).futureValue shouldBe expectedBody
-      }
-
-      "the URI contains a valid utr" in {
-        val result = sut.getGovernmentSpend(taxYear, testUtr)(FakeRequest("GET", "/"))
-        status(result) shouldBe OK
-        bodyOf(result).futureValue shouldBe expectedBody
-      }
     }
 
-    "return BadRequest" when {
-
-      def sut = new GovernmentSpendController(
-        app.injector.instanceOf[GovSpendService],
-        app.injector.instanceOf[NinoHelper],
-        app.injector.instanceOf[AuthAction],
-        app.injector.instanceOf[PayeAuthAction],
-        stubControllerComponents()
-      )
-
-      "an invalid nino is given" in {
-        val result = sut.getGovernmentSpend(taxYear, "A123456")(FakeRequest("GET", "/"))
-        status(result) shouldBe BAD_REQUEST
-      }
-
-      "an invalid utr is given" in {
-        val result = sut.getGovernmentSpend(taxYear, "foobar123")(FakeRequest("GET", "/"))
-        status(result) shouldBe BAD_REQUEST
-      }
-    }
   }
 }

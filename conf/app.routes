@@ -4,4 +4,4 @@ GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data  controllers.ATSPAYEDataControlle
 
 GET   /:UTR/has_summary_for_previous_period     controllers.ATSDataController.hasAts(UTR: String)
 GET   /:UTR/ats-list                            controllers.ATSDataController.getATSList(UTR: String)
-GET   /government-spend/:TAX_YEAR/:ID           controllers.GovernmentSpendController.getGovernmentSpend(TAX_YEAR: Int, ID: String)
+GET   /government-spend/:TAX_YEAR               controllers.GovernmentSpendController.getGovernmentSpend(TAX_YEAR: Int)
