@@ -32,7 +32,6 @@
 
 package models.paye
 
-import config.ApplicationConfig
 import models.LiabilityKey._
 import models.RateKey._
 import models._
@@ -53,10 +52,10 @@ class PayeAtsDataTest extends BaseSpec {
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
-  "transformToPayeMiddleTier" should {
+  "transformToPayeMiddleTier" must {
     "populate the nino and tax year" in {
-      transformedData.nino shouldBe nino
-      transformedData.taxYear shouldBe taxYear.toInt
+      transformedData.nino mustBe nino
+      transformedData.taxYear mustBe taxYear.toInt
     }
 
     "create allowance data" in {
@@ -71,7 +70,7 @@ class PayeAtsDataTest extends BaseSpec {
         TotalIncomeBeforeTax               -> Amount.gbp(28000.00)
       )
 
-      allowanceData shouldBe DataHolder(Some(expectedValues), None, None)
+      allowanceData mustBe DataHolder(Some(expectedValues), None, None)
 
     }
 
@@ -90,7 +89,7 @@ class PayeAtsDataTest extends BaseSpec {
         BenefitsFromEmployment -> Amount.gbp(200.00),
         TaxableStateBenefits   -> Amount.gbp(500.00)
       )
-      incomeData shouldBe DataHolder(Some(expectedValues), None, None)
+      incomeData mustBe DataHolder(Some(expectedValues), None, None)
     }
 
     "create summary data" in {
@@ -109,7 +108,7 @@ class PayeAtsDataTest extends BaseSpec {
         LiableTaxAmount       -> Amount.gbp(15000.00)
       )
 
-      summaryData shouldBe DataHolder(Some(expectedValues), Some(Map(NICS -> ApiRate("25%"))), None)
+      summaryData mustBe DataHolder(Some(expectedValues), Some(Map(NICS -> ApiRate("25%"))), None)
     }
 
     "create income tax" in {
@@ -154,10 +153,10 @@ class PayeAtsDataTest extends BaseSpec {
         PayeScottishHigherRate       -> ApiRate("41%")
       )
 
-      incomeTax shouldBe DataHolder(Some(expectedPayloadValues), Some(expectedRatesValues), None)
+      incomeTax mustBe DataHolder(Some(expectedPayloadValues), Some(expectedRatesValues), None)
     }
 
-    "create gov spend data" should {
+    "create gov spend data" must {
 
       "gov spend data contains correct amount with percentages" in {
 
@@ -179,12 +178,12 @@ class PayeAtsDataTest extends BaseSpec {
           StatePensions            -> SpendData(Amount(537.60, "GBP"), 12.8)
         )
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.govSpendAmountData shouldBe expectedValues
+        spendData.govSpendAmountData mustBe expectedValues
       }
 
       "with nics included if employer contributions are present" in {
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.totalAmount shouldBe Amount.gbp(4200.00)
+        spendData.totalAmount mustBe Amount.gbp(4200.00)
       }
 
       "without nics included if employer contributions are not present" in {
@@ -193,7 +192,7 @@ class PayeAtsDataTest extends BaseSpec {
           atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.totalAmount shouldBe Amount.gbp(4000.00)
+        spendData.totalAmount mustBe Amount.gbp(4000.00)
       }
 
       "without nics included if national insurance section is not present" in {
@@ -202,7 +201,7 @@ class PayeAtsDataTest extends BaseSpec {
           atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.totalAmount shouldBe Amount.gbp(4000.00)
+        spendData.totalAmount mustBe Amount.gbp(4000.00)
       }
 
     }

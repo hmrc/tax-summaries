@@ -23,19 +23,14 @@ import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Injecting
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsServiceSpec
-    extends BaseSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach with IntegrationPatience
-    with Injecting {
+class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
@@ -50,7 +45,7 @@ class OdsServiceSpec
     super.beforeEach()
   }
 
-  "getPayload" should {
+  "getPayload" must {
 
     "return json" when {
       "the call is successful" in {
@@ -65,7 +60,7 @@ class OdsServiceSpec
         val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
         whenReady(result) { res =>
-          res.isRight shouldBe true
+          res.isRight mustBe true
 
           verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
         }
@@ -82,7 +77,7 @@ class OdsServiceSpec
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { res =>
-        res.left.get shouldBe a[NotFoundError]
+        res.left.get mustBe a[NotFoundError]
 
         verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
@@ -100,7 +95,7 @@ class OdsServiceSpec
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { res =>
-        res.left.get shouldBe a[NotFoundError]
+        res.left.get mustBe a[NotFoundError]
 
         verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
@@ -116,7 +111,7 @@ class OdsServiceSpec
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { res =>
-        res.left.get shouldBe a[JsonParseError]
+        res.left.get mustBe a[JsonParseError]
 
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, never()).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
@@ -134,7 +129,7 @@ class OdsServiceSpec
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
       whenReady(result) { res =>
-        res.left.get shouldBe a[GenericError]
+        res.left.get mustBe a[GenericError]
 
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
@@ -143,7 +138,7 @@ class OdsServiceSpec
     }
   }
 
-  "getList" should {
+  "getList" must {
 
     "return json" when {
 
@@ -157,9 +152,9 @@ class OdsServiceSpec
         val result = service.getList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result.isRight shouldBe true
+          result.isRight mustBe true
 
-          Json.fromJson[AtsCheck](result.right.get).asOpt shouldBe Some(AtsCheck(true))
+          Json.fromJson[AtsCheck](result.right.get).asOpt mustBe Some(AtsCheck(true))
         }
       }
     }
@@ -174,7 +169,7 @@ class OdsServiceSpec
         val result = service.getList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { res =>
-          res.left.get shouldBe a[JsonParseError]
+          res.left.get mustBe a[JsonParseError]
           verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
         }
       }
@@ -187,7 +182,7 @@ class OdsServiceSpec
         val result = service.getList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { res =>
-          res.left.get shouldBe a[NotFoundError]
+          res.left.get mustBe a[NotFoundError]
           verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
         }
       }
@@ -200,14 +195,14 @@ class OdsServiceSpec
         val result = service.getList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { res =>
-          res.left.get shouldBe a[GenericError]
+          res.left.get mustBe a[GenericError]
           verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
         }
       }
     }
   }
 
-  "getATSList" should {
+  "getATSList" must {
 
     "return a right" in {
 
@@ -218,12 +213,12 @@ class OdsServiceSpec
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(json)))
       when(jsonHelper.createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue]))
-        .thenReturn(Future.successful(json))
+        .thenReturn(json)
 
       val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
       whenReady(result) { result =>
-        result shouldBe Right(json)
+        result mustBe Right(json)
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -240,7 +235,7 @@ class OdsServiceSpec
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result.left.get shouldBe a[JsonParseError]
+          result.left.get mustBe a[JsonParseError]
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -258,7 +253,7 @@ class OdsServiceSpec
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result.left.get shouldBe a[NotFoundError]
+          result.left.get mustBe a[NotFoundError]
 
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -276,7 +271,7 @@ class OdsServiceSpec
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result.left.get shouldBe a[NotFoundError]
+          result.left.get mustBe a[NotFoundError]
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
@@ -294,7 +289,7 @@ class OdsServiceSpec
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { result =>
-          result shouldBe Left(GenericError(exceptionMessage))
+          result mustBe Left(GenericError(exceptionMessage))
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])

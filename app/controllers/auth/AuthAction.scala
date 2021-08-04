@@ -19,10 +19,10 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import play.api.Logger
 import play.api.mvc.Results.{BadRequest, Unauthorized}
-import play.api.mvc.{ActionBuilder, ActionFilter, AnyContent, BodyParser, ControllerComponents, Request, Result}
-import uk.gov.hmrc.auth.core.retrieve.~
+import play.api.mvc._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolment, Enrolments}
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments}
 import uk.gov.hmrc.domain.Uar
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -32,6 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerComponents)(
   implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
+
+  private val logger = Logger(getClass.getName)
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
 
@@ -63,7 +65,7 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
         }
         .recover {
           case t: Throwable =>
-            Logger.debug(s"Debug info - ${t.getMessage}", t)
+            logger.debug(s"Debug info - ${t.getMessage}", t)
             Some(Unauthorized)
         }
     }

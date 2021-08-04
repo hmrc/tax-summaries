@@ -18,14 +18,13 @@ package transformers
 
 import models.AtsMiddleTierTaxpayerData
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AtsJsonDataUpdate
+import utils.{AtsJsonDataUpdate, BaseSpec}
 
 import scala.io.Source
 
-class ATSTaxpayerDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
+class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
-  "The taxpayers name" should {
+  "The taxpayers name" must {
 
     "be parsed form the income values for utr" in {
 
@@ -37,7 +36,7 @@ class ATSTaxpayerDataTransformerTest extends UnitSpec with AtsJsonDataUpdate {
       val parsedPayload = returnValue.taxpayer_name.get
       val testPayload =
         Map("title" -> "Mr", "forename" -> "forename", "surname" -> "surname")
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
     }
   }
 }

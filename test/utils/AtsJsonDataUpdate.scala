@@ -16,9 +16,10 @@
 
 package utils
 
+import play.api.libs.json.{JsObject, Json}
+
 import java.net.URL
 import scala.io.Source
-import play.api.libs.json.{JsObject, Json}
 
 trait AtsJsonDataUpdate {
 

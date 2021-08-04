@@ -16,10 +16,9 @@
 
 package controllers
 
-import java.io.IOException
-
 import play.api.libs.json.{JsValue, Json}
 
+import java.io.IOException
 import scala.concurrent.Future
 import scala.io.Source
 

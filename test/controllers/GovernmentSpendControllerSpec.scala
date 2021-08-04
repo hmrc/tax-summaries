@@ -20,17 +20,15 @@ import akka.stream.Materializer
 import controllers.auth.{AuthAction, FakeAuthAction, PayeAuthAction}
 import org.mockito.Matchers.{eq => meq}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status.{BAD_REQUEST, OK}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.stubControllerComponents
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.GoodsAndServices.Environment
 import services.{GoodsAndServices, GovSpendService}
 import utils.TestConstants.{testNino, testUtr}
 import utils.{BaseSpec, NinoHelper}
 
-class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class GovernmentSpendControllerSpec extends BaseSpec {
 
   val mockGovSpendService: GovSpendService = mock[GovSpendService]
 
@@ -40,7 +38,7 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
 
   val expectedBody = """{"Environment":5.5}"""
 
-  "GovernmentSpendController" should {
+  "GovernmentSpendController" must {
 
     "return government spend figures" when {
 
@@ -57,14 +55,14 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
       "the URI contains a valid nino" in {
 
         val result = sut.getGovernmentSpend(taxYear, testNino)(FakeRequest("GET", "/"))
-        status(result) shouldBe OK
-        bodyOf(result).futureValue shouldBe expectedBody
+        status(result) mustBe OK
+        contentAsString(result) mustBe expectedBody
       }
 
       "the URI contains a valid utr" in {
         val result = sut.getGovernmentSpend(taxYear, testUtr)(FakeRequest("GET", "/"))
-        status(result) shouldBe OK
-        bodyOf(result).futureValue shouldBe expectedBody
+        status(result) mustBe OK
+        contentAsString(result) mustBe expectedBody
       }
     }
 
@@ -80,12 +78,12 @@ class GovernmentSpendControllerSpec extends BaseSpec with MockitoSugar with Scal
 
       "an invalid nino is given" in {
         val result = sut.getGovernmentSpend(taxYear, "A123456")(FakeRequest("GET", "/"))
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
 
       "an invalid utr is given" in {
         val result = sut.getGovernmentSpend(taxYear, "foobar123")(FakeRequest("GET", "/"))
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
     }
   }

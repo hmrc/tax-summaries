@@ -16,30 +16,27 @@
 
 package controllers
 
-import akka.stream.Materializer
 import controllers.auth.FakeAuthAction
 import models.{GenericError, JsonParseError, NotFoundError}
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
 import play.api.libs.json.JsString
 import play.api.test.FakeRequest
-import play.api.test.Helpers.stubControllerComponents
+import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.BaseSpec
 import utils.TestConstants._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
+class ATSDataControllerSpec extends BaseSpec {
 
-  val cc = stubControllerComponents()
+  lazy val cc = stubControllerComponents()
 
-  implicit lazy val mat = fakeApplication.injector.instanceOf[Materializer]
+  implicit lazy val ec = inject[ExecutionContext]
 
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
@@ -52,7 +49,7 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
   val taxYear = 2021
   val json: JsString = JsString("success")
 
-  "getAtsData" should {
+  "getAtsData" must {
 
     "return 200" when {
 
@@ -62,8 +59,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
           Right(json))
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe OK
-        jsonBodyOf(result).futureValue shouldBe json
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
       }
     }
 
@@ -78,8 +75,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe NOT_FOUND
-        bodyOf(result).futureValue shouldBe msg
+        status(result) mustBe NOT_FOUND
+        contentAsString(result) mustBe msg
       }
     }
 
@@ -94,8 +91,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
 
       "connector returns a left with GenericError" in {
@@ -107,13 +104,13 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
     }
   }
 
-  "hasAts" should {
+  "hasAts" must {
 
     "return 200" when {
 
@@ -123,8 +120,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe OK
-        jsonBodyOf(result).futureValue shouldBe json
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
       }
     }
 
@@ -139,8 +136,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe NOT_FOUND
-        bodyOf(result).futureValue shouldBe msg
+        status(result) mustBe NOT_FOUND
+        contentAsString(result) mustBe msg
       }
     }
 
@@ -155,8 +152,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
 
       "connector returns a left with GenericError" in {
@@ -168,13 +165,13 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe msg
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe msg
       }
     }
   }
 
-  "getATSList" should {
+  "getATSList" must {
 
     "return 200" when {
 
@@ -184,8 +181,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe OK
-        jsonBodyOf(result).futureValue shouldBe json
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
       }
     }
 
@@ -200,8 +197,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe NOT_FOUND
-        bodyOf(result).futureValue shouldBe errorMessage
+        status(result) mustBe NOT_FOUND
+        contentAsString(result) mustBe errorMessage
       }
     }
 
@@ -216,8 +213,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe errorMessage
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe errorMessage
       }
 
       "connector returns a left with GenericError" in {
@@ -229,8 +226,8 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe errorMessage
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe errorMessage
       }
     }
 
@@ -240,7 +237,7 @@ class ATSDataControllerSpec extends UnitSpec with MockitoSugar with WithFakeAppl
       val result = controller.getATSList(testUtr)(request)
 
       whenReady(result.failed) { exception =>
-        exception shouldBe a[Exception]
+        exception mustBe a[Exception]
       }
     }
   }

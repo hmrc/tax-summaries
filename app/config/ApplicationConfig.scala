@@ -17,29 +17,31 @@
 package config
 
 import com.google.inject.Inject
+import com.typesafe.config.ConfigObject
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import scala.collection.JavaConverters._
 
 class ApplicationConfig @Inject()(servicesConfig: ServicesConfig, configuration: Configuration) {
 
   private def defaultRatePercentages: Map[String, Double] =
     configuration
-      .getObject("taxRates.default.percentages")
+      .getOptional[ConfigObject]("taxRates.default.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def ratePercentagesByYear(year: Int): Map[String, Double] =
     configuration
-      .getObject(s"taxRates.$year.percentages")
+      .getOptional[ConfigObject](s"taxRates.$year.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def governmentSpendByYear(year: Int): Map[String, Double] =
     configuration
-      .getObject(s"governmentSpend.$year.percentages")
+      .getOptional[ConfigObject](s"governmentSpend.$year.percentages")
       .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap

@@ -24,10 +24,10 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.OdsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction, cc: ControllerComponents)
+class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction, cc: ControllerComponents)(
+  implicit val ec: ExecutionContext)
     extends BackendController(cc) {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>

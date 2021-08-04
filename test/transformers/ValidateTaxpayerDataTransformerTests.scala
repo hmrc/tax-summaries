@@ -28,7 +28,7 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
   val dataJson = Json.parse(Source.fromURL(getClass.getResource("/utr_2014.json")).mkString)
   val taxYear: Int = 2014
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "gracefully handle a null" in {
 
@@ -42,8 +42,8 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
 
       val returnValue =
         ATSRawDataTransformer(applicationConfig, dataJson.as[TaxSummaryLiability], transformedJson, "", taxYear).atsDataDTO
-      returnValue.taxPayerData shouldBe None
-      returnValue.errors shouldBe Some(AtsError("title"))
+      returnValue.taxPayerData mustBe None
+      returnValue.errors mustBe Some(AtsError("title"))
     }
 
     "gracefully handle a missing field" in {
@@ -55,9 +55,9 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
 
       val returnValue =
         ATSRawDataTransformer(applicationConfig, dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
-      returnValue.taxPayerData shouldBe None
+      returnValue.taxPayerData mustBe None
 
-      returnValue.errors shouldBe Some(AtsError("forename"))
+      returnValue.errors mustBe Some(AtsError("forename"))
     }
 
     "gracefully handle incorrect value type" in {
@@ -69,8 +69,8 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
       val returnValue =
         ATSRawDataTransformer(applicationConfig, dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
 
-      returnValue.taxPayerData shouldBe None
-      returnValue.errors shouldBe Some(AtsError("surname"))
+      returnValue.taxPayerData mustBe None
+      returnValue.errors mustBe Some(AtsError("surname"))
     }
   }
 }

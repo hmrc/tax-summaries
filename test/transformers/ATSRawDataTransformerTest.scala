@@ -27,7 +27,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
-  "The income before tax" should {
+  "The income before tax" must {
 
     "parse the income values for utr year:2014" in {
 
@@ -44,7 +44,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
       val testPayload =
@@ -58,7 +58,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           BenefitsFromEmployment -> Amount(0.0, "GBP"),
           TotalIncomeBeforeTax   -> Amount(11600.00, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
     }
 
     "parse the income values for test case 2" in {
@@ -75,7 +75,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
       val testPayload =
@@ -89,11 +89,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           BenefitsFromEmployment -> Amount(1.0, "GBP"),
           TotalIncomeBeforeTax   -> Amount(524287.00, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
     }
   }
 
-  "The summary page data" should {
+  "The summary page data" must {
     "parse the NICs data" in {
       val sampleJson = JsonUtil.load("/test_case_4.json")
 
@@ -108,7 +108,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.summary_data.get.payload.get
       val testPayload =
@@ -125,7 +125,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
           NicsAndTaxPerCurrencyUnit -> Amount(0.0477, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
 
       val parsedRates = returnValue.summary_data.get.rates.get
 
@@ -133,7 +133,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         "total_cg_tax_rate" -> ApiRate("0%"),
         "nics_and_tax_rate" -> ApiRate("4.77%")
       )
-      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
+      testRates mustEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "parse the NICs data with 'other_adjustments_reducing' roundup" in {
@@ -151,7 +151,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.summary_data.get.payload.get
       val testPayload =
@@ -168,7 +168,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
           NicsAndTaxPerCurrencyUnit -> Amount(0.0477, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
 
       val parsedRates = returnValue.summary_data.get.rates.get
 
@@ -177,7 +177,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         "nics_and_tax_rate" -> ApiRate("4.77%")
       )
 
-      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
+      testRates mustEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "parse the NICs data for utr year:2014" in {
@@ -195,7 +195,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.summary_data.get.payload.get
       val testPayload =
@@ -212,7 +212,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           CgTaxPerCurrencyUnit      -> Amount(0.4534, "GBP"),
           NicsAndTaxPerCurrencyUnit -> Amount(0.0468, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
 
       val parsedRates = returnValue.summary_data.get.rates.get
 
@@ -220,11 +220,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         "total_cg_tax_rate" -> ApiRate("45.34%"),
         "nics_and_tax_rate" -> ApiRate("4.68%")
       )
-      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
+      testRates mustEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
   }
 
-  "The total income before tax" should {
+  "The total income before tax" must {
     "parse the tax rates transformation (based on utr year:2014 data)" in {
 
       val sampleJson = JsonUtil.load("/test_case_5.json")
@@ -240,7 +240,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_tax.get.payload.get
       val testPayload =
@@ -265,7 +265,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           ScottishIncomeTax               -> Amount(186.00, "GBP"),
           TotalIncomeTax                  -> Amount(344.00, "GBP")
         )
-      parsedPayload should contain allElementsOf testPayload
+      parsedPayload must contain allElementsOf testPayload
 
       val parsedRates = returnValue.income_tax.get.rates.get
       val testRates =
@@ -287,7 +287,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           "savings_additional_rate"         -> ApiRate("45%")
         )
 
-      testRates shouldEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
+      testRates mustEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
     }
 
     "Calculate the correct Total Income Tax" in {
@@ -339,7 +339,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           "",
           taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
-      parsedPayload(TotalIncomeTax) shouldEqual Amount(8872, "GBP")
+      parsedPayload(TotalIncomeTax) mustEqual Amount(8872, "GBP")
     }
 
     "Calculate the Scottish Rate" in {
@@ -360,7 +360,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           "",
           taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
-      parsedPayload(ScottishIncomeTax) shouldEqual Amount(130.4, "GBP")
+      parsedPayload(ScottishIncomeTax) mustEqual Amount(130.4, "GBP")
     }
 
     "Calculate the Welsh Income Tax" in {
@@ -375,10 +375,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           "",
           taxYear).atsDataDTO
       val parsedPayload = returnValue.income_tax.get.payload.get
-      parsedPayload(WelshIncomeTax) shouldEqual Amount(186, "GBP")
+      parsedPayload(WelshIncomeTax) mustEqual Amount(186, "GBP")
     }
 
-    "ATS raw data transformer" should {
+    "ATS raw data transformer" must {
       "produce a no ats error if the total income tax is -500 and capital gains tax is 200" in {
 
         val sampleJson = JsonUtil.load("/test_case_7.json")
@@ -392,7 +392,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
             "",
             taxYear).atsDataDTO
 
-        returnValue.errors.get.error shouldBe "NoAtsError"
+        returnValue.errors.get.error mustBe "NoAtsError"
       }
 
       "produce a no ats error if the total income tax is 200 and capital gains tax is -500" in {
@@ -408,7 +408,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
             "",
             taxYear).atsDataDTO
 
-        returnValue.errors.get.error shouldBe "NoAtsError"
+        returnValue.errors.get.error mustBe "NoAtsError"
       }
 
       "produce a no ats error if both total income tax and capital gains tax are negative" in {
@@ -424,7 +424,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
             "",
             taxYear).atsDataDTO
 
-        returnValue.errors.get.error shouldBe "NoAtsError"
+        returnValue.errors.get.error mustBe "NoAtsError"
       }
     }
   }

@@ -17,8 +17,8 @@
 package utils
 
 import errors.AtsError
-import models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, RateKey, SpendData}
 import models.paye.PayeAtsMiddleTier
+import models._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import services.GoodsAndServices

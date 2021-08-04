@@ -21,17 +21,14 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
+import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class CachingNpsServiceTest
-    extends UnitSpec with ScalaFutures with MockitoSugar with BeforeAndAfterEach with IntegrationPatience {
+class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
   val IM_A_TEAPOT = 418
 
   val repository = mock[Repository]
@@ -45,13 +42,13 @@ class CachingNpsServiceTest
     super.beforeEach()
   }
 
-  "CachingNpsService" should {
+  "CachingNpsService" must {
     "Retrieve data from the cache" in new Fixture {
       val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
       when(repository.get(any(), any())).thenReturn(Future.successful(Some(data)))
 
       val result = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
-      result.futureValue shouldBe Right(data)
+      result.futureValue mustBe Right(data)
     }
 
     "Retrieve data from the InnerService when cache empty and refresh the cache" in new Fixture {
@@ -62,7 +59,7 @@ class CachingNpsServiceTest
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(Future.successful(Right(data)))
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) { result =>
-        result shouldBe Right(data)
+        result mustBe Right(data)
         verify(repository).set("NONONONO", 5465, data)
       }
     }
@@ -76,7 +73,7 @@ class CachingNpsServiceTest
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) { result =>
         result match {
-          case Left(response) => response.status shouldBe INTERNAL_SERVER_ERROR
+          case Left(response) => response.status mustBe INTERNAL_SERVER_ERROR
           case _              => fail("Incorrect response from Caching Service")
         }
         verify(repository).set("NONONONO", 5465, data)
@@ -89,7 +86,7 @@ class CachingNpsServiceTest
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) { result =>
         result match {
-          case Left(response) => response.status shouldBe INTERNAL_SERVER_ERROR
+          case Left(response) => response.status mustBe INTERNAL_SERVER_ERROR
           case _              => fail("Incorrect response from Caching Service")
         }
       }
@@ -101,7 +98,7 @@ class CachingNpsServiceTest
         .thenReturn(Future.successful(Left(HttpResponse(IM_A_TEAPOT))))
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) {
-        case Left(response) => response.status shouldBe IM_A_TEAPOT
+        case Left(response) => response.status mustBe IM_A_TEAPOT
         case _              => fail("Incorrect reponse from Caching Service")
       }
 

@@ -20,27 +20,28 @@ import akka.util.Timeout
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
-import play.api.mvc.{Action, AnyContent, Controller}
-import play.api.test.FakeRequest
+import play.api.mvc.{AbstractController, Action, AnyContent}
 import play.api.test.Helpers.{status, stubControllerComponents}
+import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.domain.SaUtrGenerator
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
+class AuthActionSpec
+    extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with Injecting {
 
   val cc = stubControllerComponents()
   val mockAuthConnector = mock[AuthConnector]
+  implicit lazy val ec = inject[ExecutionContext]
 
-  class Harness(authAction: AuthAction) extends Controller {
+  class Harness(authAction: AuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = authAction { _ =>
       Ok
     }
@@ -50,7 +51,7 @@ class AuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAft
 
   implicit val timeout: Timeout = 5 seconds
 
-  "AuthAction" should {
+  "AuthAction" must {
     "return the request when the user has an active IR-SA-AGENT enrolment" in {
       val retrievalResults: Future[~[Enrolments, Option[String]]] =
         Future.successful(
