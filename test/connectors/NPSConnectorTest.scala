@@ -16,31 +16,38 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, RequestId, SessionId}
 import utils.TestConstants.testNino
 import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
 import scala.concurrent.ExecutionContext
 
-class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures with IntegrationPatience {
+class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
-        "microservice.services.tax-summaries-hod.port" -> server.port()
+        "microservice.services.tax-summaries-hod.port" -> server.port(),
+        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
       )
       .build()
 
-  val hc = HeaderCarrier()
   private val currentYear = 2018
   private val invalidTaxYear = 201899
+
+  val sessionId = "testSessionId"
+  val requestId = "testRequestId"
+
+  implicit val hc: HeaderCarrier = HeaderCarrier(
+    sessionId = Some(SessionId(sessionId)),
+    requestId = Some(RequestId(requestId))
+  )
 
   private val testNinoWithoutSuffix = testNino.take(8)
 
@@ -48,7 +55,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
       extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig)(
         app.injector.instanceOf[ExecutionContext]) with JsonUtil
 
-  "connectToPayeTaxSummary" should {
+  "connectToPayeTaxSummary" must {
 
     "return successful response when provided suffix" in new NPSConnectorSetUp {
 
@@ -62,9 +69,20 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.json shouldBe Json.parse(expectedNpsResponse)
+      result.json mustBe Json.parse(expectedNpsResponse)
+
+      server.verify(
+        getRequestedFor(urlEqualTo(url))
+          .withHeader("Environment", equalTo("local"))
+          .withHeader(HeaderNames.authorisation, equalTo("Bearer local"))
+          .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
+          .withHeader(HeaderNames.xRequestId, equalTo(requestId))
+          .withHeader(
+            "CorrelationId",
+            matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+      )
     }
 
     "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
@@ -79,9 +97,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
 
-      result.json shouldBe Json.parse(expectedNpsResponse)
+      result.json mustBe Json.parse(expectedNpsResponse)
     }
 
     "return BAD_REQUEST response in case of Bad request from NPS" in new NPSConnectorSetUp {
@@ -95,9 +113,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Bad Request"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe BAD_REQUEST
+      result.status mustBe BAD_REQUEST
     }
 
     "return NOT_FOUND response in case of Not found from NPS" in new NPSConnectorSetUp {
@@ -111,9 +129,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("Not Found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe NOT_FOUND
+      result.status mustBe NOT_FOUND
     }
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new NPSConnectorSetUp {
@@ -127,9 +145,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("File not found"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe INTERNAL_SERVER_ERROR
+      result.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
@@ -143,9 +161,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper with ScalaFutures wi
             .withBody("SERVICE_UNAVAILABLE"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear, hc).futureValue
+      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
 
-      result.status shouldBe INTERNAL_SERVER_ERROR
+      result.status mustBe INTERNAL_SERVER_ERROR
     }
   }
 }

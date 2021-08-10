@@ -18,30 +18,25 @@ package controller
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
-import akka.util.Timeout
 import controllers.ATSPAYEDataController
 import controllers.auth.{FakeAuthAction, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentAsJson, contentAsString, stubControllerComponents}
+import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.NpsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import utils.BaseSpec
 import utils.TestConstants._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.Duration
 
-class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFakeApplication with ScalaFutures {
+class ATSPAYEDataControllerTest extends BaseSpec {
 
   val cc: ControllerComponents = stubControllerComponents()
-  implicit val timeout: Timeout = new Timeout(Duration.Zero)
   implicit val ec: ExecutionContext = cc.executionContext
   implicit val actorSystem: ActorSystem = ActorSystem()
   implicit val mat: Materializer = ActorMaterializer()
@@ -58,29 +53,29 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
   val expectedResponseCY = PayeAtsMiddleTier(cy, testNino, None, None, None, None, None)
   val expectedResponseCYPlus1 = PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None)
 
-  "getAtsData" should {
+  "getAtsData" must {
 
     "return success response with ATS data" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
-        .thenReturn(Right(expectedResponseCY))
+        .thenReturn(Future.successful(Right(expectedResponseCY)))
       val result = getATSData(testNino, cy)(request)
 
-      status(result) shouldBe 200
-      contentAsJson(result) shouldBe Json.toJson(expectedResponseCY)
+      status(result) mustBe 200
+      contentAsJson(result) mustBe Json.toJson(expectedResponseCY)
     }
 
     "return a failed future" in new TestController {
       val errorMessage = "An error occurred"
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
-        .thenReturn(Left(HttpResponse(BAD_REQUEST, errorMessage)))
+        .thenReturn(Future.successful(Left(HttpResponse(BAD_REQUEST, errorMessage))))
       val result = getATSData(testNino, cy)(request)
 
-      status(result) shouldBe 400
-      contentAsString(result) shouldBe errorMessage
+      status(result) mustBe 400
+      contentAsString(result) mustBe errorMessage
     }
   }
 
-  "getATSDataMultipleYears" should {
+  "getATSDataMultipleYears" must {
 
     "return a list of data for the given tax years" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
@@ -90,8 +85,8 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
       val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-      status(result) shouldBe OK
-      contentAsJson(result) shouldBe Json.toJson(Seq(expectedResponseCY, expectedResponseCYPlus1))
+      status(result) mustBe OK
+      contentAsJson(result) mustBe Json.toJson(Seq(expectedResponseCY, expectedResponseCYPlus1))
     }
 
     "return Ok" when {
@@ -105,8 +100,8 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe OK
-        contentAsJson(result) shouldBe Json.toJson(Seq(expectedResponseCY))
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.toJson(Seq(expectedResponseCY))
 
       }
 
@@ -119,8 +114,8 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe OK
-        contentAsJson(result) shouldBe Json.toJson(Seq(expectedResponseCYPlus1))
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.toJson(Seq(expectedResponseCYPlus1))
 
       }
     }
@@ -136,7 +131,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe NOT_FOUND
+        status(result) mustBe NOT_FOUND
       }
     }
 
@@ -151,7 +146,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
 
       "the service returns bad request and ok" in new TestController {
@@ -163,7 +158,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
 
       "the service returns ok and bad request" in new TestController {
@@ -175,7 +170,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
 
       "the service returns bad request and not found" in new TestController {
@@ -187,7 +182,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
 
       "the service returns not found and bad request" in new TestController {
@@ -199,7 +194,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
 
       "the service returns bad request (cy) and internal server error (cy +1)" in new TestController {
@@ -211,7 +206,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -226,7 +221,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
       "an exception occurs when retrieving data" in new TestController {
@@ -238,8 +233,8 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-        bodyOf(result).futureValue shouldBe exMessage
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe exMessage
       }
 
       "the service returns internal server error and not found" in new TestController {
@@ -251,7 +246,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
       "the service returns not found and internal server error" in new TestController {
@@ -263,7 +258,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
 
       "the service returns internal server error and Ok" in new TestController {
@@ -275,7 +270,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result) mustBe INTERNAL_SERVER_ERROR
 
       }
 
@@ -288,7 +283,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result) mustBe INTERNAL_SERVER_ERROR
 
       }
 
@@ -301,7 +296,7 @@ class ATSPAYEDataControllerTest extends UnitSpec with MockitoSugar with WithFake
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
   }

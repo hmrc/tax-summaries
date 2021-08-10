@@ -37,7 +37,8 @@ case class ATSRawDataTransformer(
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val calculations = ATSCalculations.make(summaryLiability, taxRate)
 
-  def atsDataDTO: AtsMiddleTierData =
+  def atsDataDTO: AtsMiddleTierData = {
+    val logger = Logger(getClass.getName)
     try {
       if (calculations.hasLiability) {
 
@@ -58,9 +59,10 @@ case class ATSRawDataTransformer(
     } catch {
       case ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
       case otherError: Throwable =>
-        Logger.error("Unexpected error has occurred", otherError)
+        logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData.error(taxYear, "Other Error")
     }
+  }
 
   private def createGovSpendData =
     GovernmentSpendingOutputWrapper(applicationConfig, calculations.totalTax, taxYear)

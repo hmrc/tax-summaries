@@ -30,7 +30,7 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "have the correct self employment data" in {
 
@@ -47,11 +47,11 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(SelfEmploymentIncome) should equal(new Amount(1100.0, "GBP"))
+      parsedPayload(SelfEmploymentIncome) must equal(new Amount(1100.0, "GBP"))
     }
 
     "have the correct summed self employment income data" in {
@@ -73,11 +73,11 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(SelfEmploymentIncome) should equal(new Amount(22.0, "GBP"))
+      parsedPayload(SelfEmploymentIncome) must equal(new Amount(22.0, "GBP"))
     }
   }
 }

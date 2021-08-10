@@ -19,7 +19,7 @@ package controllers.auth
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc._
@@ -35,6 +35,8 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
+  lazy val cc = stubControllerComponents()
+
   val mockAuthConnector = mock[AuthConnector]
   val payeAuthAction = new PayeAuthActionImpl(
     mockAuthConnector,
@@ -44,13 +46,13 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
   val harness = new Harness(payeAuthAction)
   val request = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
 
-  class Harness(payeAuthAction: PayeAuthAction) extends Controller {
+  class Harness(payeAuthAction: PayeAuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = payeAuthAction { _ =>
       Ok
     }
   }
 
-  "AuthAction" should {
+  "AuthAction" must {
     "allow a request when authorised is successful" in {
 
       when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))

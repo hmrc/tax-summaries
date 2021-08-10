@@ -17,49 +17,48 @@
 package models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.JsonUtil
+import utils.{BaseSpec, JsonUtil}
 
-class TaxSummaryLiabilityTest extends UnitSpec {
+class TaxSummaryLiabilityTest extends BaseSpec {
 
-  "TaxSummaryLiability Reads" should {
+  "TaxSummaryLiability Reads" must {
     "correctly parse the data" in {
       val json = JsonUtil.load("/test_case_5.json")
 
       val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear shouldBe 2014
-      result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
-      result.incomeTaxStatus shouldBe Some("0002")
-      result.nationalInsuranceData.size shouldBe 3
-      result.atsData.size shouldBe 95
+      result.taxYear mustBe 2014
+      result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
+      result.incomeTaxStatus mustBe Some("0002")
+      result.nationalInsuranceData.size mustBe 3
+      result.atsData.size mustBe 95
     }
 
     "correctly parse the data where incomeTaxStatus is Null" in {
       val json = JsonUtil.load("/test_case_4.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear shouldBe 2014
-      result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
-      result.incomeTaxStatus shouldBe Some("")
-      result.nationalInsuranceData.size shouldBe 3
-      result.atsData.size shouldBe 95
+      result.taxYear mustBe 2014
+      result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
+      result.incomeTaxStatus mustBe Some("")
+      result.nationalInsuranceData.size mustBe 3
+      result.atsData.size mustBe 95
     }
 
     "correctly parse the data where fields are missing" in {
       val json = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear shouldBe 2014
-      result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
-      result.incomeTaxStatus shouldBe Some("")
-      result.nationalInsuranceData.size shouldBe 3
-      result.atsData.size shouldBe 89
+      result.taxYear mustBe 2014
+      result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
+      result.incomeTaxStatus mustBe Some("")
+      result.nationalInsuranceData.size mustBe 3
+      result.atsData.size mustBe 89
     }
 
     "correctly parse the data where incomeTaxStatus is missing and returns default empty string" in {
       val json = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear shouldBe 2014
-      result.pensionLumpSumTaxRate shouldBe PensionTaxRate(0.0)
-      result.incomeTaxStatus shouldBe Some("")
+      result.taxYear mustBe 2014
+      result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
+      result.incomeTaxStatus mustBe Some("")
     }
   }
 }

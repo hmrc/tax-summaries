@@ -16,33 +16,31 @@
 
 package services
 
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import services.GoodsAndServices._
 import utils.BaseSpec
 
-class GovSpendServiceTest extends BaseSpec with MockitoSugar with ScalaFutures {
+class GovSpendServiceTest extends BaseSpec {
 
-  "govSpending" should {
+  "govSpending" must {
     "return correct amounts for 2016" in {
       val result: Map[GoodsAndServices, Double] =
         new GovSpendService(applicationConfig).govSpending(2016)
 
-      result.get(Welfare) shouldBe Some(25.00)
-      result.get(Health) shouldBe Some(19.90)
-      result.get(StatePensions) shouldBe Some(12.80)
-      result.get(Education) shouldBe Some(12.00)
-      result.get(Defence) shouldBe Some(5.20)
-      result.get(NationalDebtInterest) shouldBe Some(5.30)
-      result.get(PublicOrderAndSafety) shouldBe Some(4.30)
-      result.get(Transport) shouldBe Some(4.00)
-      result.get(BusinessAndIndustry) shouldBe Some(2.40)
-      result.get(GovernmentAdministration) shouldBe Some(2.00)
-      result.get(Culture) shouldBe Some(1.60)
-      result.get(Environment) shouldBe Some(1.70)
-      result.get(HousingAndUtilities) shouldBe Some(1.40)
-      result.get(OverseasAid) shouldBe Some(1.20)
-      result.get(UkContributionToEuBudget) shouldBe Some(1.10)
+      result.get(Welfare) mustBe Some(25.00)
+      result.get(Health) mustBe Some(19.90)
+      result.get(StatePensions) mustBe Some(12.80)
+      result.get(Education) mustBe Some(12.00)
+      result.get(Defence) mustBe Some(5.20)
+      result.get(NationalDebtInterest) mustBe Some(5.30)
+      result.get(PublicOrderAndSafety) mustBe Some(4.30)
+      result.get(Transport) mustBe Some(4.00)
+      result.get(BusinessAndIndustry) mustBe Some(2.40)
+      result.get(GovernmentAdministration) mustBe Some(2.00)
+      result.get(Culture) mustBe Some(1.60)
+      result.get(Environment) mustBe Some(1.70)
+      result.get(HousingAndUtilities) mustBe Some(1.40)
+      result.get(OverseasAid) mustBe Some(1.20)
+      result.get(UkContributionToEuBudget) mustBe Some(1.10)
     }
   }
 }

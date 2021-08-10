@@ -20,41 +20,45 @@ import com.google.inject.Inject
 import config.ApplicationConfig
 import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
-import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 import uk.gov.hmrc.http.HttpClient
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext) {
+
+  private val logger = Logger(getClass.getName)
 
   def serviceUrl: String = applicationConfig.npsServiceUrl
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def header(hc: HeaderCarrier): HeaderCarrier =
-    hc.copy(authorization = Some(Authorization(applicationConfig.authorization)))
-      .withExtraHeaders(
-        "Environment"  -> applicationConfig.environment,
-        "OriginatorId" -> applicationConfig.originatorId
-      )
+  private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
+    HeaderNames.authorisation -> applicationConfig.authorization,
+    "Environment"             -> applicationConfig.environment,
+    "OriginatorId"            -> applicationConfig.originatorId,
+    HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
+    HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
+    "CorrelationId"           -> UUID.randomUUID().toString
+  )
 
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int, hc: HeaderCarrier): Future[HttpResponse] = {
+  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val ninoWithoutSuffix = NINO.take(8)
 
-    implicit val desHeaderCarrier: HeaderCarrier = header(hc)
-
-    http.GET[HttpResponse](url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR)) recover {
+    http.GET[HttpResponse](
+      url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR),
+      headers = header) recover {
       case e: BadRequestException =>
         HttpResponse(BAD_REQUEST, s"Bad request response in connector for $NINO with message ${e.message}")
       case e: NotFoundException =>
         HttpResponse(NOT_FOUND, s"Not found response in connector for $NINO with message ${e.message}")
       case e: UpstreamErrorResponse =>
-        Logger.error(
+        logger.error(
           s"UpstreamErrorResponse in connector for $NINO with status ${e.statusCode} and message: ${e.getMessage()}")
         HttpResponse(INTERNAL_SERVER_ERROR, s"Nino: $NINO Status: ${e.statusCode} Message: ${e.getMessage()}")
       case e => {
-        Logger.error(s"Exception in NPSConnector: $e", e)
+        logger.error(s"Exception in NPSConnector: $e", e)
         HttpResponse(INTERNAL_SERVER_ERROR, s"Exception in connector for $NINO with message ${e.getMessage}")
       }
     }

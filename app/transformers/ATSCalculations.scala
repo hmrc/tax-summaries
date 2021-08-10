@@ -27,14 +27,16 @@ sealed trait ATSCalculations extends DoubleUtils {
   val summaryData: TaxSummaryLiability
   val taxRates: TaxRateService
 
-  def get(liability: Liability): Amount =
+  def get(liability: Liability): Amount = {
+    val logger = Logger(getClass.getName)
     summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(liability, {
-        Logger.info(s"Unable to retrieve $liability")
+        logger.info(s"Unable to retrieve $liability")
         throw ATSParsingException(liability.apiValue)
       })
     )
+  }
 
   def getWithDefaultAmount(liability: Liability): Amount =
     try {

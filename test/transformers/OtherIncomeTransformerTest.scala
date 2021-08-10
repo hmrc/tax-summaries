@@ -30,7 +30,7 @@ class OtherIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "have the correct other income data" in {
 
@@ -46,11 +46,11 @@ class OtherIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           taxYear).atsDataDTO
 
       val parsedYear = returnValue.taxYear
-      taxYear shouldEqual parsedYear
+      taxYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherIncome) should equal(Amount.empty)
+      parsedPayload(OtherIncome) must equal(Amount.empty)
     }
 
     "have the correct summed other income data" in {
@@ -80,7 +80,7 @@ class OtherIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           taxYear).atsDataDTO
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherIncome) should equal(new Amount(450.00, "GBP"))
+      parsedPayload(OtherIncome) must equal(new Amount(450.00, "GBP"))
     }
   }
 }

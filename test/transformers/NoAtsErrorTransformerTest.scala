@@ -29,7 +29,7 @@ class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "have have an no ets error when " in {
 
@@ -49,7 +49,7 @@ class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           "",
           2014).atsDataDTO
 
-      returnValue.errors shouldBe Some(AtsError("NoAtsError"))
+      returnValue.errors mustBe Some(AtsError("NoAtsError"))
     }
   }
 }

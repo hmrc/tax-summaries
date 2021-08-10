@@ -16,17 +16,15 @@
 
 package utils
 
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json._
 import transformers.ATSParsingException
 import utils.TestConstants._
 
-class TaxsJsonHelperTest extends BaseSpec with MockitoSugar with ScalaFutures {
+class TaxsJsonHelperTest extends BaseSpec {
 
   class SetUp extends TaxsJsonHelper(applicationConfig)
 
-  "hasAtsForPreviousPeriod" should {
+  "hasAtsForPreviousPeriod" must {
 
     "return true when json response has non empty annual tax summaries data" in new SetUp {
 
@@ -41,7 +39,7 @@ class TaxsJsonHelperTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val result = hasAtsForPreviousPeriod(rawJson)
 
-      result shouldBe true
+      result mustBe true
     }
 
     "return false when json response has no annual tax summaries data" in new SetUp {
@@ -54,7 +52,7 @@ class TaxsJsonHelperTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val result = hasAtsForPreviousPeriod(rawJson)
 
-      result shouldBe false
+      result mustBe false
     }
 
     "return false for badly formed json" in new SetUp {
@@ -70,11 +68,11 @@ class TaxsJsonHelperTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val result = hasAtsForPreviousPeriod(rawJson)
 
-      result shouldBe false
+      result mustBe false
     }
   }
 
-  "createTaxYearJson" should {
+  "createTaxYearJson" must {
 
     "return a jsvalue with correct data when passed correct format" in new SetUp {
 
@@ -99,10 +97,10 @@ class TaxsJsonHelperTest extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val result = createTaxYearJson(rawJson, testUtr, rawTaxpayerJson)
 
-      result \ "utr" shouldBe JsDefined(JsString(testUtr))
-      result \ "taxPayer" shouldBe JsDefined(
+      result \ "utr" mustBe JsDefined(JsString(testUtr))
+      result \ "taxPayer" mustBe JsDefined(
         Json.parse("""{"taxpayer_name":{"title":"Mr","forename":"forename","surname":"surname"}}"""))
-      result \ "atsYearList" shouldBe JsDefined(Json.parse("[2014, 2015]"))
+      result \ "atsYearList" mustBe JsDefined(Json.parse("[2014, 2015]"))
     }
 
     "return an exception when passed badly formed json" in new SetUp {

@@ -18,12 +18,13 @@ package utils
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.{Generator, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.Random
 
@@ -37,7 +38,7 @@ import scala.util.Random
  */
 
 trait IntegrationSpec
-  extends UnitSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
+  extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
   override def beforeEach() = {
     super.beforeEach()
 
@@ -46,6 +47,7 @@ trait IntegrationSpec
          |{
          |    "confidenceLevel": 200,
          |    "nino": "$nino",
+         |    "saUtr": "$utr",
          |    "name": {
          |        "name": "John",
          |        "lastName": "Smith"
@@ -61,7 +63,8 @@ trait IntegrationSpec
          |    "authProviderId": {
          |        "ggCredId": "xyz"
          |    },
-         |    "externalId": "testExternalId"
+         |    "externalId": "testExternalId",
+         |    "allEnrolments": []
          |}
          |""".stripMargin
 
@@ -82,6 +85,7 @@ trait IntegrationSpec
       .build()
 
   val nino = new Generator(new Random).nextNino
+  val utr = new SaUtrGenerator(new Random).nextSaUtr
   val hc = HeaderCarrier()
 
   val taxYear = 2047

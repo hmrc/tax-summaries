@@ -30,7 +30,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
 
-  "The tax free amount" should {
+  "The tax free amount" must {
     "parse the allowance data" in {
       val sampleJson = JsonUtil.load("/test_case_3.json")
 
@@ -46,7 +46,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
 
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       println(returnValue)
 
@@ -58,7 +58,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
           OtherAllowancesAmount              -> Amount(300.0, "GBP"),
           TotalTaxFreeAmount                 -> Amount(9740.0, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
     }
 
     "parse the allowance data where the marriage allowance is not present in API data so defaults to 0" in {
@@ -72,7 +72,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
 
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload =
@@ -82,7 +82,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
           OtherAllowancesAmount              -> Amount(300.0, "GBP"),
           TotalTaxFreeAmount                 -> Amount(9740.0, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
     }
 
     "parse the allowance data with Marriage Allowance Amount subtracted" in {
@@ -101,7 +101,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
 
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload =
@@ -111,11 +111,11 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
           OtherAllowancesAmount              -> Amount(300.0, "GBP"),
           TotalTaxFreeAmount                 -> Amount(9540.0, "GBP")
         )
-      testPayload shouldEqual parsedPayload
+      testPayload mustEqual parsedPayload
     }
   }
 
-  "With base data for utr" should {
+  "With base data for utr" must {
 
     "have the correct other allowances data" in {
 
@@ -132,11 +132,11 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
-      testYear shouldEqual parsedYear
+      testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload(OtherAllowancesAmount) should equal(new Amount(300.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) must equal(new Amount(300.0, "GBP"))
     }
 
     "have the correct summed other allowances data" in {
@@ -166,7 +166,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
           taxYear).atsDataDTO
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload(OtherAllowancesAmount) should equal(new Amount(660.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) must equal(new Amount(660.0, "GBP"))
     }
 
     "have the correct summed other allowances data (with 'other_allowances_amount' roundup)" in {
@@ -196,7 +196,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
           taxYear).atsDataDTO
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload(OtherAllowancesAmount) should equal(new Amount(660.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) must equal(new Amount(660.0, "GBP"))
     }
   }
 }

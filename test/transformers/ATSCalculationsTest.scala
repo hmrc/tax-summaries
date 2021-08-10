@@ -19,10 +19,8 @@ package transformers
 import config.ApplicationConfig
 import models.Liability._
 import models._
-import org.scalatest.prop.PropertyChecks
-import play.api.Configuration
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
@@ -32,7 +30,7 @@ final case object Scottish extends Origin
 final case object Welsh extends Origin
 final case object RestUK extends Origin
 
-class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils {
+class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with DoubleUtils {
 
   class CalcFixtures(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig)(
     pensionTaxRate: PensionTaxRate,
@@ -111,14 +109,14 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
     CapAdjustment           -> Amount.empty
   )
 
-  "make" should {
+  "make" must {
 
     "return Post2018ScottishATSCalculations" when {
 
       "tax years is > 2018 and type is scottish" in {
 
         val calculation = new Fixture(2019, Scottish)().calculation
-        calculation shouldBe a[Post2018ScottishATSCalculations]
+        calculation mustBe a[Post2018ScottishATSCalculations]
       }
     }
 
@@ -126,7 +124,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
       "tax year is > 2018" in {
         val calculation = new Fixture(2019, RestUK)().calculation
-        calculation shouldBe a[Post2018rUKATSCalculations]
+        calculation mustBe a[Post2018rUKATSCalculations]
       }
 
       "return WelshATSCalculations" when {
@@ -135,9 +133,9 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
             val calculation = new Fixture(taxYear, Welsh)().calculation
 
             if (taxYear >= 2019) {
-              calculation shouldBe a[WelshATSCalculations]
+              calculation mustBe a[WelshATSCalculations]
             } else {
-              calculation shouldBe a[DefaultATSCalculations]
+              calculation mustBe a[DefaultATSCalculations]
             }
 
           }
@@ -150,18 +148,18 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
       "tax year is < 2019 and type is scottish" in {
 
         val calculation = new Fixture(2018, Scottish)().calculation
-        calculation shouldBe a[DefaultATSCalculations]
+        calculation mustBe a[DefaultATSCalculations]
       }
 
       "tax year is < 2019" in {
 
         val calculation = new Fixture(2018, RestUK)().calculation
-        calculation shouldBe a[DefaultATSCalculations]
+        calculation mustBe a[DefaultATSCalculations]
       }
     }
   }
 
-  "DefaultATSCalculations" should {
+  "DefaultATSCalculations" must {
 
     val fixture = new Fixture(2016, RestUK)
 
@@ -175,7 +173,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           SavingsChargeableLowerRate -> Amount.gbp(savings)
         )
 
-        sut.calculation.basicRateIncomeTax shouldBe Amount.gbp(income + pension + savings)
+        sut.calculation.basicRateIncomeTax mustBe Amount.gbp(income + pension + savings)
       }
     }
 
@@ -189,7 +187,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           SavingsChargeableHigherRate -> Amount.gbp(savings)
         )
 
-        sut.calculation.higherRateIncomeTax shouldBe Amount.gbp(income + pension + savings)
+        sut.calculation.higherRateIncomeTax mustBe Amount.gbp(income + pension + savings)
       }
     }
 
@@ -203,7 +201,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           SavingsChargeableAddHRate -> Amount.gbp(savings)
         )
 
-        sut.calculation.additionalRateIncomeTax shouldBe Amount.gbp(income + pension + savings)
+        sut.calculation.additionalRateIncomeTax mustBe Amount.gbp(income + pension + savings)
       }
     }
 
@@ -214,7 +212,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
         val prod = rate * 10
 
         val sut = fixture(PensionTaxRate(sum / 100), StatePensionGross -> Amount.gbp(total))
-        sut.calculation.includePensionIncomeForRate(Rate(prod)) shouldBe Amount.gbp(total)
+        sut.calculation.includePensionIncomeForRate(Rate(prod)) mustBe Amount.gbp(total)
       }
     }
 
@@ -223,7 +221,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
       forAll { (rate1: Double, rate2: Double) =>
         whenever(rate1 !== rate2) {
           val sut = fixture(PensionTaxRate(rate1 / 100))
-          sut.calculation.includePensionIncomeForRate(Rate(rate2)) shouldBe Amount.empty
+          sut.calculation.includePensionIncomeForRate(Rate(rate2)) mustBe Amount.empty
         }
       }
     }
@@ -235,7 +233,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
         val prod = rate * 10
 
         val sut = fixture(PensionTaxRate(sum / 100), PensionLsumTaxDue -> Amount.gbp(total))
-        sut.calculation.includePensionTaxForRate(Rate(prod)) shouldBe Amount.gbp(total)
+        sut.calculation.includePensionTaxForRate(Rate(prod)) mustBe Amount.gbp(total)
       }
     }
 
@@ -244,7 +242,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
       forAll { (rate1: Double, rate2: Double) =>
         whenever(rate1 !== rate2) {
           val sut = fixture(PensionTaxRate(rate1 / 100))
-          sut.calculation.includePensionTaxForRate(Rate(rate2)) shouldBe Amount.empty
+          sut.calculation.includePensionTaxForRate(Rate(rate2)) mustBe Amount.empty
         }
       }
     }
@@ -257,85 +255,85 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           HigherRateCgtRPCI -> Amount.gbp(higher)
         )
 
-        sut.calculation.totalCapitalGainsTax shouldBe Amount.gbp(lower + higher)
+        sut.calculation.totalCapitalGainsTax mustBe Amount.gbp(lower + higher)
       }
     }
 
     "return empty for welshIncomeTax" in {
-      fixture().calculation.welshIncomeTax shouldBe Amount.empty
+      fixture().calculation.welshIncomeTax mustBe Amount.empty
     }
   }
 
-  "Post2018rUKATSCalculations" should {
+  "Post2018rUKATSCalculations" must {
 
     val fixture = new Fixture(2019, RestUK)()
     val calculation = fixture.calculation
 
     "return an empty amount for scottishIncomeTax" in {
 
-      calculation.scottishIncomeTax shouldBe Amount.empty
+      calculation.scottishIncomeTax mustBe Amount.empty
     }
 
     "return empty for savingsRate" in {
 
-      calculation.savingsRate shouldBe Amount.empty
+      calculation.savingsRate mustBe Amount.empty
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.savingsRateAmount shouldBe Amount.empty
+      calculation.savingsRateAmount mustBe Amount.empty
     }
 
     "return empty for welshIncomeTax" in {
-      calculation.welshIncomeTax shouldBe Amount.empty
+      calculation.welshIncomeTax mustBe Amount.empty
     }
   }
 
-  "Post2018ScottishATSCalculations" should {
+  "Post2018ScottishATSCalculations" must {
 
     val scottishFixture = new Fixture(taxYear = 2019, Scottish)
     val calculation = scottishFixture().calculation
 
     "return an empty amount for scottishIncomeTax" in {
-      calculation.scottishIncomeTax shouldBe Amount.empty
+      calculation.scottishIncomeTax mustBe Amount.empty
     }
 
     "return an empty amount for basicRateIncomeTaxAmount" in {
-      calculation.basicRateIncomeTaxAmount shouldBe Amount.empty
+      calculation.basicRateIncomeTaxAmount mustBe Amount.empty
     }
 
     "return an empty amount for higherRateIncomeTaxAmount" in {
-      calculation.higherRateIncomeTaxAmount shouldBe Amount.empty
+      calculation.higherRateIncomeTaxAmount mustBe Amount.empty
     }
 
     "return an empty amount for additionalRateIncomeTaxAmount" in {
-      calculation.additionalRateIncomeTaxAmount shouldBe Amount.empty
+      calculation.additionalRateIncomeTaxAmount mustBe Amount.empty
     }
 
     "return an empty amount for basicRateIncomeTax" in {
-      calculation.basicRateIncomeTax shouldBe Amount.empty
+      calculation.basicRateIncomeTax mustBe Amount.empty
     }
 
     "return an empty amount for higherRateIncomeTax" in {
-      calculation.higherRateIncomeTax shouldBe Amount.empty
+      calculation.higherRateIncomeTax mustBe Amount.empty
     }
 
     "return an empty amount for additionalRateIncomeTax" in {
-      calculation.additionalRateIncomeTax shouldBe Amount.empty
+      calculation.additionalRateIncomeTax mustBe Amount.empty
     }
 
     "return empty for savingsRate" in {
 
-      calculation.savingsRate shouldBe Amount.empty
+      calculation.savingsRate mustBe Amount.empty
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.savingsRateAmount shouldBe Amount.empty
+      calculation.savingsRateAmount mustBe Amount.empty
     }
 
     "return empty for welshIncomeTax" in {
-      calculation.welshIncomeTax shouldBe Amount.empty
+      calculation.welshIncomeTax mustBe Amount.empty
     }
 
     "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in {
@@ -346,7 +344,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           TaxOnPayScottishStarterRate -> Amount.gbp(income),
           PensionLsumTaxDue           -> Amount.gbp(pension))
 
-        sut.calculation.scottishStarterRateTax shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishStarterRateTax mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -358,7 +356,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           IncomeTaxBasicRate -> Amount.gbp(income),
           PensionLsumTaxDue  -> Amount.gbp(pension))
 
-        sut.calculation.scottishBasicRateTax shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishBasicRateTax mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -370,7 +368,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           TaxOnPayScottishIntermediateRate -> Amount.gbp(income),
           PensionLsumTaxDue                -> Amount.gbp(pension))
 
-        sut.calculation.scottishIntermediateRateTax shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishIntermediateRateTax mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -382,7 +380,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           IncomeTaxHigherRate -> Amount.gbp(income),
           PensionLsumTaxDue   -> Amount.gbp(pension))
 
-        sut.calculation.scottishHigherRateTax shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishHigherRateTax mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -394,7 +392,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           IncomeTaxAddHighRate -> Amount.gbp(income),
           PensionLsumTaxDue    -> Amount.gbp(pension))
 
-        sut.calculation.scottishAdditionalRateTax shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishAdditionalRateTax mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -406,7 +404,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           TaxablePayScottishStarterRate -> Amount.gbp(income),
           StatePensionGross             -> Amount.gbp(pension))
 
-        sut.calculation.scottishStarterRateIncome shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishStarterRateIncome mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -418,7 +416,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           IncomeChargeableBasicRate -> Amount.gbp(income),
           StatePensionGross         -> Amount.gbp(pension))
 
-        sut.calculation.scottishBasicRateIncome shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishBasicRateIncome mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -430,7 +428,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           TaxablePayScottishIntermediateRate -> Amount.gbp(income),
           StatePensionGross                  -> Amount.gbp(pension))
 
-        sut.calculation.scottishIntermediateRateIncome shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishIntermediateRateIncome mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -442,7 +440,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           IncomeChargeableHigherRate -> Amount.gbp(income),
           StatePensionGross          -> Amount.gbp(pension))
 
-        sut.calculation.scottishHigherRateIncome shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishHigherRateIncome mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -454,7 +452,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           IncomeChargeableAddHRate -> Amount.gbp(income),
           StatePensionGross        -> Amount.gbp(pension))
 
-        sut.calculation.scottishAdditionalRateIncome shouldBe Amount.gbp(income + pension)
+        sut.calculation.scottishAdditionalRateIncome mustBe Amount.gbp(income + pension)
       }
     }
 
@@ -462,7 +460,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
       forAll { tax: BigDecimal =>
         val sut = scottishFixture(SavingsTaxLowerRate -> Amount.gbp(tax))
-        sut.calculation.savingsBasicRateTax shouldBe Amount.gbp(tax)
+        sut.calculation.savingsBasicRateTax mustBe Amount.gbp(tax)
       }
     }
 
@@ -470,7 +468,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
       forAll { tax: BigDecimal =>
         val sut = scottishFixture(SavingsTaxHigherRate -> Amount.gbp(tax))
-        sut.calculation.savingsHigherRateTax shouldBe Amount.gbp(tax)
+        sut.calculation.savingsHigherRateTax mustBe Amount.gbp(tax)
       }
     }
 
@@ -478,7 +476,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
       forAll { tax: BigDecimal =>
         val sut = scottishFixture(SavingsTaxAddHighRate -> Amount.gbp(tax))
-        sut.calculation.savingsAdditionalRateTax shouldBe Amount.gbp(tax)
+        sut.calculation.savingsAdditionalRateTax mustBe Amount.gbp(tax)
       }
     }
 
@@ -486,7 +484,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
       forAll { tax: BigDecimal =>
         val sut = scottishFixture(SavingsChargeableLowerRate -> Amount.gbp(tax))
-        sut.calculation.savingsBasicRateIncome shouldBe Amount.gbp(tax)
+        sut.calculation.savingsBasicRateIncome mustBe Amount.gbp(tax)
       }
     }
 
@@ -494,7 +492,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
       forAll { tax: BigDecimal =>
         val sut = scottishFixture(SavingsChargeableHigherRate -> Amount.gbp(tax))
-        sut.calculation.savingsHigherRateIncome shouldBe Amount.gbp(tax)
+        sut.calculation.savingsHigherRateIncome mustBe Amount.gbp(tax)
       }
     }
 
@@ -502,7 +500,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
 
       forAll { tax: BigDecimal =>
         val sut = scottishFixture(SavingsChargeableAddHRate -> Amount.gbp(tax))
-        sut.calculation.savingsAdditionalRateIncome shouldBe Amount.gbp(tax)
+        sut.calculation.savingsAdditionalRateIncome mustBe Amount.gbp(tax)
       }
     }
 
@@ -523,7 +521,7 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           keys(1)   -> Amount.gbp(second)
         )
 
-        sut.calculation.scottishTotalTax shouldBe Amount.gbp(first + second)
+        sut.calculation.scottishTotalTax mustBe Amount.gbp(first + second)
       }
     }
 
@@ -550,12 +548,12 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           )
         )
 
-        sut.calculation.totalIncomeTaxAmount shouldBe Amount.gbp(first + second)
+        sut.calculation.totalIncomeTaxAmount mustBe Amount.gbp(first + second)
       }
     }
   }
 
-  "WelshATSCalculations" should {
+  "WelshATSCalculations" must {
     "calculate the welshIncomeTax" in {
       val welshFixture = new Fixture(taxYear = 2020, Welsh)
 
@@ -566,10 +564,10 @@ class ATSCalculationsTest extends BaseSpec with PropertyChecks with DoubleUtils 
           IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
         )
 
-        sut.calculation.welshIncomeTax shouldBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
-        sut.calculation.savingsRate shouldBe Amount.empty
-        sut.calculation.savingsRateAmount shouldBe Amount.empty
-        sut.calculation.scottishIncomeTax shouldBe Amount.empty
+        sut.calculation.welshIncomeTax mustBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
+        sut.calculation.savingsRate mustBe Amount.empty
+        sut.calculation.savingsRateAmount mustBe Amount.empty
+        sut.calculation.scottishIncomeTax mustBe Amount.empty
       }
     }
   }
