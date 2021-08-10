@@ -20,6 +20,7 @@ import akka.util.Timeout
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.IntegrationPatience
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -28,7 +29,6 @@ import play.api.mvc.{AbstractController, Action, AnyContent}
 import play.api.test.Helpers.{status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.domain.SaUtrGenerator
 
 import scala.concurrent.duration._
@@ -40,6 +40,7 @@ class AuthActionSpec
   val cc = stubControllerComponents()
   val mockAuthConnector = mock[AuthConnector]
   implicit lazy val ec = inject[ExecutionContext]
+  implicit val timeout: Timeout = 5 seconds
 
   class Harness(authAction: AuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = authAction { _ =>

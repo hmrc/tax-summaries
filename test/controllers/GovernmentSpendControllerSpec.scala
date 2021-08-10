@@ -53,7 +53,7 @@ class GovernmentSpendControllerSpec extends BaseSpec {
 
       val result = sut.getGovernmentSpend(taxYear)(FakeRequest("GET", "/"))
       status(result) mustBe OK
-      bodyOf(result).futureValue mustBe expectedBody
+      contentAsString(result) mustBe expectedBody
 
     }
 
