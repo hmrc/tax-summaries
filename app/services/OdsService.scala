@@ -35,49 +35,35 @@ class OdsService @Inject()(
 )(implicit ec: ExecutionContext) {
 
   def getPayload(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
-    withErrorHandling {
-      (for {
-        taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
-        taxSummaries <- EitherT(odsConnector.connectToSelfAssessment(UTR, TAX_YEAR))
-      } yield {
-        jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
-      }).value.map {
-        case Right(value)                                                        => Right(value)
-        case Left(error: UpstreamErrorResponse) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
-      }
+    (for {
+      taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
+      taxSummaries <- EitherT(odsConnector.connectToSelfAssessment(UTR, TAX_YEAR))
+    } yield {
+      jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
+    }).value.map {
+      case Right(value)                                                        => Right(value)
+      case Left(error) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
+      case Left(error) => Left(DownstreamError(error.message))
     }
 
   def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
-    withErrorHandling {
-      odsConnector.connectToSelfAssessmentList(UTR) map {
-        case Right(value) =>
-          Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(value))))
-        case Left(error: UpstreamErrorResponse) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
-      }
+    odsConnector.connectToSelfAssessmentList(UTR) map {
+      case Right(value) =>
+        Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(value))))
+      case Left(error) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
+      case Left(error) => Left(DownstreamError(error.message))
     }
 
   def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
-    withErrorHandling {
-      (for {
-        taxSummaries <- EitherT(odsConnector.connectToSelfAssessmentList(UTR))
-        taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
-      } yield {
-        jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
-      }).value.map {
-        case Right(value)                                                        => Right(value)
-        case Left(error: UpstreamErrorResponse) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
-      }
+    (for {
+      taxSummaries <- EitherT(odsConnector.connectToSelfAssessmentList(UTR))
+      taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
+    } yield {
+      jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
+    }).value.map {
+      case Right(value)                                                        => Right(value)
+      case Left(error) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
+      case Left(error) => Left(DownstreamError(error.message))
     }
 
-  private def withErrorHandling(block: Future[Either[ServiceError, JsValue]]): Future[Either[ServiceError, JsValue]] = {
-    val logger = Logger(getClass.getName)
-    block recover {
-      case error: JsonParseException =>
-        logger.error("Malformed JSON", error)
-        Left(JsonParseError(error.getMessage))
-      case error =>
-        logger.error("Generic error", error)
-        Left(GenericError(error.getMessage))
-    }
-  }
 }
