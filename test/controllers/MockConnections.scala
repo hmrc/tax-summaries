@@ -17,6 +17,7 @@
 package controllers
 
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.io.IOException
 import scala.concurrent.Future
@@ -27,11 +28,11 @@ object MockConnections {
   def connectToServiceWithBrokenIO(URL: String): Future[JsValue] =
     throw new IOException()
 
-  def connectToMockPayloadService(URL: String): Future[Option[JsValue]] =
+  def connectToMockPayloadService(URL: String): Future[Either[UpstreamErrorResponse, JsValue]] =
     try {
       val source = Source.fromURL(getClass.getResource(URL)).mkString
       val theJsValue = Json.parse(source)
-      Future.successful(Some(theJsValue))
+      Future.successful(Right(theJsValue))
     } catch {
       case error: Throwable => Future.failed(error)
     }

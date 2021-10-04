@@ -23,8 +23,9 @@ import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
 
@@ -51,9 +52,9 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       "the call is successful" in {
 
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Some(mock[JsValue])))
+          .thenReturn(Future.successful(Right(mock[JsValue])))
         when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Some(mock[JsValue])))
+          .thenReturn(Future.successful(Right(mock[JsValue])))
         when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014)))
           .thenReturn(mock[JsValue])
 
@@ -70,9 +71,9 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "return a service error when no ats for that year is found" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(mock[JsValue])))
+        .thenReturn(Future.successful(Right(mock[JsValue])))
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(None))
+        .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
 
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
@@ -88,9 +89,9 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "return a service error when no taxpayer details are found" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(None))
+        .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(mock[JsValue])))
+        .thenReturn(Future.successful(Right(mock[JsValue])))
 
       val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
@@ -98,7 +99,6 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
         res.left.get mustBe a[NotFoundError]
 
         verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
         verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
       }
     }
@@ -122,7 +122,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "return a service error when any other exception is thrown by the connector" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(mock[JsValue])))
+        .thenReturn(Future.successful(Right(mock[JsValue])))
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
         .thenReturn(Future.failed(new Exception("raw exception")))
 
@@ -145,7 +145,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       "connector calls are successful" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Some(mock[JsValue])))
+          .thenReturn(Future.successful(Right(mock[JsValue])))
         when(jsonHelper.hasAtsForPreviousPeriod(any[JsValue]))
           .thenReturn(true)
 
@@ -177,7 +177,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       "the connector returns not found" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(None))
+          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
 
         val result = service.getList(testUtr)(mock[HeaderCarrier])
 
@@ -209,9 +209,9 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       val json = mock[JsValue]
 
       when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(json)))
+        .thenReturn(Future.successful(Right(json)))
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Some(json)))
+        .thenReturn(Future.successful(Right(json)))
       when(jsonHelper.createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue]))
         .thenReturn(json)
 
@@ -246,9 +246,9 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       "a not found is returned when getting SA json" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(None))
+          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Some(mock[JsValue])))
+          .thenReturn(Future.successful(Right(mock[JsValue])))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
@@ -256,7 +256,6 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           result.left.get mustBe a[NotFoundError]
 
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
           verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
         }
       }
@@ -264,9 +263,26 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       "a Not Found is returned when getting taxpayer details" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Some(mock[JsValue])))
+          .thenReturn(Future.successful(Right(mock[JsValue])))
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(None))
+          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
+
+        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
+
+        whenReady(result) { result =>
+          result.left.get mustBe a[NotFoundError]
+
+          verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+        }
+      }
+
+      "a Not Found is returned when getting SA json and taxpayer details" in {
+
+        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
@@ -274,7 +290,6 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           result.left.get mustBe a[NotFoundError]
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
           verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
         }
       }

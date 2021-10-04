@@ -18,8 +18,10 @@ package connectors
 
 import com.google.inject.Inject
 import config.ApplicationConfig
+import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,20 +39,35 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
-    http.GET[Option[JsValue]](
-      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
-      headers = header
-    )
+  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+    http
+      .GET[Either[UpstreamErrorResponse, JsValue]](
+        url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
+        headers = header
+      )
+      .recover {
+        case error: HttpException => Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
+      }
 
-  def connectToSelfAssessmentList(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
-    http.GET[Option[JsValue]](
-      url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
-      headers = header)
+  def connectToSelfAssessmentList(UTR: String)(
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+    http
+      .GET[Either[UpstreamErrorResponse, JsValue]](
+        url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
+        headers = header)
+      .recover {
+        case error: HttpException => Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
+      }
 
-  def connectToSATaxpayerDetails(UTR: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] =
-    http.GET[Option[JsValue]](
-      url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
-      headers = header
-    )
+  def connectToSATaxpayerDetails(UTR: String)(
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+    http
+      .GET[Either[UpstreamErrorResponse, JsValue]](
+        url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
+        headers = header
+      )
+      .recover {
+        case error: HttpException => Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
+      }
 }
