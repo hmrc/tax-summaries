@@ -20,4 +20,5 @@ sealed trait ServiceError
 
 final case class JsonParseError(msg: String) extends ServiceError
 final case class NotFoundError(msg: String) extends ServiceError
+final case class DownstreamError(msg: String) extends ServiceError
 final case class GenericError(msg: String) extends ServiceError

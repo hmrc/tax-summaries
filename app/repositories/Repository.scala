@@ -18,9 +18,9 @@ package repositories
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
-
 import javax.inject.Inject
 import models.paye.PayeAtsMiddleTier
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.{Json, Reads, __}
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.WriteConcern
@@ -28,6 +28,7 @@ import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.{JSONCollection, _}
+import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

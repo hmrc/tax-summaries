@@ -16,8 +16,10 @@
 
 package connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, _}
+import org.scalatest.Inside.inside
 import play.api.Application
+import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, JsString}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, UpstreamErrorResponse}
@@ -63,7 +65,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessment(testUtr, 2014)
 
         whenReady(result) {
-          _ mustBe Some(json)
+          _ mustBe Right(json)
         }
 
         server.verify(
@@ -77,35 +79,47 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
       }
     }
 
-    "return None" when {
+    "return UpstreamErrorResponse" when {
 
-      "404 is returned" in {
+      "500 is returned when response retrieves 404" in {
 
         server.stubFor(
           get(url).willReturn(notFound())
         )
 
-        val result = sut.connectToSelfAssessment(testUtr, 2014)
+        val result = sut.connectToSelfAssessment(testUtr, 2014).futureValue
 
-        whenReady(result) {
-          _ mustBe None
+        inside(result.left.get) {
+          case UpstreamErrorResponse(_, status, reportedAs, _) =>
+            status mustBe NOT_FOUND
+            reportedAs mustBe INTERNAL_SERVER_ERROR
+        }
+      }
+
+      List(
+        INTERNAL_SERVER_ERROR,
+        SERVICE_UNAVAILABLE,
+        BAD_GATEWAY
+      ).foreach { status: Int =>
+        s"502 is returned when response retrieves $status" in {
+
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(
+              aResponse()
+                .withStatus(status)
+                .withBody(""))
+          )
+
+          val result = sut.connectToSelfAssessment(testUtr, 2014).futureValue
+
+          inside(result.left.get) {
+            case UpstreamErrorResponse(_, status, reportedAs, _) =>
+              status mustBe status
+              reportedAs mustBe BAD_GATEWAY
+          }
         }
       }
     }
-
-    "return 500" in {
-
-      server.stubFor(
-        get(url).willReturn(serverError())
-      )
-
-      val result = sut.connectToSelfAssessment(testUtr, 2014)
-
-      whenReady(result.failed) { exception =>
-        exception mustBe a[UpstreamErrorResponse]
-      }
-    }
-
   }
 
   "connectToSelfAssessmentList" must {
@@ -123,39 +137,48 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessmentList(testUtr)
 
         whenReady(result) {
-          _ mustBe Some(json)
+          _ mustBe Right(json)
         }
       }
     }
 
-    "return None" when {
+    "return UpstreamErrorResponse" when {
 
-      "404 is returned" in {
-
+      "500 is returned when response retrieves 404" in {
         server.stubFor(
           get(url).willReturn(notFound())
         )
 
-        val result = sut.connectToSelfAssessmentList(testUtr)
+        val result = sut.connectToSelfAssessmentList(testUtr).futureValue
 
-        whenReady(result) {
-          _ mustBe None
+        inside(result.left.get) {
+          case UpstreamErrorResponse(_, status, reportedAs, _) =>
+            status mustBe NOT_FOUND
+            reportedAs mustBe INTERNAL_SERVER_ERROR
         }
       }
-    }
 
-    "return an exception" when {
+      List(
+        INTERNAL_SERVER_ERROR,
+        SERVICE_UNAVAILABLE,
+        BAD_GATEWAY
+      ).foreach { status: Int =>
+        s"502 is returned when response retrieves $status" in {
 
-      "500 is returned" in {
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(
+              aResponse()
+                .withStatus(status)
+                .withBody(""))
+          )
 
-        server.stubFor(
-          get(url).willReturn(serverError())
-        )
+          val result = sut.connectToSelfAssessmentList(testUtr).futureValue
 
-        val result = sut.connectToSelfAssessmentList(testUtr)
-
-        whenReady(result.failed) { exception =>
-          exception mustBe a[UpstreamErrorResponse]
+          inside(result.left.get) {
+            case UpstreamErrorResponse(_, status, reportedAs, _) =>
+              status mustBe status
+              reportedAs mustBe BAD_GATEWAY
+          }
         }
       }
     }
@@ -176,39 +199,49 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSATaxpayerDetails(testUtr)
 
         whenReady(result) {
-          _ mustBe Some(json)
+          _ mustBe Right(json)
         }
       }
     }
 
-    "return None" when {
+    "return UpstreamErrorResponse" when {
 
-      "404 is returned" in {
+      "500 is returned when response retrieves 404" in {
 
         server.stubFor(
           get(url).willReturn(notFound())
         )
 
-        val result = sut.connectToSATaxpayerDetails(testUtr)
+        val result = sut.connectToSATaxpayerDetails(testUtr).futureValue
 
-        whenReady(result) {
-          _ mustBe None
+        inside(result.left.get) {
+          case UpstreamErrorResponse(_, status, reportedAs, _) =>
+            status mustBe NOT_FOUND
+            reportedAs mustBe INTERNAL_SERVER_ERROR
         }
       }
-    }
 
-    "return an exception" when {
+      List(
+        INTERNAL_SERVER_ERROR,
+        SERVICE_UNAVAILABLE,
+        BAD_GATEWAY
+      ).foreach { status: Int =>
+        s"502 is returned when response retrieves $status" in {
 
-      "500 is returned" in {
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(
+              aResponse()
+                .withStatus(status)
+                .withBody(""))
+          )
 
-        server.stubFor(
-          get(url).willReturn(serverError())
-        )
+          val result = sut.connectToSATaxpayerDetails(testUtr).futureValue
 
-        val result = sut.connectToSATaxpayerDetails(testUtr)
-
-        whenReady(result.failed) { exception =>
-          exception mustBe a[UpstreamErrorResponse]
+          inside(result.left.get) {
+            case UpstreamErrorResponse(_, status, reportedAs, _) =>
+              status mustBe status
+              reportedAs mustBe BAD_GATEWAY
+          }
         }
       }
     }

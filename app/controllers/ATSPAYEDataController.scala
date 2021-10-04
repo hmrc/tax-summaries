@@ -19,6 +19,7 @@ package controllers
 import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 import controllers.auth.PayeAuthAction
+import models.ServiceError
 import models.paye.PayeAtsMiddleTier
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
@@ -35,31 +36,32 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
     extends BackendController(cc) with LazyLogging {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
-    callConnector(nino, taxYear) map {
-      case Right(response) => Ok(Json.toJson(response))
-      case Left(errorResponse) =>
-        new Status(errorResponse.status).apply(errorResponse.body)
+    npsService.getPayeATSData(nino, taxYear) map {
+      case Right(response)     => Ok(Json.toJson(response))
+      case Left(errorResponse) => BadGateway("")
     }
   }
 
   def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
     implicit request =>
-      def dataList: Seq[Future[Either[HttpResponse, JsValue]]] = (yearFrom to yearTo).toList map { year =>
-        callConnector(nino, year) map {
+      def dataList: Seq[Future[Either[ServiceError, JsValue]]] = (yearFrom to yearTo).toList map { year =>
+        npsService.getPayeATSData(nino, year) map {
           case Right(response) => Right(Json.toJson(response))
-          case Left(error) =>
-            if (error.status != NOT_FOUND) {
-              logger.error(s"Fetching $year data for $nino returned ${error.status}")
-            }
+          case Left(error)     =>
+//            if (error.status != NOT_FOUND) {
+//              logger.error(s"Fetching $year data for $nino returned ${error.status}")
+//            }
 
             Left(error)
         }
+
       }
 
       Future.sequence(dataList) map { seqEither =>
         val seqRights = seqEither.collect { case Right(value) => value }
         val seqLeftsHttp = seqEither.collect {
-          case Left(value) if value.status == INTERNAL_SERVER_ERROR || value.status == BAD_REQUEST => value
+//          case Left(value) if value.status == INTERNAL_SERVER_ERROR || value.status == BAD_REQUEST => value
+          case Left(value) => HttpResponse(600, "To be refactored")
         }
 
         (seqLeftsHttp.isEmpty, seqRights.isEmpty) match {
@@ -74,10 +76,5 @@ class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: Pa
           logger.error(e.getMessage)
           InternalServerError(e.getMessage)
       }
-
   }
-
-  private def callConnector(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] =
-    npsService.getPayeATSData(nino, taxYear)
 }

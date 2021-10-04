@@ -17,6 +17,7 @@
 package services
 
 import connectors.NpsConnector
+import models.{DownstreamError, NotFoundError}
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
@@ -65,7 +66,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
-      result mustBe Left(response)
+      result mustBe Left(DownstreamError("Bad Gateway"))
 
     }
 
@@ -74,9 +75,11 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.failed(new JsResultException(List())))
 
-      val result = getPayeATSData(testNino, currentYear).futureValue
+      val result = getPayeATSData(testNino, currentYear)
 
-      result.left.get.status mustBe 500
+      whenReady(result.failed) { e =>
+        e mustBe a[JsResultException]
+      }
     }
   }
 }
