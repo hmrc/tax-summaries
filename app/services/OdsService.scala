@@ -41,9 +41,9 @@ class OdsService @Inject()(
     } yield {
       jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
     }).value.map {
-      case Right(value)                                                        => Right(value)
+      case Right(value)                                 => Right(value)
       case Left(error) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
-      case Left(error) => Left(DownstreamError(error.message))
+      case Left(error)                                  => Left(DownstreamError(error.message, error))
     }
 
   def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
@@ -51,7 +51,7 @@ class OdsService @Inject()(
       case Right(value) =>
         Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(value))))
       case Left(error) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
-      case Left(error) => Left(DownstreamError(error.message))
+      case Left(error)                                  => Left(DownstreamError(error.message, error))
     }
 
   def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[ServiceError, JsValue]] =
@@ -61,9 +61,9 @@ class OdsService @Inject()(
     } yield {
       jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
     }).value.map {
-      case Right(value)                                                        => Right(value)
+      case Right(value)                                 => Right(value)
       case Left(error) if error.statusCode == NOT_FOUND => Left(NotFoundError(error.message))
-      case Left(error) => Left(DownstreamError(error.message))
+      case Left(error)                                  => Left(DownstreamError(error.message, error))
     }
 
 }

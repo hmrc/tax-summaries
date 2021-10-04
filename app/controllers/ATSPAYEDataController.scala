@@ -20,61 +20,53 @@ import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 import controllers.auth.PayeAuthAction
 import models.ServiceError
-import models.paye.PayeAtsMiddleTier
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.NpsService
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import utils.ATSErrorHandler
 
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
-class ATSPAYEDataController @Inject()(npsService: NpsService, payeAuthAction: PayeAuthAction, cc: ControllerComponents)(
-  implicit ec: ExecutionContext)
+class ATSPAYEDataController @Inject()(
+  npsService: NpsService,
+  payeAuthAction: PayeAuthAction,
+  atsErrorHandler: ATSErrorHandler,
+  cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends BackendController(cc) with LazyLogging {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     npsService.getPayeATSData(nino, taxYear) map {
       case Right(response)     => Ok(Json.toJson(response))
-      case Left(errorResponse) => BadGateway("")
+      case Left(errorResponse) => atsErrorHandler.errorToResponse(errorResponse)
     }
   }
 
   def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
     implicit request =>
-      def dataList: Seq[Future[Either[ServiceError, JsValue]]] = (yearFrom to yearTo).toList map { year =>
+      val dataList: Seq[Future[Either[ServiceError, JsValue]]] = (yearFrom to yearTo).toList map { year =>
         npsService.getPayeATSData(nino, year) map {
           case Right(response) => Right(Json.toJson(response))
-          case Left(error)     =>
-//            if (error.status != NOT_FOUND) {
-//              logger.error(s"Fetching $year data for $nino returned ${error.status}")
-//            }
-
-            Left(error)
+          case Left(error)     => Left(error)
         }
-
       }
 
-      Future.sequence(dataList) map { seqEither =>
-        val seqRights = seqEither.collect { case Right(value) => value }
-        val seqLeftsHttp = seqEither.collect {
-//          case Left(value) if value.status == INTERNAL_SERVER_ERROR || value.status == BAD_REQUEST => value
-          case Left(value) => HttpResponse(600, "To be refactored")
+      Future.sequence(dataList).map { dataList =>
+        dataList.foldLeft(Right(List.empty): Either[ServiceError, List[JsValue]]) { (resultEither, currentEither) =>
+          resultEither match {
+            case Left(error) => Left(error)
+            case Right(result) => {
+              currentEither match {
+                case Left(error)    => Left(error)
+                case Right(jsValue) => Right(jsValue :: result)
+              }
+            }
+          }
+        } match {
+          case Left(error)    => atsErrorHandler.errorToResponse(error)
+          case Right(atsList) => Ok(Json.toJson(atsList))
         }
-
-        (seqLeftsHttp.isEmpty, seqRights.isEmpty) match {
-          case (false, _) =>
-            val firstErr = seqLeftsHttp.head
-            Status(firstErr.status).apply(firstErr.body)
-          case (true, false) => Ok(Json.toJson(seqRights))
-          case _             => NotFound(s"No data found for $nino")
-        }
-      } recover {
-        case NonFatal(e) =>
-          logger.error(e.getMessage)
-          InternalServerError(e.getMessage)
       }
   }
 }

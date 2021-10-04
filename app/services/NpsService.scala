@@ -21,9 +21,6 @@ import config.ApplicationConfig
 import connectors.NpsConnector
 import models.{DownstreamError, ServiceError}
 import models.paye._
-import play.api.Logger
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.json.JsResultException
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
@@ -60,6 +57,6 @@ class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnec
     npsConnector.connectToPayeTaxSummary(nino, taxYear - 1) map {
       case Right(value) =>
         Right(value.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
-      case Left(error) => Left(DownstreamError(error.message))
+      case Left(error) => Left(DownstreamError(error.message, error))
     }
 }

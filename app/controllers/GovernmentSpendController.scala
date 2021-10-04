@@ -26,9 +26,7 @@ import utils.NinoHelper
 
 class GovernmentSpendController @Inject()(
   govSpendService: GovSpendService,
-  ninoHelper: NinoHelper,
   authAction: AuthAction,
-  payeAuthAction: PayeAuthAction,
   cc: ControllerComponents
 ) extends BackendController(cc) {
 

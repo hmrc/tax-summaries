@@ -18,16 +18,20 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.auth.AuthAction
-import models.{GenericError, JsonParseError, NotFoundError, ServiceError}
+import models.ServiceError
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.OdsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import utils.ATSErrorHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction, cc: ControllerComponents)(
-  implicit val ec: ExecutionContext)
+class ATSDataController @Inject()(
+  odsService: OdsService,
+  atsErrorHandler: ATSErrorHandler,
+  authAction: AuthAction,
+  cc: ControllerComponents)(implicit val ec: ExecutionContext)
     extends BackendController(cc) {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
@@ -43,13 +47,8 @@ class ATSDataController @Inject()(odsService: OdsService, authAction: AuthAction
   }
 
   private def handleResponse(call: Future[Either[ServiceError, JsValue]]): Future[Result] = call map {
-    case Left(error)  => handleAtsListError(error)
+    case Left(error)  => atsErrorHandler.errorToResponse(error)
     case Right(value) => Ok(value)
   }
 
-  private def handleAtsListError(error: ServiceError): Result = error match {
-    case NotFoundError(e)  => NotFound(e)
-    case JsonParseError(e) => InternalServerError(e)
-    case GenericError(e)   => InternalServerError(e)
-  }
 }
