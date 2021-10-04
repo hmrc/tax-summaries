@@ -19,9 +19,9 @@ package connectors
 import com.google.inject.Inject
 import config.ApplicationConfig
 import play.api.Logger
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
-import uk.gov.hmrc.http.{HeaderCarrier, _}
-import uk.gov.hmrc.http.HttpClient
+import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,24 +43,19 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     "CorrelationId"           -> UUID.randomUUID().toString
   )
 
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, HttpResponse]] = {
     val ninoWithoutSuffix = NINO.take(8)
 
-    http.GET[HttpResponse](
-      url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR),
-      headers = header) recover {
-      case e: BadRequestException =>
-        HttpResponse(BAD_REQUEST, s"Bad request response in connector for $NINO with message ${e.message}")
-      case e: NotFoundException =>
-        HttpResponse(NOT_FOUND, s"Not found response in connector for $NINO with message ${e.message}")
-      case e: UpstreamErrorResponse =>
-        logger.error(
-          s"UpstreamErrorResponse in connector for $NINO with status ${e.statusCode} and message: ${e.getMessage()}")
-        HttpResponse(INTERNAL_SERVER_ERROR, s"Nino: $NINO Status: ${e.statusCode} Message: ${e.getMessage()}")
-      case e => {
-        logger.error(s"Exception in NPSConnector: $e", e)
-        HttpResponse(INTERNAL_SERVER_ERROR, s"Exception in connector for $NINO with message ${e.getMessage}")
-      }
+    http
+      .GET[Either[UpstreamErrorResponse, HttpResponse]](
+        url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR),
+        headers = header)
+      .map {
+        case Right(response) => Right(response)
+        case Left(error)     => Left(error)
+      } recover {
+      case error: HttpException => Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
     }
   }
 }

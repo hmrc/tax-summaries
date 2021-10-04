@@ -66,9 +66,10 @@ class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnec
     implicit hc: HeaderCarrier): Future[Either[HttpResponse, PayeAtsMiddleTier]] = {
     val logger = Logger(getClass.getName)
     npsConnector.connectToPayeTaxSummary(nino, taxYear - 1) map { response =>
-      response status match {
-        case OK => Right(response.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
-        case _  => Left(response)
+      response.right.get status match {
+        case OK =>
+          Right(response.right.get.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
+        case _ => Left(response.right.get)
       }
     } recover {
       case e: JsResultException => {

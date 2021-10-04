@@ -30,7 +30,9 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
-        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
+        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",
+        "play.ws.timeout.request"                      -> "1000ms",
+        "play.ws.timeout.connection"                   -> "500ms"
       )
       .build()
 
