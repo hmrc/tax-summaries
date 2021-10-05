@@ -80,7 +80,9 @@ trait IntegrationSpec
         "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",
         "microservice.services.auth.port" -> server.port(),
         "metrics.enabled" -> false,
-        "auditing.enabled" -> false
+        "auditing.enabled" -> false,
+        "play.ws.timeout.request" -> "1000ms",
+        "play.ws.timeout.connection" -> "500ms"
       )
       .build()
 
