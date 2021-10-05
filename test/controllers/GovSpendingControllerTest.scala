@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import utils.TestConstants._
-import utils.{BaseSpec, TaxsJsonHelper}
+import utils.{ATSErrorHandler, BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,6 +34,7 @@ class GovSpendingControllerTest extends BaseSpec {
 
   lazy val cc = stubControllerComponents()
   val request = FakeRequest()
+  lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
 
   implicit lazy val ec = inject[ExecutionContext]
 
@@ -52,7 +53,7 @@ class GovSpendingControllerTest extends BaseSpec {
       .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
-    new ATSDataController(odsService, FakeAuthAction, cc)
+    new ATSDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
   }
 
   "Calling Government Spend with no session" must {

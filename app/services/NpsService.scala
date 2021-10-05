@@ -19,10 +19,11 @@ package services
 import com.google.inject.Inject
 import config.ApplicationConfig
 import connectors.NpsConnector
-import models.{DownstreamError, ServiceError}
 import models.paye._
+import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError, ServiceError}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import repositories.Repository
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -57,6 +58,9 @@ class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnec
     npsConnector.connectToPayeTaxSummary(nino, taxYear - 1) map {
       case Right(value) =>
         Right(value.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
-      case Left(error) => Left(DownstreamError(error.message, error))
+      case Left(error) if error.statusCode == NOT_FOUND             => Left(NotFoundError(error.message))
+      case Left(error) if error.statusCode == BAD_REQUEST           => Left(BadRequestError(error.message))
+      case Left(error) if error.statusCode >= INTERNAL_SERVER_ERROR => Left(DownstreamServerError(error.message))
+      case Left(error)                                              => Left(DownstreamClientError(error.message, error))
     }
 }

@@ -16,16 +16,15 @@
 
 package services
 
-import models.{DownstreamError, ServiceError}
 import models.paye.PayeAtsMiddleTier
+import models.{DownstreamClientError, ServiceError}
 import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.INTERNAL_SERVER_ERROR
-import play.api.libs.json.JsResultException
+import play.api.http.Status.BAD_GATEWAY
 import repositories.Repository
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseSpec
 
 import scala.concurrent.Future
@@ -92,9 +91,11 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
     }
 
     "Pass through the response when Inner service fails" in new Fixture {
+      val response = UpstreamErrorResponse("Bad Gateway", BAD_GATEWAY, BAD_GATEWAY)
+
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(innerService.getPayeATSData(any(), any())(any()))
-        .thenReturn(Future.successful(Left(DownstreamError(""))))
+        .thenReturn(Future.successful(Left(DownstreamClientError("", response))))
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) {
         case Left(response) => response mustBe a[ServiceError]

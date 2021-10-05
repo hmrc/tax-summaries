@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package controller
+package controllers
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
-import controllers.ATSPAYEDataController
 import controllers.auth.{FakeAuthAction, PayeAuthAction}
-import models.{DownstreamError, NotFoundError}
 import models.paye.PayeAtsMiddleTier
+import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError}
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
+import play.api.http.Status.BAD_REQUEST
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.NpsService
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.BaseSpec
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
+import utils.{ATSErrorHandler, BaseSpec}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,14 +45,18 @@ class ATSPAYEDataControllerTest extends BaseSpec {
 
   val npsService: NpsService = mock[NpsService]
   val payeAuthAction: PayeAuthAction = FakeAuthAction
+  lazy val atsErrorHandler = inject[ATSErrorHandler]
 
-  class TestController extends ATSPAYEDataController(npsService, payeAuthAction, cc)
+  class TestController extends ATSPAYEDataController(npsService, payeAuthAction, atsErrorHandler, cc)
 
   val cy = 2018
   val cyPlus1 = 2019
 
   val expectedResponseCY = PayeAtsMiddleTier(cy, testNino, None, None, None, None, None)
   val expectedResponseCYPlus1 = PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None)
+
+  val downstreamClientError: DownstreamClientError =
+    DownstreamClientError("", UpstreamErrorResponse("", BAD_REQUEST, BAD_REQUEST))
 
   "getAtsData" must {
 
@@ -68,10 +72,10 @@ class ATSPAYEDataControllerTest extends BaseSpec {
     "return a failed future" in new TestController {
       val errorMessage = "An error occurred"
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(DownstreamError(""))))
+        .thenReturn(Future.successful(Left(BadRequestError(errorMessage))))
       val result = getATSData(testNino, cy)(request)
 
-      status(result) mustBe 400
+      status(result) mustBe BAD_REQUEST
       contentAsString(result) mustBe errorMessage
     }
   }
@@ -141,9 +145,9 @@ class ATSPAYEDataControllerTest extends BaseSpec {
       "the service returns bad request" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
@@ -153,7 +157,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
       "the service returns bad request and ok" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Right(expectedResponseCYPlus1))
 
@@ -167,7 +171,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
           Right(expectedResponseCY))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
@@ -177,7 +181,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
       "the service returns bad request and not found" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(NotFoundError("")))
 
@@ -191,7 +195,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(NotFoundError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
@@ -201,9 +205,9 @@ class ATSPAYEDataControllerTest extends BaseSpec {
       "the service returns bad request (cy) and internal server error (cy +1)" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
@@ -216,38 +220,25 @@ class ATSPAYEDataControllerTest extends BaseSpec {
       "the service returns internal server error" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(DownstreamServerError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(DownstreamServerError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
-      }
-
-      "an exception occurs when retrieving data" in new TestController {
-
-        val exMessage = "An error occurred"
-
-        when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.failed(
-          new Exception(exMessage))
-
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
-
-        status(result) mustBe INTERNAL_SERVER_ERROR
-        contentAsString(result) mustBe exMessage
+        status(result) mustBe BAD_GATEWAY
       }
 
       "the service returns internal server error and not found" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(DownstreamServerError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(NotFoundError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
       }
 
       "the service returns not found and internal server error" in new TestController {
@@ -255,23 +246,23 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(NotFoundError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(DownstreamServerError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
       }
 
       "the service returns internal server error and Ok" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(DownstreamServerError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Right(expectedResponseCYPlus1))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
 
       }
 
@@ -280,24 +271,24 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
           Right(expectedResponseCY))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(DownstreamServerError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
 
       }
 
       "the service returns internal server error (cy) and bad request (cy +1)" in new TestController {
 
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(DownstreamServerError("")))
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(DownstreamError("")))
+          Left(BadRequestError("")))
 
         val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
       }
     }
   }

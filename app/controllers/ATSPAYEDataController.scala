@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 import controllers.auth.PayeAuthAction
-import models.ServiceError
+import models.{NotFoundError, ServiceError}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.NpsService
@@ -58,14 +58,16 @@ class ATSPAYEDataController @Inject()(
             case Left(error) => Left(error)
             case Right(result) => {
               currentEither match {
-                case Left(error)    => Left(error)
-                case Right(jsValue) => Right(jsValue :: result)
+                case Left(NotFoundError(_)) => Right(result)
+                case Left(error)            => Left(error)
+                case Right(jsValue)         => Right(result :+ jsValue)
               }
             }
           }
         } match {
-          case Left(error)    => atsErrorHandler.errorToResponse(error)
-          case Right(atsList) => Ok(Json.toJson(atsList))
+          case Left(error)                       => atsErrorHandler.errorToResponse(error)
+          case Right(atsList) if atsList.isEmpty => NotFound("")
+          case Right(atsList)                    => Ok(Json.toJson(atsList))
         }
       }
   }

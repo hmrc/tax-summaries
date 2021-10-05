@@ -17,7 +17,7 @@
 package services
 
 import connectors.NpsConnector
-import models.{DownstreamError, NotFoundError}
+import models.DownstreamClientError
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
@@ -61,13 +61,15 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
       val response = UpstreamErrorResponse("Bad Gateway", BAD_GATEWAY, BAD_GATEWAY)
 
+      val downstreamClientError: DownstreamClientError =
+        DownstreamClientError("", response)
+
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.successful(Left(response)))
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
-      result mustBe Left(DownstreamError("Bad Gateway"))
-
+      result mustBe Left(downstreamClientError)
     }
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {

@@ -41,8 +41,6 @@ class GovernmentSpendControllerSpec extends BaseSpec {
   "GovernmentSpendController" must {
     def sut = new GovernmentSpendController(
       mockGovSpendService,
-      app.injector.instanceOf[NinoHelper],
-      FakeAuthAction,
       FakeAuthAction,
       stubControllerComponents()
     )

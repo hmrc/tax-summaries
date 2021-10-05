@@ -17,18 +17,18 @@
 package controllers
 
 import controllers.auth.FakeAuthAction
-import models.{GenericError, JsonParseError, NotFoundError}
+import models.{DownstreamServerError, NotFoundError}
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
-import play.api.libs.json.JsString
+import play.api.libs.json.{JsResultException, JsString}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.BaseSpec
 import utils.TestConstants._
+import utils.{ATSErrorHandler, BaseSpec}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,13 +38,15 @@ class ATSDataControllerSpec extends BaseSpec {
 
   implicit lazy val ec = inject[ExecutionContext]
 
+  lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
+
   implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
   val request = FakeRequest()
 
   val odsService: OdsService = mock[OdsService]
-  val controller = new ATSDataController(odsService, FakeAuthAction, cc)
+  val controller = new ATSDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
 
   val taxYear = 2021
   val json: JsString = JsString("success")
@@ -86,8 +88,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val msg = "Could not parse JSON"
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(JsonParseError(msg)))
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.failed(
+          JsResultException(List()))
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
@@ -95,12 +97,12 @@ class ATSDataControllerSpec extends BaseSpec {
         contentAsString(result) mustBe msg
       }
 
-      "connector returns a left with GenericError" in {
+      "connector returns a left with DownstreamError" in {
 
         val msg = "Something went wrong"
 
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(GenericError(msg)))
+          Left(DownstreamServerError(msg)))
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
@@ -147,8 +149,7 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val msg = "Could not parse JSON"
 
-        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(JsonParseError(msg)))
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(JsResultException(List()))
 
         val result = controller.hasAts(testUtr)(request)
 
@@ -156,12 +157,12 @@ class ATSDataControllerSpec extends BaseSpec {
         contentAsString(result) mustBe msg
       }
 
-      "connector returns a left with GenericError" in {
+      "connector returns a left with DownstreamError" in {
 
         val msg = "Something went wrong"
 
         when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(GenericError(msg)))
+          Left(DownstreamServerError(msg)))
 
         val result = controller.hasAts(testUtr)(request)
 
@@ -208,8 +209,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val errorMessage = "Error"
 
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(JsonParseError(errorMessage)))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(
+          JsResultException(List()))
 
         val result = controller.getATSList(testUtr)(request)
 
@@ -217,12 +218,12 @@ class ATSDataControllerSpec extends BaseSpec {
         contentAsString(result) mustBe errorMessage
       }
 
-      "connector returns a left with GenericError" in {
+      "connector returns a left with DownstreamError" in {
 
         val errorMessage = "Error"
 
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(GenericError(errorMessage)))
+          Left(DownstreamServerError(errorMessage)))
 
         val result = controller.getATSList(testUtr)(request)
 

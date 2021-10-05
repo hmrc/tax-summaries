@@ -16,23 +16,23 @@
 
 package utils
 
-import models.{DownstreamError, NotFoundError, ServiceError}
-import play.api.mvc.Result
-import play.api.mvc.Results.{BadGateway, InternalServerError, NotFound}
-import uk.gov.hmrc.http.{Upstream4xxResponse, Upstream5xxResponse}
 import com.google.inject.Inject
+import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError, ServiceError}
 import play.api.Logging
+import play.api.mvc.Result
+import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, NotFound}
 
 class ATSErrorHandler @Inject()() extends Logging {
 
   def errorToResponse(error: ServiceError): Result =
     error match {
-      case NotFoundError(msg) => NotFound(msg)
-      case DownstreamError(msg, error: Upstream4xxResponse) => {
+      case NotFoundError(msg)   => NotFound(msg)
+      case BadRequestError(msg) => BadRequest(msg)
+      case DownstreamClientError(msg, error) => {
         logger.error(msg, error)
         InternalServerError(msg)
       }
-      case DownstreamError(msg, Upstream5xxResponse(_, _, _, _)) => {
+      case DownstreamServerError(msg) => {
         logger.error(msg)
         BadGateway(msg)
       }

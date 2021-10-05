@@ -21,4 +21,6 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 sealed trait ServiceError
 
 final case class NotFoundError(msg: String) extends ServiceError
-final case class DownstreamError(msg: String, exception: UpstreamErrorResponse) extends ServiceError
+final case class BadRequestError(msg: String) extends ServiceError
+final case class DownstreamClientError(msg: String, exception: UpstreamErrorResponse) extends ServiceError
+final case class DownstreamServerError(msg: String) extends ServiceError
