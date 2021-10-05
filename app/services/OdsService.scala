@@ -22,7 +22,7 @@ import com.google.inject.Inject
 import connectors.ODSConnector
 import models._
 import play.api.Logger
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TaxsJsonHelper
@@ -43,6 +43,7 @@ class OdsService @Inject()(
     }).value.map {
       case Right(value)                                             => Right(value)
       case Left(error) if error.statusCode == NOT_FOUND             => Left(NotFoundError(error.message))
+      case Left(error) if error.statusCode == BAD_REQUEST           => Left(BadRequestError(error.message))
       case Left(error) if error.statusCode >= INTERNAL_SERVER_ERROR => Left(DownstreamServerError(error.message))
       case Left(error)                                              => Left(DownstreamClientError(error.message, error))
     }
@@ -52,6 +53,7 @@ class OdsService @Inject()(
       case Right(value) =>
         Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(value))))
       case Left(error) if error.statusCode == NOT_FOUND             => Left(NotFoundError(error.message))
+      case Left(error) if error.statusCode == BAD_REQUEST           => Left(BadRequestError(error.message))
       case Left(error) if error.statusCode >= INTERNAL_SERVER_ERROR => Left(DownstreamServerError(error.message))
       case Left(error)                                              => Left(DownstreamClientError(error.message, error))
     }
@@ -65,6 +67,7 @@ class OdsService @Inject()(
     }).value.map {
       case Right(value)                                             => Right(value)
       case Left(error) if error.statusCode == NOT_FOUND             => Left(NotFoundError(error.message))
+      case Left(error) if error.statusCode == BAD_REQUEST           => Left(BadRequestError(error.message))
       case Left(error) if error.statusCode >= INTERNAL_SERVER_ERROR => Left(DownstreamServerError(error.message))
       case Left(error)                                              => Left(DownstreamClientError(error.message, error))
     }
