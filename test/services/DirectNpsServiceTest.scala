@@ -17,11 +17,11 @@
 package services
 
 import connectors.NpsConnector
-import models.DownstreamClientError
+import models.{BadRequestError, DownstreamClientError, DownstreamServerError}
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import play.api.http.Status.BAD_GATEWAY
+import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.{JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
@@ -57,12 +57,41 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
       result mustBe Right(transformedData)
     }
 
-    "return a Bad Gateway Response in case of Bad Gateway from Connector" in new TestService {
+    "return a DownstreamServerError in case of Bad Gateway from Connector" in new TestService {
 
       val response = UpstreamErrorResponse("Bad Gateway", BAD_GATEWAY, BAD_GATEWAY)
 
+      val downstreamServerError: DownstreamServerError =
+        DownstreamServerError(response.message)
+
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
+        .thenReturn(Future.successful(Left(response)))
+
+      val result = getPayeATSData(testNino, currentYear).futureValue
+
+      result mustBe Left(downstreamServerError)
+    }
+
+    "return a BadRequest in case of bad request from Connector" in new TestService {
+
+      val response = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
+
+      val badRequestError: BadRequestError = BadRequestError(response.message)
+
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
+        .thenReturn(Future.successful(Left(response)))
+
+      val result = getPayeATSData(testNino, currentYear).futureValue
+
+      result mustBe Left(badRequestError)
+    }
+
+    "return a DownstreamClientError in case of a 4XX error from Connector" in new TestService {
+
+      val response = UpstreamErrorResponse("Bad requewst", 412, INTERNAL_SERVER_ERROR)
+
       val downstreamClientError: DownstreamClientError =
-        DownstreamClientError("", response)
+        DownstreamClientError(response.message, response)
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.successful(Left(response)))
