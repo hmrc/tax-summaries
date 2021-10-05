@@ -17,16 +17,16 @@
 package controllers
 
 import controllers.auth.FakeAuthAction
-import models.{DownstreamServerError, NotFoundError}
+import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError}
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, OK}
+import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND, OK}
 import play.api.libs.json.{JsResultException, JsString}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{ATSErrorHandler, BaseSpec}
 
@@ -82,22 +82,54 @@ class ATSDataControllerSpec extends BaseSpec {
       }
     }
 
-    "return 500" when {
+    "return 400" when {
 
+      "connector returns a left with BadRequestError" in {
+
+        val msg = "Record not found"
+
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(BadRequestError(msg)))
+
+        val result = controller.getATSData(testUtr, taxYear)(request)
+
+        status(result) mustBe BAD_REQUEST
+        contentAsString(result) mustBe msg
+      }
+    }
+
+    "return an exception" when {
       "connector returns a left with JsonParseError" in {
-
-        val msg = "Could not parse JSON"
 
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.failed(
           JsResultException(List()))
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
-        contentAsString(result) mustBe msg
+        whenReady(result.failed) { e =>
+          e mustBe a[JsResultException]
+        }
       }
+    }
 
-      "connector returns a left with DownstreamError" in {
+    "return 500" when {
+      "connector returns a left with DownstreamClientError" in {
+
+        val exception = UpstreamErrorResponse("Something went wrong", LOCKED, INTERNAL_SERVER_ERROR)
+
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(DownstreamClientError(exception.message, exception)))
+
+        val result = controller.getATSData(testUtr, taxYear)(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe exception.getMessage()
+      }
+    }
+
+    "return 502" when {
+
+      "connector returns a left with DownstreamServerError" in {
 
         val msg = "Something went wrong"
 
@@ -106,7 +138,7 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSData(testUtr, taxYear)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
         contentAsString(result) mustBe msg
       }
     }
@@ -143,30 +175,61 @@ class ATSDataControllerSpec extends BaseSpec {
       }
     }
 
-    "return 500" when {
+    "return 400" when {
 
+      "connector returns a left with BadRequestError" in {
+
+        val msg = "Bad request"
+
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(BadRequestError(msg)))
+
+        val result = controller.hasAts(testUtr)(request)
+
+        status(result) mustBe BAD_REQUEST
+        contentAsString(result) mustBe msg
+      }
+    }
+
+    "return en exception" when {
       "connector returns a left with JsonParseError" in {
-
-        val msg = "Could not parse JSON"
-
         when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(JsResultException(List()))
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
-        contentAsString(result) mustBe msg
+        whenReady(result.failed) { e =>
+          e mustBe a[JsResultException]
+        }
       }
+    }
 
-      "connector returns a left with DownstreamError" in {
+    "return 500" when {
+      "connector returns a left with DownstreamClientError" in {
 
-        val msg = "Something went wrong"
+        val exception = UpstreamErrorResponse("Something went wrong", LOCKED, INTERNAL_SERVER_ERROR)
+
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(DownstreamClientError(exception.message, exception)))
+
+        val result = controller.hasAts(testUtr)(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe exception.getMessage()
+      }
+    }
+
+    "return 502" when {
+
+      "connector returns a left with DownstreamServerError" in {
+
+        val msg = "Server error"
 
         when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(DownstreamServerError(msg)))
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
         contentAsString(result) mustBe msg
       }
     }
@@ -203,22 +266,53 @@ class ATSDataControllerSpec extends BaseSpec {
       }
     }
 
-    "return 500" when {
+    "return 400" when {
+
+      "connector returns a left with BadRequestError" in {
+
+        val errorMessage = "Bad request"
+
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(BadRequestError(errorMessage)))
+
+        val result = controller.getATSList(testUtr)(request)
+
+        status(result) mustBe BAD_REQUEST
+        contentAsString(result) mustBe errorMessage
+      }
+    }
+
+    "return an exception" when {
 
       "connector returns a left with JsonParseError" in {
-
-        val errorMessage = "Error"
-
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(
           JsResultException(List()))
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
-        contentAsString(result) mustBe errorMessage
+        whenReady(result.failed) { e =>
+          e mustBe a[JsResultException]
+        }
       }
+    }
 
-      "connector returns a left with DownstreamError" in {
+    "return 500" when {
+      "connector returns a left with DownstreamClientError" in {
+
+        val exception = UpstreamErrorResponse("Error", LOCKED, INTERNAL_SERVER_ERROR)
+
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
+          Left(DownstreamClientError(exception.message, exception)))
+
+        val result = controller.getATSList(testUtr)(request)
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+        contentAsString(result) mustBe exception.getMessage()
+      }
+    }
+
+    "return 502" when {
+      "connector returns a left with DownstreamServerError" in {
 
         val errorMessage = "Error"
 
@@ -227,7 +321,7 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val result = controller.getATSList(testUtr)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe BAD_GATEWAY
         contentAsString(result) mustBe errorMessage
       }
     }
