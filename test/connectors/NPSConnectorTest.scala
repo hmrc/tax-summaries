@@ -23,7 +23,7 @@ import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, RequestId, SessionId, UpstreamErrorResponse}
-import utils.TestConstants.{testNino, testUtr}
+import utils.TestConstants.testNino
 import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
 import scala.concurrent.ExecutionContext
@@ -41,7 +41,6 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       .build()
 
   private val currentYear = 2018
-  private val invalidTaxYear = 201899
 
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
@@ -112,11 +111,11 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
           server.stubFor(
             get(urlEqualTo(url)).willReturn(
               aResponse()
-                .withStatus(OK)
+                .withStatus(status)
                 .withBody(""))
           )
 
-          val result = connectToPayeTaxSummary(testNino, invalidTaxYear)
+          val result = connectToPayeTaxSummary(testNino, currentYear)
 
           whenReady(result) { res =>
             res.left.get mustBe a[UpstreamErrorResponse]
@@ -127,7 +126,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
     "return INTERNAL_SERVER_ERROR response in case of a timeout exception from http verbs" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
 
       server.stubFor(
@@ -138,7 +137,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withFixedDelay(10000))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
       inside(result.left.get) {
         case UpstreamErrorResponse(_, status, reportedAs, _) =>
@@ -149,7 +148,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
       val serviceUnavailable = SERVICE_UNAVAILABLE
 
       server.stubFor(
@@ -159,7 +158,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody("SERVICE_UNAVAILABLE"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
       inside(result.left.get) {
         case UpstreamErrorResponse(_, status, reportedAs, _) =>
