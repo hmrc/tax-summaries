@@ -17,14 +17,12 @@
 package services
 
 import cats.data.EitherT
-import com.fasterxml.jackson.core.JsonParseException
 import com.google.inject.Inject
 import connectors.ODSConnector
 import models._
-import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.TaxsJsonHelper
 
 import scala.concurrent.{ExecutionContext, Future}

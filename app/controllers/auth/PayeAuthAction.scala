@@ -22,7 +22,7 @@ import play.api.mvc.Results._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, ConfidenceLevel, Nino => AuthNino}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.NinoHelper
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,7 +47,7 @@ class PayeAuthActionImpl @Inject()(
     }
   }.recover {
     case ae: AuthorisationException =>
-      logger.debug(s"Authorisation exception", ae)
+      logger.error(s"Authorisation exception", ae)
       Some(Unauthorized)
     case t: Throwable =>
       logger.error(s"Authorisation error", t)

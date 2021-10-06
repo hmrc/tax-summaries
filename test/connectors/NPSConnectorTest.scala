@@ -19,11 +19,11 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.Inside.inside
 import play.api.Application
-import play.api.http.Status.{NOT_FOUND, _}
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, RequestId, SessionId, UpstreamErrorResponse}
-import utils.TestConstants.testNino
+import utils.TestConstants.{testNino, testUtr}
 import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
 import scala.concurrent.ExecutionContext
@@ -104,30 +104,25 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       result.right.get.json mustBe Json.parse(expectedNpsResponse)
     }
 
-    List(
-      NOT_FOUND   -> INTERNAL_SERVER_ERROR -> "Not found from NPS",
-      BAD_REQUEST -> INTERNAL_SERVER_ERROR -> "Bad request from NPS"
-    ).foreach {
-      case ((statusCode, reportAs), description) =>
-        s"return Left[UpstreamErrorResponse] with reportAs $reportAs in case of $description" in new NPSConnectorSetUp {
-
-          val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
+    "return UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+        s"a response with status $status is received" in new NPSConnectorSetUp {
+          val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
           server.stubFor(
             get(urlEqualTo(url)).willReturn(
               aResponse()
-                .withStatus(statusCode)
+                .withStatus(OK)
                 .withBody(""))
           )
 
-          val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+          val result = connectToPayeTaxSummary(testNino, invalidTaxYear)
 
-          inside(result.left.get) {
-            case UpstreamErrorResponse(_, status, reportedAs, _) =>
-              status mustBe statusCode
-              reportedAs mustBe reportAs
+          whenReady(result) { res =>
+            res.left.get mustBe a[UpstreamErrorResponse]
           }
         }
+      }
     }
 
     "return INTERNAL_SERVER_ERROR response in case of a timeout exception from http verbs" in new NPSConnectorSetUp {
@@ -140,7 +135,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
           aResponse()
             .withStatus(OK)
             .withBody(expectedNpsResponse)
-            .withFixedDelay(30000))
+            .withFixedDelay(10000))
       )
 
       val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue

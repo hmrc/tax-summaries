@@ -17,11 +17,11 @@
 package services
 
 import connectors.NpsConnector
-import models.{BadRequestError, DownstreamClientError, DownstreamServerError}
+import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError}
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR}
+import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
@@ -72,7 +72,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
       result mustBe Left(downstreamServerError)
     }
 
-    "return a BadRequest in case of bad request from Connector" in new TestService {
+    "return a BadRequestError in case of bad request from Connector" in new TestService {
 
       val response = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
 
@@ -84,6 +84,20 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
       val result = getPayeATSData(testNino, currentYear).futureValue
 
       result mustBe Left(badRequestError)
+    }
+
+    "return a NotFoundError in case of not found response from Connector" in new TestService {
+
+      val response = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
+
+      val notFoundError: NotFoundError = NotFoundError(response.message)
+
+      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
+        .thenReturn(Future.successful(Left(response)))
+
+      val result = getPayeATSData(testNino, currentYear).futureValue
+
+      result mustBe Left(notFoundError)
     }
 
     "return a DownstreamClientError in case of a 4XX error from Connector" in new TestService {

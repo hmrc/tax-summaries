@@ -18,8 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.ApplicationConfig
-import play.api.Logger
-import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
+import play.api.http.Status.BAD_GATEWAY
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
@@ -27,8 +26,6 @@ import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext) {
-
-  private val logger = Logger(getClass.getName)
 
   def serviceUrl: String = applicationConfig.npsServiceUrl
 
