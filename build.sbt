@@ -4,7 +4,6 @@ import sbt.Keys._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import play.sbt.routes.RoutesKeys.routesGenerator
-import uk.gov.hmrc.versioning.SbtGitVersioning
 import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
 import play.sbt.PlayImport.PlayKeys
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion

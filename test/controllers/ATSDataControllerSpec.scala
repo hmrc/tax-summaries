@@ -30,7 +30,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{ATSErrorHandler, BaseSpec}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class ATSDataControllerSpec extends BaseSpec {
 
@@ -104,11 +105,7 @@ class ATSDataControllerSpec extends BaseSpec {
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.failed(
           JsResultException(List()))
 
-        val result = controller.getATSData(testUtr, taxYear)(request)
-
-        whenReady(result.failed) { e =>
-          e mustBe a[JsResultException]
-        }
+        intercept[JsResultException](Await.result(controller.getATSData(testUtr, taxYear)(request), 1 seconds))
       }
     }
 
@@ -288,11 +285,7 @@ class ATSDataControllerSpec extends BaseSpec {
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(
           JsResultException(List()))
 
-        val result = controller.getATSList(testUtr)(request)
-
-        whenReady(result.failed) { e =>
-          e mustBe a[JsResultException]
-        }
+        intercept[JsResultException](Await.result(controller.getATSList(testUtr)(request), 1 seconds))
       }
     }
 

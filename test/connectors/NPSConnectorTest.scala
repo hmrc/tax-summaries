@@ -17,7 +17,6 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatest.Inside.inside
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -34,9 +33,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
-        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",
-        "play.ws.timeout.request"                      -> "1000ms",
-        "play.ws.timeout.connection"                   -> "500ms"
+        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
       )
       .build()
 
@@ -139,11 +136,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      inside(result.left.get) {
-        case UpstreamErrorResponse(_, status, reportedAs, _) =>
-          status mustBe BAD_GATEWAY
-          reportedAs mustBe BAD_GATEWAY
-      }
+      result.left.get.statusCode mustBe BAD_GATEWAY
+      result.left.get.reportAs mustBe BAD_GATEWAY
+
     }
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
@@ -160,11 +155,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      inside(result.left.get) {
-        case UpstreamErrorResponse(_, status, reportedAs, _) =>
-          status mustBe serviceUnavailable
-          reportedAs mustBe BAD_GATEWAY
-      }
+      result.left.get.statusCode mustBe serviceUnavailable
+      result.left.get.reportAs mustBe BAD_GATEWAY
     }
   }
 }

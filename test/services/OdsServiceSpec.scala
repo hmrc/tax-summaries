@@ -16,7 +16,6 @@
 
 package services
 
-import com.fasterxml.jackson.core.JsonParseException
 import connectors.ODSConnector
 import models._
 import org.mockito.Matchers.{eq => eqTo, _}
@@ -24,12 +23,13 @@ import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
+import scala.concurrent.duration._
 import utils.{BaseSpec, TaxsJsonHelper}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
@@ -139,13 +139,9 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
     "return an exception when invalid json is returned" in {
 
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(mock[JsonParseException]))
+        .thenReturn(Future.failed(JsResultException(List.empty)))
 
-      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
-
-      whenReady(result) { res =>
-        res.left.get mustBe a[JsonParseException]
-      }
+      intercept[JsResultException](Await.result(service.getPayload(testUtr, 2014)(mock[HeaderCarrier]), 1 seconds))
     }
   }
 
@@ -175,13 +171,9 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       "the connector returns invalid json" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(mock[JsonParseException]))
+          .thenReturn(Future.failed(JsResultException(List.empty)))
 
-        val result = service.getList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { res =>
-          res.left.get mustBe a[JsonParseException]
-        }
+        intercept[JsResultException](Await.result(service.getList(testUtr)(mock[HeaderCarrier]), 1 seconds))
       }
     }
 
@@ -272,20 +264,16 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
     }
 
     "return an exception" when {
-      "a JsonParseException is caught" in {
+      "a JsResultException is caught" in {
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.failed(mock[JsonParseException]))
+          .thenReturn(Future.failed(JsResultException(List.empty)))
 
-        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
+        intercept[JsResultException](Await.result(service.getATSList(testUtr)(mock[HeaderCarrier]), 1 seconds))
 
-        whenReady(result) { result =>
-          result.left.get mustBe a[JsonParseException]
-
-          verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
-        }
+        verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
+        verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+        verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
       }
     }
 
