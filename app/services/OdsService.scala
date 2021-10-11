@@ -38,9 +38,7 @@ class OdsService @Inject()(
       taxSummaries <- EitherT(odsConnector.connectToSelfAssessment(UTR, TAX_YEAR))
     } yield {
       jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
-    }).value.map {
-      case Right(value) => Right(value)
-      case Left(error)  => Left(error)
+    }).value
     }
 
   def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
