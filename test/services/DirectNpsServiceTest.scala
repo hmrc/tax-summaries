@@ -17,7 +17,6 @@
 package services
 
 import connectors.NpsConnector
-import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError}
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
@@ -57,62 +56,16 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
       result mustBe Right(transformedData)
     }
 
-    "return a DownstreamServerError in case of Bad Gateway from Connector" in new TestService {
+    "return a UpstreamErrorResponse in case of UpstreamErrorResponse from Connector" in new TestService {
 
       val response = UpstreamErrorResponse("Bad Gateway", BAD_GATEWAY, BAD_GATEWAY)
 
-      val downstreamServerError: DownstreamServerError =
-        DownstreamServerError(response.message)
-
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.successful(Left(response)))
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
-      result mustBe Left(downstreamServerError)
-    }
-
-    "return a BadRequestError in case of bad request from Connector" in new TestService {
-
-      val response = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
-
-      val badRequestError: BadRequestError = BadRequestError(response.message)
-
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.successful(Left(response)))
-
-      val result = getPayeATSData(testNino, currentYear).futureValue
-
-      result mustBe Left(badRequestError)
-    }
-
-    "return a NotFoundError in case of not found response from Connector" in new TestService {
-
-      val response = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
-
-      val notFoundError: NotFoundError = NotFoundError(response.message)
-
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.successful(Left(response)))
-
-      val result = getPayeATSData(testNino, currentYear).futureValue
-
-      result mustBe Left(notFoundError)
-    }
-
-    "return a DownstreamClientError in case of a 4XX error from Connector" in new TestService {
-
-      val response = UpstreamErrorResponse("Bad requewst", 412, INTERNAL_SERVER_ERROR)
-
-      val downstreamClientError: DownstreamClientError =
-        DownstreamClientError(response.message, response)
-
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.successful(Left(response)))
-
-      val result = getPayeATSData(testNino, currentYear).futureValue
-
-      result mustBe Left(downstreamClientError)
+      result mustBe Left(response)
     }
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {

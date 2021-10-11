@@ -20,10 +20,8 @@ import com.google.inject.Inject
 import config.ApplicationConfig
 import connectors.NpsConnector
 import models.paye._
-import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError, ServiceError}
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import repositories.Repository
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -31,7 +29,7 @@ import scala.concurrent.Future
 class NpsService @Inject()(repository: Repository, innerService: DirectNpsService) {
 
   def getPayeATSData(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[ServiceError, PayeAtsMiddleTier]] =
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
     repository
       .get(nino, taxYear)
       .flatMap {
@@ -40,7 +38,7 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
       }
 
   private def refreshCache(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[ServiceError, PayeAtsMiddleTier]] =
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
     innerService
       .getPayeATSData(nino, taxYear)
       .flatMap {
@@ -54,13 +52,9 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
 
 class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
   def getPayeATSData(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[ServiceError, PayeAtsMiddleTier]] =
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
     npsConnector.connectToPayeTaxSummary(nino, taxYear - 1) map {
-      case Right(value) =>
-        Right(value.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
-      case Left(error) if error.statusCode == NOT_FOUND             => Left(NotFoundError(error.message))
-      case Left(error) if error.statusCode == BAD_REQUEST           => Left(BadRequestError(error.message))
-      case Left(error) if error.statusCode >= INTERNAL_SERVER_ERROR => Left(DownstreamServerError(error.message))
-      case Left(error)                                              => Left(DownstreamClientError(error.message, error))
+      case Right(value) => Right(value.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
+      case Left(error)  => Left(error)
     }
 }

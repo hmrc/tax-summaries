@@ -19,10 +19,10 @@ package controllers
 import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
 import controllers.auth.PayeAuthAction
-import models.{NotFoundError, ServiceError}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.NpsService
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.ATSErrorHandler
 
@@ -45,7 +45,7 @@ class ATSPAYEDataController @Inject()(
 
   def getATSDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
     implicit request =>
-      val dataList: Seq[Future[Either[ServiceError, JsValue]]] = (yearFrom to yearTo).toList map { year =>
+      val dataList: Seq[Future[Either[UpstreamErrorResponse, JsValue]]] = (yearFrom to yearTo).toList map { year =>
         npsService.getPayeATSData(nino, year) map {
           case Right(response) => Right(Json.toJson(response))
           case Left(error)     => Left(error)
@@ -53,17 +53,18 @@ class ATSPAYEDataController @Inject()(
       }
 
       Future.sequence(dataList).map { dataList =>
-        val collection = dataList.foldLeft(Right(List.empty): Either[ServiceError, List[JsValue]]) { (resultEither, currentEither) =>
-          resultEither match {
-            case Left(error) => Left(error)
-            case Right(result) => {
-              currentEither match {
-                case Left(NotFoundError(_)) => Right(result)
-                case Left(error)            => Left(error)
-                case Right(jsValue)         => Right(result :+ jsValue)
+        val collection = dataList.foldLeft(Right(List.empty): Either[UpstreamErrorResponse, List[JsValue]]) {
+          (resultEither, currentEither) =>
+            resultEither match {
+              case Left(error) => Left(error)
+              case Right(result) => {
+                currentEither match {
+                  case Left(UpstreamErrorResponse(_, status, _, _)) if status == NOT_FOUND => Right(result)
+                  case Left(error)                                                         => Left(error)
+                  case Right(jsValue)                                                      => Right(result :+ jsValue)
+                }
               }
             }
-          }
         }
 
         collection match {

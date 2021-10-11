@@ -17,26 +17,25 @@
 package utils
 
 import com.google.inject.Inject
-import models.{BadRequestError, DownstreamClientError, DownstreamServerError, NotFoundError, ServiceError}
 import play.api.Logging
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, NotFound}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ATSErrorHandler @Inject()() extends Logging {
 
-  def errorToResponse(error: ServiceError): Result =
+  def errorToResponse(error: UpstreamErrorResponse): Result =
     error match {
-      case NotFoundError(msg)   => NotFound(msg)
-      case BadRequestError(msg) => BadRequest(msg)
-      case DownstreamClientError(msg, error) => {
-        logger.error(msg, error)
-        InternalServerError(msg)
+      case error if error.statusCode == NOT_FOUND   => NotFound(error.message)
+      case error if error.statusCode == BAD_REQUEST => BadRequest(error.message)
+      case error if error.statusCode >= INTERNAL_SERVER_ERROR => {
+        logger.error(error.message)
+        BadGateway(error.message)
       }
-      case DownstreamServerError(msg) => {
-        logger.error(msg)
-        BadGateway(msg)
+      case error => {
+        logger.error(error.message, error)
+        InternalServerError(error.message)
       }
-      case error => throw new RuntimeException(s"Unexpected Error: `${error.getClass.getName}`")
     }
-
 }

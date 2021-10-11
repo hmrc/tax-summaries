@@ -18,10 +18,10 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.auth.AuthAction
-import models.ServiceError
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services.OdsService
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.ATSErrorHandler
 
@@ -46,7 +46,7 @@ class ATSDataController @Inject()(
     handleResponse(odsService.getATSList(utr))
   }
 
-  private def handleResponse(call: Future[Either[ServiceError, JsValue]]): Future[Result] = call map {
+  private def handleResponse(call: Future[Either[UpstreamErrorResponse, JsValue]]): Future[Result] = call map {
     case Left(error)  => atsErrorHandler.errorToResponse(error)
     case Right(value) => Ok(value)
   }

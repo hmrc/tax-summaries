@@ -17,7 +17,7 @@
 package services
 
 import connectors.ODSConnector
-import models._
+import models.AtsCheck
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
@@ -26,6 +26,7 @@ import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOU
 import play.api.libs.json.{JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
+
 import scala.concurrent.duration._
 import utils.{BaseSpec, TaxsJsonHelper}
 
@@ -68,80 +69,35 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       }
     }
 
-    "return a NotFoundError when no ats for that year is found" in {
+    "return a UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 500, 501, 502, 503, 504).foreach { statusCode =>
+        s"UpstreamErrorResponse with status $statusCode is received" in {
+          val response = UpstreamErrorResponse("Not found", statusCode, INTERNAL_SERVER_ERROR)
 
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(mock[JsValue])))
-      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
+          when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+            .thenReturn(Future.successful(Right(mock[JsValue])))
+          when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
+            .thenReturn(Future.successful(Left(response)))
 
-      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
+          val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
-      whenReady(result) { res =>
-        res.left.get mustBe a[NotFoundError]
+          whenReady(result) { res =>
+            res.left.get mustBe response
 
-        verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
-        verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+            verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+            verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
+            verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          }
+        }
       }
-    }
 
-    "return a NotFoundError when no taxpayer details are found" in {
+      "return an exception when invalid json is returned" in {
 
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
-      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(mock[JsValue])))
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+          .thenReturn(Future.failed(JsResultException(List.empty)))
 
-      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
-
-      whenReady(result) { res =>
-        res.left.get mustBe a[NotFoundError]
-
-        verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+        intercept[JsResultException](Await.result(service.getPayload(testUtr, 2014)(mock[HeaderCarrier]), 1 seconds))
       }
-    }
-
-    "return a DownStreamServerError when taxpayer details returns a server error" in {
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(
-          Future.successful(Left(UpstreamErrorResponse("Server Error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))))
-      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(mock[JsValue])))
-
-      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
-
-      whenReady(result) { res =>
-        res.left.get mustBe a[DownstreamServerError]
-
-        verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
-      }
-    }
-
-    "return a BadRequestError when taxpayer details returns a bad request" in {
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR))))
-      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(mock[JsValue])))
-
-      val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
-
-      whenReady(result) { res =>
-        res.left.get mustBe a[BadRequestError]
-
-        verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
-      }
-    }
-
-    "return an exception when invalid json is returned" in {
-
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-        .thenReturn(Future.failed(JsResultException(List.empty)))
-
-      intercept[JsResultException](Await.result(service.getPayload(testUtr, 2014)(mock[HeaderCarrier]), 1 seconds))
     }
   }
 
@@ -177,63 +133,21 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       }
     }
 
-    "return a NotFoundError" when {
-      "the connector returns not found" in {
+    "return a UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 500, 501, 502, 503, 504).foreach { statusCode =>
+        s"UpstreamErrorResponse with status $statusCode is received" in {
+          val response = UpstreamErrorResponse("Not found", statusCode, INTERNAL_SERVER_ERROR)
 
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
+          when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+            .thenReturn(Future.successful(Left(response)))
 
-        val result = service.getList(testUtr)(mock[HeaderCarrier])
+          val result = service.getList(testUtr)(mock[HeaderCarrier])
 
-        whenReady(result) { res =>
-          res.left.get mustBe a[NotFoundError]
-          verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
-        }
-      }
-    }
+          whenReady(result) { res =>
+            res.left.get mustBe response
 
-    "return a BadRequestError" when {
-      "the connector returns Bad request" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR))))
-
-        val result = service.getList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { res =>
-          res.left.get mustBe a[BadRequestError]
-          verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
-        }
-      }
-    }
-
-    "return a DownStreamClientError" when {
-      "the connector returns a client error" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Client error", LOCKED, INTERNAL_SERVER_ERROR))))
-
-        val result = service.getList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { res =>
-          res.left.get mustBe a[DownstreamClientError]
-          verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
-        }
-      }
-    }
-
-    "return a DownStreamServerError" when {
-      "the connector returns a server error" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(
-            Left(UpstreamErrorResponse("Server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))))
-
-        val result = service.getList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { res =>
-          res.left.get mustBe a[DownstreamServerError]
-          verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
+            verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
+          }
         }
       }
     }
@@ -277,144 +191,70 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
       }
     }
 
-    "return a Left" when {
-      "a not found is returned when getting SA json" in {
+    "return a UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 500, 501, 502, 503, 504).foreach { statusCode =>
+        s"UpstreamErrorResponse with status $statusCode is received when getting SA json" in {
+          val response = UpstreamErrorResponse("Not found", statusCode, INTERNAL_SERVER_ERROR)
 
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
-        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(mock[JsValue])))
+          when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
+            .thenReturn(Future.successful(Left(response)))
+          when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
+            .thenReturn(Future.successful(Right(mock[JsValue])))
 
-        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
+          val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
-        whenReady(result) { result =>
-          result.left.get mustBe a[NotFoundError]
+          whenReady(result) { res =>
+            res.left.get mustBe response
 
-          verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+            verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
+            verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+          }
         }
       }
+    }
+  }
 
-      "a Not Found is returned when getting taxpayer details" in {
+  "return a UpstreamErrorResponse" when {
+    List(400, 401, 403, 404, 500, 501, 502, 503, 504).foreach { statusCode =>
+      s"UpstreamErrorResponse with status $statusCode is received when getting taxpayer details" in {
+        val response = UpstreamErrorResponse("Not found", statusCode, INTERNAL_SERVER_ERROR)
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(mock[JsValue])))
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
+          .thenReturn(Future.successful(Left(response)))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
-        whenReady(result) { result =>
-          result.left.get mustBe a[NotFoundError]
+        whenReady(result) { res =>
+          res.left.get mustBe response
 
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
           verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
         }
       }
+    }
+  }
 
-      "a Not Found is returned when getting SA json and taxpayer details" in {
+  "return a UpstreamErrorResponse" when {
+    List(400, 401, 403, 404, 500, 501, 502, 503, 504).foreach { statusCode =>
+      s"UpstreamErrorResponse with status $statusCode is received when getting taxpayer details ANS SA json" in {
+        val response = UpstreamErrorResponse("Not found", statusCode, INTERNAL_SERVER_ERROR)
 
         when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
+          .thenReturn(Future.successful(Left(response)))
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR))))
+          .thenReturn(Future.successful(Left(response)))
 
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
-        whenReady(result) { result =>
-          result.left.get mustBe a[NotFoundError]
+        whenReady(result) { res =>
+          res.left.get mustBe response
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
         }
       }
-
-      "a bad request is returned when getting SA json" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", BAD_REQUEST, INTERNAL_SERVER_ERROR))))
-        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(mock[JsValue])))
-
-        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { result =>
-          result.left.get mustBe a[BadRequestError]
-
-          verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
-        }
-      }
-
-      "a bad request is returned when getting taxpayer details" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(mock[JsValue])))
-        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", BAD_REQUEST, INTERNAL_SERVER_ERROR))))
-
-        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { result =>
-          result.left.get mustBe a[BadRequestError]
-
-          verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
-        }
-      }
-
-      "a bad request is returned when getting SA json and taxpayer details" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", BAD_REQUEST, INTERNAL_SERVER_ERROR))))
-        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("Not found", BAD_REQUEST, INTERNAL_SERVER_ERROR))))
-
-        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { result =>
-          result.left.get mustBe a[BadRequestError]
-
-          verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
-        }
-      }
-
-      "a server error is returned when getting taxpayer details" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(mock[JsValue])))
-        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(
-            Left(UpstreamErrorResponse("Server error", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))))
-
-        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { result =>
-          result.left.get mustBe a[DownstreamServerError]
-
-          verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
-        }
-      }
-
-      "a client error is returned when getting taxpayer details" in {
-
-        when(odsConnector.connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(mock[JsValue])))
-        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("client error", LOCKED, INTERNAL_SERVER_ERROR))))
-
-        val result = service.getATSList(testUtr)(mock[HeaderCarrier])
-
-        whenReady(result) { result =>
-          result.left.get mustBe a[DownstreamClientError]
-
-          verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
-        }
-      }
-
     }
   }
 }

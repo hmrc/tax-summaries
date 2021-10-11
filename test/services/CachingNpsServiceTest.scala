@@ -17,7 +17,6 @@
 package services
 
 import models.paye.PayeAtsMiddleTier
-import models.{DownstreamClientError, ServiceError}
 import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{verify, when}
@@ -95,10 +94,10 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
 
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(innerService.getPayeATSData(any(), any())(any()))
-        .thenReturn(Future.successful(Left(DownstreamClientError("", response))))
+        .thenReturn(Future.successful(Left(response)))
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) {
-        case Left(response) => response mustBe a[ServiceError]
+        case Left(response) => response mustBe a[UpstreamErrorResponse]
         case _              => fail("Incorrect reponse from Caching Service")
       }
 
