@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ApplicationConfig
 import play.api.http.Status.BAD_GATEWAY
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpReads.Implicits.readEitherOf
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}

@@ -21,7 +21,7 @@ import config.ApplicationConfig
 import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpException, UpstreamErrorResponse}
-import uk.gov.hmrc.http.HttpReads.Implicits.readEitherOf
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global

@@ -22,7 +22,7 @@ import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.{JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._

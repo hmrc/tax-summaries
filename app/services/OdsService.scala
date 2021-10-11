@@ -20,7 +20,6 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.ODSConnector
 import models._
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TaxsJsonHelper
