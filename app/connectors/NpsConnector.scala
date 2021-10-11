@@ -47,11 +47,7 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     http
       .GET[Either[UpstreamErrorResponse, HttpResponse]](
         url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR),
-        headers = header)
-      .map {
-        case Right(response) => Right(response)
-        case Left(error)     => Left(error)
-      } recover {
+        headers = header) recover {
       case error: HttpException => Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
     }
   }

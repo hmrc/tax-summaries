@@ -53,7 +53,7 @@ class ATSPAYEDataController @Inject()(
       }
 
       Future.sequence(dataList).map { dataList =>
-        dataList.foldLeft(Right(List.empty): Either[ServiceError, List[JsValue]]) { (resultEither, currentEither) =>
+        val collection = dataList.foldLeft(Right(List.empty): Either[ServiceError, List[JsValue]]) { (resultEither, currentEither) =>
           resultEither match {
             case Left(error) => Left(error)
             case Right(result) => {
@@ -64,7 +64,9 @@ class ATSPAYEDataController @Inject()(
               }
             }
           }
-        } match {
+        }
+
+        collection match {
           case Left(error)                       => atsErrorHandler.errorToResponse(error)
           case Right(atsList) if atsList.isEmpty => NotFound("")
           case Right(atsList)                    => Ok(Json.toJson(atsList))
