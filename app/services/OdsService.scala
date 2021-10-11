@@ -53,9 +53,7 @@ class OdsService @Inject()(
       taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
     } yield {
       jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
-    }).value.map {
-      case Right(value) => Right(value)
-      case Left(error)  => Left(error)
+    }).value
     }
 
 }
