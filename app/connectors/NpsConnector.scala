@@ -18,6 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.ApplicationConfig
+import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -25,11 +26,12 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext) {
+class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext)
+    extends Logging {
 
   def serviceUrl: String = applicationConfig.npsServiceUrl
 
-  def url(path: String) = s"$serviceUrl$path"
+  def url(path: String): String = s"$serviceUrl$path"
 
   private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
     HeaderNames.authorisation -> applicationConfig.authorization,
@@ -47,8 +49,23 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     http
       .GET[Either[UpstreamErrorResponse, HttpResponse]](
         url("/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR),
-        headers = header) recover {
-      case error: HttpException => Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
+        headers = header
+      )
+      .map {
+        case response @ Right(_) => response
+        case Left(error) if error.statusCode >= 500 => {
+          logger.error(error.message)
+          Left(error)
+        }
+        case Left(error) => {
+          logger.error(error.message, error)
+          Left(error)
+        }
+      } recover {
+      case error: HttpException => {
+        logger.error(error.message)
+        Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
+      }
     }
   }
 }

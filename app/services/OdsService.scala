@@ -39,7 +39,6 @@ class OdsService @Inject()(
     } yield {
       jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
     }).value
-    }
 
   def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
     odsConnector.connectToSelfAssessmentList(UTR) map {
@@ -54,6 +53,5 @@ class OdsService @Inject()(
     } yield {
       jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
     }).value
-    }
 
 }

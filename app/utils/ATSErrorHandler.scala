@@ -27,15 +27,9 @@ class ATSErrorHandler @Inject()() extends Logging {
 
   def errorToResponse(error: UpstreamErrorResponse): Result =
     error match {
-      case error if error.statusCode == NOT_FOUND   => NotFound(error.message)
-      case error if error.statusCode == BAD_REQUEST => BadRequest(error.message)
-      case error if error.statusCode >= INTERNAL_SERVER_ERROR => {
-        logger.error(error.message)
-        BadGateway(error.message)
-      }
-      case error => {
-        logger.error(error.message, error)
-        InternalServerError(error.message)
-      }
+      case error if error.statusCode == NOT_FOUND             => NotFound(error.message)
+      case error if error.statusCode == BAD_REQUEST           => BadRequest(error.message)
+      case error if error.statusCode >= INTERNAL_SERVER_ERROR => BadGateway(error.message)
+      case error                                              => InternalServerError(error.message)
     }
 }
