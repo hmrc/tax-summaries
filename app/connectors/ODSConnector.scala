@@ -21,7 +21,7 @@ import config.ApplicationConfig
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpException, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import java.util.UUID
@@ -38,6 +38,19 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     "CorrelationId"        -> UUID.randomUUID().toString
   )
 
+  private def handleResponse(response: Either[UpstreamErrorResponse, JsValue]): Either[UpstreamErrorResponse, JsValue] =
+    response match {
+      case response @ Right(_) => response
+      case Left(error) if error.statusCode >= 500 => {
+        logger.error(error.message)
+        Left(error)
+      }
+      case Left(error) => {
+        logger.error(error.message, error)
+        Left(error)
+      }
+    }
+
   def url(path: String) = s"$serviceUrl$path"
 
   def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(
@@ -47,17 +60,7 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
         headers = header
       )
-      .map {
-        case response @ Right(_) => response
-        case Left(error) if error.statusCode >= 500 => {
-          logger.error(error.message)
-          Left(error)
-        }
-        case Left(error) => {
-          logger.error(error.message, error)
-          Left(error)
-        }
-      } recover {
+      .map(handleResponse) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
@@ -70,17 +73,7 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
         headers = header)
-      .map {
-        case response @ Right(_) => response
-        case Left(error) if error.statusCode >= 500 => {
-          logger.error(error.message)
-          Left(error)
-        }
-        case Left(error) => {
-          logger.error(error.message, error)
-          Left(error)
-        }
-      } recover {
+      .map(handleResponse) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
@@ -94,17 +87,7 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
         url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
         headers = header
       )
-      .map {
-        case response @ Right(_) => response
-        case Left(error) if error.statusCode >= 500 => {
-          logger.error(error.message)
-          Left(error)
-        }
-        case Left(error) => {
-          logger.error(error.message, error)
-          Left(error)
-        }
-      } recover {
+      .map(handleResponse) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
