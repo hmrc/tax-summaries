@@ -16,8 +16,10 @@
 
 package paye
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import play.api.libs.json.JsResultException
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.{FileHelper, IntegrationSpec}
@@ -57,7 +59,7 @@ class HasSummarySpec extends IntegrationSpec {
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
-    "return INTERNAL_SERVER_ERROR when ODS returns an empty ok" in {
+    "return an exception when ODS returns an empty ok" in {
 
       server.stubFor(
         WireMock.get(urlEqualTo(odsUrl))
@@ -68,14 +70,14 @@ class HasSummarySpec extends IntegrationSpec {
 
       val result = route(app, request)
 
-      result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
+      whenReady(result.get.failed) { e =>
+        e mustBe a[MismatchedInputException]
+      }
     }
 
     List(
-      BAD_REQUEST,
       IM_A_TEAPOT,
-      INTERNAL_SERVER_ERROR,
-      SERVICE_UNAVAILABLE
+      LOCKED
     ).foreach { httpResponse =>
       s"return an $httpResponse when data is retrieved from ODS" in {
 
@@ -90,6 +92,40 @@ class HasSummarySpec extends IntegrationSpec {
 
         result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       }
+    }
+
+    List(
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE
+    ).foreach { httpResponse =>
+      s"return an 502 when $httpResponse status is received from ODS" in {
+
+        server.stubFor(
+          WireMock.get(urlEqualTo(odsUrl))
+            .willReturn(aResponse().withStatus(httpResponse))
+        )
+
+        val request = FakeRequest(GET, apiUrl)
+
+        val result = route(app, request)
+
+        result.map(status) mustBe Some(BAD_GATEWAY)
+      }
+    }
+
+    s"return an 502 when ODS is timing out" in {
+
+      server.stubFor(
+        WireMock.get(urlEqualTo(odsUrl))
+          .willReturn(ok(FileHelper.loadFile("odsData.json")).withFixedDelay(10000))
+      )
+
+      val request = FakeRequest(GET, apiUrl)
+
+      val result = route(app, request)
+
+      result.map(status) mustBe Some(BAD_GATEWAY)
     }
   }
 }

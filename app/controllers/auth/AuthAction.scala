@@ -20,12 +20,9 @@ import com.google.inject.{ImplementedBy, Inject}
 import play.api.Logger
 import play.api.mvc.Results.{BadRequest, Unauthorized}
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments}
-import uk.gov.hmrc.domain.Uar
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,8 +46,8 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
       authorised(ConfidenceLevel.L50) {
         Future.successful(None)
       }.recover {
-        case t: Throwable =>
-          logger.debug(s"Debug info - ${t.getMessage}", t)
+        case t: AuthorisationException =>
+          logger.error(t.getMessage, t)
           Some(Unauthorized)
       }
     }

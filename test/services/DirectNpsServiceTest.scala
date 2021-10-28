@@ -20,8 +20,9 @@ import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
+import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.{JsResultException, JsValue, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
@@ -47,25 +48,24 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
     "return a successful response after transforming NPS data to PAYE model" in new TestService {
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.successful(
-          HttpResponse(responseStatus = 200, responseJson = Some(expectedNpsResponse), responseHeaders = Map.empty)))
+        .thenReturn(Future.successful(Right(
+          HttpResponse(responseStatus = 200, responseJson = Some(expectedNpsResponse), responseHeaders = Map.empty))))
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
       result mustBe Right(transformedData)
     }
 
-    "return a Bad Gateway Response in case of Bad Gateway from Connector" in new TestService {
+    "return a UpstreamErrorResponse in case of UpstreamErrorResponse from Connector" in new TestService {
 
-      val response = HttpResponse(responseStatus = 502)
+      val response = UpstreamErrorResponse("Bad Gateway", BAD_GATEWAY, BAD_GATEWAY)
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.successful(response))
+        .thenReturn(Future.successful(Left(response)))
 
       val result = getPayeATSData(testNino, currentYear).futureValue
 
       result mustBe Left(response)
-
     }
 
     "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {
@@ -73,9 +73,11 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
         .thenReturn(Future.failed(new JsResultException(List())))
 
-      val result = getPayeATSData(testNino, currentYear).futureValue
+      val result = getPayeATSData(testNino, currentYear)
 
-      result.left.get.status mustBe 500
+      whenReady(result.failed) { e =>
+        e mustBe a[JsResultException]
+      }
     }
   }
 }

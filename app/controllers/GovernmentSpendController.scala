@@ -16,19 +16,17 @@
 
 package controllers
 
-import controllers.auth.{AuthAction, PayeAuthAction}
+import controllers.auth.AuthAction
+
 import javax.inject.Inject
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.{GoodsAndServices, GovSpendService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import utils.NinoHelper
 
 class GovernmentSpendController @Inject()(
   govSpendService: GovSpendService,
-  ninoHelper: NinoHelper,
   authAction: AuthAction,
-  payeAuthAction: PayeAuthAction,
   cc: ControllerComponents
 ) extends BackendController(cc) {
 

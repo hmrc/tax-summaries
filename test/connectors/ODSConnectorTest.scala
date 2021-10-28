@@ -61,7 +61,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessment(testUtr, 2014)
 
         whenReady(result) {
-          _ mustBe Some(json)
+          _ mustBe Right(json)
         }
 
         server.verify(
@@ -75,35 +75,24 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
       }
     }
 
-    "return None" when {
+    "return UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+        s"a response with status $status is received" in {
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(
+              aResponse()
+                .withStatus(status)
+                .withBody(""))
+          )
 
-      "404 is returned" in {
+          val result = sut.connectToSelfAssessment(testUtr, 2014)
 
-        server.stubFor(
-          get(url).willReturn(notFound())
-        )
-
-        val result = sut.connectToSelfAssessment(testUtr, 2014)
-
-        whenReady(result) {
-          _ mustBe None
+          whenReady(result) { res =>
+            res.left.get mustBe a[UpstreamErrorResponse]
+          }
         }
       }
     }
-
-    "return 500" in {
-
-      server.stubFor(
-        get(url).willReturn(serverError())
-      )
-
-      val result = sut.connectToSelfAssessment(testUtr, 2014)
-
-      whenReady(result.failed) { exception =>
-        exception mustBe a[UpstreamErrorResponse]
-      }
-    }
-
   }
 
   "connectToSelfAssessmentList" must {
@@ -121,39 +110,26 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSelfAssessmentList(testUtr)
 
         whenReady(result) {
-          _ mustBe Some(json)
+          _ mustBe Right(json)
         }
       }
     }
 
-    "return None" when {
+    "return UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+        s"a response with status $status is received" in {
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(
+              aResponse()
+                .withStatus(status)
+                .withBody(""))
+          )
 
-      "404 is returned" in {
+          val result = sut.connectToSelfAssessmentList(testUtr)
 
-        server.stubFor(
-          get(url).willReturn(notFound())
-        )
-
-        val result = sut.connectToSelfAssessmentList(testUtr)
-
-        whenReady(result) {
-          _ mustBe None
-        }
-      }
-    }
-
-    "return an exception" when {
-
-      "500 is returned" in {
-
-        server.stubFor(
-          get(url).willReturn(serverError())
-        )
-
-        val result = sut.connectToSelfAssessmentList(testUtr)
-
-        whenReady(result.failed) { exception =>
-          exception mustBe a[UpstreamErrorResponse]
+          whenReady(result) { res =>
+            res.left.get mustBe a[UpstreamErrorResponse]
+          }
         }
       }
     }
@@ -174,39 +150,26 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
         val result = sut.connectToSATaxpayerDetails(testUtr)
 
         whenReady(result) {
-          _ mustBe Some(json)
+          _ mustBe Right(json)
         }
       }
     }
 
-    "return None" when {
+    "return UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+        s"a response with status $status is received" in {
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(
+              aResponse()
+                .withStatus(status)
+                .withBody(""))
+          )
 
-      "404 is returned" in {
+          val result = sut.connectToSATaxpayerDetails(testUtr)
 
-        server.stubFor(
-          get(url).willReturn(notFound())
-        )
-
-        val result = sut.connectToSATaxpayerDetails(testUtr)
-
-        whenReady(result) {
-          _ mustBe None
-        }
-      }
-    }
-
-    "return an exception" when {
-
-      "500 is returned" in {
-
-        server.stubFor(
-          get(url).willReturn(serverError())
-        )
-
-        val result = sut.connectToSATaxpayerDetails(testUtr)
-
-        whenReady(result.failed) { exception =>
-          exception mustBe a[UpstreamErrorResponse]
+          whenReady(result) { res =>
+            res.left.get mustBe a[UpstreamErrorResponse]
+          }
         }
       }
     }

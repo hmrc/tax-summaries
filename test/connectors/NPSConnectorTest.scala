@@ -17,12 +17,11 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.http.Fault
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, RequestId, SessionId}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, RequestId, SessionId, UpstreamErrorResponse}
 import utils.TestConstants.testNino
 import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
@@ -39,7 +38,6 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       .build()
 
   private val currentYear = 2018
-  private val invalidTaxYear = 201899
 
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
@@ -71,7 +69,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.json mustBe Json.parse(expectedNpsResponse)
+      result.right.get.json mustBe Json.parse(expectedNpsResponse)
 
       server.verify(
         getRequestedFor(urlEqualTo(url))
@@ -99,71 +97,66 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
 
-      result.json mustBe Json.parse(expectedNpsResponse)
+      result.right.get.json mustBe Json.parse(expectedNpsResponse)
     }
 
-    "return BAD_REQUEST response in case of Bad request from NPS" in new NPSConnectorSetUp {
+    "return UpstreamErrorResponse" when {
+      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+        s"a response with status $status is received" in new NPSConnectorSetUp {
+          val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(
+              aResponse()
+                .withStatus(status)
+                .withBody(""))
+          )
+
+          val result = connectToPayeTaxSummary(testNino, currentYear)
+
+          whenReady(result) { res =>
+            res.left.get mustBe a[UpstreamErrorResponse]
+          }
+        }
+      }
+    }
+
+    "return INTERNAL_SERVER_ERROR response in case of a timeout exception from http verbs" in new NPSConnectorSetUp {
+
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
           aResponse()
-            .withStatus(400)
-            .withBody("Bad Request"))
+            .withStatus(OK)
+            .withBody(expectedNpsResponse)
+            .withFixedDelay(10000))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.status mustBe BAD_REQUEST
-    }
+      result.left.get.statusCode mustBe BAD_GATEWAY
+      result.left.get.reportAs mustBe BAD_GATEWAY
 
-    "return NOT_FOUND response in case of Not found from NPS" in new NPSConnectorSetUp {
-
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
-
-      server.stubFor(
-        get(urlEqualTo(url)).willReturn(
-          aResponse()
-            .withStatus(404)
-            .withBody("Not Found"))
-      )
-
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
-
-      result.status mustBe NOT_FOUND
-    }
-
-    "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new NPSConnectorSetUp {
-
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
-
-      server.stubFor(
-        get(urlEqualTo(url)).willReturn(
-          aResponse()
-            .withFault(Fault.EMPTY_RESPONSE)
-            .withBody("File not found"))
-      )
-
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
-
-      result.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + invalidTaxYear
+      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val serviceUnavailable = SERVICE_UNAVAILABLE
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
           aResponse()
-            .withStatus(503)
+            .withStatus(serviceUnavailable)
             .withBody("SERVICE_UNAVAILABLE"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, invalidTaxYear).futureValue
+      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.status mustBe INTERNAL_SERVER_ERROR
+      result.left.get.statusCode mustBe serviceUnavailable
+      result.left.get.reportAs mustBe BAD_GATEWAY
     }
   }
 }

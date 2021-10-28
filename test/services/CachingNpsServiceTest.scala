@@ -21,9 +21,9 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.INTERNAL_SERVER_ERROR
+import play.api.http.Status.BAD_GATEWAY
 import repositories.Repository
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseSpec
 
 import scala.concurrent.Future
@@ -71,34 +71,33 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
       when(repository.set(any(), any(), any())).thenReturn(Future.failed(new Exception("Failed")))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(Future.successful(Right(data)))
 
-      whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) { result =>
-        result match {
-          case Left(response) => response.status mustBe INTERNAL_SERVER_ERROR
-          case _              => fail("Incorrect response from Caching Service")
-        }
+      val result = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
+
+      whenReady(result.failed) { e =>
+        e mustBe a[Exception]
         verify(repository).set("NONONONO", 5465, data)
       }
     }
-    "Return an internal server error when retrieving from the cache fails" in new Fixture {
-      val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
 
+    "Return an internal server error when retrieving from the cache fails" in new Fixture {
       when(repository.get(any(), any())).thenReturn(Future.failed(new Exception("Failed")))
 
-      whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) { result =>
-        result match {
-          case Left(response) => response.status mustBe INTERNAL_SERVER_ERROR
-          case _              => fail("Incorrect response from Caching Service")
-        }
+      val result = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
+
+      whenReady(result.failed) { e =>
+        e mustBe a[Exception]
       }
     }
 
     "Pass through the response when Inner service fails" in new Fixture {
+      val response = UpstreamErrorResponse("Bad Gateway", BAD_GATEWAY, BAD_GATEWAY)
+
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(innerService.getPayeATSData(any(), any())(any()))
-        .thenReturn(Future.successful(Left(HttpResponse(IM_A_TEAPOT))))
+        .thenReturn(Future.successful(Left(response)))
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) {
-        case Left(response) => response.status mustBe IM_A_TEAPOT
+        case Left(response) => response mustBe a[UpstreamErrorResponse]
         case _              => fail("Incorrect reponse from Caching Service")
       }
 

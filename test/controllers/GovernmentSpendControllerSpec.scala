@@ -17,16 +17,15 @@
 package controllers
 
 import akka.stream.Materializer
-import controllers.auth.{AuthAction, FakeAuthAction, PayeAuthAction}
+import controllers.auth.FakeAuthAction
 import org.mockito.Matchers.{eq => meq}
 import org.mockito.Mockito.when
-import play.api.http.Status.{BAD_REQUEST, OK}
+import play.api.http.Status.OK
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.GoodsAndServices.Environment
 import services.{GoodsAndServices, GovSpendService}
-import utils.TestConstants.{testNino, testUtr}
-import utils.{BaseSpec, NinoHelper}
+import utils.BaseSpec
 
 class GovernmentSpendControllerSpec extends BaseSpec {
 
@@ -41,8 +40,6 @@ class GovernmentSpendControllerSpec extends BaseSpec {
   "GovernmentSpendController" must {
     def sut = new GovernmentSpendController(
       mockGovSpendService,
-      app.injector.instanceOf[NinoHelper],
-      FakeAuthAction,
       FakeAuthAction,
       stubControllerComponents()
     )

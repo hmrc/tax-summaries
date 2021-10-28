@@ -18,7 +18,6 @@ package repositories
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
-
 import javax.inject.Inject
 import models.paye.PayeAtsMiddleTier
 import play.api.libs.json.{Json, Reads, __}
