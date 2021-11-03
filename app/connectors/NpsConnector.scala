@@ -57,6 +57,10 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
           logger.error(error.message)
           Left(error)
         }
+        case Left(error) if error.statusCode == 404 => {
+          logger.info(error.message)
+          Left(error)
+        }
         case Left(error) => {
           logger.error(error.message, error)
           Left(error)
