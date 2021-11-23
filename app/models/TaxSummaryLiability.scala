@@ -19,6 +19,11 @@ package models
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
+sealed trait Nationality
+case class Scottish() extends Nationality
+case class Welsh() extends Nationality
+case class UK() extends Nationality
+
 final case class TaxSummaryLiability(
   taxYear: Int,
   pensionLumpSumTaxRate: PensionTaxRate,
@@ -26,8 +31,11 @@ final case class TaxSummaryLiability(
   nationalInsuranceData: Map[Liability, Amount],
   atsData: Map[Liability, Amount]
 ) {
-  val isScottish: Boolean = incomeTaxStatus.contains("0002")
-  val isWelsh: Boolean = incomeTaxStatus.contains("0003")
+  val nationality: Nationality = incomeTaxStatus match {
+    case Some("0002") => Scottish()
+    case Some("0003") => Welsh()
+    case _            => UK()
+  }
 }
 
 object TaxSummaryLiability {

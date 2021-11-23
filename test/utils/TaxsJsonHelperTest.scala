@@ -17,12 +17,14 @@
 package utils
 
 import play.api.libs.json._
-import transformers.ATSParsingException
+import transformers.{ATSParsingException, ATSRawDataTransformer}
 import utils.TestConstants._
 
 class TaxsJsonHelperTest extends BaseSpec {
 
-  class SetUp extends TaxsJsonHelper(applicationConfig)
+  val aTSRawDataTransformer = inject[ATSRawDataTransformer]
+
+  class SetUp extends TaxsJsonHelper(applicationConfig, aTSRawDataTransformer)
 
   "hasAtsForPreviousPeriod" must {
 

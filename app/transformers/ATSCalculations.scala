@@ -20,12 +20,16 @@ import models.Liability._
 import models._
 import play.api.Logger
 import services._
+import transformers.Scottish.ATSCalculationsScottish2019
+import transformers.UK.ATSCalculationsUK2019
+import transformers.Welsh.ATSCalculationsWelsh2020
 import utils.DoubleUtils
 
-sealed trait ATSCalculations extends DoubleUtils {
+trait ATSCalculations extends DoubleUtils {
 
   val summaryData: TaxSummaryLiability
   val taxRates: TaxRateService
+  val incomeTaxStatus = summaryData.incomeTaxStatus
 
   def get(liability: Liability): Amount = {
     val logger = Logger(getClass.getName)
@@ -273,99 +277,13 @@ sealed trait ATSCalculations extends DoubleUtils {
 sealed class DefaultATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations
 
-sealed class Post2018rUKATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations {
-  override def scottishIncomeTax: Amount = Amount.empty
-  override def savingsRate: Amount = Amount.empty
-  override def savingsRateAmount: Amount = Amount.empty
-}
-
-sealed class WelshATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations {
-  override def welshIncomeTax: Amount = {
-    val welshRate = 0.1
-    Amount.gbp(
-      (
-        getWithDefaultAmount(IncomeChargeableBasicRate) +
-          getWithDefaultAmount(IncomeChargeableHigherRate) +
-          getWithDefaultAmount(IncomeChargeableAddHRate)
-      ).amount * welshRate)
-  }
-
-  override def scottishIncomeTax: Amount = Amount.empty
-  override def savingsRate: Amount = Amount.empty
-  override def savingsRateAmount: Amount = Amount.empty
-}
-
-sealed class Post2018ScottishATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations {
-
-  override def scottishIncomeTax: Amount = Amount.empty
-  override def savingsRate: Amount = Amount.empty
-  override def savingsRateAmount: Amount = Amount.empty
-
-  override def basicRateIncomeTaxAmount: Amount = Amount.empty
-  override def higherRateIncomeTaxAmount: Amount = Amount.empty
-  override def additionalRateIncomeTaxAmount: Amount = Amount.empty
-  override def basicRateIncomeTax: Amount = Amount.empty
-  override def higherRateIncomeTax: Amount = Amount.empty
-  override def additionalRateIncomeTax: Amount = Amount.empty
-
-  override def scottishStarterRateTax: Amount =
-    getWithDefaultAmount(TaxOnPayScottishStarterRate) + includePensionTaxForRate(taxRates.scottishStarterRate)
-
-  override def scottishBasicRateTax: Amount =
-    getWithDefaultAmount(IncomeTaxBasicRate) + includePensionTaxForRate(taxRates.scottishBasicRate)
-
-  override def scottishIntermediateRateTax: Amount =
-    getWithDefaultAmount(TaxOnPayScottishIntermediateRate) + includePensionTaxForRate(taxRates.scottishIntermediateRate)
-
-  override def scottishHigherRateTax: Amount =
-    getWithDefaultAmount(IncomeTaxHigherRate) + includePensionTaxForRate(taxRates.scottishHigherRate)
-
-  override def scottishAdditionalRateTax: Amount =
-    getWithDefaultAmount(IncomeTaxAddHighRate) + includePensionTaxForRate(taxRates.scottishAdditionalRate)
-
-  override def scottishStarterRateIncome: Amount =
-    getWithDefaultAmount(TaxablePayScottishStarterRate) + includePensionIncomeForRate(taxRates.scottishStarterRate)
-
-  override def scottishBasicRateIncome: Amount =
-    getWithDefaultAmount(IncomeChargeableBasicRate) + includePensionIncomeForRate(taxRates.scottishBasicRate)
-
-  override def scottishIntermediateRateIncome: Amount =
-    getWithDefaultAmount(TaxablePayScottishIntermediateRate) + includePensionIncomeForRate(
-      taxRates.scottishIntermediateRate)
-
-  override def scottishHigherRateIncome: Amount =
-    getWithDefaultAmount(IncomeChargeableHigherRate) + includePensionIncomeForRate(taxRates.scottishHigherRate)
-
-  override def scottishAdditionalRateIncome: Amount =
-    getWithDefaultAmount(IncomeChargeableAddHRate) + includePensionIncomeForRate(taxRates.scottishAdditionalRate)
-
-  override def savingsBasicRateTax: Amount = getWithDefaultAmount(SavingsTaxLowerRate)
-  override def savingsHigherRateTax: Amount = getWithDefaultAmount(SavingsTaxHigherRate)
-  override def savingsAdditionalRateTax: Amount = getWithDefaultAmount(SavingsTaxAddHighRate)
-
-  override def savingsBasicRateIncome: Amount = getWithDefaultAmount(SavingsChargeableLowerRate)
-  override def savingsHigherRateIncome: Amount = getWithDefaultAmount(SavingsChargeableHigherRate)
-  override def savingsAdditionalRateIncome: Amount = getWithDefaultAmount(SavingsChargeableAddHRate)
-
-  private val savingsTotalTax = savingsBasicRateTax + savingsHigherRateTax + savingsAdditionalRateTax
-
-  override def totalIncomeTaxAmount: Amount =
-    super.totalIncomeTaxAmount + scottishTotalTax + savingsTotalTax
-}
-
 object ATSCalculations {
 
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
-    if (summaryData.taxYear > 2018 && summaryData.isScottish) {
-      new Post2018ScottishATSCalculations(summaryData, taxRates)
-    } else if (summaryData.taxYear > 2019 && summaryData.isWelsh) {
-      new WelshATSCalculations(summaryData, taxRates)
-    } else if (summaryData.taxYear > 2018) {
-      new Post2018rUKATSCalculations(summaryData, taxRates)
-    } else {
-      new DefaultATSCalculations(summaryData, taxRates)
+    (summaryData.nationality, summaryData.taxYear) match {
+      case (_: Scottish, year) if year > 2018 => new ATSCalculationsScottish2019(summaryData, taxRates)
+      case (_: Welsh, year) if year > 2019    => new ATSCalculationsWelsh2020(summaryData, taxRates)
+      case (_: UK, year) if year > 2018       => new ATSCalculationsUK2019(summaryData, taxRates)
+      case _                                  => new DefaultATSCalculations(summaryData, taxRates)
     }
 }

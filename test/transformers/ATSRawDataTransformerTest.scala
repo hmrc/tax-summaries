@@ -19,6 +19,7 @@ package transformers
 import models.LiabilityKey._
 import models._
 import play.api.libs.json.Json
+import services.TaxRateService
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
 class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
@@ -26,6 +27,9 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val taxpayerDetailsJson = JsonUtil.load("/taxpayerData/test_individual_utr.json")
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
+  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+
+  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
   "The income before tax" must {
 
@@ -33,14 +37,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val sampleJson = JsonUtil.load("/utr_2014.json")
 
-      val parsedJson = Json.parse(sampleJson)
+      val parsedJson = Json.parse(sampleJson).as[TaxSummaryLiability]
+      val calculations = ATSCalculations.make(parsedJson, taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -64,14 +65,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
     "parse the income values for test case 2" in {
       val sampleJson = JsonUtil.load("/test_case_2.json")
 
-      val parsedJson = Json.parse(sampleJson)
+      val parsedJson = Json.parse(sampleJson).as[TaxSummaryLiability]
+      val calculations = ATSCalculations.make(parsedJson, taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -97,14 +95,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
     "parse the NICs data" in {
       val sampleJson = JsonUtil.load("/test_case_4.json")
 
-      val parsedJson = Json.parse(sampleJson)
+      val parsedJson = Json.parse(sampleJson).as[TaxSummaryLiability]
+      val calculations = ATSCalculations.make(parsedJson, taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -140,14 +135,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val update = Json.obj("ctnDeficiencyRelief" -> Amount(0.01, "GBP"))
       val amendedJson = JsonUtil.loadAndReplace("/test_case_4.json", update)
+      val calculations = ATSCalculations.make(amendedJson.as[TaxSummaryLiability], taxRate)
 
-      val returnValue =
-        ATSRawDataTransformer(
-          applicationConfig,
-          amendedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -185,13 +176,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val sampleJson = JsonUtil.load("/test_case_5.json")
 
       val parsedJson = Json.parse(sampleJson)
+      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -230,13 +218,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val sampleJson = JsonUtil.load("/test_case_5.json")
 
       val parsedJson = Json.parse(sampleJson)
+      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -330,14 +315,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       )
 
       val amendedJson = JsonUtil.loadAndReplace("/test_case_5.json", update)
+      val calculations = ATSCalculations.make(amendedJson.as[TaxSummaryLiability], taxRate)
 
-      val returnValue =
-        ATSRawDataTransformer(
-          applicationConfig,
-          amendedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
       val parsedPayload = returnValue.income_tax.get.payload.get
       parsedPayload(TotalIncomeTax) mustEqual Amount(8872, "GBP")
     }
@@ -351,14 +332,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       )
 
       val amendedJson = JsonUtil.loadAndReplace("/test_case_5.json", update)
+      val calculations = ATSCalculations.make(amendedJson.as[TaxSummaryLiability], taxRate)
 
-      val returnValue =
-        ATSRawDataTransformer(
-          applicationConfig,
-          amendedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+
       val parsedPayload = returnValue.income_tax.get.payload.get
       parsedPayload(ScottishIncomeTax) mustEqual Amount(130.4, "GBP")
     }
@@ -366,14 +344,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
     "Calculate the Welsh Income Tax" in {
 
       val writTaxpayerDetailsJson = Json.parse(JsonUtil.load("/writ_values.json"))
+      val calculations = ATSCalculations.make(writTaxpayerDetailsJson.as[TaxSummaryLiability], taxRate)
 
-      val returnValue =
-        ATSRawDataTransformer(
-          applicationConfig,
-          writTaxpayerDetailsJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+
       val parsedPayload = returnValue.income_tax.get.payload.get
       parsedPayload(WelshIncomeTax) mustEqual Amount(186, "GBP")
     }
@@ -384,13 +359,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         val sampleJson = JsonUtil.load("/test_case_7.json")
 
         val parsedJson = Json.parse(sampleJson)
+        val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
         val returnValue: AtsMiddleTierData =
-          ATSRawDataTransformer(
-            applicationConfig,
-            parsedJson.as[TaxSummaryLiability],
-            parsedTaxpayerDetailsJson,
-            "",
-            taxYear).atsDataDTO
+          SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
         returnValue.errors.get.error mustBe "NoAtsError"
       }
@@ -400,13 +372,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         val sampleJson = JsonUtil.load("/test_case_8.json")
 
         val parsedJson = Json.parse(sampleJson)
+        val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
         val returnValue: AtsMiddleTierData =
-          ATSRawDataTransformer(
-            applicationConfig,
-            parsedJson.as[TaxSummaryLiability],
-            parsedTaxpayerDetailsJson,
-            "",
-            taxYear).atsDataDTO
+          SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
         returnValue.errors.get.error mustBe "NoAtsError"
       }
@@ -416,13 +385,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         val sampleJson = JsonUtil.load("/test_case_9.json")
 
         val parsedJson = Json.parse(sampleJson)
+        val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
         val returnValue: AtsMiddleTierData =
-          ATSRawDataTransformer(
-            applicationConfig,
-            parsedJson.as[TaxSummaryLiability],
-            parsedTaxpayerDetailsJson,
-            "",
-            taxYear).atsDataDTO
+          SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
         returnValue.errors.get.error mustBe "NoAtsError"
       }
