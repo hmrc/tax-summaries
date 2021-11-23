@@ -16,7 +16,7 @@
 
 package transformers.Scottish
 
-import models.Liability.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate, TaxablePayScottishIntermediateRate, TaxablePayScottishStarterRate}
+import models.Liability._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations
