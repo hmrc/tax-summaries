@@ -194,9 +194,9 @@ trait ATSCalculations extends DoubleUtils {
     ).roundAmountUp()
 
   def totalIncomeTaxAmount: Amount =
-    savingsRateAmount +
-      basicRateIncomeTaxAmount +
-      higherRateIncomeTaxAmount +
+    savingsRateAmount + // LS12.1
+      basicRateIncomeTaxAmount + // LS12.2
+      higherRateIncomeTaxAmount + // LS12.3
       additionalRateIncomeTaxAmount +
       get(DividendTaxLowRate) +
       get(DividendTaxHighRate) +
