@@ -71,9 +71,9 @@ trait SaTestHelper extends IntegrationSpec {
 
     checkLiability.foreach {
       case (key, value) =>
-        s"$key is calculated" in {
+//        s"$key is calculated" in {
           dataToFind(data, key) mustBe Amount(value, "GBP")
-        }
+//        }
     }
 
   }

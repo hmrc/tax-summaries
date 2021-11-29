@@ -33,7 +33,7 @@ class AtsDataSpec2020 extends SaTestHelper {
   def apiUrl(taxYear: Int) = s"/taxs/$utr/$taxYear/ats-data"
 
   "HasSummary" must {
-    "return an OK when data for 2020 is retrieved from ODS (TC4)" when {
+    "return an OK when data for 2020 is retrieved from ODS (TC4)" in {
 
       val taxYear = 2020
 
