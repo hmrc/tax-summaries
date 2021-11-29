@@ -97,18 +97,46 @@ class AtsDataSpec2021 extends SaTestHelper {
       val request = FakeRequest(GET, apiUrl(taxYear))
       val result = resultToAtsData(route(app, request))
 
-
-//      val otherPensionIncome = (body \ "income_data" \ "payload" \ "other_pension_income" \ "amount").as[Double]
-//      otherPensionIncome mustBe 62732.0
-//
-//      val otherIncome = (body \ "income_data" \ "payload" \ "other_income" \ "amount").as[Double]
-//      otherIncome mustBe 1057.0
-
-//      val selfEmploymentIncome = (body \ "income_data" \ "payload" \ "self_employment_income" \ "amount").as[Double]
-//      selfEmploymentIncome mustBe 21055.0
-
-      checkResult(result, Map(SelfEmploymentIncome -> 21055.0))
-
+      checkResult(result, Map(
+        SelfEmploymentIncome -> 21055.0, // LS1a
+        IncomeFromEmployment -> 48484.0, // LS1
+        StatePension -> 8609.0, //LS2
+        OtherPensionIncome -> 79811.0, //LS3
+        TaxableStateBenefits -> 0.0, //LS4
+        OtherIncome -> 4338.0, //LS5
+        BenefitsFromEmployment -> 0.0, //LS6
+        TotalIncomeBeforeTax -> 162297.0, //LS7
+        PersonalTaxFreeAmount -> 0.00, //LS8.1
+        MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
+        OtherAllowancesAmount -> 6424.0, //LS9
+        TotalTaxFreeAmount -> 6424.0, //LS10
+        StartingRateForSavingsAmount -> 0.0, //LS12.1
+        BasicRateIncomeTax -> 8074.8, //lS12.2
+        HigherRateIncomeTax -> 45000.0, //LS12.3
+        AdditionalRateIncomeTax -> 268.20, //LS12.4
+        OrdinaryRate -> -1, //LS13.1
+        UpperRate -> -1, //LS13.2
+        AdditionalRate -> -1, //LS13.3
+        //TODO: Should these all be left as -1
+        OtherAdjustmentsIncreasing -> -1,
+        OtherAdjustmentsReducing -> -1,
+        WelshIncomeTax -> -1, //LS20a
+        TotalIncomeTax -> -1, //LS20
+        TotalIncomeTaxAndNics -> -1, //LS16
+        EmployeeNicAmount -> -1, //LS14
+        IncomeAfterTaxAndNics -> -1, //LS17, RS5
+        EmployerNicAmount -> -1, //LS18
+        PayCgTaxOn -> -1, //LS19.8
+        TaxableGains -> -1, //LS19.6
+        TotalTaxFreeAmount -> -1, //LS19.7
+        AmountDueAtEntrepreneursRate -> -1, //LS19.1
+        AmountDueAtOrdinaryRate -> -1, //LS19.2
+        AmountDueRPCIHigherRate -> -1, //LS19.3
+        AmountDueRPCILowerRate -> -1, //LS19.3b
+        Adjustments -> -1, //LS19.4
+        TotalCgTax -> -1,
+        YourTotalTax -> -1 //RS7
+      ))
     }
 
     "return NOT_FOUND when ODS returns NOT_FOUND response" in {
