@@ -19,9 +19,8 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import models.Liability.DividendTaxAddHighRate
-import models.{AtsMiddleTierData, LiabilityKey}
-import models.LiabilityKey._
+import models.Liability._
+import models.LiabilityKey.{StatePension, _}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -34,7 +33,7 @@ class AtsDataSpec2020 extends SaTestHelper {
   def apiUrl(taxYear: Int) = s"/taxs/$utr/$taxYear/ats-data"
 
   "HasSummary" must {
-    "return an OK when data for 2020 is retrieved from ODS (TC4)" in {
+    "return an OK when data for 2020 is retrieved from ODS (TC4)" when {
 
       val taxYear = 2020
 
@@ -46,15 +45,7 @@ class AtsDataSpec2020 extends SaTestHelper {
       val request = FakeRequest(GET, apiUrl(taxYear))
       val result = resultToAtsData(route(app, request))
 
-//      status(result) mustBe OK
-//      val body = Json.parse(contentAsString(result))
-//
-//      val otherPensionIncome = (body \ "income_data" \ "payload" \ "other_pension_income" \ "amount").as[Double]
-//      otherPensionIncome mustBe 0.0
-//
-//      val otherIncome = (body \ "income_data" \ "payload" \ "other_income" \ "amount").as[Double]
-//      otherIncome mustBe 10079.0
-
+      Thread.sleep(10000)
       checkResult(result, Map(
         SelfEmploymentIncome -> 0.0, // LS1a
         IncomeFromEmployment -> 40511.0, // LS1
@@ -68,12 +59,30 @@ class AtsDataSpec2020 extends SaTestHelper {
         MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
         OtherAllowancesAmount -> 0.0, //LS9
         TotalTaxFreeAmount -> 12500.0, //LS10
-        // StartingRateForSavings -> 0.0, //LS12.1
+        StartingRateForSavingsAmount -> 0.0, //LS12.1
         BasicRateIncomeTax -> 5818.0, //lS12.2
-        // HigherRateIncomeTax -> 0.0, //LS12.3
-//        UpperRateAmount -> 191.75,
-        UpperRate -> 191.75
-
+        AdditionalRateIncomeTax -> 0.0, //LS12.3
+        OrdinaryRate -> -1, //LS13.1
+        UpperRate -> -1, //LS13.2
+        AdditionalRate -> -1, //LS13.3
+        OtherAdjustmentsIncreasing -> -1,
+        OtherAdjustmentsReducing -> -1,
+        WelshIncomeTax -> -1, //LS20a
+        TotalIncomeTax -> -1, //LS20
+        TotalIncomeTaxAndNics -> -1, //LS16
+        EmployeeNicAmount -> -1, //LS14
+        IncomeAfterTaxAndNics -> -1, //LS17, RS5
+        EmployerNicAmount -> -1, //LS18
+        PayCgTaxOn -> -1, //LS19.8
+        TaxableGains -> -1, //LS19.6
+        TotalTaxFreeAmount -> -1, //LS19.7
+        AmountDueAtEntrepreneursRate -> -1, //LS19.1
+        AmountDueAtOrdinaryRate -> -1, //LS19.2
+        AmountDueRPCIHigherRate -> -1, //LS19.3
+        AmountDueRPCILowerRate -> -1, //LS19.3b
+        Adjustments -> -1, //LS19.4
+        TotalCgTax -> -1,
+        YourTotalTax -> -1 //RS7
       ))
 
 

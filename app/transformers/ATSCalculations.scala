@@ -199,7 +199,7 @@ trait ATSCalculations extends DoubleUtils {
       higherRateIncomeTaxAmount + // LS12.3
       additionalRateIncomeTaxAmount +
       get(DividendTaxLowRate) +
-      get(DividendTaxHighRate) +
+      get(DividendTaxHighRate) + //LS13.2
       get(DividendTaxAddHighRate) +
       otherAdjustmentsIncreasing -
       otherAdjustmentsReducing -

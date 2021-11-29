@@ -78,6 +78,7 @@ trait IntegrationSpec
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
         "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",
+        "microservice.services.auth.host" -> "localhost",
         "microservice.services.auth.port" -> server.port(),
         "metrics.enabled" -> false,
         "auditing.enabled" -> false,

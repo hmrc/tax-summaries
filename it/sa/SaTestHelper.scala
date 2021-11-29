@@ -58,13 +58,11 @@ trait SaTestHelper extends IntegrationSpec {
 
       val dataList: List[DataHolder] = List(incomeData, summaryData, allowanceData, capitalGainsData).flatten
 
-      val mappedList = dataList.map {
-        _.payload.get.get(key)
-      }.flatten
+      val mappedList = dataList.flatMap(_.payload.get.get(key))
 
       if (mappedList.size == 1) {
         mappedList.head
-      } else if (mappedList.size == 0) {
+      } else if (mappedList.isEmpty) {
         throw new RuntimeException(s"$key: No keys")
       } else {
         throw new RuntimeException(s"$key: Too many keys")
@@ -73,7 +71,9 @@ trait SaTestHelper extends IntegrationSpec {
 
     checkLiability.foreach {
       case (key, value) =>
-        dataToFind(data, key) mustBe Amount(value, "GBP")
+        s"$key is calculated" in {
+          dataToFind(data, key) mustBe Amount(value, "GBP")
+        }
     }
 
   }
