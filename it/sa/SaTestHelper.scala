@@ -43,7 +43,10 @@ trait SaTestHelper extends IntegrationSpec {
   def resultToAtsData(resultOption: Option[Future[Result]]): AtsMiddleTierData = {
 
     resultOption match {
-      case Some(result) => Json.parse(contentAsString(result)).as[AtsMiddleTierData]
+      case Some(result) =>{
+      println(contentAsString(result)+"*"*100)
+        Json.parse(contentAsString(result)).as[AtsMiddleTierData]
+      }
       case None => throw new NoSuchElementException
     }
   }
@@ -55,8 +58,9 @@ trait SaTestHelper extends IntegrationSpec {
       val summaryData = data.summary_data
       val allowanceData = data.allowance_data
       val capitalGainsData = data.capital_gains_data
+      val incomeTax = data.income_tax
 
-      val dataList: List[DataHolder] = List(incomeData, summaryData, allowanceData, capitalGainsData).flatten
+      val dataList: List[DataHolder] = List(incomeData, summaryData, allowanceData, capitalGainsData, incomeTax).flatten
 
       val mappedList = dataList.flatMap(_.payload.get.get(key))
 
