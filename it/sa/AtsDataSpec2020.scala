@@ -45,7 +45,6 @@ class AtsDataSpec2020 extends SaTestHelper {
       val request = FakeRequest(GET, apiUrl(taxYear))
       val result = resultToAtsData(route(app, request))
 
-      Thread.sleep(10000)
       checkResult(result, Map(
         SelfEmploymentIncome -> 0.0, // LS1a
         IncomeFromEmployment -> 40511.0, // LS1
@@ -61,7 +60,8 @@ class AtsDataSpec2020 extends SaTestHelper {
         TotalTaxFreeAmount -> 12500.0, //LS10
         StartingRateForSavingsAmount -> 0.0, //LS12.1
         BasicRateIncomeTax -> 5818.0, //lS12.2
-        AdditionalRateIncomeTax -> 0.0, //LS12.3
+        HigherRateIncomeTax -> 291.60, //lS12.3
+        AdditionalRateIncomeTax -> 0.0, //LS12.4
         OrdinaryRate -> -1, //LS13.1
         UpperRate -> -1, //LS13.2
         AdditionalRate -> -1, //LS13.3
