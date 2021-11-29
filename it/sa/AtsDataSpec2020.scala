@@ -19,14 +19,14 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import models.Liability._
 import models.LiabilityKey.{StatePension, _}
-import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.{FileHelper, IntegrationSpec}
+import utils.FileHelper
 
 class AtsDataSpec2020 extends SaTestHelper {
+
+  val taxPayerFile = "taxPayerDetailsWelsh.json"
 
   def odsUrl(taxYear: Int) = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
 
@@ -65,18 +65,17 @@ class AtsDataSpec2020 extends SaTestHelper {
         OrdinaryRate -> 443.25, //LS13.1
         UpperRate -> 191.75, //LS13.2
         AdditionalRate -> 0.0, //LS13.3
-        WelshIncomeTax -> 2909.0, //LS20a
+        //WelshIncomeTax -> 2909.0, //LS20a
         OtherAdjustmentsIncreasing -> 0.0,  //LS15a
         OtherAdjustmentsReducing -> 0.0,  //LS15b
-        //TODO: Do we need to add MA
         TotalIncomeTax -> 6453.0, //LS20
         TotalIncomeTaxAndNics -> 10278.48, //LS16
         EmployeeNicAmount -> 3825.48, //LS14
-        IncomeAfterTaxAndNics -> 40311.52, //LS17, RS5
-        EmployerNicAmount -> 4399.30, //LS18
+        //IncomeAfterTaxAndNics -> 40311.52, //LS17, RS5
+        //EmployerNicAmount -> 4399.30, //LS18 PAYE data
         PayCgTaxOn -> 0.0, //LS19.8
         TaxableGains -> 0.0, //LS19.6
-        TotalTaxFreeAmount -> 12000.0, //LS19.7
+        //??? -> 12000.0, //LS19.7
         AmountDueAtEntrepreneursRate -> 0.0, //LS19.1
         AmountDueAtOrdinaryRate -> 0.0, //LS19.2
         AmountDueRPCIHigherRate -> 0.0, //LS19.3

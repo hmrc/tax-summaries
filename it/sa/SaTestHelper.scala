@@ -18,7 +18,7 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.{Amount, AtsMiddleTierData, DataHolder, LiabilityKey}
+import models.{AtsMiddleTierData, DataHolder, LiabilityKey}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
@@ -28,14 +28,16 @@ import scala.concurrent.Future
 
 trait SaTestHelper extends IntegrationSpec {
 
-  override def beforeEach() = {
+  val taxPayerFile: String
+
+  override def beforeEach(): Unit = {
     super.beforeEach()
 
     val taxPayerUrl = "/self-assessment/individual/" + utr + "/designatory-details/taxpayer"
 
     server.stubFor(
       WireMock.get(urlEqualTo(taxPayerUrl))
-        .willReturn(ok(FileHelper.loadFile("taxPayerDetails.json")))
+        .willReturn(ok(FileHelper.loadFile(taxPayerFile)))
     )
 
   }
@@ -43,15 +45,12 @@ trait SaTestHelper extends IntegrationSpec {
   def resultToAtsData(resultOption: Option[Future[Result]]): AtsMiddleTierData = {
 
     resultOption match {
-      case Some(result) =>{
-      println(contentAsString(result)+"*"*100)
-        Json.parse(contentAsString(result)).as[AtsMiddleTierData]
-      }
+      case Some(result) =>Json.parse(contentAsString(result)).as[AtsMiddleTierData]
       case None => throw new NoSuchElementException
     }
   }
 
-  def checkResult(data: AtsMiddleTierData, checkLiability: Map[LiabilityKey, Double]) = {
+  def checkResult(data: AtsMiddleTierData, checkLiability: Map[LiabilityKey, Double]): Unit = {
 
     def dataToFind(data: AtsMiddleTierData, key: LiabilityKey) = {
       val incomeData = data.income_data
@@ -69,15 +68,17 @@ trait SaTestHelper extends IntegrationSpec {
       } else if (mappedList.isEmpty) {
         throw new RuntimeException(s"$key: No keys")
       } else {
-        throw new RuntimeException(s"$key: Too many keys")
+        if (mappedList.map(_.amount).distinct.size == 1) {
+          mappedList.head
+        } else {
+          throw new RuntimeException(s"$key: Too many keys")
+        }
       }
     }
 
     checkLiability.foreach {
       case (key, value) =>
-//        s"$key is calculated" in {
-          dataToFind(data, key) mustBe Amount(value, "GBP")
-//        }
+        key + ": " + (dataToFind(data, key).amount * 100).rounded.toInt mustBe key + ": " + BigDecimal(value * 100).rounded.toInt
     }
 
   }
