@@ -20,9 +20,9 @@ import models.Liability._
 import models._
 import play.api.Logger
 import services._
-import transformers.Scottish.ATSCalculationsScottish2019
-import transformers.UK.ATSCalculationsUK2019
-import transformers.Welsh.ATSCalculationsWelsh2020
+import transformers.Scottish.{ATSCalculationsScottish2019, ATSCalculationsScottish2021}
+import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
+import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021}
 import utils.DoubleUtils
 
 trait ATSCalculations extends DoubleUtils {
@@ -281,9 +281,13 @@ object ATSCalculations {
 
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
     (summaryData.nationality, summaryData.taxYear) match {
+      case (_: UK, year) if year > 2020       => new ATSCalculationsUK2021(summaryData, taxRates)
+      case (_: Scottish, year) if year > 2020 => new ATSCalculationsScottish2021(summaryData, taxRates)
+      case (_: Welsh, year) if year > 2020    => new ATSCalculationsWelsh2021(summaryData, taxRates)
       case (_: Scottish, year) if year > 2018 => new ATSCalculationsScottish2019(summaryData, taxRates)
       case (_: Welsh, year) if year > 2019    => new ATSCalculationsWelsh2020(summaryData, taxRates)
       case (_: UK, year) if year > 2018       => new ATSCalculationsUK2019(summaryData, taxRates)
       case _                                  => new DefaultATSCalculations(summaryData, taxRates)
+
     }
 }

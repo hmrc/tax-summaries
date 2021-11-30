@@ -22,8 +22,8 @@ import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
 import transformers.Scottish.ATSCalculationsScottish2019
-import transformers.UK.ATSCalculationsUK2019
-import transformers.Welsh.ATSCalculationsWelsh2020
+import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
+import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021}
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
@@ -126,12 +126,14 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       }
 
       "return WelshATSCalculations" when {
-        "tax year is >= 2019" in {
+        "tax year is > 2019" in {
           forAll { (taxYear: Int) =>
             val calculation = new Fixture(taxYear, new Welsh())().calculation
 
-            if (taxYear >= 2019) {
+            if (taxYear == 2020) {
               calculation mustBe a[ATSCalculationsWelsh2020]
+            } else if (taxYear > 2021) {
+              calculation mustBe a[ATSCalculationsWelsh2021]
             } else {
               calculation mustBe a[DefaultATSCalculations]
             }
@@ -153,6 +155,14 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
         val calculation = new Fixture(2018, new UK())().calculation
         calculation mustBe a[DefaultATSCalculations]
+      }
+    }
+
+    "return ATSCalculationsUK2020" when {
+      "tax year is 2020 and type is UK" in {
+
+        val calculation = new Fixture(2021, new UK())().calculation
+        calculation mustBe a[ATSCalculationsUK2021]
       }
     }
   }
