@@ -262,9 +262,12 @@ trait ATSCalculations extends DoubleUtils {
 
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
 
-  def includePensionTaxForRate(taxRate: Rate): Amount =
+  def includePensionTaxForRate(taxRate: Rate): Amount = {
+    println(summaryData.pensionLumpSumTaxRate.percentage)
+    println(taxRate.percent)
     if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(PensionLsumTaxDue)
     else Amount.empty
+  }
 
   def includePensionIncomeForRate(taxRate: Rate): Amount =
     if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(StatePensionGross)

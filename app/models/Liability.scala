@@ -126,8 +126,10 @@ object Liability {
   case object EmployeeClass2NI extends ApiValue("employeeClass2Nic") with Liability
   case object EmployerNI extends ApiValue("employerNic") with Liability
 
+  // Added in 2021
   case object DividendsPartnership extends ApiValue("ctnDividendsPartnership") with Liability
   case object SavingsPartnership extends ApiValue("ctnSavingsPartnership") with Liability
+  case object TaxOnNonExcludedIncome extends ApiValue("taxOnNonExcludedInc") with Liability
 
   // format: off
   val allLiabilities: List[Liability with ApiValue] =
