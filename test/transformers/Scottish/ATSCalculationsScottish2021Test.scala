@@ -138,6 +138,19 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021("scottishIntermediateRate")))
       sut(taxSummaryLiabilityIntermediateRate).scottishIntermediateRateIncome mustBe Amount(1247.35, "GBP")
     }
+
+    "return scottishHigherRateIncome" in {
+      val taxSummaryLiabilityHigherRate: TaxSummaryLiability =
+        taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021("scottishHigherRate")))
+      sut(taxSummaryLiabilityHigherRate).scottishHigherRateIncome mustBe Amount(18.37, "GBP")
+    }
+
+    "return scottishAdditionalRateIncome" in {
+      val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
+        taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021("scottishAdditionalRate")))
+      sut(taxSummaryLiabilityAdditionalRate).scottishAdditionalRateIncome mustBe Amount(16.36, "GBP")
+    }
+
   }
 
 }
