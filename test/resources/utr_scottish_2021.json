@@ -55,7 +55,7 @@
     "ctnIncomeChgbleAddHRate":{"amount":3.22,"currency":"GBP"},
     "ctnSavingsChgbleAddHRate":{"amount":55.52,"currency":"GBP"},
     "ctnIncomeTaxAddHighRate":{"amount":66.22,"currency":"GBP"},
-    "ctnSavingsTaxAddHighRate":{"amount":2.30,"currency":"GBP"},
+    "ctnSavingsTaxAddHighRate":{"amount":2.31,"currency":"GBP"},
     "ctnDividendChgbleLowRate":{"amount":6.34,"currency":"GBP"},
     "ctnDividendTaxLowRate":{"amount":6.27,"currency":"GBP"},
     "ctnDividendChgbleHighRate":{"amount":5.55,"currency":"GBP"},
