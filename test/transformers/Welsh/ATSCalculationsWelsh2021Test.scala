@@ -16,4 +16,23 @@
 
 package transformers.Welsh
 
-class ATSCalculationsWelsh2021Test {}
+import models.TaxSummaryLiability
+import play.api.libs.json.Json
+import services.TaxRateService
+import utils.{BaseSpec, JsonUtil}
+
+class ATSCalculationsWelsh2021Test extends BaseSpec {
+  val taxYear = 2021
+  def rate2021(key: String): Double = {
+    val percentage: Double = applicationConfig.ratePercentages(taxYear).getOrElse(key, 0)
+    percentage / 100.0
+  }
+
+  val json: String = JsonUtil.load("/utr_welsh_2021.json")
+  val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
+
+  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+
+  class FakeATSCalculationWelsh2021(taxSummaryLiability: TaxSummaryLiability)
+    extends ATSCalculationsWelsh2021(taxSummaryLiability, taxRate)
+}
