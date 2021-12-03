@@ -21,7 +21,7 @@ import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations
 
-sealed class ATSCalculationsWelsh2020(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+class ATSCalculationsWelsh2020(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
   override def welshIncomeTax: Amount = {
     val welshRate = 0.1

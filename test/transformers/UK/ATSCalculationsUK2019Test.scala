@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package transformers.Welsh
+package transformers.UK
 
 import models.{Amount, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
 
-class ATSCalculationsWelsh2021Test extends BaseSpec {
-  val taxYear = 2021
-  def rate2021(key: String): Double = {
+class ATSCalculationsUK2019Test extends BaseSpec {
+
+  val taxYear = 2019
+  def rate(key: String): Double = {
     val percentage: Double = applicationConfig.ratePercentages(taxYear).getOrElse(key, 0)
     percentage / 100.0
   }
 
-  val json: String = JsonUtil.load("/utr_welsh_2021.json")
+  val json: String = JsonUtil.load("/utr_uk_2021.json")
   val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
-  class FakeATSCalculationWelsh2021(taxSummaryLiability: TaxSummaryLiability)
-      extends ATSCalculationsWelsh2021(taxSummaryLiability, taxRate)
+  class FakeATSCalculationUK2021(taxSummaryLiability: TaxSummaryLiability)
+      extends ATSCalculationsUK2021(taxSummaryLiability, taxRate)
 
-  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculationWelsh2021 =
-    new FakeATSCalculationWelsh2021(taxSummaryLiability)
+  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): ATSCalculationsUK2021 =
+    new FakeATSCalculationUK2021(taxSummaryLiability)
 
-  "Welsh 2021" must {
+  "UK 2019" must {
     "return empty" when {
       "scottishIncomeTax is called" in {
         sut().scottishIncomeTax mustBe Amount.empty
@@ -52,10 +53,6 @@ class ATSCalculationsWelsh2021Test extends BaseSpec {
       "savingsRateAmount is called" in {
         sut().savingsRateAmount mustBe Amount.empty
       }
-    }
-
-    "return welshIncomeTax" in {
-      sut().welshIncomeTax mustBe Amount(186.00, "GBP")
     }
   }
 }

@@ -21,8 +21,8 @@ import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
 
-class ATSCalculationsWelsh2021Test extends BaseSpec {
-  val taxYear = 2021
+class ATSCalculationsWelsh2020Test extends BaseSpec {
+  val taxYear = 2020
   def rate2021(key: String): Double = {
     val percentage: Double = applicationConfig.ratePercentages(taxYear).getOrElse(key, 0)
     percentage / 100.0
@@ -39,7 +39,7 @@ class ATSCalculationsWelsh2021Test extends BaseSpec {
   def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculationWelsh2021 =
     new FakeATSCalculationWelsh2021(taxSummaryLiability)
 
-  "Welsh 2021" must {
+  "Welsh 2020" must {
     "return empty" when {
       "scottishIncomeTax is called" in {
         sut().scottishIncomeTax mustBe Amount.empty

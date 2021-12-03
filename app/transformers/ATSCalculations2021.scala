@@ -27,7 +27,9 @@ trait ATSCalculations2021 extends ATSCalculations {
 
   override def selfEmployment: Amount =
     get(SummaryTotalSchedule) +
-      get(SummaryTotalPartnership)
+      get(SummaryTotalPartnership) +
+      get(SavingsPartnership) +
+      get(DividendsPartnership)
 
   override def otherIncome: Amount =
     get(SummaryTotShareOptions) +

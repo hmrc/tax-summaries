@@ -16,4 +16,43 @@
 
 package transformers.UK
 
-class ATSCalculationsUK2021Test {}
+import models.{Amount, TaxSummaryLiability}
+import play.api.libs.json.Json
+import services.TaxRateService
+import utils.{BaseSpec, JsonUtil}
+
+class ATSCalculationsUK2021Test extends BaseSpec {
+
+  val taxYear = 2021
+  def rate2021(key: String): Double = {
+    val percentage: Double = applicationConfig.ratePercentages(taxYear).getOrElse(key, 0)
+    percentage / 100.0
+  }
+
+  val json: String = JsonUtil.load("/utr_uk_2021.json")
+  val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
+
+  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+
+  class FakeATSCalculationUK2021(taxSummaryLiability: TaxSummaryLiability)
+      extends ATSCalculationsUK2021(taxSummaryLiability, taxRate)
+
+  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): ATSCalculationsUK2021 =
+    new FakeATSCalculationUK2021(taxSummaryLiability)
+
+  "UK 2021" must {
+    "return empty" when {
+      "scottishIncomeTax is called" in {
+        sut().scottishIncomeTax mustBe Amount.empty
+      }
+
+      "savingsRate is called" in {
+        sut().savingsRate mustBe Amount.empty
+      }
+
+      "savingsRateAmount is called" in {
+        sut().savingsRateAmount mustBe Amount.empty
+      }
+    }
+  }
+}

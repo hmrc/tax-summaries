@@ -21,7 +21,7 @@ import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations
 
-sealed class ATSCalculationsScottish2019(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+class ATSCalculationsScottish2019(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
 
   override def scottishIncomeTax: Amount = Amount.empty
