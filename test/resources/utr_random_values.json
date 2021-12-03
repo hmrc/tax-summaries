@@ -11,7 +11,7 @@
     "tliLastUpdated": "2014-08-12",
     "ctnPensionLumpSumTaxRate": 0.2,
     "ctnEmploymentBenefitsAmt":{"amount":12.12,"currency":"GBP"},
-    "ctnSummaryTotalSchedule":{"amount":1100.00,"currency":"GBP"},
+    "ctnSummaryTotalScheduleD":{"amount":1100.00,"currency":"GBP"},
     "ctnSummaryTotalPartnership":{"amount":23.23,"currency":"GBP"},
     "ctnSummaryTotalEmployment":{"amount":10500.00,"currency":"GBP"},
     "atsStatePensionAmt":{"amount":24.24,"currency":"GBP"},
@@ -112,7 +112,7 @@
     "taxablePaySSR": {"amount": 21.11, "currency":  "GBP"},
     "taxOnPaySIR": {"amount":  54.22, "currency": "GBP"},
     "taxablePaySIR": {"amount":  1234.21, "currency":  "GBP"},
-    "incomeTaxStatus":"0001"
+    "incomeTaxStatus":"0003"
   }
 }
 

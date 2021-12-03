@@ -29,8 +29,11 @@ class ATSCalculationsScottish2019Test extends BaseSpec {
     percentage / 100.0
   }
 
-  val json: String = JsonUtil.load("/utr_scottish_2021.json")
-  val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
+  val json: String = JsonUtil.load("/utr_random_values.json")
+  val taxSummaryLiability: TaxSummaryLiability = Json
+    .parse(json)
+    .as[TaxSummaryLiability]
+    .copy(incomeTaxStatus = Some("0002"))
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 

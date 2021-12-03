@@ -16,14 +16,15 @@
 
 package transformers
 
-import models.{Amount, TaxSummaryLiability}
+import models.Liability.TaxOnNonExcludedIncome
+import models.{Amount, Liability, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
 
 class ATSCalculations2021Test extends BaseSpec {
   val taxYear = 2021
-  val json: String = JsonUtil.load("/utr_welsh_2021.json")
+  val json: String = JsonUtil.load("/utr_random_values.json")
   val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
@@ -48,7 +49,7 @@ class ATSCalculations2021Test extends BaseSpec {
     }
 
     "calculate otherAdjustmentsIncreasing" in {
-      sut().otherAdjustmentsIncreasing mustBe Amount(141.99, "GBP")
+      sut().otherAdjustmentsIncreasing mustBe Amount(125.23, "GBP")
     }
 
     "calculate totalIncomeTaxAmount" when {
@@ -57,7 +58,10 @@ class ATSCalculations2021Test extends BaseSpec {
       }
 
       "totalIncomeTaxAmount greater than taxExcluded + taxOnNonExcludedInc" in {
-        sut().totalIncomeTaxAmount mustBe Amount(2384.8, "GBP")
+        val newAtsData = taxSummaryLiability.atsData - TaxOnNonExcludedIncome +
+          (TaxOnNonExcludedIncome -> Amount(0.4, "GBP"))
+        val newLiability = taxSummaryLiability.copy(atsData = newAtsData)
+        sut(newLiability).totalIncomeTaxAmount mustBe Amount(10.50, "GBP")
       }
     }
   }

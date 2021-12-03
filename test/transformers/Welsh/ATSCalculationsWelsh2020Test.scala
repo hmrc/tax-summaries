@@ -28,8 +28,11 @@ class ATSCalculationsWelsh2020Test extends BaseSpec {
     percentage / 100.0
   }
 
-  val json: String = JsonUtil.load("/utr_welsh_2021.json")
-  val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
+  val json: String = JsonUtil.load("/utr_random_values.json")
+  val taxSummaryLiability: TaxSummaryLiability = Json
+    .parse(json)
+    .as[TaxSummaryLiability]
+    .copy(incomeTaxStatus = Some("0003"))
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
@@ -55,7 +58,7 @@ class ATSCalculationsWelsh2020Test extends BaseSpec {
     }
 
     "return welshIncomeTax" in {
-      sut().welshIncomeTax mustBe Amount(186.00, "GBP")
+      sut().welshIncomeTax mustBe Amount(186.845, "GBP")
     }
   }
 }

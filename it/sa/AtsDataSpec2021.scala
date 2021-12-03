@@ -34,7 +34,7 @@ class AtsDataSpec2021 extends SaTestHelper {
 
   "HasSummary" must {
 
-    "return an OK when data for 2021 is retrieved from ODS (TC256)" ignore {
+    "return an OK when data for 2021 is retrieved from ODS (TC256)" in {
 
       val taxYear = 2021
       server.stubFor(
@@ -86,7 +86,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       ))
     }
 
-    "return an OK when data for 2021 is retrieved from ODS (TC13)" ignore {
+    "return an OK when data for 2021 is retrieved from ODS (TC13)" in {
 
       val taxYear = 2021
 

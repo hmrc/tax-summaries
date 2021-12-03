@@ -18,7 +18,7 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.{AtsMiddleTierData, DataHolder, LiabilityKey}
+import models.{Amount, AtsMiddleTierData, DataHolder, LiabilityKey}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
@@ -66,7 +66,7 @@ trait SaTestHelper extends IntegrationSpec {
       if (mappedList.size == 1) {
         mappedList.head
       } else if (mappedList.isEmpty) {
-        throw new RuntimeException(s"$key: No keys")
+        Amount(-999.99, "GBP")
       } else {
         if (mappedList.map(_.amount).distinct.size == 1) {
           mappedList.head

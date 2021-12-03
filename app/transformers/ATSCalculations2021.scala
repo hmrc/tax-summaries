@@ -60,7 +60,6 @@ trait ATSCalculations2021 extends ATSCalculations {
   override def otherAdjustmentsIncreasing: Amount =
     (
       get(NonDomCharge) +
-        get(TaxExcluded) +
         get(IncomeTaxDue) +
         get(NetAnnuityPaytsTaxDue) +
         get(ChildBenefitCharge) +
@@ -68,15 +67,18 @@ trait ATSCalculations2021 extends ATSCalculations {
     ) - get(TaxDueAfterAllceRlf)
 
   override def totalIncomeTaxAmount: Amount =
-    savingsRateAmount + // LS12.1
-      basicRateIncomeTaxAmount + // LS12.2
-      higherRateIncomeTaxAmount + // LS12.3
-      additionalRateIncomeTaxAmount +
-      get(DividendTaxLowRate) +
-      get(DividendTaxHighRate) + //LS13.2
-      get(DividendTaxAddHighRate) +
-      otherAdjustmentsIncreasing -
-      otherAdjustmentsReducing -
-      getWithDefaultAmount(MarriageAllceIn)
+    List(
+      savingsRateAmount + // LS12.1
+        basicRateIncomeTaxAmount + // LS12.2
+        higherRateIncomeTaxAmount + // LS12.3
+        additionalRateIncomeTaxAmount +
+        get(DividendTaxLowRate) +
+        get(DividendTaxHighRate) + //LS13.2
+        get(DividendTaxAddHighRate) +
+        otherAdjustmentsIncreasing -
+        otherAdjustmentsReducing -
+        getWithDefaultAmount(MarriageAllceIn),
+      get(TaxExcluded) + get(TaxOnNonExcludedIncome)
+    ).min
 
 }
