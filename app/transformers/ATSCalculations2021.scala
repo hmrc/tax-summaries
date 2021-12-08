@@ -16,9 +16,11 @@
 
 package transformers
 
-import models.Liability._
+import models.Liability.{DividendsPartnership, SavingsPartnership, TaxOnNonExcludedIncome, _}
 import models._
 import services._
+
+import scala.util.{Failure, Success, Try}
 
 trait ATSCalculations2021 extends ATSCalculations {
 

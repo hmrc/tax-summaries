@@ -32,60 +32,60 @@ class AtsDataSpec2020 extends SaTestHelper {
 
   def apiUrl(taxYear: Int) = s"/taxs/$utr/$taxYear/ats-data"
 
-  "HasSummary" must {
-    "return an OK when data for 2020 is retrieved from ODS (TC4)" in {
+  "HasSummary (TC4)" must {
 
-      val taxYear = 2020
+    val taxYear = 2020
+    val expected = Map(
+      SelfEmploymentIncome -> 0.0, // LS1a
+      IncomeFromEmployment -> 40511.0, // LS1
+      StatePension -> 0.0, //LS2
+      OtherPensionIncome -> 0.0, //LS3
+      TaxableStateBenefits -> 0.0, //LS4
+      OtherIncome -> 10079.0, //LS5
+      BenefitsFromEmployment -> 0.0, //LS6
+      TotalIncomeBeforeTax -> 50590.0, //LS7
+      PersonalTaxFreeAmount -> 12500.00, //LS8.1
+      MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
+      OtherAllowancesAmount -> 0.0, //LS9
+      TotalTaxFreeAmount -> 12500.0, //LS10
+      StartingRateForSavingsAmount -> 0.0, //LS12.1
+      BasicRateIncomeTax -> 5818.0, //lS12.2
+      HigherRateIncomeTax -> 0.0, //lS12.3
+      AdditionalRateIncomeTax -> 0.0, //LS12.4
+      OrdinaryRate -> 443.25, //LS13.1
+      UpperRate -> 191.75, //LS13.2
+      AdditionalRate -> 0.0, //LS13.3
+      //WelshIncomeTax -> 2909.0, //LS20a
+      OtherAdjustmentsIncreasing -> 0.0,  //LS15a
+      OtherAdjustmentsReducing -> 0.0,  //LS15b
+      TotalIncomeTax -> 6453.0, //LS20
+      TotalIncomeTaxAndNics -> 10278.48, //LS16
+      EmployeeNicAmount -> 3825.48, //LS14
+      //IncomeAfterTaxAndNics -> 40311.52, //LS17, RS5
+      //EmployerNicAmount -> 4399.30, //LS18 PAYE data
+      PayCgTaxOn -> 0.0, //LS19.8
+      TaxableGains -> 0.0, //LS19.6
+      //??? -> 12000.0, //LS19.7
+      AmountDueAtEntrepreneursRate -> 0.0, //LS19.1
+      AmountDueAtOrdinaryRate -> 0.0, //LS19.2
+      AmountDueRPCIHigherRate -> 0.0, //LS19.3
+      AmountDueRPCILowerRate -> 0.0, //LS19.3b
+      Adjustments -> 0.0, //LS19.4
+      TotalCgTax -> 0.0,
+      YourTotalTax -> 10278.48 //RS7
+    )
 
-      server.stubFor(
-        WireMock.get(urlEqualTo(odsUrl(taxYear)))
-          .willReturn(ok(FileHelper.loadFile("2019-20/TC4.json")))
-      )
+    expected foreach { case (key, expectedValue) =>
+      s"return the correct key $key" in {
+        server.stubFor(
+          WireMock.get(urlEqualTo(odsUrl(taxYear)))
+            .willReturn(ok(FileHelper.loadFile("2019-20/TC4.json")))
+        )
+        val request = FakeRequest(GET, apiUrl(taxYear))
+        val result = resultToAtsData(route(app, request))
 
-      val request = FakeRequest(GET, apiUrl(taxYear))
-      val result = resultToAtsData(route(app, request))
-
-      checkResult(result, Map(
-        SelfEmploymentIncome -> 0.0, // LS1a
-        IncomeFromEmployment -> 40511.0, // LS1
-        StatePension -> 0.0, //LS2
-        OtherPensionIncome -> 0.0, //LS3
-        TaxableStateBenefits -> 0.0, //LS4
-        OtherIncome -> 10079.0, //LS5
-        BenefitsFromEmployment -> 0.0, //LS6
-        TotalIncomeBeforeTax -> 50590.0, //LS7
-        PersonalTaxFreeAmount -> 12500.00, //LS8.1
-        MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-        OtherAllowancesAmount -> 0.0, //LS9
-        TotalTaxFreeAmount -> 12500.0, //LS10
-        StartingRateForSavingsAmount -> 0.0, //LS12.1
-        BasicRateIncomeTax -> 5818.0, //lS12.2
-        HigherRateIncomeTax -> 0.0, //lS12.3
-        AdditionalRateIncomeTax -> 0.0, //LS12.4
-        OrdinaryRate -> 443.25, //LS13.1
-        UpperRate -> 191.75, //LS13.2
-        AdditionalRate -> 0.0, //LS13.3
-        //WelshIncomeTax -> 2909.0, //LS20a
-        OtherAdjustmentsIncreasing -> 0.0,  //LS15a
-        OtherAdjustmentsReducing -> 0.0,  //LS15b
-        TotalIncomeTax -> 6453.0, //LS20
-        TotalIncomeTaxAndNics -> 10278.48, //LS16
-        EmployeeNicAmount -> 3825.48, //LS14
-        //IncomeAfterTaxAndNics -> 40311.52, //LS17, RS5
-        //EmployerNicAmount -> 4399.30, //LS18 PAYE data
-        PayCgTaxOn -> 0.0, //LS19.8
-        TaxableGains -> 0.0, //LS19.6
-        //??? -> 12000.0, //LS19.7
-        AmountDueAtEntrepreneursRate -> 0.0, //LS19.1
-        AmountDueAtOrdinaryRate -> 0.0, //LS19.2
-        AmountDueRPCIHigherRate -> 0.0, //LS19.3
-        AmountDueRPCILowerRate -> 0.0, //LS19.3b
-        Adjustments -> 0.0, //LS19.4
-        TotalCgTax -> 0.0,
-        YourTotalTax -> 10278.48 //RS7
-      ))
-
-
+        checkResult(result, key, expectedValue)
+      }
     }
 
     "return NOT_FOUND when ODS returns NOT_FOUND response" in {

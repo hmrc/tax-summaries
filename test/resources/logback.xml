@@ -1,11 +1,14 @@
 <configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%date{ISO8601} level=[%level] logger=[%logger] thread=[%thread] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
-        </encoder>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="uk.gov.hmrc.play.logging.JsonEncoder"/>
     </appender>
-    <root level="ERROR">
-        <appender-ref ref="CONSOLE"/>
+
+    <logger name="uk.gov" level="${logger.uk.gov:-WARN}"/>
+
+    <logger name="ATSPAYEDataController" level="DEBUG"/>
+
+    <root level="${logger.application:-WARN}">
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
-

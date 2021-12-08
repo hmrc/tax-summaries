@@ -288,6 +288,5 @@ object ATSCalculations {
       case (_: Welsh, year) if year > 2019    => new ATSCalculationsWelsh2020(summaryData, taxRates)
       case (_: UK, year) if year > 2018       => new ATSCalculationsUK2019(summaryData, taxRates)
       case _                                  => new DefaultATSCalculations(summaryData, taxRates)
-
     }
 }
