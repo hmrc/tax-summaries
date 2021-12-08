@@ -75,7 +75,11 @@ trait SaTestHelper extends IntegrationSpec {
       }
     }
 
-    dataToFind(data, key).amount mustBe BigDecimal(value)
+    if(data.errors.isEmpty) {
+      dataToFind(data, key).amount mustBe BigDecimal(value)
+    } else {
+      throw new RuntimeException(s"error occurred ......." + data.errors.get.error)
+    }
 
   }
 

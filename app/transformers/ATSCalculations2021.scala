@@ -68,19 +68,25 @@ trait ATSCalculations2021 extends ATSCalculations {
         get(PensionSavingChargeable)
     ) - get(TaxDueAfterAllceRlf)
 
-  override def totalIncomeTaxAmount: Amount =
-    List(
-      savingsRateAmount + // LS12.1
-        basicRateIncomeTaxAmount + // LS12.2
-        higherRateIncomeTaxAmount + // LS12.3
-        additionalRateIncomeTaxAmount +
-        get(DividendTaxLowRate) +
-        get(DividendTaxHighRate) + //LS13.2
-        get(DividendTaxAddHighRate) +
-        otherAdjustmentsIncreasing -
-        otherAdjustmentsReducing -
-        getWithDefaultAmount(MarriageAllceIn),
-      get(TaxExcluded) + get(TaxOnNonExcludedIncome)
-    ).min
+  override def totalIncomeTaxAmount: Amount = {
+    val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
+      basicRateIncomeTaxAmount + // LS12.2
+      higherRateIncomeTaxAmount + // LS12.3
+      additionalRateIncomeTaxAmount +
+      get(DividendTaxLowRate) +
+      get(DividendTaxHighRate) + //LS13.2
+      get(DividendTaxAddHighRate) +
+      otherAdjustmentsIncreasing -
+      otherAdjustmentsReducing -
+      getWithDefaultAmount(MarriageAllceIn)
+
+    val excludedAndNonExcludedTax = get(TaxExcluded) + get(TaxOnNonExcludedIncome)
+
+    if (excludedAndNonExcludedTax.amount > 0) {
+      List(rateDividendAdjustmentTax, excludedAndNonExcludedTax).min
+    } else {
+      rateDividendAdjustmentTax
+    }
+  }
 
 }
