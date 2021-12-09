@@ -796,31 +796,31 @@ class AtsDataSpec2021 extends SaTestHelper {
 
     val taxYear = 2020
     val expected = Map(
-      SelfEmploymentIncome -> 0.0, // LS1a
-      IncomeFromEmployment -> 50000.0, // LS1
+      SelfEmploymentIncome -> 69500.0, // LS1a
+      IncomeFromEmployment -> 0.0, // LS1
       StatePension -> 0.0, //LS2
       OtherPensionIncome ->  0.0, //LS3
       TaxableStateBenefits -> 0.0, //LS4
-      OtherIncome -> 160126.0, //LS5
+      OtherIncome -> 44000.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 210126.0, //LS7
+      TotalIncomeBeforeTax -> 113500.0, //LS7
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-      OtherAllowancesAmount -> 0.0, //LS9
-      TotalTaxFreeAmount -> 12500.0, //LS10
+      OtherAllowancesAmount -> 52370.0, //LS9
+      TotalTaxFreeAmount -> 64870.0, //LS10
       StartingRateForSavingsAmount -> 0.0, //LS12.1
-      BasicRateIncomeTax -> 37500.0, //lS12.2
+      BasicRateIncomeTax -> 27760.0, //lS12.2
       HigherRateIncomeTax -> 0.0, //LS12.3
       AdditionalRateIncomeTax -> 0.0, //LS12.4
-      OrdinaryRate -> 147874.0, //LS13.1
-      UpperRate -> 10126.0, //LS13.2
+      OrdinaryRate -> 6870.0, //LS13.1
+      UpperRate -> 11130.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 12094.5,
+      OtherAdjustmentsIncreasing -> 0.0,
       OtherAdjustmentsReducing -> 0.0,
-      WelshIncomeTax -> 3750.0, //LS20a
+      WelshIncomeTax -> 463.0, //LS20a
       TotalIncomeTax -> 9684.5, //LS20
-      TotalIncomeTaxAndNics -> 34107.6, //LS16
-      EmployeeNicAmount -> 131.60, //LS14
+      TotalIncomeTaxAndNics -> 13929.22, //LS16
+      EmployeeNicAmount -> 4244.72, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
       AmountDueAtEntrepreneursRate -> 0.0, //LS19.1
@@ -829,7 +829,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 34107.6 //RS7
+      YourTotalTax -> 13929.22 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -851,29 +851,29 @@ class AtsDataSpec2021 extends SaTestHelper {
     val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
-      IncomeFromEmployment -> 50000.0, // LS1
+      IncomeFromEmployment -> 58104.0, // LS1
       StatePension -> 0.0, //LS2
       OtherPensionIncome ->  0.0, //LS3
       TaxableStateBenefits -> 0.0, //LS4
-      OtherIncome -> 160126.0, //LS5
+      OtherIncome -> 14124.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 210126.0, //LS7
+      TotalIncomeBeforeTax -> 72228.0, //LS7
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-      OtherAllowancesAmount -> 0.0, //LS9
-      TotalTaxFreeAmount -> 12500.0, //LS10
+      OtherAllowancesAmount -> 4383.0, //LS9
+      TotalTaxFreeAmount -> 16883.0, //LS10
       StartingRateForSavingsAmount -> 0.0, //LS12.1
       BasicRateIncomeTax -> 37500.0, //lS12.2
-      HigherRateIncomeTax -> 0.0, //LS12.3
+      HigherRateIncomeTax -> 35595.0, //LS12.3
       AdditionalRateIncomeTax -> 0.0, //LS12.4
-      OrdinaryRate -> 147874.0, //LS13.1
-      UpperRate -> 10126.0, //LS13.2
+      OrdinaryRate -> 0.0, //LS13.1
+      UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 12094.5,
-      OtherAdjustmentsReducing -> 0.0,
-      WelshIncomeTax -> 3750.0, //LS20a
-      TotalIncomeTax -> 28015.94, //LS20
-      TotalIncomeTaxAndNics -> 34107.6, //LS16
+      OtherAdjustmentsIncreasing -> 21503.4,
+      OtherAdjustmentsReducing -> 3727.0,
+      WelshIncomeTax -> 0.0, //LS20a
+      TotalIncomeTax -> 39514.4, //LS20
+      TotalIncomeTaxAndNics -> 39646.0, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -883,7 +883,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 34107.6 //RS7
+      YourTotalTax -> 39646.0 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -905,29 +905,29 @@ class AtsDataSpec2021 extends SaTestHelper {
     val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
-      IncomeFromEmployment -> 50000.0, // LS1
+      IncomeFromEmployment -> 0.0, // LS1
       StatePension -> 0.0, //LS2
       OtherPensionIncome ->  0.0, //LS3
       TaxableStateBenefits -> 0.0, //LS4
-      OtherIncome -> 160126.0, //LS5
+      OtherIncome -> 172491.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 210126.0, //LS7
-      PersonalTaxFreeAmount -> 12500.0, //LS8.1
+      TotalIncomeBeforeTax -> 172491.0, //LS7
+      PersonalTaxFreeAmount -> 0.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-      OtherAllowancesAmount -> 0.0, //LS9
-      TotalTaxFreeAmount -> 12500.0, //LS10
+      OtherAllowancesAmount -> 4541.0, //LS9
+      TotalTaxFreeAmount -> 4541.0, //LS10
       StartingRateForSavingsAmount -> 0.0, //LS12.1
       BasicRateIncomeTax -> 37500.0, //lS12.2
-      HigherRateIncomeTax -> 0.0, //LS12.3
-      AdditionalRateIncomeTax -> 0.0, //LS12.4
-      OrdinaryRate -> 147874.0, //LS13.1
-      UpperRate -> 10126.0, //LS13.2
+      HigherRateIncomeTax -> 112500.0, //LS12.3
+      AdditionalRateIncomeTax -> 17822.0, //LS12.4
+      OrdinaryRate -> 0.0, //LS13.1
+      UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 12094.5,
-      OtherAdjustmentsReducing -> 0.0,
-      WelshIncomeTax -> 3750.0, //LS20a
+      OtherAdjustmentsIncreasing -> 0.0,
+      OtherAdjustmentsReducing -> 9775.0,
+      WelshIncomeTax -> 0.0, //LS20a
       TotalIncomeTax -> 50744.9, //LS20
-      TotalIncomeTaxAndNics -> 34107.6, //LS16
+      TotalIncomeTaxAndNics -> 50876.5, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -937,7 +937,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 34107.6 //RS7
+      YourTotalTax -> 50876.5 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -959,29 +959,29 @@ class AtsDataSpec2021 extends SaTestHelper {
     val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
-      IncomeFromEmployment -> 50000.0, // LS1
+      IncomeFromEmployment -> 56500.0, // LS1
       StatePension -> 0.0, //LS2
       OtherPensionIncome ->  0.0, //LS3
       TaxableStateBenefits -> 0.0, //LS4
-      OtherIncome -> 160126.0, //LS5
+      OtherIncome -> 0.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 210126.0, //LS7
+      TotalIncomeBeforeTax -> 56500.0, //LS7
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
       TotalTaxFreeAmount -> 12500.0, //LS10
       StartingRateForSavingsAmount -> 0.0, //LS12.1
       BasicRateIncomeTax -> 37500.0, //lS12.2
-      HigherRateIncomeTax -> 0.0, //LS12.3
+      HigherRateIncomeTax -> 6500.0, //LS12.3
       AdditionalRateIncomeTax -> 0.0, //LS12.4
-      OrdinaryRate -> 147874.0, //LS13.1
-      UpperRate -> 10126.0, //LS13.2
+      OrdinaryRate -> 0.0, //LS13.1
+      UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 12094.5,
+      OtherAdjustmentsIncreasing -> 40000.0,
       OtherAdjustmentsReducing -> 0.0,
-      WelshIncomeTax -> 3750.0, //LS20a
-      TotalIncomeTax -> 30100.0, //LS20
-      TotalIncomeTaxAndNics -> 34107.6, //LS16
+      WelshIncomeTax -> 0.0, //LS20a
+      TotalIncomeTax -> 50100.0, //LS20
+      TotalIncomeTaxAndNics -> 50231.6, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -991,7 +991,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 34107.6 //RS7
+      YourTotalTax -> 50231.6 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -1013,29 +1013,29 @@ class AtsDataSpec2021 extends SaTestHelper {
     val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
-      IncomeFromEmployment -> 50000.0, // LS1
+      IncomeFromEmployment -> 38500.0, // LS1
       StatePension -> 0.0, //LS2
       OtherPensionIncome ->  0.0, //LS3
       TaxableStateBenefits -> 0.0, //LS4
-      OtherIncome -> 160126.0, //LS5
+      OtherIncome -> 0.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 210126.0, //LS7
+      TotalIncomeBeforeTax -> 38500.0, //LS7
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
       TotalTaxFreeAmount -> 12500.0, //LS10
       StartingRateForSavingsAmount -> 0.0, //LS12.1
-      BasicRateIncomeTax -> 37500.0, //lS12.2
+      BasicRateIncomeTax -> 26000.0, //lS12.2
       HigherRateIncomeTax -> 0.0, //LS12.3
       AdditionalRateIncomeTax -> 0.0, //LS12.4
-      OrdinaryRate -> 147874.0, //LS13.1
-      UpperRate -> 10126.0, //LS13.2
+      OrdinaryRate -> 0.0, //LS13.1
+      UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 12094.5,
+      OtherAdjustmentsIncreasing -> 0.0,
       OtherAdjustmentsReducing -> 0.0,
-      WelshIncomeTax -> 3750.0, //LS20a
+      WelshIncomeTax -> 0.0, //LS20a
       TotalIncomeTax -> 5200.0, //LS20
-      TotalIncomeTaxAndNics -> 34107.6, //LS16
+      TotalIncomeTaxAndNics -> 5331.6, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -1045,7 +1045,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 34107.6 //RS7
+      YourTotalTax -> 5331.6 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
