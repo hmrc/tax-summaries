@@ -1,0 +1,88 @@
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package sa
+
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
+import models.{AtsMiddleTierData, DataHolder, LiabilityKey}
+import play.api.libs.json.Json
+import play.api.mvc.Result
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
+import utils.{FileHelper, IntegrationSpec}
+
+import scala.concurrent.Future
+
+trait SaTestHelper extends IntegrationSpec {
+
+  val taxPayerFile: String
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+
+    val taxPayerUrl = "/self-assessment/individual/" + utr + "/designatory-details/taxpayer"
+
+    server.stubFor(
+      WireMock.get(urlEqualTo(taxPayerUrl))
+        .willReturn(ok(FileHelper.loadFile(taxPayerFile)))
+    )
+
+  }
+
+  def resultToAtsData(resultOption: Option[Future[Result]]): AtsMiddleTierData = {
+
+    resultOption match {
+      case Some(result) =>Json.parse(contentAsString(result)).as[AtsMiddleTierData]
+      case None => throw new NoSuchElementException
+    }
+  }
+
+  def checkResult(data: AtsMiddleTierData, checkLiability: Map[LiabilityKey, Double]): Unit = {
+
+    def dataToFind(data: AtsMiddleTierData, key: LiabilityKey) = {
+      val incomeData = data.income_data
+      val summaryData = data.summary_data
+      val allowanceData = data.allowance_data
+      val capitalGainsData = data.capital_gains_data
+      val incomeTax = data.income_tax
+
+      val dataList: List[DataHolder] = List(incomeData, summaryData, allowanceData, capitalGainsData, incomeTax).flatten
+
+      val mappedList = dataList.flatMap(_.payload.get.get(key))
+
+      if (mappedList.size == 1) {
+        mappedList.head
+      } else if (mappedList.isEmpty) {
+        throw new RuntimeException(s"$key: No keys")
+      } else {
+        if (mappedList.map(_.amount).distinct.size == 1) {
+          mappedList.head
+        } else {
+          throw new RuntimeException(s"$key: Too many keys")
+        }
+      }
+    }
+
+    checkLiability.foreach {
+      case (key, value) =>
+        key + ": " + (dataToFind(data, key).amount * 100).rounded.toInt mustBe key + ": " + BigDecimal(value * 100).rounded.toInt
+    }
+
+  }
+
+
+
+}

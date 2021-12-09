@@ -17,8 +17,9 @@
 package transformers
 
 import errors.AtsError
-import models.TaxSummaryLiability
+import models.{AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.{JsNull, Json}
+import services.TaxRateService
 import utils.{AtsJsonDataUpdate, BaseSpec}
 
 import scala.io.Source
@@ -27,6 +28,9 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
 
   val dataJson = Json.parse(Source.fromURL(getClass.getResource("/utr_2014.json")).mkString)
   val taxYear: Int = 2014
+  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val calculations = ATSCalculations.make(dataJson.as[TaxSummaryLiability], taxRate)
+  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
   "With base data for utr" must {
 
@@ -40,8 +44,9 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
 
       val transformedJson = transformTaxpayerData(sourceJson = originalJson, jsonUpdateObject = update)
 
-      val returnValue =
-        ATSRawDataTransformer(applicationConfig, dataJson.as[TaxSummaryLiability], transformedJson, "", taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        SUT.atsDataDTO(taxRate, calculations, transformedJson, "", taxYear)
+
       returnValue.taxPayerData mustBe None
       returnValue.errors mustBe Some(AtsError("title"))
     }
@@ -53,8 +58,9 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
 
       val parsedJson = Json.parse(originalJson)
 
-      val returnValue =
-        ATSRawDataTransformer(applicationConfig, dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
+      val returnValue: AtsMiddleTierData =
+        SUT.atsDataDTO(taxRate, calculations, parsedJson, "", taxYear)
+
       returnValue.taxPayerData mustBe None
 
       returnValue.errors mustBe Some(AtsError("forename"))
@@ -66,8 +72,9 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
         Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
 
       val parsedJson = Json.parse(originalJson)
-      val returnValue =
-        ATSRawDataTransformer(applicationConfig, dataJson.as[TaxSummaryLiability], parsedJson, "", taxYear).atsDataDTO
+
+      val returnValue: AtsMiddleTierData =
+        SUT.atsDataDTO(taxRate, calculations, parsedJson, "", taxYear)
 
       returnValue.taxPayerData mustBe None
       returnValue.errors mustBe Some(AtsError("surname"))

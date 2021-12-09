@@ -20,6 +20,7 @@ import models.Liability.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models.LiabilityKey._
 import models._
 import play.api.libs.json.Json
+import services.TaxRateService
 import utils._
 
 import scala.io.Source
@@ -29,6 +30,9 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
   val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   val taxYear: Int = 2014
+  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+
+  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
   "The capital gains" must {
 
@@ -37,13 +41,10 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
+      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
       val testRates =
@@ -64,13 +65,10 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
+      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       val testPayload =
@@ -112,13 +110,10 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_6.json")).mkString
 
       val parsedJson = Json.parse(sampleJson)
+      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          parsedJson.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -157,13 +152,10 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
       )
 
       val transformedData = transformation(sourceJson = sampleJson, tliSlpAtsUpdate = update)
+      val calculations = ATSCalculations.make(transformedData.as[TaxSummaryLiability], taxRate)
+
       val returnValue: AtsMiddleTierData =
-        ATSRawDataTransformer(
-          applicationConfig,
-          transformedData.as[TaxSummaryLiability],
-          parsedTaxpayerDetailsJson,
-          "",
-          taxYear).atsDataDTO
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
       parsedPayload(PayCgTaxOn) must equal(Amount.empty)

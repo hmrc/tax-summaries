@@ -21,18 +21,16 @@ import models.Liability._
 import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
+import transformers.Scottish.ATSCalculationsScottish2019
+import transformers.UK.ATSCalculationsUK2019
+import transformers.Welsh.ATSCalculationsWelsh2020
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
 
-sealed trait Origin
-final case object Scottish extends Origin
-final case object Welsh extends Origin
-final case object RestUK extends Origin
-
 class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with DoubleUtils {
 
-  class CalcFixtures(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig)(
+  class CalcFixtures(val taxYear: Int, val origin: Nationality, applicationConfig: ApplicationConfig)(
     pensionTaxRate: PensionTaxRate,
     newAtsData: (Liability, Amount)*) { self =>
 
@@ -50,9 +48,9 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     )
 
     val incomeTaxStatus = origin match {
-      case Scottish => Some("0002")
-      case Welsh    => Some("0003")
-      case _        => None
+      case _: Scottish => Some("0002")
+      case _: Welsh    => Some("0003")
+      case _           => None
     }
 
     lazy val taxSummaryLiability =
@@ -63,7 +61,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     lazy val calculation: ATSCalculations = ATSCalculations.make(taxSummaryLiability, taxRateService)
   }
 
-  class Fixture(val taxYear: Int, val origin: Origin, applicationConfig: ApplicationConfig = applicationConfig) {
+  class Fixture(val taxYear: Int, origin: Nationality, applicationConfig: ApplicationConfig = applicationConfig) {
 
     def apply(): CalcFixtures =
       new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0))
@@ -115,25 +113,25 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
       "tax years is > 2018 and type is scottish" in {
 
-        val calculation = new Fixture(2019, Scottish)().calculation
-        calculation mustBe a[Post2018ScottishATSCalculations]
+        val calculation = new Fixture(2019, new Scottish())().calculation
+        calculation mustBe a[ATSCalculationsScottish2019]
       }
     }
 
     "return Post2018rUKATSCalculations" when {
 
       "tax year is > 2018" in {
-        val calculation = new Fixture(2019, RestUK)().calculation
-        calculation mustBe a[Post2018rUKATSCalculations]
+        val calculation = new Fixture(2019, new UK())().calculation
+        calculation mustBe a[ATSCalculationsUK2019]
       }
 
       "return WelshATSCalculations" when {
         "tax year is >= 2019" in {
           forAll { (taxYear: Int) =>
-            val calculation = new Fixture(taxYear, Welsh)().calculation
+            val calculation = new Fixture(taxYear, new Welsh())().calculation
 
             if (taxYear >= 2019) {
-              calculation mustBe a[WelshATSCalculations]
+              calculation mustBe a[ATSCalculationsWelsh2020]
             } else {
               calculation mustBe a[DefaultATSCalculations]
             }
@@ -147,13 +145,13 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
       "tax year is < 2019 and type is scottish" in {
 
-        val calculation = new Fixture(2018, Scottish)().calculation
+        val calculation = new Fixture(2018, new Scottish())().calculation
         calculation mustBe a[DefaultATSCalculations]
       }
 
       "tax year is < 2019" in {
 
-        val calculation = new Fixture(2018, RestUK)().calculation
+        val calculation = new Fixture(2018, new UK())().calculation
         calculation mustBe a[DefaultATSCalculations]
       }
     }
@@ -161,7 +159,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "DefaultATSCalculations" must {
 
-    val fixture = new Fixture(2016, RestUK)
+    val fixture = new Fixture(2016, new UK())
 
     "basicIncomeRateIncomeTax includes pension tax when pension rate matches basic rate" in {
 
@@ -266,7 +264,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "Post2018rUKATSCalculations" must {
 
-    val fixture = new Fixture(2019, RestUK)()
+    val fixture = new Fixture(2019, new UK())()
     val calculation = fixture.calculation
 
     "return an empty amount for scottishIncomeTax" in {
@@ -291,7 +289,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "Post2018ScottishATSCalculations" must {
 
-    val scottishFixture = new Fixture(taxYear = 2019, Scottish)
+    val scottishFixture = new Fixture(taxYear = 2019, new Scottish())
     val calculation = scottishFixture().calculation
 
     "return an empty amount for scottishIncomeTax" in {
@@ -555,7 +553,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "WelshATSCalculations" must {
     "calculate the welshIncomeTax" in {
-      val welshFixture = new Fixture(taxYear = 2020, Welsh)
+      val welshFixture = new Fixture(taxYear = 2020, new Welsh())
 
       forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
         val sut = welshFixture(
