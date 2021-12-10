@@ -160,7 +160,7 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
       AdditionalRateAmount            -> calculations.get(DividendTaxAddHighRate),
       OtherAdjustmentsIncreasing      -> calculations.otherAdjustmentsIncreasing,
       MarriageAllowanceReceivedAmount -> calculations.getWithDefaultAmount(MarriageAllceIn),
-      OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing,
+      OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing.roundAmountUp(),
       TotalIncomeTax                  -> calculations.totalIncomeTaxAmount,
       ScottishIncomeTax               -> calculations.scottishIncomeTax,
       WelshIncomeTax                  -> calculations.welshIncomeTax,

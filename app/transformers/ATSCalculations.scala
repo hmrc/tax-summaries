@@ -191,7 +191,7 @@ trait ATSCalculations extends DoubleUtils {
         getWithDefaultAmount(ReliefForFinanceCosts) +
         getWithDefaultAmount(LFIRelief) +
         getWithDefaultAmount(Alimony)
-    ).roundAmountUp()
+    )
 
   def totalIncomeTaxAmount: Amount =
     savingsRateAmount + // LS12.1
