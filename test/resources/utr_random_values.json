@@ -112,6 +112,7 @@
     "taxablePaySSR": {"amount": 21.11, "currency":  "GBP"},
     "taxOnPaySIR": {"amount":  54.22, "currency": "GBP"},
     "taxablePaySIR": {"amount":  1234.21, "currency":  "GBP"},
+    "giftAidTaxReduced": {"amount":  876.21, "currency":  "GBP"},
     "incomeTaxStatus":"0003"
   }
 }

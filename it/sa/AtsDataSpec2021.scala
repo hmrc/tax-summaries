@@ -19,6 +19,7 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import models.LiabilityKey
 import models.LiabilityKey._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -58,7 +59,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       OtherAdjustmentsIncreasing -> 0.0,
       OtherAdjustmentsReducing -> 0.0,
       WelshIncomeTax -> 0.0, //LS20a
-      TotalIncomeTax -> 4106.4, //LS20
+      TotalIncomeTax -> 1149.85, //LS20
       TotalIncomeTaxAndNics -> 1281.45, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
@@ -329,11 +330,11 @@ class AtsDataSpec2021 extends SaTestHelper {
       OrdinaryRate -> 147874.0, //LS13.1
       UpperRate -> 10126.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 12094.5,
+      OtherAdjustmentsIncreasing -> 10106.5,
       OtherAdjustmentsReducing -> 0.0,
       WelshIncomeTax -> 3750.0, //LS20a
       TotalIncomeTax -> 31988.0, //LS20
-      TotalIncomeTaxAndNics -> 34107.6, //LS16
+      TotalIncomeTaxAndNics -> 32119.6, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -343,7 +344,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 34107.6 //RS7
+      YourTotalTax -> 32119.6 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -437,7 +438,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       OrdinaryRate -> 2279.0, //LS13.1
       UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 393.5,
+      OtherAdjustmentsIncreasing -> 0.0,
       OtherAdjustmentsReducing -> 394.0,
       WelshIncomeTax -> 0.0, //LS20a
       TotalIncomeTax -> 4083.32, //LS20
@@ -451,7 +452,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 6122.6 //RS7
+      YourTotalTax -> 5729.6 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -494,8 +495,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       OtherAdjustmentsIncreasing -> 0.0,
       OtherAdjustmentsReducing -> 4887.0,
       WelshIncomeTax -> 0.0, //LS20a
-      TotalIncomeTax -> 11001.57, //LS20
-      TotalIncomeTaxAndNics -> 11133.17, //LS16
+      TotalIncomeTax -> 11001.87, //LS20
+      TotalIncomeTaxAndNics -> 11133.47, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 77700.0, //LS19.8
       TaxableGains -> 90000.0, //LS19.6
@@ -505,7 +506,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 13910.0,
-      YourTotalTax -> 25043.17 //RS7
+      YourTotalTax -> 25043.47 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -548,8 +549,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       OtherAdjustmentsIncreasing -> 0.0,
       OtherAdjustmentsReducing -> 322.0,
       WelshIncomeTax -> 0.0, //LS20a
-      TotalIncomeTax -> 344008.82, //LS20
-      TotalIncomeTaxAndNics -> 344140.42, //LS16
+      TotalIncomeTax -> 344009.02, //LS20
+      TotalIncomeTaxAndNics -> 344140.62, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -559,7 +560,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 344140.42 //RS7
+      YourTotalTax -> 344140.62 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -653,11 +654,11 @@ class AtsDataSpec2021 extends SaTestHelper {
       OrdinaryRate -> 3680.0, //LS13.1
       UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 140.0,
+      OtherAdjustmentsIncreasing -> 70.0,
       OtherAdjustmentsReducing -> 0.0,
       WelshIncomeTax -> 0.0, //LS20a
-      TotalIncomeTax -> 1627.6, //LS20
-      TotalIncomeTaxAndNics -> 1759.2, //LS16
+      TotalIncomeTax -> 1557.60, //LS20
+      TotalIncomeTaxAndNics -> 1689.2, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -667,7 +668,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 1759.2 //RS7
+      YourTotalTax -> 1689.20 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -977,11 +978,11 @@ class AtsDataSpec2021 extends SaTestHelper {
       OrdinaryRate -> 0.0, //LS13.1
       UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 40000.0,
+      OtherAdjustmentsIncreasing -> 20000.0,
       OtherAdjustmentsReducing -> 0.0,
       WelshIncomeTax -> 0.0, //LS20a
-      TotalIncomeTax -> 50100.0, //LS20
-      TotalIncomeTaxAndNics -> 50231.6, //LS16
+      TotalIncomeTax -> 30100.0, //LS20
+      TotalIncomeTaxAndNics -> 30231.6, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -991,7 +992,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 50231.6 //RS7
+      YourTotalTax -> 30231.6 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>

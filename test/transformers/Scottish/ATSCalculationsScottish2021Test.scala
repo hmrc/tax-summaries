@@ -187,7 +187,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return totalIncomeTaxAmount" in {
-      sut().totalIncomeTaxAmount mustBe Amount(616.83, "GBP")
+      sut().totalIncomeTaxAmount mustBe Amount(837.07, "GBP")
     }
 
   }

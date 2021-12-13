@@ -49,7 +49,7 @@ class ATSCalculations2021Test extends BaseSpec {
     }
 
     "calculate otherAdjustmentsIncreasing" in {
-      sut().otherAdjustmentsIncreasing mustBe Amount(125.23, "GBP")
+      sut().otherAdjustmentsIncreasing mustBe Amount(1004.42, "GBP")
     }
 
     "calculate totalIncomeTaxAmount" when {

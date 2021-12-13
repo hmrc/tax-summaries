@@ -61,13 +61,28 @@ trait ATSCalculations2021 extends ATSCalculations {
     ).roundAmountUp()
 
   override def otherAdjustmentsIncreasing: Amount =
+    get(NonDomCharge) +
+      get(GiftAidTaxReduced) +
+      get(NetAnnuityPaytsTaxDue) +
+      get(ChildBenefitCharge) +
+      get(PensionSavingChargeable)
+
+  override def otherAdjustmentsReducing: Amount =
     (
-      get(NonDomCharge) +
-        get(IncomeTaxDue) +
-        get(NetAnnuityPaytsTaxDue) +
-        get(ChildBenefitCharge) +
-        get(PensionSavingChargeable)
-    ) - get(TaxDueAfterAllceRlf)
+      get(DeficiencyRelief) +
+        get(TopSlicingRelief) +
+        get(VctSharesRelief) +
+        get(EisRelief) +
+        get(SeedEisRelief) +
+        get(CommInvTrustRel) +
+        get(SurplusMcaAlimonyRel) +
+        getWithDefaultAmount(Alimony) +
+        get(NotionalTaxCegs) +
+        get(NotlTaxOtherSource) +
+        get(TotalTaxCreditRelief) +
+        get(ReliefForFinanceCosts) +
+        get(LFIRelief)
+    )
 
   override def totalIncomeTaxAmount: Amount = {
     val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
