@@ -42,7 +42,8 @@ trait ATSCalculations2021 extends ATSCalculations {
       get(SummaryTotalUkInterest) +
       get(SummaryTotForeignDiv) +
       get(SummaryTotalUkIntDivs) +
-      get(SumTotLifePolicyGains)
+      get(SumTotLifePolicyGains) +
+      get(SummaryTotForeignSav)
 
   override def otherAllowances: Amount =
     (
@@ -60,6 +61,15 @@ trait ATSCalculations2021 extends ATSCalculations {
     ).roundAmountUp()
 
   override def otherAdjustmentsIncreasing: Amount =
+    /*    println(
+      "otherAdjustmentsIncreasing",
+      get(NonDomCharge),
+      get(IncomeTaxDue),
+      get(NetAnnuityPaytsTaxDue),
+      get(ChildBenefitCharge),
+      get(PensionSavingChargeable),
+      get(TaxDueAfterAllceRlf)
+    )*/
     (
       get(NonDomCharge) +
         get(IncomeTaxDue) +
@@ -69,6 +79,18 @@ trait ATSCalculations2021 extends ATSCalculations {
     ) - get(TaxDueAfterAllceRlf)
 
   override def totalIncomeTaxAmount: Amount = {
+    /* println(
+      savingsRateAmount, // LS12.1
+      basicRateIncomeTaxAmount, // LS12.2
+      higherRateIncomeTaxAmount, // LS12.3
+      additionalRateIncomeTaxAmount,
+      get(DividendTaxLowRate),
+      get(DividendTaxHighRate), //LS13.2
+      get(DividendTaxAddHighRate),
+      otherAdjustmentsIncreasing,
+      otherAdjustmentsReducing,
+      getWithDefaultAmount(MarriageAllceIn)
+    )*/
     val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
       basicRateIncomeTaxAmount + // LS12.2
       higherRateIncomeTaxAmount + // LS12.3

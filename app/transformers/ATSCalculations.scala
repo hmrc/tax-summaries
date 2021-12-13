@@ -18,14 +18,14 @@ package transformers
 
 import models.Liability._
 import models._
-import play.api.Logger
+import play.api.{Logger, Logging}
 import services._
 import transformers.Scottish.{ATSCalculationsScottish2019, ATSCalculationsScottish2021}
 import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
 import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021}
 import utils.DoubleUtils
 
-trait ATSCalculations extends DoubleUtils {
+trait ATSCalculations extends DoubleUtils with Logging {
 
   val summaryData: TaxSummaryLiability
   val taxRates: TaxRateService
@@ -124,6 +124,11 @@ trait ATSCalculations extends DoubleUtils {
       get(Class4Nic)
 
   def basicRateIncomeTaxAmount: Amount =
+    /*println(
+      "basicRateIncomeTaxAmount",
+      get(IncomeTaxBasicRate),
+      get(SavingsTaxLowerRate),
+      includePensionTaxForRate(taxRates.basicRateIncomeTaxRate()))*/
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
       includePensionTaxForRate(taxRates.basicRateIncomeTaxRate())
@@ -239,8 +244,10 @@ trait ATSCalculations extends DoubleUtils {
       ).amount * scottishRate)
   }
 
-  def hasLiability: Boolean =
+  def hasLiability: Boolean = {
+    logger.error("hasLiability: " + totalCapitalGainsTax.toString + " + " + totalIncomeTaxAmount.toString)
     !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
+  }
 
   def capitalGainsTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())

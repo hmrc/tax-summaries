@@ -41,7 +41,7 @@ class ATSCalculations2021Test extends BaseSpec {
     }
 
     "calculate otherIncome" in {
-      sut().otherIncome mustBe Amount(282.66, "GBP")
+      sut().otherIncome mustBe Amount(338.87, "GBP")
     }
 
     "calculate otherAllowances" in {

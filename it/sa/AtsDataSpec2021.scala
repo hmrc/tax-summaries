@@ -43,7 +43,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 3358.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 22864.0, //LS7
+      TotalIncomeBeforeTax -> 22864.0, //LS7 total income received
       PersonalTaxFreeAmount -> 0.00, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 17564.0, //LS9
@@ -98,7 +98,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 1057.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 63789.0, //LS7
+      TotalIncomeBeforeTax -> 63789.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.00, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 1057.0, //LS9
@@ -154,7 +154,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 7005.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 7005.0, //LS7
+      TotalIncomeBeforeTax -> 7005.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.00, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -209,7 +209,7 @@ class AtsDataSpec2021 extends SaTestHelper {
         TaxableStateBenefits -> 0.0, //LS4
         OtherIncome -> 4338.0, //LS5
         BenefitsFromEmployment -> 0.0, //LS6
-        TotalIncomeBeforeTax -> 162297.0, //LS7
+        TotalIncomeBeforeTax -> 162297.0, //LS7 total income received
         PersonalTaxFreeAmount -> 0.0, //LS8.1
         MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
         OtherAllowancesAmount -> 6424.0, //LS9
@@ -263,7 +263,7 @@ class AtsDataSpec2021 extends SaTestHelper {
         TaxableStateBenefits -> 0.0, //LS4
         OtherIncome -> 10079.0, //LS5
         BenefitsFromEmployment -> 0.0, //LS6
-        TotalIncomeBeforeTax -> 59729.0, //LS7
+        TotalIncomeBeforeTax -> 59729.0, //LS7 total income received
         PersonalTaxFreeAmount -> 12500.0, //LS8.1
         MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
         OtherAllowancesAmount -> 0.0, //LS9
@@ -317,7 +317,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 160126.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 210126.0, //LS7
+      TotalIncomeBeforeTax -> 210126.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -371,7 +371,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 6178.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 51923.0, //LS7
+      TotalIncomeBeforeTax -> 51923.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -423,9 +423,9 @@ class AtsDataSpec2021 extends SaTestHelper {
       StatePension -> 0.0, //LS2
       OtherPensionIncome ->  0.0, //LS3
       TaxableStateBenefits -> 0.0, //LS4
-      OtherIncome -> 5639.0, //LS5
+      OtherIncome -> 6139.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 43715.0, //LS7
+      TotalIncomeBeforeTax -> 44215.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 7374.0, //LS9
@@ -479,7 +479,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 0.0, //LS5
       BenefitsFromEmployment -> 15950.0, //LS6
-      TotalIncomeBeforeTax -> 71700.0, //LS7
+      TotalIncomeBeforeTax -> 71700.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 5000.0, //LS9
@@ -533,7 +533,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 838439.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 928842.0, //LS7
+      TotalIncomeBeforeTax -> 928842.0, //LS7 total income received
       PersonalTaxFreeAmount -> 0.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 1200.0, //LS9
@@ -587,7 +587,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 12433.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 23477.0, //LS7
+      TotalIncomeBeforeTax -> 23477.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -641,7 +641,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 1757.0, //LS4
       OtherIncome -> 10278.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 26508.97, //LS7
+      TotalIncomeBeforeTax -> 26508.97, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -695,7 +695,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 0.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 50000.0, //LS7
+      TotalIncomeBeforeTax -> 50000.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -749,7 +749,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 14349.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 18502.0, //LS7
+      TotalIncomeBeforeTax -> 18502.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -803,7 +803,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 44000.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 113500.0, //LS7
+      TotalIncomeBeforeTax -> 113500.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 52370.0, //LS9
@@ -855,9 +855,9 @@ class AtsDataSpec2021 extends SaTestHelper {
       StatePension -> 0.0, //LS2
       OtherPensionIncome ->  0.0, //LS3
       TaxableStateBenefits -> 0.0, //LS4
-      OtherIncome -> 14124.0, //LS5
+      OtherIncome -> 32374.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 72228.0, //LS7
+      TotalIncomeBeforeTax -> 90478.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 4383.0, //LS9
@@ -911,7 +911,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 172491.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 172491.0, //LS7
+      TotalIncomeBeforeTax -> 172491.0, //LS7 total income received
       PersonalTaxFreeAmount -> 0.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 4541.0, //LS9
@@ -965,7 +965,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 0.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 56500.0, //LS7
+      TotalIncomeBeforeTax -> 56500.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9
@@ -1019,7 +1019,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TaxableStateBenefits -> 0.0, //LS4
       OtherIncome -> 0.0, //LS5
       BenefitsFromEmployment -> 0.0, //LS6
-      TotalIncomeBeforeTax -> 38500.0, //LS7
+      TotalIncomeBeforeTax -> 38500.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.0, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
       OtherAllowancesAmount -> 0.0, //LS9

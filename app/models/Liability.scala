@@ -130,6 +130,7 @@ object Liability {
   case object DividendsPartnership extends ApiValue("ctnDividendsPartnership") with Liability
   case object SavingsPartnership extends ApiValue("ctnSavingsPartnership") with Liability
   case object TaxOnNonExcludedIncome extends ApiValue("taxOnNonExcludedInc") with Liability
+  case object SummaryTotForeignSav extends ApiValue("ctnSummaryTotForeignSav") with Liability
 
   // format: off
   val allLiabilities: List[Liability with ApiValue] =
@@ -152,7 +153,7 @@ object Liability {
       TaxablePayScottishStarterRate, TaxCharged, TaxCreditsForDivs, TaxDueAfterAllceRlf, TaxExcluded, TaxOnPayScottishIntermediateRate,
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
-      TaxOnNonExcludedIncome)
+      TaxOnNonExcludedIncome, SummaryTotForeignSav)
   // format: on
 
   implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)
