@@ -124,11 +124,6 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(Class4Nic)
 
   def basicRateIncomeTaxAmount: Amount =
-    /*println(
-      "basicRateIncomeTaxAmount",
-      get(IncomeTaxBasicRate),
-      get(SavingsTaxLowerRate),
-      includePensionTaxForRate(taxRates.basicRateIncomeTaxRate()))*/
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
       includePensionTaxForRate(taxRates.basicRateIncomeTaxRate())
