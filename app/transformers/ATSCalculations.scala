@@ -239,10 +239,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
       ).amount * scottishRate)
   }
 
-  def hasLiability: Boolean = {
-    logger.error("hasLiability: " + totalCapitalGainsTax.toString + " + " + totalIncomeTaxAmount.toString)
+  def hasLiability: Boolean =
     !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
-  }
 
   def capitalGainsTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())

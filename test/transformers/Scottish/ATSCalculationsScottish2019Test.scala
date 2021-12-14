@@ -43,7 +43,7 @@ class ATSCalculationsScottish2019Test extends BaseSpec {
   def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): ATSCalculationsScottish2019 =
     new FakeATSCalculationScottish2019(taxSummaryLiability)
 
-  "Scottish 2021" must {
+  "Scottish 2019" must {
     "return empty" when {
       "scottishIncomeTax is called" in {
         sut().scottishIncomeTax mustBe Amount.empty
@@ -187,7 +187,7 @@ class ATSCalculationsScottish2019Test extends BaseSpec {
     }
 
     "return totalIncomeTaxAmount" in {
-      sut().totalIncomeTaxAmount mustBe Amount(626.93, "GBP")
+      sut().totalIncomeTaxAmount mustBe Amount(627.14, "GBP")
     }
 
   }

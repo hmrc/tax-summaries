@@ -441,8 +441,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       OtherAdjustmentsIncreasing -> 0.0,
       OtherAdjustmentsReducing -> 394.0,
       WelshIncomeTax -> 0.0, //LS20a
-      TotalIncomeTax -> 4083.32, //LS20
-      TotalIncomeTaxAndNics -> 6122.6, //LS16
+      TotalIncomeTax -> 3689.82, //LS20
+      TotalIncomeTaxAndNics -> 5729.6, //LS16
       EmployeeNicAmount -> 2039.78, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6

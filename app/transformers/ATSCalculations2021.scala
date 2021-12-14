@@ -67,23 +67,6 @@ trait ATSCalculations2021 extends ATSCalculations {
       get(ChildBenefitCharge) +
       get(PensionSavingChargeable)
 
-  override def otherAdjustmentsReducing: Amount =
-    (
-      get(DeficiencyRelief) +
-        get(TopSlicingRelief) +
-        get(VctSharesRelief) +
-        get(EisRelief) +
-        get(SeedEisRelief) +
-        get(CommInvTrustRel) +
-        get(SurplusMcaAlimonyRel) +
-        getWithDefaultAmount(Alimony) +
-        get(NotionalTaxCegs) +
-        get(NotlTaxOtherSource) +
-        get(TotalTaxCreditRelief) +
-        get(ReliefForFinanceCosts) +
-        get(LFIRelief)
-    )
-
   override def totalIncomeTaxAmount: Amount = {
     val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
       basicRateIncomeTaxAmount + // LS12.2
