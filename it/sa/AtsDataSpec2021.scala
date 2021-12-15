@@ -847,7 +847,7 @@ class AtsDataSpec2021 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT016)" ignore {
+  "HasSummary (SIT016)" must {
 
     val taxYear = 2021
     val expected = Map(
@@ -870,11 +870,11 @@ class AtsDataSpec2021 extends SaTestHelper {
       OrdinaryRate -> 0.0, //LS13.1
       UpperRate -> 0.0, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
-      OtherAdjustmentsIncreasing -> 21503.4,
+      OtherAdjustmentsIncreasing -> 11499.4,
       OtherAdjustmentsReducing -> 3727.0,
       WelshIncomeTax -> 0.0, //LS20a
-      TotalIncomeTax -> 39514.4, //LS20
-      TotalIncomeTaxAndNics -> 39646.0, //LS16
+      TotalIncomeTax -> 29511.34, //LS20
+      TotalIncomeTaxAndNics -> 29642.94, //LS16
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
@@ -884,7 +884,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       AmountDueRPCILowerRate -> 0.0, //LS19.3b
       Adjustments -> 0.0, //LS19.4
       TotalCgTax -> 0.0,
-      YourTotalTax -> 39646.0 //RS7
+      YourTotalTax -> 29642.94 //RS7
     )
 
     expected foreach { case (key, expectedValue) =>
