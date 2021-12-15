@@ -241,7 +241,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
         val prod = rate * 10
 
         val sut = fixture(PensionTaxRate(sum / 100), PensionLsumTaxDue -> Amount.gbp(total))
-        sut.calculation.includePensionTaxForRate(Rate(prod)) mustBe Amount.gbp(total)
+        sut.calculation.includePensionTaxForRate(Rate(prod)).roundAmount() mustBe Amount.gbp(total).roundAmount()
       }
     }
 
@@ -364,7 +364,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           IncomeTaxBasicRate -> Amount.gbp(income),
           PensionLsumTaxDue  -> Amount.gbp(pension))
 
-        sut.calculation.scottishBasicRateTax mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishBasicRateTax.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -376,7 +376,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           TaxOnPayScottishIntermediateRate -> Amount.gbp(income),
           PensionLsumTaxDue                -> Amount.gbp(pension))
 
-        sut.calculation.scottishIntermediateRateTax mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishIntermediateRateTax.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -388,7 +388,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           IncomeTaxHigherRate -> Amount.gbp(income),
           PensionLsumTaxDue   -> Amount.gbp(pension))
 
-        sut.calculation.scottishHigherRateTax mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishHigherRateTax.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -400,7 +400,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           IncomeTaxAddHighRate -> Amount.gbp(income),
           PensionLsumTaxDue    -> Amount.gbp(pension))
 
-        sut.calculation.scottishAdditionalRateTax mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishAdditionalRateTax.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -412,7 +412,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           TaxablePayScottishStarterRate -> Amount.gbp(income),
           StatePensionGross             -> Amount.gbp(pension))
 
-        sut.calculation.scottishStarterRateIncome mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishStarterRateIncome.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -424,7 +424,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           IncomeChargeableBasicRate -> Amount.gbp(income),
           StatePensionGross         -> Amount.gbp(pension))
 
-        sut.calculation.scottishBasicRateIncome mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishBasicRateIncome.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -436,7 +436,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           TaxablePayScottishIntermediateRate -> Amount.gbp(income),
           StatePensionGross                  -> Amount.gbp(pension))
 
-        sut.calculation.scottishIntermediateRateIncome mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishIntermediateRateIncome.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -448,7 +448,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           IncomeChargeableHigherRate -> Amount.gbp(income),
           StatePensionGross          -> Amount.gbp(pension))
 
-        sut.calculation.scottishHigherRateIncome mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishHigherRateIncome.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -460,7 +460,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           IncomeChargeableAddHRate -> Amount.gbp(income),
           StatePensionGross        -> Amount.gbp(pension))
 
-        sut.calculation.scottishAdditionalRateIncome mustBe Amount.gbp(income + pension)
+        sut.calculation.scottishAdditionalRateIncome.roundAmount() mustBe Amount.gbp(income + pension).roundAmount()
       }
     }
 
@@ -529,7 +529,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           keys(1)   -> Amount.gbp(second)
         )
 
-        sut.calculation.scottishTotalTax mustBe Amount.gbp(first + second)
+        sut.calculation.scottishTotalTax.roundAmount() mustBe Amount.gbp(first + second).roundAmount()
       }
     }
 
@@ -556,7 +556,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           )
         )
 
-        sut.calculation.totalIncomeTaxAmount mustBe Amount.gbp(first + second)
+        sut.calculation.totalIncomeTaxAmount.roundAmount() mustBe Amount.gbp(first + second).roundAmount()
       }
     }
   }
@@ -572,7 +572,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           IncomeChargeableAddHRate   -> Amount.gbp(additionalRate)
         )
 
-        sut.calculation.welshIncomeTax mustBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1)
+        sut.calculation.welshIncomeTax
+          .roundAmount() mustBe Amount.gbp((basicRate + higherRate + additionalRate) * 0.1).roundAmount()
         sut.calculation.savingsRate mustBe Amount.empty
         sut.calculation.savingsRateAmount mustBe Amount.empty
         sut.calculation.scottishIncomeTax mustBe Amount.empty

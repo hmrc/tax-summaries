@@ -54,6 +54,9 @@ case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] 
   def roundAmountUp(): Amount =
     copy(amount = this.amount.setScale(0, BigDecimal.RoundingMode.UP))
 
+  def roundAmount(): Amount =
+    copy(amount = this.amount.setScale(2, BigDecimal.RoundingMode.HALF_EVEN))
+
 }
 
 object Amount {
