@@ -19,7 +19,6 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import models.LiabilityKey
 import models.LiabilityKey._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -47,7 +46,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       TotalIncomeBeforeTax -> 22864.0, //LS7 total income received
       PersonalTaxFreeAmount -> 0.00, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-      OtherAllowancesAmount -> 17564.0, //LS9
+      OtherAllowancesAmount -> 1204.0, //LS9
       TotalTaxFreeAmount -> 12500.0, //LS10
       StartingRateForSavingsAmount -> 0.0, //LS12.1
       BasicRateIncomeTax -> 20532.0, //lS12.2
@@ -64,7 +63,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 0.0, //LS19.8
       TaxableGains -> 0.0, //LS19.6
-      TotalTaxFreeAmount -> 17564.0, //LS19.7
+      TotalTaxFreeAmount -> 1204.0, //LS19.7
       AmountDueAtEntrepreneursRate -> 0.0, //LS19.1
       AmountDueAtOrdinaryRate -> 0.0, //LS19.2
       AmountDueRPCIHigherRate -> 0.0, //LS19.3
@@ -102,8 +101,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       TotalIncomeBeforeTax -> 63789.0, //LS7 total income received
       PersonalTaxFreeAmount -> 12500.00, //LS8.1
       MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-      OtherAllowancesAmount -> 1057.0, //LS9
-      TotalTaxFreeAmount -> 13557.0, //LS10
+      OtherAllowancesAmount -> 0.0, //LS9
+      TotalTaxFreeAmount -> 12500.0, //LS10
       StartingRateForSavingsAmount -> 0.0, //LS12.1
       BasicRateIncomeTax -> 37500.0, //lS12.2
       HigherRateIncomeTax -> 12732.0, //LS12.3
@@ -119,7 +118,7 @@ class AtsDataSpec2021 extends SaTestHelper {
       EmployeeNicAmount -> 131.60, //LS14
       PayCgTaxOn -> 8675.0, //LS19.8
       TaxableGains -> 20975.0, //LS19.6
-      TotalTaxFreeAmount -> 13557.0, //LS19.7
+      TotalTaxFreeAmount -> 12500.0, //LS19.7
       AmountDueAtEntrepreneursRate -> 0.0, //LS19.1
       AmountDueAtOrdinaryRate -> 0.0, //LS19.2
       AmountDueRPCIHigherRate -> 9077.04, //LS19.3

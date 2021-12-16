@@ -56,8 +56,7 @@ trait ATSCalculations2021 extends ATSCalculations {
         get(GiftsInvCharities) +
         get(TradeUnionDeathBenefits) +
         get(BpaAllowance) +
-        get(BPA) +
-        get(ExcludedIncome)
+        get(BPA)
     ).roundAmountUp()
 
   override def otherAdjustmentsIncreasing: Amount =
