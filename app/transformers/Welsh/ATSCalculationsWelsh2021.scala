@@ -16,13 +16,13 @@
 
 package transformers.Welsh
 
-import models.Liability.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate}
+import models.Liability._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
-import transformers.ATSCalculations
+import transformers.ATSCalculations2021
 
-class ATSCalculationsWelsh2020(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations {
+class ATSCalculationsWelsh2021(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations2021 {
   override def welshIncomeTax: Amount = {
     val welshRate = 0.1
     Amount.gbp(

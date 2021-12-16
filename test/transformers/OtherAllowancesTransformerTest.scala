@@ -48,8 +48,6 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
 
       testYear mustEqual parsedYear
 
-      println(returnValue)
-
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload =
         Map(

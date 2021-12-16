@@ -18,7 +18,8 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.{AtsMiddleTierData, DataHolder, LiabilityKey}
+import models.LiabilityKey.TotalIncomeTaxAndNics
+import models.{Amount, AtsMiddleTierData, DataHolder, LiabilityKey}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
@@ -42,15 +43,13 @@ trait SaTestHelper extends IntegrationSpec {
 
   }
 
-  def resultToAtsData(resultOption: Option[Future[Result]]): AtsMiddleTierData = {
-
+  def resultToAtsData(resultOption: Option[Future[Result]]): AtsMiddleTierData =
     resultOption match {
-      case Some(result) =>Json.parse(contentAsString(result)).as[AtsMiddleTierData]
+      case Some(result) => Json.parse(contentAsString(result)).as[AtsMiddleTierData]
       case None => throw new NoSuchElementException
     }
-  }
 
-  def checkResult(data: AtsMiddleTierData, checkLiability: Map[LiabilityKey, Double]): Unit = {
+  def checkResult(data: AtsMiddleTierData, key: LiabilityKey, value: Double): Unit = {
 
     def dataToFind(data: AtsMiddleTierData, key: LiabilityKey) = {
       val incomeData = data.income_data
@@ -66,7 +65,7 @@ trait SaTestHelper extends IntegrationSpec {
       if (mappedList.size == 1) {
         mappedList.head
       } else if (mappedList.isEmpty) {
-        throw new RuntimeException(s"$key: No keys")
+        throw new RuntimeException(s"$key: the key is missing")
       } else {
         if (mappedList.map(_.amount).distinct.size == 1) {
           mappedList.head
@@ -76,9 +75,10 @@ trait SaTestHelper extends IntegrationSpec {
       }
     }
 
-    checkLiability.foreach {
-      case (key, value) =>
-        key + ": " + (dataToFind(data, key).amount * 100).rounded.toInt mustBe key + ": " + BigDecimal(value * 100).rounded.toInt
+    if(data.errors.isEmpty) {
+      dataToFind(data, key).amount mustBe BigDecimal(value)
+    } else {
+      throw new RuntimeException(s"error occurred ......." + data.errors.get.error)
     }
 
   }

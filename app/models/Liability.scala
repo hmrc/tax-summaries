@@ -126,6 +126,13 @@ object Liability {
   case object EmployeeClass2NI extends ApiValue("employeeClass2Nic") with Liability
   case object EmployerNI extends ApiValue("employerNic") with Liability
 
+  // Added in 2021
+  case object DividendsPartnership extends ApiValue("ctnDividendsPartnership") with Liability
+  case object SavingsPartnership extends ApiValue("ctnSavingsPartnership") with Liability
+  case object TaxOnNonExcludedIncome extends ApiValue("taxOnNonExcludedInc") with Liability
+  case object SummaryTotForeignSav extends ApiValue("ctnSummaryTotForeignSav") with Liability
+  case object GiftAidTaxReduced extends ApiValue("giftAidTaxReduced") with Liability // bug should be used before
+
   // format: off
   val allLiabilities: List[Liability with ApiValue] =
     List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
@@ -146,7 +153,8 @@ object Liability {
       SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxablePayScottishIntermediateRate,
       TaxablePayScottishStarterRate, TaxCharged, TaxCreditsForDivs, TaxDueAfterAllceRlf, TaxExcluded, TaxOnPayScottishIntermediateRate,
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
-      EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief)
+      EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
+      TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced)
   // format: on
 
   implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)

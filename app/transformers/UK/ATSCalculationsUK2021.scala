@@ -14,25 +14,14 @@
  * limitations under the License.
  */
 
-package transformers.Welsh
+package transformers.UK
 
-import models.Liability.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate}
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
-import transformers.ATSCalculations
+import transformers.ATSCalculations2021
 
-class ATSCalculationsWelsh2020(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations {
-  override def welshIncomeTax: Amount = {
-    val welshRate = 0.1
-    Amount.gbp(
-      (
-        getWithDefaultAmount(IncomeChargeableBasicRate) +
-          getWithDefaultAmount(IncomeChargeableHigherRate) +
-          getWithDefaultAmount(IncomeChargeableAddHRate)
-      ).amount * welshRate)
-  }
-
+class ATSCalculationsUK2021(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations2021 {
   override def scottishIncomeTax: Amount = Amount.empty
   override def savingsRate: Amount = Amount.empty
   override def savingsRateAmount: Amount = Amount.empty
