@@ -78,7 +78,7 @@ trait ATSCalculations2021 extends ATSCalculations {
       otherAdjustmentsReducing -
       getWithDefaultAmount(MarriageAllceIn)
 
-    val excludedAndNonExcludedTax = get(TaxExcluded) + get(TaxOnNonExcludedIncome)
+    val excludedAndNonExcludedTax = get(TaxExcluded) + getWithDefaultAmount(TaxOnNonExcludedIncome)
 
     if (excludedAndNonExcludedTax.amount > 0) {
       List(rateDividendAdjustmentTax, excludedAndNonExcludedTax).min
