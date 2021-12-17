@@ -17,11 +17,20 @@
 package services
 
 import models.Rate
+
+import java.time._
 import utils.BaseSpec
+import uk.gov.hmrc.time.{CurrentTaxYear, TaxYear}
 
 class TaxRateServiceTest extends BaseSpec {
 
   val ratePercentages: Int => Map[String, Double] = applicationConfig.ratePercentages
+  class TaxYear extends CurrentTaxYear {
+    def now: () => LocalDate = { () =>
+      LocalDate.now()
+    }
+  }
+  val currentTaxYear = TaxYear.current.currentYear
 
   "taxRateService" must {
 
@@ -33,7 +42,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2017, 2018, 2019).foreach { year =>
+    (2017 to currentTaxYear).foreach { year =>
       s"return correct amounts for Dividends Ordinary Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.dividendsOrdinaryRate()
@@ -41,7 +50,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2014, 2015, 2016, 2017, 2018, 2019).foreach { year =>
+    (2014 to currentTaxYear).foreach { year =>
       s"return correct amounts for Dividends Upper Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.dividendUpperRateRate()
@@ -49,7 +58,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2017, 2018, 2019).foreach { year =>
+    (2017 to currentTaxYear).foreach { year =>
       s"return correct amounts for Dividends Additional Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.dividendAdditionalRate()
@@ -65,7 +74,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2017, 2018, 2019).foreach { year =>
+    (2017 to currentTaxYear).foreach { year =>
       s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.cgOrdinaryRate()
@@ -81,7 +90,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2017, 2018, 2019).foreach { year =>
+    (2017 to currentTaxYear).foreach { year =>
       s"return correct percentage rate for Capital Gains upper rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.cgUpperRate()
@@ -89,7 +98,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2017, 2018, 2019).foreach { year =>
+    (2017 to currentTaxYear).foreach { year =>
       s"property tax and carried interest lower rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
@@ -105,7 +114,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2017, 2018, 2019).foreach { year =>
+    (2017 to currentTaxYear).foreach { year =>
       s"property tax and carried interest higher rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()

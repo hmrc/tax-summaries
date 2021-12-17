@@ -27,7 +27,8 @@ object AppDependencies {
     "org.scalacheck"         %% "scalacheck"                % "1.14.3",
     "com.github.tomakehurst" % "wiremock-jre8"              % "2.27.2",
     "org.pegdown"            %  "pegdown"                   % "1.6.0",
-    "com.vladsch.flexmark"   % "flexmark-all"               % "0.35.10"
+    "com.vladsch.flexmark"   % "flexmark-all"               % "0.35.10",
+    "uk.gov.hmrc"            %% "tax-year"                  % "1.6.0"
   ).map(_ % "test,it")
 
   val all: Seq[ModuleID] = compile ++ test
