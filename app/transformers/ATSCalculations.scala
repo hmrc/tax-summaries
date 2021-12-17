@@ -36,7 +36,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
     summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(liability, {
-        logger.info(s"Unable to retrieve $liability")
+        logger.error(s"Unable to retrieve $liability", ATSParsingException(liability.apiValue))
         throw ATSParsingException(liability.apiValue)
       })
     )
