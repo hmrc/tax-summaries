@@ -16,6 +16,7 @@
 
 package models
 
+import play.api.Logging
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -38,7 +39,7 @@ final case class TaxSummaryLiability(
   }
 }
 
-object TaxSummaryLiability {
+object TaxSummaryLiability extends Logging {
 
   implicit def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, V]] =
     Reads[Map[K, V]] {
@@ -52,7 +53,11 @@ object TaxSummaryLiability {
 
             result match {
               case JsSuccess(v, _) => acc + v
-              case _               => acc
+              case error => {
+                val ex = new RuntimeException(error.toString)
+                logger.warn(s"Error while parsing TaxSummaryLiability response for $key:${value.toString}", ex)
+                acc
+              }
             }
         })
 
