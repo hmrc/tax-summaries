@@ -53,9 +53,10 @@ object TaxSummaryLiability extends Logging {
 
             result match {
               case JsSuccess(v, _) => acc + v
-              case error => {
-                val ex = new RuntimeException(error.toString)
-                logger.warn(s"Error while parsing TaxSummaryLiability response for $key:${value.toString}", ex)
+              case _ => {
+                val message = s"Error while parsing TaxSummaryLiability response for $key:${value.toString}"
+                val ex = new RuntimeException(message)
+                logger.warn(message, ex)
                 acc
               }
             }
