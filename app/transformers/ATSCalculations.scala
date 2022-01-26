@@ -31,23 +31,21 @@ trait ATSCalculations extends DoubleUtils with Logging {
   val taxRates: TaxRateService
   val incomeTaxStatus = summaryData.incomeTaxStatus
 
-  def get(liability: Liability): Amount = {
-    val logger = Logger(getClass.getName)
+  def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(liability, {
-        logger.info(s"Unable to retrieve $liability")
-        throw ATSParsingException(liability.apiValue)
+        val ex = ATSParsingException(liability.apiValue)
+        logger.error(s"Unable to retrieve $liability", ex)
+        throw ex
       })
     )
-  }
 
   def getWithDefaultAmount(liability: Liability): Amount =
-    try {
-      get(liability)
-    } catch {
-      case ATSParsingException(_) => Amount.empty
-    }
+    summaryData.atsData.getOrElse(
+      liability,
+      summaryData.nationalInsuranceData.getOrElse(liability, Amount.empty)
+    )
 
   def taxableGains(): Amount =
     get(CgTotGainsAfterLosses) +
