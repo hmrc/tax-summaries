@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,78 +16,92 @@
 
 package repositories
 
+import models.paye.PayeAtsMiddleTier
+import org.mongodb.scala.model.{IndexModel, Updates, _}
+import play.api.libs.json.{Json, Reads, __}
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.MongoComponent
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model.Updates._
+
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import models.paye.PayeAtsMiddleTier
-import play.api.libs.json.{Json, Reads, __}
-import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.api.WriteConcern
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONDocument
-import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
-import reactivemongo.play.json.collection.{JSONCollection, _}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class Repository @Inject()(mongo: ReactiveMongoApi) {
-  private val collectionName: String = "tax-summaries"
+class Repository @Inject()(
+  mongoComponent: MongoComponent) extends PlayMongoRepository[PayeAtsMiddleTier](
+  collectionName = "tax-summaries",
+  mongoComponent = mongoComponent,
+  domainFormat = PayeAtsMiddleTier.format,
+  indexes = Seq(
+    IndexModel(
+      Indexes.ascending("expiresAt"),
+      IndexOptions()
+        .name("expires-at-index")
+        .expireAfter(0, TimeUnit.SECONDS)
+    )
+  )
+) {
 
-  private def collection: Future[JSONCollection] =
-    mongo.database.map(_.collection[JSONCollection](collectionName))
+//  private def collection: Future[JSONCollection] =
+//    mongo.database.map(_.collection[JSONCollection](collectionName))
 
-  private val lastUpdatedIndex = Index(
-    key = Seq("expiresAt" -> IndexType.Ascending),
-    name = Some("expires-at-index"),
-    options = BSONDocument("expireAfterSeconds" -> 0))
+//  private val lastUpdatedIndex = Index(
+//    key = Seq("expiresAt" -> IndexType.Ascending),
+//    name = Some("expires-at-index"),
+//    options = BSONDocument("expireAfterSeconds" -> 0))
 
-  def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
+  def buildId(nino: String, taxYear: Int): Bson = Filters.equal("_id", s"$nino::$taxYear")
 
-  val started = Future
-    .sequence {
-      Seq(
-        collection.map(c => c.indexesManager.ensure(lastUpdatedIndex))
-      )
-    }
-    .map(_ => ())
+//  val started = Future
+//    .sequence {
+//      Seq(
+//        collection.map(c => c.indexesManager.ensure(lastUpdatedIndex))
+//      )
+//    }
+//    .map(_ => ())
 
   private def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15))
 
   def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTier]] = {
-    val selector = Json.obj(
-      "_id" -> buildId(nino, taxYear)
-    )
 
-    val modifier = Json.obj(
-      "$set" -> Json.obj(
-        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
-      )
-    )
+//    val modifier = Json.obj(
+//      "$set" -> Json.obj(
+//        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
+//      )
+//    )
 
-    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
-      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
 
-    collection.flatMap { coll =>
-      coll
-        .findAndUpdate(
-          selector = selector,
-          update = modifier,
-          fetchNewObject = false,
-          upsert = false,
-          sort = None,
-          fields = None,
-          bypassDocumentValidation = false,
-          writeConcern = WriteConcern.Default,
-          maxTime = None,
-          collation = None,
-          arrayFilters = Seq.empty
-        )
-        .map(_.result[PayeAtsMiddleTier])
-    }
+    val modifier = Updates.set("expiresAt", calculateExpiryTime())
+
+    collection.findOneAndUpdate(buildId(nino,taxYear), modifier).toFutureOption()
+
+
+
+//    collection.flatMap { coll =>
+//      coll
+//        .findAndUpdate(
+//          selector = selector,
+//          update = modifier,
+//          fetchNewObject = false,
+//          upsert = false,
+//          sort = None,
+//          fields = None,
+//          bypassDocumentValidation = false,
+//          writeConcern = WriteConcern.Default,
+//          maxTime = None,
+//          collation = None,
+//          arrayFilters = Seq.empty
+//        )
+//        .map(_.result[PayeAtsMiddleTier])
+//    }
   }
 
-  def set(nino: String, taxYear: Int, data: PayeAtsMiddleTier): Future[Boolean] = {
+
+   def set(nino: String, taxYear: Int, data: PayeAtsMiddleTier): Future[Boolean] = {
 
     val selector = Json.obj(
       "_id" -> buildId(nino, taxYear)
@@ -106,5 +120,18 @@ class Repository @Inject()(mongo: ReactiveMongoApi) {
         result.ok
       }
     }
+
+    collection
+      .replaceOne(
+        filter = buildId(nino,taxYear),
+        replacement = combine(Updates.set("_id", s"$nino::$taxYear"),
+          Updates.set("quantity", 11),
+          Updates.set("total", 30.40)),
+        options = ReplaceOptions().upsert(true)
+      )
+      .toFuture
+      .map(result => result.wasAcknowledged())
+
+
   }
 }

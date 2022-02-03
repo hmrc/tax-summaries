@@ -4,14 +4,16 @@ import play.core.PlayVersion
 
 object AppDependencies {
 
+  private val playVersion = "play-28"
+
   val compile: Seq[ModuleID] = Seq(
     filters,
     ws,
     "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "5.6.0",
-    "uk.gov.hmrc"                %% "domain"                    % "6.1.0-play-28",
+    "uk.gov.hmrc"                %% "domain"                    % s"6.1.0-$playVersion",
     "uk.gov.hmrc"                %% "time"                      % "3.25.0",
     "com.github.fge"             % "json-schema-validator"      % "2.2.6",
-    "org.reactivemongo"          %% "play2-reactivemongo"       % "0.19.4-play28",
+    "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % "0.59.0",
     "com.typesafe.scala-logging" %% "scala-logging"             % "3.9.2",
     "org.typelevel"              %% "cats-core"                 % "2.6.1"
   )
