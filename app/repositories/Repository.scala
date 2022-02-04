@@ -21,7 +21,7 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -65,7 +65,7 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 //    }
 //    .map(_ => ())
 
-  private def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15))
+  private def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant
 
   def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTier]] = {
 
@@ -80,6 +80,10 @@ class Repository @Inject()(mongoComponent: MongoComponent)
     val modifier = Updates.set("expiresAt", calculateExpiryTime())
 
     collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
+
+//    println("Get result....." + result)
+//
+//    result
 //    collection.flatMap { coll =>
 //      coll
 //        .findAndUpdate(
@@ -120,6 +124,15 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 //        result.ok
 //      }
 //    }
+
+//    collection
+//      .replaceOne(
+//        filter = filterById(nino, taxYear),
+//        replacement = data,
+//        options = ReplaceOptions().upsert(true)
+//      )
+//      .toFuture
+//      .map(result => result.wasAcknowledged())
 
     val modifier: Bson = Updates.combine(
       Updates.setOnInsert("_id", buildId(nino, taxYear)),
