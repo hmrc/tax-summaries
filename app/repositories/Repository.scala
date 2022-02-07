@@ -19,8 +19,9 @@ package repositories
 import models.paye.PayeAtsMiddleTier
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, Reads, __}
 import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.Codecs.JsonOps
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 
 import java.sql.Timestamp
@@ -79,9 +80,10 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 
     val modifier = Updates.set("expiresAt", calculateExpiryTime())
 
-    collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
+//    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
+//      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
 
-//    println("Get result....." + result)
+    collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
 //
 //    result
 //    collection.flatMap { coll =>
@@ -135,7 +137,7 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 //      .map(result => result.wasAcknowledged())
 
     val modifier: Bson = Updates.combine(
-      Updates.setOnInsert("_id", buildId(nino, taxYear)),
+      Updates.set("_id", buildId(nino, taxYear)),
       Updates.set("data", data),
       Updates.set("expiresAt", calculateExpiryTime()))
 
