@@ -80,8 +80,8 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 
     val modifier = Updates.set("expiresAt", calculateExpiryTime())
 
-//    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
-//      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
+    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
+      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
 
     collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
 //
@@ -109,6 +109,20 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 
     println("Inside repo set....." + nino + " " + taxYear)
 
+    val modifier: Bson = Updates.combine(
+      Updates.set("_id", buildId(nino, taxYear)),
+      Updates.set("data", data),
+      Updates.set("expiresAt", calculateExpiryTime()))
+
+    collection
+      .findOneAndUpdate(
+        filter = filterById(nino, taxYear),
+        update = modifier,
+        options = FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
+      )
+      .toFuture
+      .map(_ => true)
+
 //    val selector = Json.obj(
 //      "_id" -> buildId(nino, taxYear)
 //    )
@@ -135,20 +149,6 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 //      )
 //      .toFuture
 //      .map(result => result.wasAcknowledged())
-
-    val modifier: Bson = Updates.combine(
-      Updates.set("_id", buildId(nino, taxYear)),
-      Updates.set("data", data),
-      Updates.set("expiresAt", calculateExpiryTime()))
-
-    collection
-      .findOneAndUpdate(
-        filter = filterById(nino, taxYear),
-        update = modifier,
-        options = FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
-      )
-      .toFuture
-      .map(_ => true)
 
   }
 }
