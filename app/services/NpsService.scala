@@ -33,8 +33,15 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
     repository
       .get(nino, taxYear)
       .flatMap {
-        case Some(data) => Future.successful(Right(data))
-        case None       => refreshCache(nino, taxYear)
+        case Some(data) => {
+          println("data>>>>>>>>>>>." + data)
+
+          Future.successful(Right(data))
+        }
+        case None => {
+          println("None>>>>>>>>>>>." + None)
+          refreshCache(nino, taxYear)
+        }
       }
 
   private def refreshCache(nino: String, taxYear: Int)(
@@ -43,7 +50,7 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
       .getPayeATSData(nino, taxYear)
       .flatMap {
         case Left(response) => Future.successful(Left(response))
-        case Right(data) =>
+        case Right(data) =>{}
           repository
             .set(nino, taxYear, data)
             .map(_ => Right(data))

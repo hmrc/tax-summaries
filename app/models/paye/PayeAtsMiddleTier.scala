@@ -17,8 +17,9 @@
 package models.paye
 
 import models.{DataHolder, GovernmentSpendingOutputWrapper}
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{Format, JsPath, JsResult, JsValue, Json, Reads}
+import play.api.libs.json.{Format, Json}
+
+import java.time.Instant
 
 case class PayeAtsMiddleTier(
   taxYear: Int,
@@ -34,36 +35,16 @@ object PayeAtsMiddleTier {
 
   implicit val format: Format[PayeAtsMiddleTier] = Json.format[PayeAtsMiddleTier]
 
-//  implicit val format: Format[PayeAtsMiddleTier] = new Format[PayeAtsMiddleTier] {
-//    override def writes(o: PayeAtsMiddleTier): JsValue = ???
-//
-//    override def reads(json: JsValue): JsResult[PayeAtsMiddleTier] = (
-//      (JsPath \ "data" \ "taxYear").read[Int] ,
-//        (JsPath \ "data" \ "nino").read[String] ,
-//        (JsPath \ "data" \ "income_tax").readNullable[DataHolder] ,
-//        (JsPath \ "data" \ "summary_data").readNullable[DataHolder] ,
-//        (JsPath \ "data" \ "income_data").readNullable[DataHolder] ,
-//        (JsPath \ "data" \ "allowance_data").readNullable[DataHolder] ,
-//        (JsPath \ "data" \ "gov_spending").readNullable[GovernmentSpendingOutputWrapper]
-//      )
-//  }
-//
-//  implicit lazy val UserReads: Reads[User] = (
-//    (__ \ 'id).read[Long] and
-//      (__ \ 'name).read[String] and
-//      (__ \ 'friend).lazyRead(UserReads)
-//    )(User.apply _)
+}
 
-  //val r: Reads[Product] =
-//
-//  implicit val payeAtsMiddleTierReads: Reads[PayeAtsMiddleTier] = (
-//    (JsPath \ "data" \ "taxYear").read[Int] and
-//      (JsPath \ "data" \ "nino").read[String] and
-//      (JsPath \ "data" \ "income_tax").readNullable[DataHolder] and
-//      (JsPath \ "data" \ "summary_data").readNullable[DataHolder] and
-//      (JsPath \ "data" \ "income_data").readNullable[DataHolder] and
-//      (JsPath \ "data" \ "allowance_data").readNullable[DataHolder] and
-//      (JsPath \ "data" \ "gov_spending").readNullable[GovernmentSpendingOutputWrapper]
-//  )(PayeAtsMiddleTier.apply _)
+case class PayeAtsMiddleTierMongo(
+  _id: String,
+  data: PayeAtsMiddleTier,
+  expireAt: Instant
+)
+
+object PayeAtsMiddleTierMongo {
+
+  implicit val format: Format[PayeAtsMiddleTierMongo] = Json.format[PayeAtsMiddleTierMongo]
 
 }

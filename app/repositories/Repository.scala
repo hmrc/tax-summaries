@@ -16,7 +16,7 @@
 
 package repositories
 
-import models.paye.PayeAtsMiddleTier
+import models.paye.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import play.api.libs.json.{JsObject, Json, Reads, __}
@@ -32,10 +32,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class Repository @Inject()(mongoComponent: MongoComponent)
-    extends PlayMongoRepository[PayeAtsMiddleTier](
+    extends PlayMongoRepository[PayeAtsMiddleTierMongo](
       collectionName = "tax-summaries",
       mongoComponent = mongoComponent,
-      domainFormat = PayeAtsMiddleTier.format,
+      domainFormat = PayeAtsMiddleTierMongo.format,
       indexes = Seq(
         IndexModel(
           Indexes.ascending("expiresAt"),
@@ -80,10 +80,16 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 
     val modifier = Updates.set("expiresAt", calculateExpiryTime())
 
-    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
-      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
+//    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
+//      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
 
-    collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
+    val result = collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption().map(_.map(_.data))
+
+    result.map(x => println("result......" + x))
+    result
+
+    //println("result")
+
 //
 //    result
 //    collection.flatMap { coll =>
@@ -107,7 +113,10 @@ class Repository @Inject()(mongoComponent: MongoComponent)
 
   def set(nino: String, taxYear: Int, data: PayeAtsMiddleTier): Future[Boolean] = {
 
-    println("Inside repo set....." + nino + " " + taxYear)
+    println("Inside repo set....." + nino + " " + taxYear + "data..." + data)
+
+//    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
+//      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
 
     val modifier: Bson = Updates.combine(
       Updates.set("_id", buildId(nino, taxYear)),
