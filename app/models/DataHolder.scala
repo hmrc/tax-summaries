@@ -16,8 +16,7 @@
 
 package models
 
-import models.paye.PayeAtsMiddleTier
-import play.api.libs.json.{Format, JsPath, Json, Reads}
+import play.api.libs.json.{Format, Json}
 
 case class DataHolder(
   payload: Option[Map[LiabilityKey, Amount]],
