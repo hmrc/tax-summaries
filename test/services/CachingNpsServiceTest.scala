@@ -16,7 +16,7 @@
 
 package services
 
-import models.paye.PayeAtsMiddleTier
+import models.paye.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{verify, when}
@@ -42,10 +42,13 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
     super.beforeEach()
   }
 
+  def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
+
   "CachingNpsService" must {
     "Retrieve data from the cache" in new Fixture {
       val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
-      when(repository.get(any(), any())).thenReturn(Future.successful(Some(data)))
+      val dataMongo = new PayeAtsMiddleTierMongo(buildId("NINONINO", 2627), data)
+      when(repository.get(any(), any())).thenReturn(Future.successful(Some(dataMongo)))
 
       val result = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
       result.futureValue mustBe Right(data)
@@ -55,12 +58,12 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
       val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
 
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
-      when(repository.set(any(), any(), any())).thenReturn(Future.successful(true))
+      when(repository.set(any())).thenReturn(Future.successful(true))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(Future.successful(Right(data)))
 
       whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier())) { result =>
         result mustBe Right(data)
-        verify(repository).set("NONONONO", 5465, data)
+        verify(repository).set(any())
       }
     }
 
@@ -68,14 +71,14 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
       val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
 
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
-      when(repository.set(any(), any(), any())).thenReturn(Future.failed(new Exception("Failed")))
+      when(repository.set(any())).thenReturn(Future.failed(new Exception("Failed")))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(Future.successful(Right(data)))
 
       val result = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
 
       whenReady(result.failed) { e =>
         e mustBe a[Exception]
-        verify(repository).set("NONONONO", 5465, data)
+        verify(repository).set(any())
       }
     }
 
@@ -100,7 +103,6 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
         case Left(response) => response mustBe a[UpstreamErrorResponse]
         case _              => fail("Incorrect reponse from Caching Service")
       }
-
     }
   }
 }

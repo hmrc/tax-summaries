@@ -18,8 +18,22 @@ package models.paye
 
 import models.{DataHolder, GovernmentSpendingOutputWrapper}
 import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
-import java.time.Instant
+import java.sql.Timestamp
+import java.time.{Instant, LocalDateTime}
+
+case class PayeAtsMiddleTierMongo(
+  _id: String,
+  data: PayeAtsMiddleTier,
+  expiresAt: Instant = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant
+)
+
+object PayeAtsMiddleTierMongo extends MongoJavatimeFormats.Implicits {
+
+  implicit val format: Format[PayeAtsMiddleTierMongo] = Json.format[PayeAtsMiddleTierMongo]
+
+}
 
 case class PayeAtsMiddleTier(
   taxYear: Int,
@@ -34,17 +48,5 @@ case class PayeAtsMiddleTier(
 object PayeAtsMiddleTier {
 
   implicit val format: Format[PayeAtsMiddleTier] = Json.format[PayeAtsMiddleTier]
-
-}
-
-case class PayeAtsMiddleTierMongo(
-  _id: String,
-  data: PayeAtsMiddleTier,
-  expireAt: Instant
-)
-
-object PayeAtsMiddleTierMongo {
-
-  implicit val format: Format[PayeAtsMiddleTierMongo] = Json.format[PayeAtsMiddleTierMongo]
 
 }

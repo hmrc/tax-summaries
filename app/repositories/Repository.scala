@@ -16,13 +16,11 @@
 
 package repositories
 
-import models.paye.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
+import models.paye.PayeAtsMiddleTierMongo
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
-import play.api.libs.json.{JsObject, Json, Reads, __}
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.Codecs.JsonOps
-import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -46,118 +44,26 @@ class Repository @Inject()(mongoComponent: MongoComponent)
       )
     ) {
 
-//  private def collection: Future[JSONCollection] =
-//    mongo.database.map(_.collection[JSONCollection](collectionName))
+  val minutes = 15
 
-//  private val lastUpdatedIndex = Index(
-//    key = Seq("expiresAt" -> IndexType.Ascending),
-//    name = Some("expires-at-index"),
-//    options = BSONDocument("expireAfterSeconds" -> 0))
+  def filterById(nino: String, taxYear: Int): Bson = Filters.equal("_id", s"$nino::$taxYear")
 
-  def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
+  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
 
-  def filterById(nino: String, taxYear: Int): Bson = Filters.equal("_id", buildId(nino, taxYear))
+    val modifier = Updates.set("expiresAt", Timestamp.valueOf(LocalDateTime.now.plusMinutes(minutes)).toInstant)
 
-//  val started = Future
-//    .sequence {
-//      Seq(
-//        collection.map(c => c.indexesManager.ensure(lastUpdatedIndex))
-//      )
-//    }
-//    .map(_ => ())
+    collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
 
-  private def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant
-
-  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTier]] = {
-
-    println("Inside repo get....." + nino + " " + taxYear)
-
-//    val modifier = Json.obj(
-//      "$set" -> Json.obj(
-//        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
-//      )
-//    )
-
-    val modifier = Updates.set("expiresAt", calculateExpiryTime())
-
-//    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
-//      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
-
-    val result = collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption().map(_.map(_.data))
-
-    result.map(x => println("result......" + x))
-    result
-
-    //println("result")
-
-//
-//    result
-//    collection.flatMap { coll =>
-//      coll
-//        .findAndUpdate(
-//          selector = selector,
-//          update = modifier,
-//          fetchNewObject = false,
-//          upsert = false,
-//          sort = None,
-//          fields = None,
-//          bypassDocumentValidation = false,
-//          writeConcern = WriteConcern.Default,
-//          maxTime = None,
-//          collation = None,
-//          arrayFilters = Seq.empty
-//        )
-//        .map(_.result[PayeAtsMiddleTier])
-//    }
   }
 
-  def set(nino: String, taxYear: Int, data: PayeAtsMiddleTier): Future[Boolean] = {
-
-    println("Inside repo set....." + nino + " " + taxYear + "data..." + data)
-
-//    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
-//      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
-
-    val modifier: Bson = Updates.combine(
-      Updates.set("_id", buildId(nino, taxYear)),
-      Updates.set("data", data),
-      Updates.set("expiresAt", calculateExpiryTime()))
-
+  def set(dataMongo: PayeAtsMiddleTierMongo): Future[Boolean] =
     collection
-      .findOneAndUpdate(
-        filter = filterById(nino, taxYear),
-        update = modifier,
-        options = FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
+      .replaceOne(
+        filter = filterById(dataMongo.data.nino, dataMongo.data.taxYear),
+        replacement = dataMongo,
+        options = ReplaceOptions().upsert(true)
       )
       .toFuture
-      .map(_ => true)
+      .map(result => result.wasAcknowledged())
 
-//    val selector = Json.obj(
-//      "_id" -> buildId(nino, taxYear)
-//    )
-//
-//    val modifierOld: JsObject = Json.obj(
-//      "$set" -> Json.obj(
-//        "_id"       -> buildId(nino, taxYear),
-//        "data"      -> data,
-//        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
-//      )
-//    )
-
-//    collection.flatMap {
-//      _.update(ordered = false).one(selector, modifier, upsert = true, multi = false).map { result =>
-//        result.ok
-//      }
-//    }
-
-//    collection
-//      .replaceOne(
-//        filter = filterById(nino, taxYear),
-//        replacement = data,
-//        options = ReplaceOptions().upsert(true)
-//      )
-//      .toFuture
-//      .map(result => result.wasAcknowledged())
-
-  }
 }

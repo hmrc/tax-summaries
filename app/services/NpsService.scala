@@ -23,6 +23,8 @@ import models.paye._
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -33,15 +35,10 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
     repository
       .get(nino, taxYear)
       .flatMap {
-        case Some(data) => {
-          println("data>>>>>>>>>>>." + data)
-
-          Future.successful(Right(data))
-        }
-        case None => {
-          println("None>>>>>>>>>>>." + None)
+        case Some(dataMongo) =>
+          Future.successful(Right(dataMongo.data))
+        case None =>
           refreshCache(nino, taxYear)
-        }
       }
 
   private def refreshCache(nino: String, taxYear: Int)(
@@ -50,9 +47,9 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
       .getPayeATSData(nino, taxYear)
       .flatMap {
         case Left(response) => Future.successful(Left(response))
-        case Right(data) =>{}
+        case Right(data) =>
           repository
-            .set(nino, taxYear, data)
+            .set(PayeAtsMiddleTierMongo(s"$nino::$taxYear", data))
             .map(_ => Right(data))
       }
 }
