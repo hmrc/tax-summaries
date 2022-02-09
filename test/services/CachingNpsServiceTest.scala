@@ -16,6 +16,7 @@
 
 package services
 
+import config.ApplicationConfig
 import models.paye.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import org.mockito.Matchers.any
 import org.mockito.Mockito
@@ -26,6 +27,8 @@ import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseSpec
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
@@ -33,8 +36,9 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
 
   val repository = mock[Repository]
   val innerService = mock[DirectNpsService]
+  val config = mock[ApplicationConfig]
 
-  class Fixture extends NpsService(repository, innerService)
+  class Fixture extends NpsService(repository, innerService, config)
 
   override def beforeEach(): Unit = {
     Mockito.reset(repository)
@@ -44,10 +48,14 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
 
   def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
 
+  val ttl = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant
+
   "CachingNpsService" must {
     "Retrieve data from the cache" in new Fixture {
       val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
-      val dataMongo = new PayeAtsMiddleTierMongo(buildId("NINONINO", 2627), data)
+      val dataMongo = new PayeAtsMiddleTierMongo(buildId("NINONINO", 2627), data, ttl)
+
+      when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(Some(dataMongo)))
 
       val result = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
@@ -56,7 +64,7 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
 
     "Retrieve data from the InnerService when cache empty and refresh the cache" in new Fixture {
       val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
-
+      when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(repository.set(any())).thenReturn(Future.successful(true))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(Future.successful(Right(data)))

@@ -21,6 +21,8 @@ import com.typesafe.config.ConfigObject
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import scala.collection.JavaConverters._
 
 class ApplicationConfig @Inject()(servicesConfig: ServicesConfig, configuration: Configuration) {
@@ -51,6 +53,10 @@ class ApplicationConfig @Inject()(servicesConfig: ServicesConfig, configuration:
   def governmentSpend(year: Int) = governmentSpendByYear(year)
 
   def npsServiceUrl = servicesConfig.baseUrl("tax-summaries-hod")
+
+  lazy val mongoTTL = configuration.getOptional[Int]("mongodb.timeToLiveInMinutes").getOrElse(15).toLong
+
+  def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(mongoTTL)).toInstant
 
   lazy val environment: String =
     servicesConfig.getConfString("tax-summaries-hod.env", "local")

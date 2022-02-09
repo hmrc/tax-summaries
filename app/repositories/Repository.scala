@@ -16,20 +16,19 @@
 
 package repositories
 
+import config.ApplicationConfig
 import models.paye.PayeAtsMiddleTierMongo
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class Repository @Inject()(mongoComponent: MongoComponent)
+class Repository @Inject()(config: ApplicationConfig, mongoComponent: MongoComponent)
     extends PlayMongoRepository[PayeAtsMiddleTierMongo](
       collectionName = "tax-summaries",
       mongoComponent = mongoComponent,
@@ -44,13 +43,11 @@ class Repository @Inject()(mongoComponent: MongoComponent)
       )
     ) {
 
-  val minutes = 15
-
   def filterById(nino: String, taxYear: Int): Bson = Filters.equal("_id", s"$nino::$taxYear")
 
   def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
 
-    val modifier = Updates.set("expiresAt", Timestamp.valueOf(LocalDateTime.now.plusMinutes(minutes)).toInstant)
+    val modifier = Updates.set("expiresAt", config.calculateExpiryTime())
 
     collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
 

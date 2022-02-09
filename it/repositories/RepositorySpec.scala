@@ -21,6 +21,8 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 import utils.IntegrationSpec
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[PayeAtsMiddleTierMongo] {
@@ -42,7 +44,7 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
 
 
           val data = PayeAtsMiddleTier(2018, "NINONINO", None, None, None, None, None)
-          val dataMongo = PayeAtsMiddleTierMongo(buildId("NINONINO",2018), data)
+          val dataMongo = PayeAtsMiddleTierMongo(buildId("NINONINO",2018), data,Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant)
           val storedOk = serviceRepo.set(dataMongo)
           storedOk.futureValue mustBe true
 

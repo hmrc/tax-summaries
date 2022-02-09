@@ -16,19 +16,24 @@
 
 package models.paye
 
+import models.{DataHolder, GovernmentSpendingOutputWrapper}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
-case class PayeAtsMiddleTierMongo(
-  _id: String,
-  data: PayeAtsMiddleTier,
-  expiresAt: Instant
+case class PayeAtsMiddleTier(
+  taxYear: Int,
+  nino: String,
+  income_tax: Option[DataHolder],
+  summary_data: Option[DataHolder],
+  income_data: Option[DataHolder],
+  allowance_data: Option[DataHolder],
+  gov_spending: Option[GovernmentSpendingOutputWrapper]
 )
 
-object PayeAtsMiddleTierMongo extends MongoJavatimeFormats.Implicits {
+object PayeAtsMiddleTier {
 
-  implicit val format: Format[PayeAtsMiddleTierMongo] = Json.format[PayeAtsMiddleTierMongo]
+  implicit val format: Format[PayeAtsMiddleTier] = Json.format[PayeAtsMiddleTier]
 
 }
