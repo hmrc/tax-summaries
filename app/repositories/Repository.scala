@@ -16,95 +16,51 @@
 
 package repositories
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
-import javax.inject.Inject
-import models.paye.PayeAtsMiddleTier
-import play.api.libs.json.{Json, Reads, __}
-import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.api.WriteConcern
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONDocument
-import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
-import reactivemongo.play.json.collection.{JSONCollection, _}
+import config.ApplicationConfig
+import models.paye.PayeAtsMiddleTierMongo
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model._
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class Repository @Inject()(mongo: ReactiveMongoApi) {
-  private val collectionName: String = "tax-summaries"
-
-  private def collection: Future[JSONCollection] =
-    mongo.database.map(_.collection[JSONCollection](collectionName))
-
-  private val lastUpdatedIndex = Index(
-    key = Seq("expiresAt" -> IndexType.Ascending),
-    name = Some("expires-at-index"),
-    options = BSONDocument("expireAfterSeconds" -> 0))
-
-  def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
-
-  val started = Future
-    .sequence {
-      Seq(
-        collection.map(c => c.indexesManager.ensure(lastUpdatedIndex))
-      )
-    }
-    .map(_ => ())
-
-  private def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15))
-
-  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTier]] = {
-    val selector = Json.obj(
-      "_id" -> buildId(nino, taxYear)
-    )
-
-    val modifier = Json.obj(
-      "$set" -> Json.obj(
-        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
-      )
-    )
-
-    implicit val readFromMongoDocument: Reads[PayeAtsMiddleTier] =
-      (__ \ "data").lazyRead(PayeAtsMiddleTier.format)
-
-    collection.flatMap { coll =>
-      coll
-        .findAndUpdate(
-          selector = selector,
-          update = modifier,
-          fetchNewObject = false,
-          upsert = false,
-          sort = None,
-          fields = None,
-          bypassDocumentValidation = false,
-          writeConcern = WriteConcern.Default,
-          maxTime = None,
-          collation = None,
-          arrayFilters = Seq.empty
+class Repository @Inject()(config: ApplicationConfig, mongoComponent: MongoComponent)
+    extends PlayMongoRepository[PayeAtsMiddleTierMongo](
+      collectionName = "tax-summaries",
+      mongoComponent = mongoComponent,
+      domainFormat = PayeAtsMiddleTierMongo.format,
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("expiresAt"),
+          IndexOptions()
+            .name("expires-at-index")
+            .expireAfter(0, TimeUnit.SECONDS)
         )
-        .map(_.result[PayeAtsMiddleTier])
-    }
-  }
-
-  def set(nino: String, taxYear: Int, data: PayeAtsMiddleTier): Future[Boolean] = {
-
-    val selector = Json.obj(
-      "_id" -> buildId(nino, taxYear)
-    )
-
-    val modifier = Json.obj(
-      "$set" -> Json.obj(
-        "_id"       -> buildId(nino, taxYear),
-        "data"      -> data,
-        "expiresAt" -> Json.obj("$date" -> calculateExpiryTime())
       )
-    )
+    ) {
 
-    collection.flatMap {
-      _.update(ordered = false).one(selector, modifier, upsert = true, multi = false).map { result =>
-        result.ok
-      }
-    }
+  def filterById(nino: String, taxYear: Int): Bson = Filters.equal("_id", s"$nino::$taxYear")
+
+  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
+
+    val modifier = Updates.set("expiresAt", config.calculateExpiryTime())
+
+    collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
+
   }
+
+  def set(dataMongo: PayeAtsMiddleTierMongo): Future[Boolean] =
+    collection
+      .replaceOne(
+        filter = filterById(dataMongo.data.nino, dataMongo.data.taxYear),
+        replacement = dataMongo,
+        options = ReplaceOptions().upsert(true)
+      )
+      .toFuture
+      .map(result => result.wasAcknowledged())
+
 }

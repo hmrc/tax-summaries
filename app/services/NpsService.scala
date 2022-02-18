@@ -26,15 +26,15 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class NpsService @Inject()(repository: Repository, innerService: DirectNpsService) {
+class NpsService @Inject()(repository: Repository, innerService: DirectNpsService, config: ApplicationConfig) {
 
   def getPayeATSData(nino: String, taxYear: Int)(
     implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
     repository
       .get(nino, taxYear)
       .flatMap {
-        case Some(data) => Future.successful(Right(data))
-        case None       => refreshCache(nino, taxYear)
+        case Some(dataMongo) => Future.successful(Right(dataMongo.data))
+        case None            => refreshCache(nino, taxYear)
       }
 
   private def refreshCache(nino: String, taxYear: Int)(
@@ -45,7 +45,7 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
         case Left(response) => Future.successful(Left(response))
         case Right(data) =>
           repository
-            .set(nino, taxYear, data)
+            .set(PayeAtsMiddleTierMongo(s"$nino::$taxYear", data, config.calculateExpiryTime()))
             .map(_ => Right(data))
       }
 }

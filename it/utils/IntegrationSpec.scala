@@ -83,7 +83,8 @@ trait IntegrationSpec
         "metrics.enabled" -> false,
         "auditing.enabled" -> false,
         "play.ws.timeout.request" -> "1000ms",
-        "play.ws.timeout.connection" -> "500ms"
+        "play.ws.timeout.connection" -> "500ms",
+        "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
       )
       .build()
 
