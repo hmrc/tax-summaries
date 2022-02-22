@@ -60,7 +60,7 @@ object TaxSummaryLiability extends Logging {
                 acc
               }
             }
-          case (_, ("tliLastUpdated", _)) => Map.empty
+          case (acc, ("tliLastUpdated", _)) => acc
         })
 
       case _ => JsError("error.expected.jsobject")
