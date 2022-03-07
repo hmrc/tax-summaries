@@ -45,7 +45,8 @@ object TaxSummaryLiability extends Logging {
     Reads[Map[K, V]] {
       case JsObject(m) =>
         JsSuccess(m.foldLeft(Map.empty[K, V]) {
-          case (acc, (key, value)) if key != "tliLastUpdated" =>
+          case (_, ("tliLastUpdated", _)) => Map.empty
+          case (acc, (key, value)) =>
             val result = for {
               rv <- value.validate[V]
               rk <- JsString(key).validate[K]
@@ -60,7 +61,6 @@ object TaxSummaryLiability extends Logging {
                 acc
               }
             }
-          case (_, ("tliLastUpdated", _)) => Map.empty
         })
 
       case _ => JsError("error.expected.jsobject")
