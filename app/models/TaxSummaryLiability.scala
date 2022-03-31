@@ -45,7 +45,8 @@ object TaxSummaryLiability extends Logging {
     Reads[Map[K, V]] {
       case JsObject(m) =>
         JsSuccess(m.foldLeft(Map.empty[K, V]) {
-          case (acc, ("tliLastUpdated", _)) => acc
+          case (acc, ("tliLastUpdated", _))           => acc
+          case (acc, ("ctnPensionLumpSumTaxRate", _)) => acc
           case (acc, (key, value)) =>
             val result = for {
               rv <- value.validate[V]
