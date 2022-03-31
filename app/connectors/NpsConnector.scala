@@ -53,7 +53,7 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
       )
       .map {
         case response @ Right(_) => response
-        case Left(error) if error.statusCode >= 500 => {
+        case Left(error) if error.statusCode >= 500 || error.statusCode >= 429 => {
           logger.error(error.message)
           Left(error)
         }
