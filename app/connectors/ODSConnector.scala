@@ -21,8 +21,8 @@ import config.ApplicationConfig
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpException, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpException, UpstreamErrorResponse}
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,7 +41,7 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
   private def handleResponse(response: Either[UpstreamErrorResponse, JsValue]): Either[UpstreamErrorResponse, JsValue] =
     response match {
       case response @ Right(_) => response
-      case Left(error) if error.statusCode >= 500 || error.statusCode >= 429 => {
+      case Left(error) if error.statusCode >= 500 || error.statusCode == 429 => {
         logger.error(error.message)
         Left(error)
       }

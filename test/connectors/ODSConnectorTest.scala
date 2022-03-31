@@ -76,7 +76,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
     }
 
     "return UpstreamErrorResponse" when {
-      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+      List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
           server.stubFor(
             get(urlEqualTo(url)).willReturn(
@@ -116,7 +116,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
     }
 
     "return UpstreamErrorResponse" when {
-      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+      List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
           server.stubFor(
             get(urlEqualTo(url)).willReturn(
@@ -156,7 +156,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
     }
 
     "return UpstreamErrorResponse" when {
-      List(400, 401, 403, 404, 409, 412, 500, 501, 502, 503, 504).foreach { status =>
+      List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
           server.stubFor(
             get(urlEqualTo(url)).willReturn(
