@@ -27,10 +27,10 @@ class TaxRateServiceTest extends BaseSpec {
   val ratePercentages: Int => Map[String, Double] = applicationConfig.ratePercentages
   class TaxYear extends CurrentTaxYear {
     def now: () => LocalDate = { () =>
-      LocalDate.now()
+      LocalDate.now().minusYears(1)
     }
   }
-  val currentTaxYear = TaxYear.current.currentYear
+  val currentTaxYear = TaxYear.current.previous.currentYear
 
   "taxRateService" must {
 
