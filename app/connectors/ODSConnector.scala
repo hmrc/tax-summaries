@@ -34,8 +34,7 @@ class ODSConnector @Inject()(
   http: HttpClient,
   atsAudit: AtsAudit,
   applicationConfig: ApplicationConfig
-)(implicit hc: HeaderCarrier)
-    extends Logging {
+) extends Logging {
 
   val serviceUrl = applicationConfig.npsServiceUrl
 
@@ -45,7 +44,7 @@ class ODSConnector @Inject()(
     "CorrelationId"        -> UUID.randomUUID().toString
   )
 
-  def auditDetails(utr: String, taxYear: Option[Int] = None): Map[String, String] = {
+  def auditDetails(utr: String, taxYear: Option[Int] = None)(implicit hc: HeaderCarrier): Map[String, String] = {
     val taxYearEntry = taxYear.map(year => s"$year-${year + 1}").getOrElse("")
 
     Map(
@@ -63,7 +62,7 @@ class ODSConnector @Inject()(
     response: Either[UpstreamErrorResponse, JsValue],
     auditIdentifier: String,
     utr: String,
-    taxYear: Option[Int] = None): Either[UpstreamErrorResponse, JsValue] = {
+    taxYear: Option[Int] = None)(implicit hc: HeaderCarrier): Either[UpstreamErrorResponse, JsValue] = {
     val audit =
       Audit("saRequest", auditIdentifier, auditDetails(utr, taxYear))
 
