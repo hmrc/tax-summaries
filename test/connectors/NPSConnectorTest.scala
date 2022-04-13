@@ -16,6 +16,7 @@
 
 package connectors
 
+import audit.AtsAudit
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
 import play.api.http.Status._
@@ -50,7 +51,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
   private val testNinoWithoutSuffix = testNino.take(8)
 
   class NPSConnectorSetUp
-      extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig)(
+      extends NpsConnector(app.injector.instanceOf[HttpClient], app.injector.instanceOf[AtsAudit], applicationConfig)(
         app.injector.instanceOf[ExecutionContext]) with JsonUtil
 
   "connectToPayeTaxSummary" must {

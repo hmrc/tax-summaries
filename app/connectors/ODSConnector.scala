@@ -16,8 +16,10 @@
 
 package connectors
 
+import audit.AtsAudit
 import com.google.inject.Inject
 import config.ApplicationConfig
+import models.Audit
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.JsValue
@@ -28,7 +30,12 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig) extends Logging {
+class ODSConnector @Inject()(
+  http: HttpClient,
+  atsAudit: AtsAudit,
+  applicationConfig: ApplicationConfig
+)(implicit hc: HeaderCarrier)
+    extends Logging {
 
   val serviceUrl = applicationConfig.npsServiceUrl
 
@@ -38,22 +45,49 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     "CorrelationId"        -> UUID.randomUUID().toString
   )
 
-  private def handleResponse(response: Either[UpstreamErrorResponse, JsValue]): Either[UpstreamErrorResponse, JsValue] =
+  def auditDetails(utr: String, taxYear: Option[Int] = None): Map[String, String] = {
+    val taxYearEntry = taxYear.map(year => s"$year-${year + 1}").getOrElse("")
+
+    Map(
+      "Authorization" -> hc.authorization.map(_.value).getOrElse(""),
+      "deviceID"      -> hc.deviceID.getOrElse(""),
+      "endsOn"        -> "",
+      "ipAddress"     -> hc.trueClientIp.getOrElse(""),
+      "utr"           -> utr,
+      "startsOn"      -> "",
+      "taxYear"       -> taxYearEntry
+    )
+  }
+
+  private def handleResponse(
+    response: Either[UpstreamErrorResponse, JsValue],
+    auditIdentifier: String,
+    utr: String,
+    taxYear: Option[Int] = None): Either[UpstreamErrorResponse, JsValue] = {
+    val audit =
+      Audit("saRequest", auditIdentifier, auditDetails(utr, taxYear))
+
     response match {
-      case response @ Right(_) => response
+      case response @ Right(_) =>
+        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Success"))
+        response
       case Left(error) if error.statusCode >= 500 || error.statusCode == 429 => {
+        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "ServiceUnavailable"))
         logger.error(error.message)
         Left(error)
       }
       case Left(error) if error.statusCode == 404 => {
+        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
         logger.info(error.message)
         Left(error)
       }
       case Left(error) => {
+        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
         logger.error(error.message, error)
         Left(error)
       }
     }
+  }
 
   def url(path: String) = s"$serviceUrl$path"
 
@@ -64,7 +98,7 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
         headers = header
       )
-      .map(handleResponse) recover {
+      .map(response => handleResponse(response, "ats_getSaSelfAssessment", UTR, Some(TAX_YEAR))) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
@@ -77,7 +111,7 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
         headers = header)
-      .map(handleResponse) recover {
+      .map(response => handleResponse(response, "ats_getSaSelfAssessmentList", UTR)) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
@@ -91,7 +125,7 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
         url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
         headers = header
       )
-      .map(handleResponse) recover {
+      .map(response => handleResponse(response, "ats_getSaTaxPayerDetails", UTR)) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
