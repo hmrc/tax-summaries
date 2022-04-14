@@ -16,16 +16,27 @@
 
 package utils
 
+import com.kenshoo.play.metrics.Metrics
 import config.ApplicationConfig
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Injecting
 
 class BaseSpec
     extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with Injecting with MockitoSugar with ScalaFutures
     with IntegrationPatience {
-  lazy val applicationConfig = inject[ApplicationConfig]
+
+  implicit override lazy val app: Application = new GuiceApplicationBuilder()
+    .configure(
+      "metrics.enabled" -> true
+    )
+    .build()
+
+  lazy val applicationConfig: ApplicationConfig = inject[ApplicationConfig]
 }

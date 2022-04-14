@@ -29,6 +29,7 @@ lazy val excludedPackages: Seq[String] = Seq(
   "view.*",
   "uk.gov.hmrc.*",
   "prod.*",
+  "com.kenshoo.play.metrics.*",
   "testOnlyDoNotUseInAppConf.*"
 )
 
