@@ -30,15 +30,15 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpException, UpstreamErrorResponse}
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ODSConnector @Inject()(
   http: HttpClient,
   metrics: Metrics,
   atsAudit: AtsAudit,
   applicationConfig: ApplicationConfig
-) extends Logging {
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   val serviceUrl = applicationConfig.npsServiceUrl
 
@@ -61,13 +61,6 @@ class ODSConnector @Inject()(
       "taxYear"       -> taxYearEntry
     )
   }
-
-  private def handleMetrics(metricEnum: MetricsEnumeration, failed: Boolean = false): Unit =
-    failed match {
-      case true => metrics.incrementFailedCounter(metricEnum)
-      case _    => metrics.incrementSuccessCounter(metricEnum)
-
-    }
 
   private def handleResponse(
     response: Either[UpstreamErrorResponse, JsValue],
@@ -123,6 +116,7 @@ class ODSConnector @Inject()(
       }
       .map(response => handleResponse(response, metricEnum, "ats_getSaSelfAssessment", UTR, Some(TAX_YEAR))) recover {
       case error: HttpException => {
+        metrics.incrementFailedCounter(metricEnum)
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
       }
@@ -146,6 +140,7 @@ class ODSConnector @Inject()(
       }
       .map(response => handleResponse(response, metricEnum, "ats_getSaSelfAssessmentList", UTR)) recover {
       case error: HttpException => {
+        metrics.incrementFailedCounter(metricEnum)
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
       }
@@ -169,6 +164,7 @@ class ODSConnector @Inject()(
       }
       .map(response => handleResponse(response, metricEnum, "ats_getSaTaxPayerDetails", UTR)) recover {
       case error: HttpException => {
+        metrics.incrementFailedCounter(metricEnum)
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
       }
