@@ -26,11 +26,12 @@ import utils.{BaseSpec, WireMockHelper}
 
 class ODSConnectorTest extends BaseSpec with WireMockHelper {
 
-  override def fakeApplication(): Application =
+  implicit override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
-        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
+        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",
+        "metrics.enabled"                              -> true
       )
       .build()
 

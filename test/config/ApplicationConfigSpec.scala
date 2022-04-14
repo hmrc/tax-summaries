@@ -24,7 +24,10 @@ class ApplicationConfigSpec extends BaseSpec {
 
   override implicit lazy val app: Application = {
     def appWithConfig(config: Map[String, Any]): Application =
-      new GuiceApplicationBuilder().configure(Map("taxRates" -> "")).configure(config).build()
+      new GuiceApplicationBuilder()
+        .configure(Map("taxRates" -> "", "metrics.enabled" -> true))
+        .configure(config)
+        .build()
 
     val percentageRates = Map(
       "taxRates.default.percentages" -> Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30),

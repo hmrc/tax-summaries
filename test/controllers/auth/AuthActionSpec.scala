@@ -30,12 +30,13 @@ import play.api.test.Helpers.{status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.domain.SaUtrGenerator
+import utils.BaseSpec
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionSpec
-    extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with Injecting {
+    extends BaseSpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with Injecting {
 
   val cc = stubControllerComponents()
   val mockAuthConnector = mock[AuthConnector]

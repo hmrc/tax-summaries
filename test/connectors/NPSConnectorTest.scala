@@ -27,7 +27,7 @@ import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
 class NPSConnectorTest extends BaseSpec with WireMockHelper with JsonUtil {
 
-  override def fakeApplication(): Application =
+  implicit override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),

@@ -17,8 +17,11 @@
 package connectors
 
 import audit.AtsAudit
+import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ApplicationConfig
+import metrics.MetricsEnumeration.MetricsEnumeration
+import metrics.{Metrics, MetricsEnumeration}
 import models.Audit
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
@@ -32,6 +35,7 @@ import scala.concurrent.Future
 
 class ODSConnector @Inject()(
   http: HttpClient,
+  metrics: Metrics,
   atsAudit: AtsAudit,
   applicationConfig: ApplicationConfig
 ) extends Logging {
@@ -58,8 +62,16 @@ class ODSConnector @Inject()(
     )
   }
 
+  private def handleMetrics(metricEnum: MetricsEnumeration, failed: Boolean = false): Unit =
+    failed match {
+      case true => metrics.incrementFailedCounter(metricEnum)
+      case _    => metrics.incrementSuccessCounter(metricEnum)
+
+    }
+
   private def handleResponse(
     response: Either[UpstreamErrorResponse, JsValue],
+    metricEnum: MetricsEnumeration,
     auditIdentifier: String,
     utr: String,
     taxYear: Option[Int] = None)(implicit hc: HeaderCarrier): Either[UpstreamErrorResponse, JsValue] = {
@@ -68,19 +80,23 @@ class ODSConnector @Inject()(
 
     response match {
       case response @ Right(_) =>
+        metrics.incrementSuccessCounter(metricEnum)
         atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Success"))
         response
       case Left(error) if error.statusCode >= 500 || error.statusCode == 429 => {
+        metrics.incrementFailedCounter(metricEnum)
         atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "ServiceUnavailable"))
         logger.error(error.message)
         Left(error)
       }
       case Left(error) if error.statusCode == 404 => {
+        metrics.incrementFailedCounter(metricEnum) /// TODO - Should this be fail?
         atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
         logger.info(error.message)
         Left(error)
       }
       case Left(error) => {
+        metrics.incrementFailedCounter(metricEnum)
         atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
         logger.error(error.message, error)
         Left(error)
@@ -91,43 +107,71 @@ class ODSConnector @Inject()(
   def url(path: String) = s"$serviceUrl$path"
 
   def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] = {
+    val metricEnum = MetricsEnumeration.GET_SA
+    val timerContext: Timer.Context =
+      metrics.startTimer(metricEnum)
+
     http
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
         headers = header
       )
-      .map(response => handleResponse(response, "ats_getSaSelfAssessment", UTR, Some(TAX_YEAR))) recover {
+      .map { response =>
+        timerContext.stop()
+        response
+      }
+      .map(response => handleResponse(response, metricEnum, "ats_getSaSelfAssessment", UTR, Some(TAX_YEAR))) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
       }
     }
+  }
 
   def connectToSelfAssessmentList(UTR: String)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] = {
+    val metricEnum = MetricsEnumeration.GET_SA_LIST
+    val timerContext: Timer.Context =
+      metrics.startTimer(metricEnum)
+
     http
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
-        headers = header)
-      .map(response => handleResponse(response, "ats_getSaSelfAssessmentList", UTR)) recover {
+        headers = header
+      )
+      .map { response =>
+        timerContext.stop()
+        response
+      }
+      .map(response => handleResponse(response, metricEnum, "ats_getSaSelfAssessmentList", UTR)) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
       }
     }
+  }
 
   def connectToSATaxpayerDetails(UTR: String)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] = {
+    val metricEnum = MetricsEnumeration.GET_SA_TAX_PAYER_DETAILS
+    val timerContext: Timer.Context =
+      metrics.startTimer(metricEnum)
+
     http
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
         headers = header
       )
-      .map(response => handleResponse(response, "ats_getSaTaxPayerDetails", UTR)) recover {
+      .map { response =>
+        timerContext.stop()
+        response
+      }
+      .map(response => handleResponse(response, metricEnum, "ats_getSaTaxPayerDetails", UTR)) recover {
       case error: HttpException => {
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
       }
     }
+  }
 }
