@@ -37,7 +37,7 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
             .withBody("Bad Request"))
       )
 
-      val result = route(fakeApplication(), request)
+      val result = route(fakeApplication, request)
       result.map(getStatus) mustBe Some(BAD_REQUEST)
       result.map(contentAsString).map { message =>
         message must include("Bad Request")
@@ -52,7 +52,7 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
             .withBody("No data"))
       )
 
-      val result = route(fakeApplication(), request)
+      val result = route(fakeApplication, request)
       result.map(getStatus) mustBe Some(NOT_FOUND)
       result.map(contentAsString).map { message =>
         message must include("No data")
@@ -68,7 +68,7 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
         )
       )
 
-      val result = route(fakeApplication(), request)
+      val result = route(fakeApplication, request)
       result.map(getStatus) mustBe Some(INTERNAL_SERVER_ERROR)
       result.map(contentAsString).map { message =>
         message must include("teapot body")

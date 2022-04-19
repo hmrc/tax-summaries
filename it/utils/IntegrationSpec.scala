@@ -73,7 +73,7 @@ trait IntegrationSpec
         .willReturn(ok(authResponse)))
   }
 
-  override def fakeApplication(): Application =
+  override lazy val fakeApplication: Application =
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
