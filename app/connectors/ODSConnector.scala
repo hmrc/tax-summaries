@@ -21,7 +21,6 @@ import com.google.inject.Inject
 import config.ApplicationConfig
 import metrics.MetricsEnumeration.MetricsEnumeration
 import metrics.{Metrics, MetricsEnumeration}
-import models.Audit
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.JsValue
@@ -46,28 +45,9 @@ class ODSConnector @Inject()(
     "CorrelationId"        -> UUID.randomUUID().toString
   )
 
-  def auditDetails(utr: String, taxYear: Option[Int] = None)(implicit hc: HeaderCarrier): Map[String, String] = {
-    val taxYearEntry = taxYear.map(year => s"$year-${year + 1}").getOrElse("")
-
-    Map(
-      "Authorization" -> hc.authorization.map(_.value).getOrElse(""),
-      "deviceID"      -> hc.deviceID.getOrElse(""),
-      "endsOn"        -> "",
-      "ipAddress"     -> hc.trueClientIp.getOrElse(""),
-      "utr"           -> utr,
-      "startsOn"      -> "",
-      "taxYear"       -> taxYearEntry
-    )
-  }
-
   private def handleResponse(
     response: Either[UpstreamErrorResponse, JsValue],
-    metricEnum: MetricsEnumeration,
-    auditIdentifier: String,
-    utr: String,
-    taxYear: Option[Int] = None)(implicit hc: HeaderCarrier): Either[UpstreamErrorResponse, JsValue] = {
-    val audit =
-      Audit("saRequest", auditIdentifier, auditDetails(utr, taxYear))
+    metricEnum: MetricsEnumeration)(implicit hc: HeaderCarrier): Either[UpstreamErrorResponse, JsValue] = {
 
     response match {
       case response @ Right(_) =>
@@ -79,7 +59,7 @@ class ODSConnector @Inject()(
         Left(error)
       }
       case Left(error) if error.statusCode == 404 => {
-        metrics.incrementFailedCounter(metricEnum) /// TODO - Should this be fail?
+        metrics.incrementFailedCounter(metricEnum)
         logger.info(error.message)
         Left(error)
       }
@@ -108,7 +88,7 @@ class ODSConnector @Inject()(
         timerContext.stop()
         response
       }
-      .map(response => handleResponse(response, metricEnum, "ats_getSaSelfAssessment", UTR, Some(TAX_YEAR))) recover {
+      .map(response => handleResponse(response, metricEnum)) recover {
       case error: HttpException => {
         metrics.incrementFailedCounter(metricEnum)
         logger.error(error.message)
@@ -132,7 +112,7 @@ class ODSConnector @Inject()(
         timerContext.stop()
         response
       }
-      .map(response => handleResponse(response, metricEnum, "ats_getSaSelfAssessmentList", UTR)) recover {
+      .map(response => handleResponse(response, metricEnum)) recover {
       case error: HttpException => {
         metrics.incrementFailedCounter(metricEnum)
         logger.error(error.message)
@@ -156,7 +136,7 @@ class ODSConnector @Inject()(
         timerContext.stop()
         response
       }
-      .map(response => handleResponse(response, metricEnum, "ats_getSaTaxPayerDetails", UTR)) recover {
+      .map(response => handleResponse(response, metricEnum)) recover {
       case error: HttpException => {
         metrics.incrementFailedCounter(metricEnum)
         logger.error(error.message)

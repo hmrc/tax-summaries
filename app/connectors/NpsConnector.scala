@@ -51,18 +51,6 @@ class NpsConnector @Inject()(
   def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(
     implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, HttpResponse]] = {
 
-    val auditDetails: Map[String, String] = Map(
-      "Authorization" -> hc.authorization.map(_.value).getOrElse(""),
-      "deviceID"      -> hc.deviceID.getOrElse(""),
-      "endsOn"        -> "",
-      "ipAddress"     -> hc.trueClientIp.getOrElse(""),
-      "nino"          -> NINO,
-      "startsOn"      -> "",
-      "taxYear"       -> s"$TAX_YEAR-${TAX_YEAR + 1}"
-    )
-
-    val AUDIT_ATS_PAYE_SUMMARY_IDENTIFIER = "ats_getPayeTaxSummary"
-
     val metricEnum = MetricsEnumeration.GET_PAYE_TAX_SUMMARY
 
     val timerContext: Timer.Context =
@@ -89,7 +77,7 @@ class NpsConnector @Inject()(
           Left(error)
         }
         case Left(error) if error.statusCode == 404 => {
-          metrics.incrementFailedCounter(metricEnum) /// TODO - Should this be fail?
+          metrics.incrementFailedCounter(metricEnum)
           logger.info(error.message)
           Left(error)
         }
