@@ -56,7 +56,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           .thenReturn(Future.successful(Right(mock[JsValue])))
         when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(mock[JsValue])))
-        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014)))
+        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any(), any()))
           .thenReturn(mock[JsValue])
 
         val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
@@ -64,7 +64,8 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
         whenReady(result) { res =>
           res.isRight mustBe true
 
-          verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          verify(jsonHelper, times(1))
+            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any(), any())
         }
       }
     }
@@ -86,7 +87,8 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
             verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
-            verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+            verify(jsonHelper, never())
+              .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any(), any())
           }
         }
       }

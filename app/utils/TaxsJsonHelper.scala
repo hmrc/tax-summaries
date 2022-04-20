@@ -16,18 +16,45 @@
 
 package utils
 
+import audit.AtsAudit
 import com.google.inject.Inject
 import config.ApplicationConfig
-import models.{AtsYearList, TaxSummaryLiability}
+import models.{AtsYearList, Audit, TaxSummaryLiability}
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import services.TaxRateService
 import transformers.{ATSCalculations, ATSRawDataTransformer, ATSTaxpayerDataTransformer}
+import uk.gov.hmrc.http.HeaderCarrier
 
-class TaxsJsonHelper @Inject()(applicationConfig: ApplicationConfig, aTSRawDataTransformer: ATSRawDataTransformer) {
+import scala.concurrent.ExecutionContext
 
-  def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int): JsValue = {
+class TaxsJsonHelper @Inject()(
+  applicationConfig: ApplicationConfig,
+  aTSRawDataTransformer: ATSRawDataTransformer,
+  atsAudit: AtsAudit) {
+
+  def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int)(
+    implicit ec: ExecutionContext,
+    hc: HeaderCarrier): JsValue = {
     val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
     val calculations = ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate)
+
+    val auditDetails: Map[String, String] = Map(
+      "Authorization"        -> hc.authorization.map(_.value).getOrElse(""),
+      "deviceID"             -> hc.deviceID.getOrElse(""),
+      "ipAddress"            -> hc.trueClientIp.getOrElse(""),
+      "utr"                  -> UTR,
+      "hasLiability"         -> calculations.hasLiability.toString,
+      "totalCapitalGainsTax" -> calculations.totalCapitalGainsTax.toString,
+      "totalIncomeTaxAmount" -> calculations.totalIncomeTaxAmount.toString,
+      "taxYear"              -> s"$taxYear-${taxYear + 1}"
+    )
+
+    val AUDIT_ATS_PAYE_SUMMARY_IDENTIFIER = "ats_getAllATSData"
+
+    val audit =
+      Audit("atsRequest", AUDIT_ATS_PAYE_SUMMARY_IDENTIFIER, auditDetails)
+
+    atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage))
 
     Json.toJson(aTSRawDataTransformer.atsDataDTO(taxRate, calculations, rawTaxpayerJson, UTR, taxYear))
   }

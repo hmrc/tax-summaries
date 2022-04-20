@@ -16,12 +16,10 @@
 
 package connectors
 
-import audit.AtsAudit
 import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ApplicationConfig
 import metrics.{Metrics, MetricsEnumeration}
-import models.Audit
 import play.api.Logging
 import play.api.http.Status.BAD_GATEWAY
 import uk.gov.hmrc.http._
@@ -33,7 +31,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class NpsConnector @Inject()(
   http: HttpClient,
   metrics: Metrics,
-  atsAudit: AtsAudit,
   applicationConfig: ApplicationConfig
 )(implicit ec: ExecutionContext)
     extends Logging {
@@ -66,9 +63,6 @@ class NpsConnector @Inject()(
 
     val AUDIT_ATS_PAYE_SUMMARY_IDENTIFIER = "ats_getPayeTaxSummary"
 
-    val audit =
-      Audit("payeRequest", AUDIT_ATS_PAYE_SUMMARY_IDENTIFIER, auditDetails)
-
     val metricEnum = MetricsEnumeration.GET_PAYE_TAX_SUMMARY
 
     val timerContext: Timer.Context =
@@ -88,30 +82,25 @@ class NpsConnector @Inject()(
       .map {
         case response @ Right(_) =>
           metrics.incrementSuccessCounter(metricEnum)
-          atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Success"))
           response
         case Left(error) if error.statusCode >= 500 || error.statusCode == 429 => {
           metrics.incrementFailedCounter(metricEnum)
-          atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "ServiceUnavailable"))
           logger.error(error.message)
           Left(error)
         }
         case Left(error) if error.statusCode == 404 => {
           metrics.incrementFailedCounter(metricEnum) /// TODO - Should this be fail?
-          atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
           logger.info(error.message)
           Left(error)
         }
         case Left(error) => {
           metrics.incrementFailedCounter(metricEnum)
-          atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
           logger.error(error.message, error)
           Left(error)
         }
       } recover {
       case error: HttpException => {
         metrics.incrementFailedCounter(metricEnum)
-        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "ServiceUnavailable"))
         logger.error(error.message)
         Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
       }

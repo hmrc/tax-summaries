@@ -16,7 +16,6 @@
 
 package connectors
 
-import audit.AtsAudit
 import com.codahale.metrics.Timer
 import com.google.inject.Inject
 import config.ApplicationConfig
@@ -35,7 +34,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class ODSConnector @Inject()(
   http: HttpClient,
   metrics: Metrics,
-  atsAudit: AtsAudit,
   applicationConfig: ApplicationConfig
 )(implicit ec: ExecutionContext)
     extends Logging {
@@ -74,23 +72,19 @@ class ODSConnector @Inject()(
     response match {
       case response @ Right(_) =>
         metrics.incrementSuccessCounter(metricEnum)
-        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Success"))
         response
       case Left(error) if error.statusCode >= 500 || error.statusCode == 429 => {
         metrics.incrementFailedCounter(metricEnum)
-        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "ServiceUnavailable"))
         logger.error(error.message)
         Left(error)
       }
       case Left(error) if error.statusCode == 404 => {
         metrics.incrementFailedCounter(metricEnum) /// TODO - Should this be fail?
-        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
         logger.info(error.message)
         Left(error)
       }
       case Left(error) => {
         metrics.incrementFailedCounter(metricEnum)
-        atsAudit.doAudit(audit.copy(eventTypelMessage = audit.eventTypelMessage + "Failed"))
         logger.error(error.message, error)
         Left(error)
       }
