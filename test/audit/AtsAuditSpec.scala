@@ -16,6 +16,7 @@
 
 package audit
 
+import config.ApplicationConfig
 import models.Audit
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.any
@@ -36,7 +37,7 @@ class AtsAuditSpec extends NinoHelperSpec {
   "doAudit" must {
     "generate a data event" when {
       val mockAuditConnector = mock[DefaultAuditConnector]
-      object TestAudit extends AtsAudit(mockAuditConnector, "ats")
+      object TestAudit extends AtsAudit(mockAuditConnector, app.injector.instanceOf[ApplicationConfig])
 
       " a period is available" in {
         val authorisationVal = Authorization("sdfgsdfghdsdhf")
@@ -51,7 +52,6 @@ class AtsAuditSpec extends NinoHelperSpec {
 
         val audit = Audit(
           "liabilityPeriodUpdateSuccessful",
-          "ats",
           Map(
             "nino"          -> nino,
             "endsOn"        -> s"${LocalDate.now().getYear}-07-05",
@@ -100,7 +100,7 @@ class AtsAuditSpec extends NinoHelperSpec {
   "doAudit" must {
     "generate a data event" when {
       val mockAuditConnector = mock[DefaultAuditConnector]
-      object TestAudit extends AtsAudit(mockAuditConnector, "ats")
+      object TestAudit extends AtsAudit(mockAuditConnector, app.injector.instanceOf[ApplicationConfig])
 
       "a period is not available" in {
 
@@ -117,7 +117,6 @@ class AtsAuditSpec extends NinoHelperSpec {
 
         val audit = Audit(
           "liabilityRequestSuccessful",
-          "ats_LiabilityRequest",
           Map(
             "nino"          -> nino,
             "endsOn"        -> "",

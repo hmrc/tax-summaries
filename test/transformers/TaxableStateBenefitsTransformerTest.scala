@@ -16,12 +16,15 @@
 
 package transformers
 
+import audit.AtsAudit
 import models.LiabilityKey.TaxableStateBenefits
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.io.Source
 
@@ -33,6 +36,10 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
+  implicit val hc = HeaderCarrier()
+
+  val atsAudit = mock[AtsAudit]
+
   "With base data for utr" must {
 
     "have the correct taxable state benefits data" in {
@@ -43,7 +50,7 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, atsAudit, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -67,7 +74,7 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
       val calculations = ATSCalculations.make(transformedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, atsAudit, "", taxYear)
 
       val parsedPayload = returnValue.income_data.get.payload.get
       parsedPayload(TaxableStateBenefits) must equal(new Amount(600.0, "GBP"))

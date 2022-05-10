@@ -16,41 +16,32 @@
 
 package audit
 
+import config.ApplicationConfig
 import models.Audit
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions._
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
 
-import javax.inject.{Inject, Named}
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
-class AtsAudit @Inject()(auditConnector: AuditConnector, @Named("appName") appName: String) {
-
-  private val logger: Logger = Logger(getClass.getName)
+class AtsAudit @Inject()(auditConnector: AuditConnector, applicationConfig: ApplicationConfig) extends Logging {
 
   def doAudit(audit: Audit)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Unit = {
     val auditDetails = audit.auditDetails
 
     logger.debug(s"Auditing DataEvent HeaderCarrier: $headerCarrier")
     logger.debug(s"Auditing DataEvent Details: $auditDetails")
-    logger.debug(s"Auditing DataEvent eventTypelMessage: ${audit.eventTypelMessage}")
+    logger.debug(s"Auditing DataEvent eventTypelMessage: ${audit.eventTypeMessage}")
 
-    val auditResult: Future[AuditResult] = auditConnector.sendEvent(
+    auditConnector.sendEvent(
       DataEvent(
-        appName,
-        audit.eventTypelMessage,
-        tags = headerCarrier.toAuditTags(audit.auditTag, "N/A"),
-        detail = headerCarrier.toAuditDetails() ++ auditDetails)
+        applicationConfig.appName,
+        audit.eventTypeMessage,
+        tags = headerCarrier.toAuditTags(),
+        detail = auditDetails)
     )
-
-    auditResult.onComplete({
-      case Success(listInt) => {}
-      case Failure(exception) => { exception: Throwable =>
-        logger.warn("[DesConnector][doAudit] : auditResult: Error", exception)
-      }
-    })
   }
 }

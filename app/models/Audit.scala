@@ -16,4 +16,4 @@
 
 package models
 
-case class Audit(eventTypelMessage: String, auditTag: String, auditDetails: Map[String, String])
+case class Audit(eventTypeMessage: String, auditDetails: Map[String, String])

@@ -16,6 +16,7 @@
 
 package transformers
 
+import audit.AtsAudit
 import com.google.inject.Inject
 import config.ApplicationConfig
 import models.Liability.{StatePension, _}
@@ -25,6 +26,10 @@ import models._
 import play.api.Logger
 import play.api.libs.json._
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+
+import scala.concurrent.ExecutionContext
 
 case class ATSParsingException(s: String) extends Exception(s)
 
@@ -34,11 +39,13 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
     taxRate: TaxRateService,
     calculations: ATSCalculations,
     rawTaxPayerJson: JsValue,
+    atsAudit: AtsAudit,
     UTR: String,
-    taxYear: Int): AtsMiddleTierData = {
+    taxYear: Int)(implicit hc: HeaderCarrier, ec: ExecutionContext): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
+    atsAudit.doAudit(calculations.hasLiability._2)
     try {
-      if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
+      if (calculations.hasLiability._1) { // Careful hasLiability is overridden depending on Nationality and tax year
 
         AtsMiddleTierData.make(
           taxYear,
@@ -99,7 +106,7 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
       AmountAtHigherRate           -> calculations.get(CgAtHigherRate),
       AmountDueAtHigherRate        -> calculations.get(CgDueHigherRate),
       Adjustments                  -> calculations.get(CapAdjustment),
-      TotalCgTax                   -> calculations.totalCapitalGainsTax,
+      TotalCgTax                   -> calculations.totalCapitalGainsTax.amountCurrency,
       CgTaxPerCurrencyUnit         -> calculations.capitalGainsTaxPerCurrency,
       AmountAtRPCILowerRate        -> calculations.getWithDefaultAmount(CGAtLowerRateRPCI),
       AmountDueRPCILowerRate       -> calculations.getWithDefaultAmount(LowerRateCgtRPCI),
@@ -135,8 +142,8 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
       PersonalTaxFreeAmount     -> calculations.get(PersonalAllowance),
       TotalTaxFreeAmount        -> calculations.totalTaxFreeAmount,
       TotalIncomeBeforeTax      -> calculations.totalIncomeBeforeTax,
-      TotalIncomeTax            -> calculations.totalIncomeTaxAmount,
-      TotalCgTax                -> calculations.totalCapitalGainsTax,
+      TotalIncomeTax            -> calculations.totalIncomeTaxAmount.amountCurrency,
+      TotalCgTax                -> calculations.totalCapitalGainsTax.amountCurrency,
       TaxableGains              -> calculations.taxableGains,
       CgTaxPerCurrencyUnit      -> calculations.capitalGainsTaxPerCurrency,
       NicsAndTaxPerCurrencyUnit -> calculations.nicsAndTaxPerCurrency
@@ -161,7 +168,7 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
       OtherAdjustmentsIncreasing      -> calculations.otherAdjustmentsIncreasing,
       MarriageAllowanceReceivedAmount -> calculations.getWithDefaultAmount(MarriageAllceIn),
       OtherAdjustmentsReducing        -> calculations.otherAdjustmentsReducing.roundAmountUp(),
-      TotalIncomeTax                  -> calculations.totalIncomeTaxAmount,
+      TotalIncomeTax                  -> calculations.totalIncomeTaxAmount.amountCurrency,
       ScottishIncomeTax               -> calculations.scottishIncomeTax,
       WelshIncomeTax                  -> calculations.welshIncomeTax,
       ScottishStarterRateTax          -> calculations.scottishStarterRateTax,
@@ -169,7 +176,7 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
       ScottishIntermediateRateTax     -> calculations.scottishIntermediateRateTax,
       ScottishHigherRateTax           -> calculations.scottishHigherRateTax,
       ScottishAdditionalRateTax       -> calculations.scottishAdditionalRateTax,
-      ScottishTotalTax                -> calculations.scottishTotalTax,
+      ScottishTotalTax                -> calculations.scottishTotalTax.amountCurrency,
       ScottishStarterIncome           -> calculations.scottishStarterRateIncome,
       ScottishBasicIncome             -> calculations.scottishBasicRateIncome,
       ScottishIntermediateIncome      -> calculations.scottishIntermediateRateIncome,

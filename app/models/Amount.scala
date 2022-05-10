@@ -18,6 +18,8 @@ package models
 
 import play.api.libs.json.Json
 
+case class AmountWithAudit(amountCurrency: Amount, audit: Map[String, String])
+
 case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] {
 
   def isZero: Boolean =

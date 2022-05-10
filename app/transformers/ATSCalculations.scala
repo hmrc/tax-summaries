@@ -16,14 +16,19 @@
 
 package transformers
 
+import audit.AtsAudit
 import models.Liability._
 import models._
-import play.api.{Logger, Logging}
+import play.api.Logging
 import services._
 import transformers.Scottish.{ATSCalculationsScottish2019, ATSCalculationsScottish2021}
 import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
 import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.DoubleUtils
+
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 trait ATSCalculations extends DoubleUtils with Logging {
 
@@ -55,13 +60,23 @@ trait ATSCalculations extends DoubleUtils with Logging {
     if (taxableGains < get(CgAnnualExempt)) Amount.empty
     else taxableGains - get(CgAnnualExempt)
 
-  def totalCapitalGainsTax: Amount =
-    getWithDefaultAmount(LowerRateCgtRPCI) +
+  def totalCapitalGainsTax: AmountWithAudit = {
+    val amount = getWithDefaultAmount(LowerRateCgtRPCI) +
       getWithDefaultAmount(HigherRateCgtRPCI) +
       get(CgDueEntrepreneursRate) +
       get(CgDueLowerRate) +
       get(CgDueHigherRate) -
       get(CapAdjustment)
+    val audit = Map(
+      "totalCapitalGainsTax" ->
+        s"""getWithDefaultAmount(LowerRateCgtRPCI) (${getWithDefaultAmount(LowerRateCgtRPCI).amount}) +
+           |getWithDefaultAmount(HigherRateCgtRPCI) (${getWithDefaultAmount(HigherRateCgtRPCI).amount}) +
+           |get(CgDueEntrepreneursRate) (${get(CgDueEntrepreneursRate).amount}) +
+           |get(CgDueLowerRate) (${get(CgDueLowerRate).amount}) +
+           |get(CgDueHigherRate) (${get(CgDueHigherRate).amount}) -
+           |get(CapAdjustment) (${get(CapAdjustment).amount}) """.stripMargin)
+    AmountWithAudit(amount, audit)
+  }
 
   def selfEmployment: Amount =
     get(SummaryTotalSchedule) +
@@ -142,8 +157,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def scottishHigherRateTax: Amount = Amount.empty
   def scottishAdditionalRateTax: Amount = Amount.empty
 
-  def scottishTotalTax: Amount =
-    scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
+  def scottishTotalTax: AmountWithAudit = {
+    val scottishTotalTax = scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
+    val audit = Map(
+      "scottishTotalTax" ->
+        s"""scottishStarterRateTax (${scottishStarterRateTax.amount}) +
+           |scottishBasicRateTax (${scottishBasicRateTax.amount}) +
+           |scottishIntermediateRateTax (${scottishIntermediateRateTax.amount}) +
+           |scottishHigherRateTax (${scottishHigherRateTax.amount}) +
+           |scottishAdditionalRateTax (${scottishAdditionalRateTax.amount})""".stripMargin)
+    AmountWithAudit(scottishTotalTax, audit)
+  }
 
   def scottishStarterRateIncome: Amount = Amount.empty
   def scottishBasicRateIncome: Amount = Amount.empty
@@ -191,8 +215,20 @@ trait ATSCalculations extends DoubleUtils with Logging {
         getWithDefaultAmount(Alimony)
     )
 
-  def totalIncomeTaxAmount: Amount =
-    savingsRateAmount + // LS12.1
+  def totalIncomeTaxAmount: AmountWithAudit = {
+    val audit: Map[String, String] = Map(
+      "totalIncomeTaxAmount" -> s"""savingsRateAmount (${savingsRateAmount.amount}) +
+                                   |basicRateIncomeTaxAmount (${basicRateIncomeTaxAmount.amount}) +
+                                   |higherRateIncomeTaxAmount (${higherRateIncomeTaxAmount.amount}) +
+                                   |additionalRateIncomeTaxAmount (${additionalRateIncomeTaxAmount.amount}) +
+                                   |get(DividendTaxLowRate) (${get(DividendTaxLowRate).amount}) +
+                                   |get(DividendTaxHighRate) (${get(DividendTaxHighRate).amount}) +
+                                   |get(DividendTaxAddHighRate) ($otherAdjustmentsIncreasing) +
+                                   |otherAdjustmentsIncreasing (${otherAdjustmentsIncreasing.amount}) -
+                                   |otherAdjustmentsReducing (${otherAdjustmentsReducing.amount}) -
+                                   |getWithDefaultAmount(MarriageAllceIn) (${getWithDefaultAmount(MarriageAllceIn).amount})""".stripMargin
+    )
+    val amount = savingsRateAmount + // LS12.1
       basicRateIncomeTaxAmount + // LS12.2
       higherRateIncomeTaxAmount + // LS12.3
       additionalRateIncomeTaxAmount +
@@ -203,13 +239,16 @@ trait ATSCalculations extends DoubleUtils with Logging {
       otherAdjustmentsReducing -
       getWithDefaultAmount(MarriageAllceIn)
 
+    AmountWithAudit(amount, audit)
+  }
+
   def totalAmountTaxAndNics: Amount =
     totalAmountEmployeeNic +
-      totalIncomeTaxAmount
+      totalIncomeTaxAmount.amountCurrency
 
   def totalTax: Amount =
     totalAmountTaxAndNics +
-      totalCapitalGainsTax
+      totalCapitalGainsTax.amountCurrency
 
   def basicRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +
@@ -237,11 +276,19 @@ trait ATSCalculations extends DoubleUtils with Logging {
       ).amount * scottishRate)
   }
 
-  def hasLiability: Boolean =
-    !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
+  def hasLiability(implicit hc: HeaderCarrier, ec: ExecutionContext): (Boolean, Audit) = {
+    val liability = !(totalCapitalGainsTax.amountCurrency + totalIncomeTaxAmount.amountCurrency).isZeroOrLess
+    val auditDetails = totalCapitalGainsTax.audit ++
+      totalIncomeTaxAmount.audit ++
+      Map("liability" ->
+        s"""(totalCapitalGainsTax (${totalCapitalGainsTax.amountCurrency.amount}) + totalIncomeTaxAmount (${totalIncomeTaxAmount.amountCurrency.amount}) ) =
+           |${(totalCapitalGainsTax.amountCurrency + totalIncomeTaxAmount.amountCurrency).amount}""".stripMargin)
+    val auditType = if (liability) "utrHasLiability" else "utrHasNoLiability"
+    (liability, Audit(auditType, auditDetails))
+  }
 
   def capitalGainsTaxPerCurrency: Amount =
-    taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())
+    taxPerTaxableCurrencyUnit(totalCapitalGainsTax.amountCurrency, taxableGains())
 
   def nicsAndTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalAmountTaxAndNics, totalIncomeBeforeTax)

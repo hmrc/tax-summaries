@@ -16,13 +16,16 @@
 
 package transformers
 
+import audit.AtsAudit
 import models.LiabilityKey.SelfEmploymentIncome
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source
 
 class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
@@ -32,6 +35,10 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val taxYear: Int = 2014
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+
+  implicit val hc = HeaderCarrier()
+
+  val atsAudit = mock[AtsAudit]
 
   "With base data for utr" must {
 
@@ -43,7 +50,7 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, atsAudit, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014
@@ -65,7 +72,7 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val calculations = ATSCalculations.make(transformedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, atsAudit, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       val testYear: Int = 2014

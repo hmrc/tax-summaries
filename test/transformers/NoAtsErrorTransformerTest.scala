@@ -16,12 +16,15 @@
 
 package transformers
 
+import audit.AtsAudit
 import errors.AtsError
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.io.Source
 
@@ -32,6 +35,10 @@ class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val taxYear = 2014
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+
+  implicit val hc = HeaderCarrier()
+
+  val atsAudit = mock[AtsAudit]
 
   "With base data for utr" must {
 
@@ -47,7 +54,7 @@ class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val calculations = ATSCalculations.make(transformedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, atsAudit, "", taxYear)
 
       returnValue.errors mustBe Some(AtsError("NoAtsError"))
     }

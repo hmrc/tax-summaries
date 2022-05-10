@@ -45,10 +45,8 @@ class ODSConnector @Inject()(
     "CorrelationId"        -> UUID.randomUUID().toString
   )
 
-  private def handleResponse(
-    response: Either[UpstreamErrorResponse, JsValue],
-    metricEnum: MetricsEnumeration)(implicit hc: HeaderCarrier): Either[UpstreamErrorResponse, JsValue] = {
-
+  private def handleResponse(response: Either[UpstreamErrorResponse, JsValue], metricEnum: MetricsEnumeration)(
+    implicit hc: HeaderCarrier): Either[UpstreamErrorResponse, JsValue] =
     response match {
       case response @ Right(_) =>
         metrics.incrementSuccessCounter(metricEnum)
@@ -69,7 +67,6 @@ class ODSConnector @Inject()(
         Left(error)
       }
     }
-  }
 
   def url(path: String) = s"$serviceUrl$path"
 

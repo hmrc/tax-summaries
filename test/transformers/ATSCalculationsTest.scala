@@ -529,7 +529,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           keys(1)   -> Amount.gbp(second)
         )
 
-        sut.calculation.scottishTotalTax.roundAmount() mustBe Amount.gbp(first + second).roundAmount()
+        sut.calculation.scottishTotalTax.amountCurrency.roundAmount() mustBe Amount.gbp(first + second).roundAmount()
       }
     }
 
@@ -556,7 +556,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           )
         )
 
-        sut.calculation.totalIncomeTaxAmount.roundAmount() mustBe Amount.gbp(first + second).roundAmount()
+        sut.calculation.totalIncomeTaxAmount.amountCurrency
+          .roundAmount() mustBe Amount.gbp(first + second).roundAmount()
       }
     }
   }

@@ -17,7 +17,7 @@
 package transformers.Scottish
 
 import models.Liability._
-import models.{Amount, TaxSummaryLiability}
+import models.{Amount, AmountWithAudit, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations2021
 
@@ -87,7 +87,9 @@ class ATSCalculationsScottish2021(val summaryData: TaxSummaryLiability, val taxR
 
   private val savingsTotalTax = savingsBasicRateTax + savingsHigherRateTax + savingsAdditionalRateTax
 
-  override def totalIncomeTaxAmount: Amount =
-    super.totalIncomeTaxAmount + scottishTotalTax + savingsTotalTax
+  override def totalIncomeTaxAmount: AmountWithAudit =
+    AmountWithAudit(
+      super.totalIncomeTaxAmount.amountCurrency + scottishTotalTax.amountCurrency + savingsTotalTax,
+      Map.empty)
 
 }

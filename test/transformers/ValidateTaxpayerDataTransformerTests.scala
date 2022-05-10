@@ -16,11 +16,14 @@
 
 package transformers
 
+import audit.AtsAudit
 import errors.AtsError
 import models.{AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.{JsNull, Json}
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.{AtsJsonDataUpdate, BaseSpec}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.io.Source
 
@@ -31,6 +34,10 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val calculations = ATSCalculations.make(dataJson.as[TaxSummaryLiability], taxRate)
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+
+  implicit val hc = HeaderCarrier()
+
+  val atsAudit = mock[AtsAudit]
 
   "With base data for utr" must {
 
@@ -45,7 +52,7 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
       val transformedJson = transformTaxpayerData(sourceJson = originalJson, jsonUpdateObject = update)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, transformedJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, transformedJson, atsAudit, "", taxYear)
 
       returnValue.taxPayerData mustBe None
       returnValue.errors mustBe Some(AtsError("title"))
@@ -59,7 +66,7 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
       val parsedJson = Json.parse(originalJson)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, parsedJson, atsAudit, "", taxYear)
 
       returnValue.taxPayerData mustBe None
 
@@ -74,7 +81,7 @@ class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpda
       val parsedJson = Json.parse(originalJson)
 
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, calculations, parsedJson, atsAudit, "", taxYear)
 
       returnValue.taxPayerData mustBe None
       returnValue.errors mustBe Some(AtsError("surname"))

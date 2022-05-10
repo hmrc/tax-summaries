@@ -66,7 +66,7 @@ trait ATSCalculations2021 extends ATSCalculations {
       get(ChildBenefitCharge) +
       get(PensionSavingChargeable)
 
-  override def totalIncomeTaxAmount: Amount = {
+  override def totalIncomeTaxAmount: AmountWithAudit = {
     val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
       basicRateIncomeTaxAmount + // LS12.2
       higherRateIncomeTaxAmount + // LS12.3
@@ -80,11 +80,33 @@ trait ATSCalculations2021 extends ATSCalculations {
 
     val excludedAndNonExcludedTax = get(TaxExcluded) + getWithDefaultAmount(TaxOnNonExcludedIncome)
 
-    if (excludedAndNonExcludedTax.amount > 0) {
+    val totalIncomeTaxAmount = if (excludedAndNonExcludedTax.amount > 0) {
       List(rateDividendAdjustmentTax, excludedAndNonExcludedTax).min
     } else {
       rateDividendAdjustmentTax
     }
+
+    val audit: Map[String, String] = Map(
+      "rateDividendAdjustmentTax" ->
+        s"""savingsRateAmount (${savingsRateAmount.amount}) +
+           |basicRateIncomeTaxAmount (${basicRateIncomeTaxAmount.amount}) +
+           |higherRateIncomeTaxAmount (${higherRateIncomeTaxAmount.amount}) +
+           |additionalRateIncomeTaxAmount (${additionalRateIncomeTaxAmount.amount}) +
+           |get(DividendTaxLowRate) (${get(DividendTaxLowRate).amount}) +
+           |get(DividendTaxHighRate) (${get(DividendTaxHighRate).amount}) +
+           |get(DividendTaxAddHighRate) (${get(DividendTaxAddHighRate).amount}) +
+           |otherAdjustmentsIncreasing (${otherAdjustmentsIncreasing.amount}) -
+           |otherAdjustmentsReducing (${otherAdjustmentsReducing.amount}) -
+           |getWithDefaultAmount(MarriageAllceIn) (${getWithDefaultAmount(MarriageAllceIn).amount})""".stripMargin,
+      "excludedAndNonExcludedTax" ->
+        s"""get(TaxExcluded) (${get(TaxExcluded).amount}) +
+           |getWithDefaultAmount(TaxOnNonExcludedIncome) (${getWithDefaultAmount(TaxOnNonExcludedIncome).amount})""".stripMargin,
+      "totalIncomeTaxAmount" ->
+        s"""${totalIncomeTaxAmount.amount.toString} which is the minimum of
+           |excludedAndNonExcludedTax (${rateDividendAdjustmentTax.amount}) and
+           |excludedAndNonExcludedTax (${excludedAndNonExcludedTax.amount})""".stripMargin
+    )
+    AmountWithAudit(totalIncomeTaxAmount, audit)
   }
 
 }
