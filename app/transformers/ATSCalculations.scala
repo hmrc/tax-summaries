@@ -74,7 +74,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
            |get(CgDueEntrepreneursRate) (${get(CgDueEntrepreneursRate).amount}) +
            |get(CgDueLowerRate) (${get(CgDueLowerRate).amount}) +
            |get(CgDueHigherRate) (${get(CgDueHigherRate).amount}) -
-           |get(CapAdjustment) (${get(CapAdjustment).amount}) """.stripMargin)
+           |get(CapAdjustment) (${get(CapAdjustment).amount})""".stripMargin)
     AmountWithAudit(amount, audit)
   }
 

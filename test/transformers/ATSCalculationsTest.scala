@@ -263,7 +263,19 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           HigherRateCgtRPCI -> Amount.gbp(higher)
         )
 
-        sut.calculation.totalCapitalGainsTax mustBe Amount.gbp(lower + higher)
+        val expected = AmountWithAudit(
+          Amount(lower + higher, "GBP"),
+          Map(
+            "totalCapitalGainsTax" ->
+              s"""getWithDefaultAmount(LowerRateCgtRPCI) ($lower) +
+                 |getWithDefaultAmount(HigherRateCgtRPCI) ($higher) +
+                 |get(CgDueEntrepreneursRate) (0) +
+                 |get(CgDueLowerRate) (0) +
+                 |get(CgDueHigherRate) (0) -
+                 |get(CapAdjustment) (0)""".stripMargin)
+        )
+
+        sut.calculation.totalCapitalGainsTax mustBe expected
       }
     }
 

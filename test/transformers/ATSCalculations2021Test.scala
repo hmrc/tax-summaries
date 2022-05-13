@@ -17,7 +17,7 @@
 package transformers
 
 import models.Liability.TaxOnNonExcludedIncome
-import models.{Amount, Liability, TaxSummaryLiability}
+import models.{Amount, AmountWithAudit, Liability, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
@@ -54,14 +54,60 @@ class ATSCalculations2021Test extends BaseSpec {
 
     "calculate totalIncomeTaxAmount" when {
       "totalIncomeTaxAmount lower than taxExcluded + taxOnNonExcludedInc" in {
-        sut().totalIncomeTaxAmount mustBe Amount(133.32, "GBP")
+        val expected = AmountWithAudit(
+          Amount(133.32, "GBP"),
+          Map(
+            "rateDividendAdjustmentTax" ->
+              """savingsRateAmount (3.20) +
+                |basicRateIncomeTaxAmount (497.70) +
+                |higherRateIncomeTaxAmount (59.08) +
+                |additionalRateIncomeTaxAmount (68.53) +
+                |get(DividendTaxLowRate) (6.27) +
+                |get(DividendTaxHighRate) (6.67) +
+                |get(DividendTaxAddHighRate) (4.66) +
+                |otherAdjustmentsIncreasing (1004.42) -
+                |otherAdjustmentsReducing (221.79) -
+                |getWithDefaultAmount(MarriageAllceIn) (7.75)""".stripMargin,
+            "excludedAndNonExcludedTax" ->
+              s"""get(TaxExcluded) (10.10) +
+                 |getWithDefaultAmount(TaxOnNonExcludedIncome) (123.22)""".stripMargin,
+            "totalIncomeTaxAmount" -> """133.32 which is the minimum of
+                                        |excludedAndNonExcludedTax (1420.99) and
+                                        |excludedAndNonExcludedTax (133.32)""".stripMargin
+          )
+        )
+
+        sut().totalIncomeTaxAmount mustBe expected
       }
 
       "totalIncomeTaxAmount greater than taxExcluded + taxOnNonExcludedInc" in {
         val newAtsData = taxSummaryLiability.atsData - TaxOnNonExcludedIncome +
           (TaxOnNonExcludedIncome -> Amount(0.4, "GBP"))
         val newLiability = taxSummaryLiability.copy(atsData = newAtsData)
-        sut(newLiability).totalIncomeTaxAmount mustBe Amount(10.50, "GBP")
+        val expected = AmountWithAudit(
+          Amount(10.50, "GBP"),
+          Map(
+            "rateDividendAdjustmentTax" ->
+              """savingsRateAmount (3.20) +
+                |basicRateIncomeTaxAmount (497.70) +
+                |higherRateIncomeTaxAmount (59.08) +
+                |additionalRateIncomeTaxAmount (68.53) +
+                |get(DividendTaxLowRate) (6.27) +
+                |get(DividendTaxHighRate) (6.67) +
+                |get(DividendTaxAddHighRate) (4.66) +
+                |otherAdjustmentsIncreasing (1004.42) -
+                |otherAdjustmentsReducing (221.79) -
+                |getWithDefaultAmount(MarriageAllceIn) (7.75)""".stripMargin,
+            "excludedAndNonExcludedTax" ->
+              s"""get(TaxExcluded) (10.10) +
+                 |getWithDefaultAmount(TaxOnNonExcludedIncome) (0.4)""".stripMargin,
+            "totalIncomeTaxAmount" ->
+              s"""10.50 which is the minimum of
+                 |excludedAndNonExcludedTax (1420.99) and
+                 |excludedAndNonExcludedTax (10.50)""".stripMargin
+          )
+        )
+        sut(newLiability).totalIncomeTaxAmount mustBe expected
       }
     }
   }

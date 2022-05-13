@@ -16,7 +16,7 @@
 
 package transformers.Scottish
 
-import models.{Amount, PensionTaxRate, TaxSummaryLiability}
+import models.{Amount, AmountWithAudit, PensionTaxRate, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
@@ -187,7 +187,8 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return totalIncomeTaxAmount" in {
-      sut().totalIncomeTaxAmount mustBe Amount(837.07, "GBP")
+      val expected = AmountWithAudit(Amount(837.07, "GBP"), Map.empty)
+      sut().totalIncomeTaxAmount mustBe expected
     }
 
   }

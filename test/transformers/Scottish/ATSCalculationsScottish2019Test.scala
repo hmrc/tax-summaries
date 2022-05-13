@@ -16,7 +16,7 @@
 
 package transformers.Scottish
 
-import models.{Amount, PensionTaxRate, TaxSummaryLiability}
+import models.{Amount, AmountWithAudit, PensionTaxRate, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
@@ -187,7 +187,35 @@ class ATSCalculationsScottish2019Test extends BaseSpec {
     }
 
     "return totalIncomeTaxAmount" in {
-      sut().totalIncomeTaxAmount mustBe Amount(627.14, "GBP")
+      val expected = AmountWithAudit(
+        Amount(627.14, "GBP"),
+        Map(
+          "scottishTotalTax" ->
+            """scottishStarterRateTax (24.22) +
+              |scottishBasicRateTax (495.40) +
+              |scottishIntermediateRateTax (54.22) +
+              |scottishHigherRateTax (33.53) +
+              |scottishAdditionalRateTax (66.22)""".stripMargin,
+          "savingsTotalTax" ->
+            """savingsBasicRateTax (2.30) +
+              |savingsHigherRateTax (25.55) +
+              |savingsAdditionalRateTax (2.31)""".stripMargin,
+          "totalIncomeTaxAmount" ->
+            s"""savingsRateAmount (0) +
+               |basicRateIncomeTaxAmount (0) +
+               |higherRateIncomeTaxAmount (0) +
+               |additionalRateIncomeTaxAmount (0) +
+               |get(DividendTaxLowRate) (6.27) +
+               |get(DividendTaxHighRate) (6.67) +
+               |get(DividendTaxAddHighRate) (${Amount(135.33, "GBP")}) +
+               |otherAdjustmentsIncreasing (135.33) -
+               |otherAdjustmentsReducing (221.79) -
+               |getWithDefaultAmount(MarriageAllceIn) (7.75) +
+               |scottishTotalTax (673.59) +
+               |savingsTotalTax (30.16)""".stripMargin
+        )
+      )
+      sut().totalIncomeTaxAmount mustBe expected
     }
 
   }

@@ -34,7 +34,7 @@ class AtsAudit @Inject()(auditConnector: AuditConnector, applicationConfig: Appl
 
     logger.debug(s"Auditing DataEvent HeaderCarrier: $headerCarrier")
     logger.debug(s"Auditing DataEvent Details: $auditDetails")
-    logger.debug(s"Auditing DataEvent eventTypelMessage: ${audit.eventTypeMessage}")
+    logger.debug(s"Auditing DataEvent eventTypeMessage: ${audit.eventTypeMessage}")
 
     auditConnector.sendEvent(
       DataEvent(

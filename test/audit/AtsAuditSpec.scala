@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
-import utils.{BaseSpec, NinoHelperSpec}
+import utils.NinoHelperSpec
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,7 +51,7 @@ class AtsAuditSpec extends NinoHelperSpec {
           )
 
         val audit = Audit(
-          "liabilityPeriodUpdateSuccessful",
+          "auditType",
           Map(
             "nino"          -> nino,
             "endsOn"        -> s"${LocalDate.now().getYear}-07-05",
@@ -72,18 +72,17 @@ class AtsAuditSpec extends NinoHelperSpec {
 
         verify(mockAuditConnector).sendEvent(dataEventArgumentCaptor.capture())(any(), any())
 
-        dataEventArgumentCaptor.getValue.auditSource mustBe "ats"
-        dataEventArgumentCaptor.getValue.auditType mustBe "liabilityPeriodUpdateSuccessful"
+        dataEventArgumentCaptor.getValue.auditSource mustBe "tax-summaries"
+        dataEventArgumentCaptor.getValue.auditType mustBe "auditType"
         dataEventArgumentCaptor.getValue.tags mustBe Map(
           "clientIP"          -> "192.168.2.2",
-          "path"              -> "N/A",
+          "path"              -> "-",
           "X-Session-ID"      -> "-",
-          "X-Request-ID"      -> "-",
-          "clientPort"        -> "-",
-          "transactionName"   -> "ats",
           "Akamai-Reputation" -> "-",
-          "deviceID"          -> "aDeviceid*****"
-        )
+          "X-Request-ID"      -> "-",
+          "deviceID"          -> "aDeviceid*****",
+          "clientPort"        -> "-")
+
         dataEventArgumentCaptor.getValue.detail mustBe Map(
           "nino"          -> nino,
           "endsOn"        -> s"${LocalDate.now().getYear}-07-05",
@@ -116,7 +115,7 @@ class AtsAuditSpec extends NinoHelperSpec {
           ArgumentCaptor.forClass(classOf[DataEvent])
 
         val audit = Audit(
-          "liabilityRequestSuccessful",
+          "auditType",
           Map(
             "nino"          -> nino,
             "endsOn"        -> "",
@@ -134,18 +133,17 @@ class AtsAuditSpec extends NinoHelperSpec {
 
         verify(mockAuditConnector).sendEvent(dataEventArgumentCaptor.capture())(any(), any())
 
-        dataEventArgumentCaptor.getValue.auditSource mustBe "ats"
-        dataEventArgumentCaptor.getValue.auditType mustBe "liabilityRequestSuccessful"
+        dataEventArgumentCaptor.getValue.auditSource mustBe "tax-summaries"
+        dataEventArgumentCaptor.getValue.auditType mustBe "auditType"
         dataEventArgumentCaptor.getValue.tags mustBe Map(
           "clientIP"          -> "192.168.2.2",
-          "path"              -> "N/A",
+          "path"              -> "-",
           "X-Session-ID"      -> "-",
-          "X-Request-ID"      -> "-",
-          "clientPort"        -> "-",
-          "transactionName"   -> "ats_LiabilityRequest",
           "Akamai-Reputation" -> "-",
-          "deviceID"          -> "aDeviceid*****"
-        )
+          "X-Request-ID"      -> "-",
+          "deviceID"          -> "aDeviceid*****",
+          "clientPort"        -> "-")
+
         dataEventArgumentCaptor.getValue.detail mustBe Map(
           "nino"          -> nino,
           "endsOn"        -> "",
