@@ -47,6 +47,9 @@ object TaxSummaryLiability extends Logging {
         JsSuccess(m.foldLeft(Map.empty[K, V]) {
           case (acc, ("tliLastUpdated", _))           => acc
           case (acc, ("ctnPensionLumpSumTaxRate", _)) => acc
+          case (acc, ("incomeTaxStatus", _))          => acc
+          case (acc, ("cap3AssessableChgeableGain", _)) =>
+            acc // Key is not present in Liability object because it is not use in the service
           case (acc, (key, value)) =>
             val result = for {
               rv <- value.validate[V]
