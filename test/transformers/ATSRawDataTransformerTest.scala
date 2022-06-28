@@ -367,7 +367,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         returnValue.errors.get.error mustBe "NoAtsError"
       }
 
-      "produce a no ats error if the total income tax is 200 and capital gains tax is -500" in {
+      "TotalCgTax is 500 when the total income tax is 200 and capital gains tax is -500" in {
 
         val sampleJson = JsonUtil.load("/test_case_8.json")
 
@@ -377,20 +377,8 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         val returnValue: AtsMiddleTierData =
           SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
-        returnValue.errors.get.error mustBe "NoAtsError"
-      }
-
-      "produce a no ats error if both total income tax and capital gains tax are negative" in {
-
-        val sampleJson = JsonUtil.load("/test_case_9.json")
-
-        val parsedJson = Json.parse(sampleJson)
-        val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
-
-        val returnValue: AtsMiddleTierData =
-          SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
-
-        returnValue.errors.get.error mustBe "NoAtsError"
+        val parsedPayload = returnValue.capital_gains_data.get.payload.get
+        parsedPayload(TotalCgTax) mustEqual Amount(500, "GBP")
       }
     }
   }

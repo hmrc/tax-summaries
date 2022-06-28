@@ -82,7 +82,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
           AmountDueAtOrdinaryRate      -> Amount(4444.00, "GBP"),
           AmountAtHigherRate           -> Amount(5555.00, "GBP"),
           AmountDueAtHigherRate        -> Amount(6666.00, "GBP"),
-          Adjustments                  -> Amount(7777.00, "GBP"),
+          Adjustments                  -> Amount(-7777.00, "GBP"),
           TotalCgTax                   -> Amount(5555.00, "GBP"),
           CgTaxPerCurrencyUnit         -> Amount(0.4534, "GBP"),
           AmountAtRPCILowerRate        -> Amount(0.00, "GBP"),
