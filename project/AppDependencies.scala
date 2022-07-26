@@ -13,7 +13,7 @@ object AppDependencies {
     "uk.gov.hmrc"                %% "domain"                    % s"6.1.0-$playVersion",
     "uk.gov.hmrc"                %% "time"                      % "3.25.0",
     "com.github.fge"             % "json-schema-validator"      % "2.2.6",
-    "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % "0.68.0",
+    "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % "0.67.0",
     "com.typesafe.scala-logging" %% "scala-logging"             % "3.9.2",
     "org.typelevel"              %% "cats-core"                 % "2.6.1"
   )
