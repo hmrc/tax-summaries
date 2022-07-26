@@ -91,7 +91,7 @@
       "ctnCgDueLowerRate":{"amount":4444.00, "currency":"GBP"},
       "ctnCgAtHigherRate":{"amount":5555.00, "currency":"GBP"},
       "ctnCgDueHigherRate":{"amount":6666.00, "currency":"GBP"},
-      "capAdjustmentAmt":{"amount":7777.00, "currency":"GBP"},
+      "capAdjustmentAmt":{"amount":-7777.00, "currency":"GBP"},
       "ctnPensionLsumTaxDueAmt":{"amount":0.00, "currency":"GBP"},
       "ctnMarriageAllceInAmt":{"amount":0.00, "currency":"GBP"},
       "ctnMarriageAllceOutAmt":{"amount":0.00, "currency":"GBP"},

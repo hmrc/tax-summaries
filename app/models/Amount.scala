@@ -26,6 +26,9 @@ case class Amount(amount: BigDecimal, currency: String) extends Ordered[Amount] 
   def isZeroOrLess: Boolean =
     amount <= 0
 
+  def max(value: BigDecimal): Amount =
+    copy(amount = this.amount.max(value))
+
   def +(that: Amount): Amount = {
     require(this.currency equals that.currency)
     copy(amount = this.amount + that.amount)
