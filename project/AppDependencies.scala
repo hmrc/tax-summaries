@@ -31,7 +31,7 @@ object AppDependencies {
     "org.pegdown"            %  "pegdown"                   % "1.6.0",
     "com.vladsch.flexmark"   % "flexmark-all"               % "0.35.10",
     "uk.gov.hmrc"            %% "tax-year"                  % "1.6.0",
-    "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test-$playVersion"  % "0.59.0"
+    "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test-$playVersion"  % "0.67.0"
   ).map(_ % "test,it")
 
   val all: Seq[ModuleID] = compile ++ test
