@@ -17,7 +17,7 @@ object AppDependencies {
     "com.typesafe.scala-logging" %% "scala-logging"             % "3.9.2",
     "org.typelevel"              %% "cats-core"                 % "2.6.1"
   )
-/// Jenkins is braindead
+
   val test: Seq[ModuleID] = Seq(
     "com.typesafe.play"      %% "play-test"                 % PlayVersion.current,
     "org.scalatestplus.play" %% "scalatestplus-play"        % "5.1.0",
