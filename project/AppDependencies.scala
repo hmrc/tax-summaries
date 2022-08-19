@@ -9,7 +9,7 @@ object AppDependencies {
   val compile: Seq[ModuleID] = Seq(
     filters,
     ws,
-    "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "5.6.0",
+    "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "5.25.0",
     "uk.gov.hmrc"                %% "domain"                    % s"8.1.0-$playVersion",
     "uk.gov.hmrc"                %% "time"                      % "3.25.0",
     "com.github.fge"             % "json-schema-validator"      % "2.2.6",
@@ -27,9 +27,9 @@ object AppDependencies {
     "com.github.fge"         % "json-schema-validator"      % "2.2.6",
     "org.mockito"            % "mockito-all"                % "1.10.19",
     "org.scalacheck"         %% "scalacheck"                % "1.16.0",
-    "com.github.tomakehurst" % "wiremock-jre8"              % "2.27.2", //Updating this causes errors due to a conflicting Jackson dependency with (I believe) Play-Bootstrap
+    "com.github.tomakehurst" % "wiremock-jre8"              % "2.31.0", //Updating this causes errors due to a conflicting Jackson dependency with (I believe) Play-Bootstrap
     "org.pegdown"            %  "pegdown"                   % "1.6.0",
-    "com.vladsch.flexmark"   % "flexmark-all"               % "0.35.10",
+    "com.vladsch.flexmark"   % "flexmark-all"               % "0.35.10", // You can update this once Scala 2.13 is in place. See - https://github.com/hmrc/individuals-disclosures-api/blob/main/project/AppDependencies.scala
     "uk.gov.hmrc"            %% "tax-year"                  % "3.0.0",
     "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test-$playVersion"  % "0.70.0"
   ).map(_ % "test,it")
