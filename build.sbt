@@ -14,7 +14,7 @@ val appName = "tax-summaries"
 
 val silencerVersion = "1.7.3"
 
-lazy val IntegrationTest = config("it") extend (Test)
+lazy val IntegrationTest = config("it") extend Test
 
 lazy val plugins: Seq[Plugins] =
   Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
@@ -36,7 +36,7 @@ lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
-    ScoverageKeys.coverageMinimum := 91,
+    ScoverageKeys.coverageMinimumStmtTotal := 91,
     ScoverageKeys.coverageFailOnMinimum := false,
     ScoverageKeys.coverageHighlighting := true,
     parallelExecution in Test := false
