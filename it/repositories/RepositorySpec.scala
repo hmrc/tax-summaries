@@ -41,17 +41,17 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
 
   "a repository" must {
     "must be able to store and retrieve a payload" in {
+      // For some reason this is failing due to a different time format, but I don't know if this is a local only issue.
 
+      val data = PayeAtsMiddleTier(2018, "NINONINO", None, None, None, None, None)
+      val dataMongo = PayeAtsMiddleTierMongo(buildId("NINONINO", 2018), data, Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant)
+      val storedOk = serviceRepo.set(dataMongo)
+      storedOk.futureValue mustBe true
 
-          val data = PayeAtsMiddleTier(2018, "NINONINO", None, None, None, None, None)
-          val dataMongo = PayeAtsMiddleTierMongo(buildId("NINONINO",2018), data,Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant)
-          val storedOk = serviceRepo.set(dataMongo)
-          storedOk.futureValue mustBe true
+      val retrieved = serviceRepo.get("NINONINO", 2018)
+        .map(_.getOrElse(fail("The record was not found in the database")))
 
-          val retrieved = serviceRepo.get("NINONINO", 2018)
-            .map(_.getOrElse(fail("The record was not found in the database")))
-
-          retrieved.futureValue mustBe dataMongo
+      retrieved.futureValue mustBe dataMongo
 
     }
   }
