@@ -18,105 +18,104 @@ package models
 
 import play.api.libs.json._
 
-sealed trait LiabilityKey extends ApiValue
+sealed class LiabilityKey(apiValue: String) extends ApiValue(apiValue)
 
 object LiabilityKey extends DefaultReads {
 
-  case object AdditionalRate extends ApiValue("additional_rate") with LiabilityKey
-  case object AdditionalRateAmount extends ApiValue("additional_rate_amount") with LiabilityKey
-  case object AdditionalRateIncomeTax extends ApiValue("additional_rate_income_tax") with LiabilityKey
-  case object AdditionalRateIncomeTaxAmount extends ApiValue("additional_rate_income_tax_amount") with LiabilityKey
-  case object Adjustments extends ApiValue("adjustments") with LiabilityKey
-  case object AmountAtEntrepreneursRate extends ApiValue("amount_at_entrepreneurs_rate") with LiabilityKey
-  case object AmountAtHigherRate extends ApiValue("amount_at_higher_rate") with LiabilityKey
-  case object AmountAtOrdinaryRate extends ApiValue("amount_at_ordinary_rate") with LiabilityKey
-  case object AmountAtRPCIHigheRate extends ApiValue("amount_at_rpci_higher_rate") with LiabilityKey
-  case object AmountAtRPCILowerRate extends ApiValue("amount_at_rpci_lower_rate") with LiabilityKey
-  case object AmountDueAtEntrepreneursRate extends ApiValue("amount_due_at_entrepreneurs_rate") with LiabilityKey
-  case object AmountDueAtHigherRate extends ApiValue("amount_due_at_higher_rate") with LiabilityKey
-  case object AmountDueAtOrdinaryRate extends ApiValue("amount_due_at_ordinary_rate") with LiabilityKey
-  case object AmountDueRPCIHigherRate extends ApiValue("amount_due_rpci_higher_rate") with LiabilityKey
-  case object AmountDueRPCILowerRate extends ApiValue("amount_due_rpci_lower_rate") with LiabilityKey
-  case object BasicRateIncomeTax extends ApiValue("basic_rate_income_tax") with LiabilityKey
-  case object BasicRateIncomeTaxAmount extends ApiValue("basic_rate_income_tax_amount") with LiabilityKey
-  case object BenefitsFromEmployment extends ApiValue("benefits_from_employment") with LiabilityKey
-  case object CgTaxPerCurrencyUnit extends ApiValue("cg_tax_per_currency_unit") with LiabilityKey
-  case object EmployeeNicAmount extends ApiValue("employee_nic_amount") with LiabilityKey
-  case object HigherRateIncomeTax extends ApiValue("higher_rate_income_tax") with LiabilityKey
-  case object HigherRateIncomeTaxAmount extends ApiValue("higher_rate_income_tax_amount") with LiabilityKey
-  case object IncomeFromEmployment extends ApiValue("income_from_employment") with LiabilityKey
-  case object LessTaxFreeAmount extends ApiValue("less_tax_free_amount") with LiabilityKey
-  case object MarriageAllowanceReceivedAmount extends ApiValue("marriage_allowance_received_amount") with LiabilityKey
-  case object MarriageAllowanceTransferredAmount
-      extends ApiValue("marriage_allowance_transferred_amount") with LiabilityKey
-  case object NicsAndTaxPerCurrencyUnit extends ApiValue("nics_and_tax_per_currency_unit") with LiabilityKey
-  case object MarriedCouplesAllowance extends ApiValue("married_couples_allowance_adjustment") with LiabilityKey
-  case object LessTaxAdjustmentPrevYear extends ApiValue("less_tax_adjustment_previous_year") with LiabilityKey
-  case object TaxUnderpaidPrevYear extends ApiValue("tax_underpaid_previous_year") with LiabilityKey
-  case object IncomeAfterTaxAndNics extends ApiValue("income_after_tax_and_nics") with LiabilityKey
-  case object EmployerNicAmount extends ApiValue("employer_nic_amount") with LiabilityKey
-  case object LiableTaxAmount extends ApiValue("liable_tax_amount") with LiabilityKey
-  case object NicsAndTaxRate extends ApiValue("nics_and_tax_rate") with LiabilityKey
-  case object OrdinaryRate extends ApiValue("ordinary_rate") with LiabilityKey
-  case object OrdinaryRateAmount extends ApiValue("ordinary_rate_amount") with LiabilityKey
-  case object OtherAdjustmentsIncreasing extends ApiValue("other_adjustments_increasing") with LiabilityKey
-  case object OtherAdjustmentsReducing extends ApiValue("other_adjustments_reducing") with LiabilityKey
-  case object OtherAllowancesAmount extends ApiValue("other_allowances_amount") with LiabilityKey
-  case object OtherIncome extends ApiValue("other_income") with LiabilityKey
-  case object OtherPensionIncome extends ApiValue("other_pension_income") with LiabilityKey
-  case object PayCgTaxOn extends ApiValue("pay_cg_tax_on") with LiabilityKey
-  case object PersonalTaxFreeAmount extends ApiValue("personal_tax_free_amount") with LiabilityKey
-  case object ScottishIncomeTax extends ApiValue("scottish_income_tax") with LiabilityKey
-  case object SelfEmploymentIncome extends ApiValue("self_employment_income") with LiabilityKey
-  case object StartingRateForSavings extends ApiValue("starting_rate_for_savings") with LiabilityKey
-  case object StartingRateForSavingsAmount extends ApiValue("starting_rate_for_savings_amount") with LiabilityKey
-  case object StatePension extends ApiValue("state_pension") with LiabilityKey
-  case object TaxableGains extends ApiValue("taxable_gains") with LiabilityKey
-  case object TaxableStateBenefits extends ApiValue("taxable_state_benefits") with LiabilityKey
-  case object TotalCgTax extends ApiValue("total_cg_tax") with LiabilityKey
-  case object TotalCgTaxRate extends ApiValue("total_cg_tax_rate") with LiabilityKey
-  case object TotalIncomeBeforeTax extends ApiValue("total_income_before_tax") with LiabilityKey
-  case object TotalIncomeTax extends ApiValue("total_income_tax") with LiabilityKey
-  case object TotalIncomeTax2Nics extends ApiValue("total_income_tax_2_nics") with LiabilityKey
-  case object TotalUKIncomeTax extends ApiValue("total_UK_income_tax") with LiabilityKey
-  case object TotalIncomeTax2 extends ApiValue("total_income_tax_2") with LiabilityKey
-  case object TotalIncomeTaxAndNics extends ApiValue("total_income_tax_and_nics") with LiabilityKey
-  case object TotalTaxFreeAmount extends ApiValue("total_tax_free_amount") with LiabilityKey
-  case object UpperRate extends ApiValue("upper_rate") with LiabilityKey
-  case object UpperRateAmount extends ApiValue("upper_rate_amount") with LiabilityKey
-  case object YourTotalTax extends ApiValue("your_total_tax") with LiabilityKey
-  case object WelshIncomeTax extends ApiValue("welsh_income_tax") with LiabilityKey
+  case object AdditionalRate extends LiabilityKey("additional_rate")
+  case object AdditionalRateAmount extends LiabilityKey("additional_rate_amount")
+  case object AdditionalRateIncomeTax extends LiabilityKey("additional_rate_income_tax")
+  case object AdditionalRateIncomeTaxAmount extends LiabilityKey("additional_rate_income_tax_amount")
+  case object Adjustments extends LiabilityKey("adjustments")
+  case object AmountAtEntrepreneursRate extends LiabilityKey("amount_at_entrepreneurs_rate")
+  case object AmountAtHigherRate extends LiabilityKey("amount_at_higher_rate")
+  case object AmountAtOrdinaryRate extends LiabilityKey("amount_at_ordinary_rate")
+  case object AmountAtRPCIHigheRate extends LiabilityKey("amount_at_rpci_higher_rate")
+  case object AmountAtRPCILowerRate extends LiabilityKey("amount_at_rpci_lower_rate")
+  case object AmountDueAtEntrepreneursRate extends LiabilityKey("amount_due_at_entrepreneurs_rate")
+  case object AmountDueAtHigherRate extends LiabilityKey("amount_due_at_higher_rate")
+  case object AmountDueAtOrdinaryRate extends LiabilityKey("amount_due_at_ordinary_rate")
+  case object AmountDueRPCIHigherRate extends LiabilityKey("amount_due_rpci_higher_rate")
+  case object AmountDueRPCILowerRate extends LiabilityKey("amount_due_rpci_lower_rate")
+  case object BasicRateIncomeTax extends LiabilityKey("basic_rate_income_tax")
+  case object BasicRateIncomeTaxAmount extends LiabilityKey("basic_rate_income_tax_amount")
+  case object BenefitsFromEmployment extends LiabilityKey("benefits_from_employment")
+  case object CgTaxPerCurrencyUnit extends LiabilityKey("cg_tax_per_currency_unit")
+  case object EmployeeNicAmount extends LiabilityKey("employee_nic_amount")
+  case object HigherRateIncomeTax extends LiabilityKey("higher_rate_income_tax")
+  case object HigherRateIncomeTaxAmount extends LiabilityKey("higher_rate_income_tax_amount")
+  case object IncomeFromEmployment extends LiabilityKey("income_from_employment")
+  case object LessTaxFreeAmount extends LiabilityKey("less_tax_free_amount")
+  case object MarriageAllowanceReceivedAmount extends LiabilityKey("marriage_allowance_received_amount")
+  case object MarriageAllowanceTransferredAmount extends LiabilityKey("marriage_allowance_transferred_amount")
+  case object NicsAndTaxPerCurrencyUnit extends LiabilityKey("nics_and_tax_per_currency_unit")
+  case object MarriedCouplesAllowance extends LiabilityKey("married_couples_allowance_adjustment")
+  case object LessTaxAdjustmentPrevYear extends LiabilityKey("less_tax_adjustment_previous_year")
+  case object TaxUnderpaidPrevYear extends LiabilityKey("tax_underpaid_previous_year")
+  case object IncomeAfterTaxAndNics extends LiabilityKey("income_after_tax_and_nics")
+  case object EmployerNicAmount extends LiabilityKey("employer_nic_amount")
+  case object LiableTaxAmount extends LiabilityKey("liable_tax_amount")
+  case object NicsAndTaxRate extends LiabilityKey("nics_and_tax_rate")
+  case object OrdinaryRate extends LiabilityKey("ordinary_rate")
+  case object OrdinaryRateAmount extends LiabilityKey("ordinary_rate_amount")
+  case object OtherAdjustmentsIncreasing extends LiabilityKey("other_adjustments_increasing")
+  case object OtherAdjustmentsReducing extends LiabilityKey("other_adjustments_reducing")
+  case object OtherAllowancesAmount extends LiabilityKey("other_allowances_amount")
+  case object OtherIncome extends LiabilityKey("other_income")
+  case object OtherPensionIncome extends LiabilityKey("other_pension_income")
+  case object PayCgTaxOn extends LiabilityKey("pay_cg_tax_on")
+  case object PersonalTaxFreeAmount extends LiabilityKey("personal_tax_free_amount")
+  case object ScottishIncomeTax extends LiabilityKey("scottish_income_tax")
+  case object SelfEmploymentIncome extends LiabilityKey("self_employment_income")
+  case object StartingRateForSavings extends LiabilityKey("starting_rate_for_savings")
+  case object StartingRateForSavingsAmount extends LiabilityKey("starting_rate_for_savings_amount")
+  case object StatePension extends LiabilityKey("state_pension")
+  case object TaxableGains extends LiabilityKey("taxable_gains")
+  case object TaxableStateBenefits extends LiabilityKey("taxable_state_benefits")
+  case object TotalCgTax extends LiabilityKey("total_cg_tax")
+  case object TotalCgTaxRate extends LiabilityKey("total_cg_tax_rate")
+  case object TotalIncomeBeforeTax extends LiabilityKey("total_income_before_tax")
+  case object TotalIncomeTax extends LiabilityKey("total_income_tax")
+  case object TotalIncomeTax2Nics extends LiabilityKey("total_income_tax_2_nics")
+  case object TotalUKIncomeTax extends LiabilityKey("total_UK_income_tax")
+  case object TotalIncomeTax2 extends LiabilityKey("total_income_tax_2")
+  case object TotalIncomeTaxAndNics extends LiabilityKey("total_income_tax_and_nics")
+  case object TotalTaxFreeAmount extends LiabilityKey("total_tax_free_amount")
+  case object UpperRate extends LiabilityKey("upper_rate")
+  case object UpperRateAmount extends LiabilityKey("upper_rate_amount")
+  case object YourTotalTax extends LiabilityKey("your_total_tax")
+  case object WelshIncomeTax extends LiabilityKey("welsh_income_tax")
 
-  case object ScottishStarterRateTax extends ApiValue("scottish_starter_rate_tax") with LiabilityKey
-  case object ScottishBasicRateTax extends ApiValue("scottish_basic_rate_tax") with LiabilityKey
-  case object ScottishIntermediateRateTax extends ApiValue("scottish_intermediate_rate_tax") with LiabilityKey
-  case object ScottishHigherRateTax extends ApiValue("scottish_higher_rate_tax") with LiabilityKey
-  case object ScottishAdditionalRateTax extends ApiValue("scottish_additional_rate_tax") with LiabilityKey
+  case object ScottishStarterRateTax extends LiabilityKey("scottish_starter_rate_tax")
+  case object ScottishBasicRateTax extends LiabilityKey("scottish_basic_rate_tax")
+  case object ScottishIntermediateRateTax extends LiabilityKey("scottish_intermediate_rate_tax")
+  case object ScottishHigherRateTax extends LiabilityKey("scottish_higher_rate_tax")
+  case object ScottishAdditionalRateTax extends LiabilityKey("scottish_additional_rate_tax")
 
-  case object ScottishTotalTax extends ApiValue("scottish_total_tax") with LiabilityKey
-  case object ScottishStarterRateIncomeTaxAmount extends ApiValue("scottish_starter_rate_amount") with LiabilityKey
-  case object ScottishStarterRateIncomeTax extends ApiValue("scottish_starter_rate") with LiabilityKey
-  case object ScottishBasicRateIncomeTaxAmount extends ApiValue("scottish_basic_rate_amount") with LiabilityKey
-  case object ScottishBasicRateIncomeTax extends ApiValue("scottish_basic_rate") with LiabilityKey
+  case object ScottishTotalTax extends LiabilityKey("scottish_total_tax")
+  case object ScottishStarterRateIncomeTaxAmount extends LiabilityKey("scottish_starter_rate_amount")
+  case object ScottishStarterRateIncomeTax extends LiabilityKey("scottish_starter_rate")
+  case object ScottishBasicRateIncomeTaxAmount extends LiabilityKey("scottish_basic_rate_amount")
+  case object ScottishBasicRateIncomeTax extends LiabilityKey("scottish_basic_rate")
   case object ScottishIntermediateRateIncomeTaxAmount
-      extends ApiValue("scottish_intermediate_rate_amount") with LiabilityKey
-  case object ScottishIntermediateRateIncomeTax extends ApiValue("scottish_intermediate_rate") with LiabilityKey
-  case object ScottishHigherRateIncomeTaxAmount extends ApiValue("scottish_higher_rate_amount") with LiabilityKey
-  case object ScottishHigherRateIncomeTax extends ApiValue("scottish_higher_rate") with LiabilityKey
+      extends LiabilityKey("scottish_intermediate_rate_amount")
+  case object ScottishIntermediateRateIncomeTax extends LiabilityKey("scottish_intermediate_rate")
+  case object ScottishHigherRateIncomeTaxAmount extends LiabilityKey("scottish_higher_rate_amount")
+  case object ScottishHigherRateIncomeTax extends LiabilityKey("scottish_higher_rate")
 
-  case object ScottishStarterIncome extends ApiValue("scottish_starter_income") with LiabilityKey
-  case object ScottishBasicIncome extends ApiValue("scottish_basic_income") with LiabilityKey
-  case object ScottishIntermediateIncome extends ApiValue("scottish_intermediate_income") with LiabilityKey
-  case object ScottishHigherIncome extends ApiValue("scottish_higher_income") with LiabilityKey
-  case object ScottishAdditionalIncome extends ApiValue("scottish_additional_income") with LiabilityKey
+  case object ScottishStarterIncome extends LiabilityKey("scottish_starter_income")
+  case object ScottishBasicIncome extends LiabilityKey("scottish_basic_income")
+  case object ScottishIntermediateIncome extends LiabilityKey("scottish_intermediate_income")
+  case object ScottishHigherIncome extends LiabilityKey("scottish_higher_income")
+  case object ScottishAdditionalIncome extends LiabilityKey("scottish_additional_income")
 
-  case object SavingsLowerRateTax extends ApiValue("savings_lower_rate_tax") with LiabilityKey
-  case object SavingsHigherRateTax extends ApiValue("savings_higher_rate_tax") with LiabilityKey
-  case object SavingsAdditionalRateTax extends ApiValue("savings_additional_rate_tax") with LiabilityKey
+  case object SavingsLowerRateTax extends LiabilityKey("savings_lower_rate_tax")
+  case object SavingsHigherRateTax extends LiabilityKey("savings_higher_rate_tax")
+  case object SavingsAdditionalRateTax extends LiabilityKey("savings_additional_rate_tax")
 
-  case object SavingsLowerIncome extends ApiValue("savings_lower_income") with LiabilityKey
-  case object SavingsHigherIncome extends ApiValue("savings_higher_income") with LiabilityKey
-  case object SavingsAdditionalIncome extends ApiValue("savings_additional_income") with LiabilityKey
+  case object SavingsLowerIncome extends LiabilityKey("savings_lower_income")
+  case object SavingsHigherIncome extends LiabilityKey("savings_higher_income")
+  case object SavingsAdditionalIncome extends LiabilityKey("savings_additional_income")
 
   // format: off
   val allItems: List[LiabilityKey] = List (

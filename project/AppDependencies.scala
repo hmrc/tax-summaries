@@ -14,9 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import sbt._
-import play.sbt.PlayImport._
 import play.core.PlayVersion
+import play.sbt.PlayImport._
+import sbt._
 
 object AppDependencies {
 
@@ -40,7 +40,7 @@ object AppDependencies {
     "org.scalatestplus.play" %% "scalatestplus-play"        % "5.1.0",
     "org.scalatestplus"      %% "scalatestplus-scalacheck"  % "3.1.0.0-RC2",
     "org.scalatestplus"      %% "scalatestplus-mockito"     % "1.0.0-M2",
-    "org.jsoup"              % "jsoup"                      % "1.16.0",
+    "org.jsoup"              % "jsoup"                      % "1.15.3",
     "com.github.fge"         % "json-schema-validator"      % jsonSchemaValidatorVersion,
     "org.mockito"            % "mockito-core"               % "4.7.0",
     "org.scalacheck"         %% "scalacheck"                % "1.16.0",
