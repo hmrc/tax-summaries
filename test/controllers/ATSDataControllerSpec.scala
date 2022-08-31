@@ -20,8 +20,9 @@ import controllers.auth.FakeAuthAction
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND, OK}
+import play.api.http.Status._
 import play.api.libs.json.{JsResultException, JsString}
+import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
@@ -34,16 +35,15 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 class ATSDataControllerSpec extends BaseSpec {
 
-  lazy val cc = stubControllerComponents()
+  lazy val cc: ControllerComponents = stubControllerComponents()
 
-  implicit lazy val ec = inject[ExecutionContext]
+  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
 
-  implicit val defaultPatience =
-    PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
+  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
-  val request = FakeRequest()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   val odsService: OdsService = mock[OdsService]
   val controller = new ATSDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
@@ -104,7 +104,7 @@ class ATSDataControllerSpec extends BaseSpec {
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.failed(
           JsResultException(List()))
 
-        intercept[JsResultException](Await.result(controller.getATSData(testUtr, taxYear)(request), 1 seconds))
+        intercept[JsResultException](Await.result(controller.getATSData(testUtr, taxYear)(request), 1.seconds))
       }
     }
 
@@ -286,7 +286,7 @@ class ATSDataControllerSpec extends BaseSpec {
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(
           JsResultException(List()))
 
-        intercept[JsResultException](Await.result(controller.getATSList(testUtr)(request), 1 seconds))
+        intercept[JsResultException](Await.result(controller.getATSList(testUtr)(request), 1.seconds))
       }
     }
 

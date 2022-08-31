@@ -20,12 +20,11 @@ import akka.util.Timeout
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.IntegrationPatience
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
-import play.api.mvc.{AbstractController, Action, AnyContent}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import play.api.test.Helpers.{status, stubControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core._
@@ -37,17 +36,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthActionSpec
     extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with Injecting {
 
-  val cc = stubControllerComponents()
-  val mockAuthConnector = mock[AuthConnector]
-  implicit lazy val ec = inject[ExecutionContext]
-  implicit val timeout: Timeout = 5 seconds
+  val cc: ControllerComponents = stubControllerComponents()
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  implicit val timeout: Timeout = 5.seconds
 
   class Harness(authAction: AuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = authAction { _ =>
       Ok
     }
   }
-  val utr = new SaUtrGenerator().nextSaUtr.utr
+  val utr: String = new SaUtrGenerator().nextSaUtr.utr
   val uar = "SomeUar"
   val authAction = new AuthActionImpl(mockAuthConnector, cc)
   val harness = new Harness(authAction)

@@ -18,7 +18,7 @@ package transformers
 
 import models.Liability._
 import models._
-import play.api.{Logger, Logging}
+import play.api.Logging
 import services._
 import transformers.Scottish.{ATSCalculationsScottish2019, ATSCalculationsScottish2021}
 import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
@@ -29,7 +29,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   val summaryData: TaxSummaryLiability
   val taxRates: TaxRateService
-  val incomeTaxStatus = summaryData.incomeTaxStatus
+  val incomeTaxStatus: Option[String] = summaryData.incomeTaxStatus
 
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
@@ -52,8 +52,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(CgGainsAfterLosses)
 
   def payCapitalGainsTaxOn: Amount =
-    if (taxableGains < get(CgAnnualExempt)) Amount.empty
-    else taxableGains - get(CgAnnualExempt)
+    if (taxableGains() < get(CgAnnualExempt)) Amount.empty
+    else taxableGains() - get(CgAnnualExempt)
 
   def totalCapitalGainsTax: Amount =
     (getWithDefaultAmount(LowerRateCgtRPCI) +
@@ -172,24 +172,22 @@ trait ATSCalculations extends DoubleUtils with Logging {
     ) - get(TaxDueAfterAllceRlf)
 
   def otherAdjustmentsReducing: Amount =
-    (
-      get(DeficiencyRelief) +
-        get(TopSlicingRelief) +
-        get(VctSharesRelief) +
-        get(EisRelief) +
-        get(SeedEisRelief) +
-        get(CommInvTrustRel) +
-        get(SurplusMcaAlimonyRel) +
-        get(NotionalTaxCegs) +
-        get(NotlTaxOtherSource) +
-        get(TaxCreditsForDivs) +
-        get(QualDistnRelief) +
-        get(TotalTaxCreditRelief) +
-        get(NonPayableTaxCredits) +
-        getWithDefaultAmount(ReliefForFinanceCosts) +
-        getWithDefaultAmount(LFIRelief) +
-        getWithDefaultAmount(Alimony)
-    )
+    get(DeficiencyRelief) +
+      get(TopSlicingRelief) +
+      get(VctSharesRelief) +
+      get(EisRelief) +
+      get(SeedEisRelief) +
+      get(CommInvTrustRel) +
+      get(SurplusMcaAlimonyRel) +
+      get(NotionalTaxCegs) +
+      get(NotlTaxOtherSource) +
+      get(TaxCreditsForDivs) +
+      get(QualDistnRelief) +
+      get(TotalTaxCreditRelief) +
+      get(NonPayableTaxCredits) +
+      getWithDefaultAmount(ReliefForFinanceCosts) +
+      getWithDefaultAmount(LFIRelief) +
+      getWithDefaultAmount(Alimony)
 
   def totalIncomeTaxAmount: Amount =
     savingsRateAmount + // LS12.1

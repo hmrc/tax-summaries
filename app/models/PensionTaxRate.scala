@@ -24,11 +24,8 @@ final case class PensionTaxRate(value: Double) {
 
 object PensionTaxRate {
 
-  implicit val reads: Reads[PensionTaxRate] = new Reads[PensionTaxRate] {
-    override def reads(json: JsValue): JsResult[PensionTaxRate] =
-      json match {
-        case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue()))
-        case _               => JsError("Unable to parse PensionTaxRate")
-      }
+  implicit val reads: Reads[PensionTaxRate] = {
+    case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue))
+    case _ => JsError("Unable to parse PensionTaxRate")
   }
 }

@@ -17,14 +17,14 @@
 package controllers
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 import controllers.auth.{FakeAuthAction, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
 import org.mockito.Matchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
 import play.api.libs.json.Json
-import play.api.mvc.ControllerComponents
+import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.NpsService
@@ -39,42 +39,41 @@ class ATSPAYEDataControllerTest extends BaseSpec {
   val cc: ControllerComponents = stubControllerComponents()
   implicit val ec: ExecutionContext = cc.executionContext
   implicit val actorSystem: ActorSystem = ActorSystem()
-  implicit val mat: Materializer = ActorMaterializer()
-  val request = FakeRequest()
+  implicit val mat: Materializer = app.materializer
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   val npsService: NpsService = mock[NpsService]
   val payeAuthAction: PayeAuthAction = FakeAuthAction
-  lazy val atsErrorHandler = inject[ATSErrorHandler]
+  lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
 
   class TestController extends ATSPAYEDataController(npsService, payeAuthAction, atsErrorHandler, cc)
 
   val cy = 2018
   val cyPlus1 = 2019
 
-  val expectedResponseCY = PayeAtsMiddleTier(cy, testNino, None, None, None, None, None)
-  val expectedResponseCYPlus1 = PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None)
+  val expectedResponseCY: PayeAtsMiddleTier = PayeAtsMiddleTier(cy, testNino, None, None, None, None, None)
+  val expectedResponseCYPlus1: PayeAtsMiddleTier = PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None)
 
-  val notFoundError = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
-  val badRequestError = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
-  val downstreamClientError = UpstreamErrorResponse("", LOCKED, INTERNAL_SERVER_ERROR)
-  val downstreamServerError = UpstreamErrorResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+  val notFoundError: UpstreamErrorResponse = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
+  val badRequestError: UpstreamErrorResponse = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
+  val downstreamClientError: UpstreamErrorResponse = UpstreamErrorResponse("", LOCKED, INTERNAL_SERVER_ERROR)
+  val downstreamServerError: UpstreamErrorResponse = UpstreamErrorResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
   "getAtsData" must {
 
     "return success response with ATS data" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(expectedResponseCY)))
-      val result = getATSData(testNino, cy)(request)
+      val result: Future[Result] = getATSData(testNino, cy)(request)
 
       status(result) mustBe 200
       contentAsJson(result) mustBe Json.toJson(expectedResponseCY)
     }
 
     "return a failed future" in new TestController {
-      val errorMessage = "An error occurred"
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(badRequestError)))
-      val result = getATSData(testNino, cy)(request)
+      val result: Future[Result] = getATSData(testNino, cy)(request)
 
       status(result) mustBe BAD_REQUEST
       contentAsString(result) mustBe badRequestError.message
@@ -89,7 +88,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
         Right(expectedResponseCYPlus1))
 
-      val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+      val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
       status(result) mustBe OK
       contentAsJson(result) mustBe Json.toJson(Seq(expectedResponseCY, expectedResponseCYPlus1))
@@ -104,7 +103,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(notFoundError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe Json.toJson(Seq(expectedResponseCY))
@@ -118,7 +117,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Right(expectedResponseCYPlus1))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe Json.toJson(Seq(expectedResponseCYPlus1))
@@ -135,7 +134,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(notFoundError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe NOT_FOUND
       }
@@ -150,7 +149,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(badRequestError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_REQUEST
       }
@@ -162,7 +161,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Right(expectedResponseCYPlus1))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_REQUEST
       }
@@ -174,7 +173,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(badRequestError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_REQUEST
       }
@@ -186,7 +185,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(notFoundError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_REQUEST
       }
@@ -198,7 +197,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(badRequestError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_REQUEST
       }
@@ -210,7 +209,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(badRequestError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_REQUEST
       }
@@ -225,7 +224,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(downstreamServerError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_GATEWAY
       }
@@ -237,7 +236,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(notFoundError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_GATEWAY
       }
@@ -249,7 +248,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(downstreamServerError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_GATEWAY
       }
@@ -261,7 +260,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Right(expectedResponseCYPlus1))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_GATEWAY
 
@@ -274,7 +273,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(downstreamServerError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_GATEWAY
 
@@ -287,7 +286,7 @@ class ATSPAYEDataControllerTest extends BaseSpec {
         when(npsService.getPayeATSData(eqTo(testNino), eqTo(cyPlus1))(any[HeaderCarrier])) thenReturn Future.successful(
           Left(badRequestError))
 
-        val result = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
+        val result: Future[Result] = getATSDataMultipleYears(testNino, cy, cyPlus1)(request)
 
         status(result) mustBe BAD_GATEWAY
       }

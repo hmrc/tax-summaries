@@ -34,7 +34,7 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
 
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, None)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     val matchUtrInUriPattern = "/([\\d-]+).*".r
 

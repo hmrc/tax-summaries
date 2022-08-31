@@ -16,10 +16,10 @@
 
 package models
 
+import play.api.libs.json.{Format, Json, OFormat, Reads}
+
 import java.text.NumberFormat
 import java.util.Locale
-
-import play.api.libs.json.{Format, Json, Reads}
 
 case class Rate(percent: Double) {
 
@@ -32,18 +32,18 @@ case class Rate(percent: Double) {
 object Rate {
 
   def rateFromPerUnitAmount(amountPerUnit: Amount): Rate =
-    Rate((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN).doubleValue())
+    Rate((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN).doubleValue)
 
   val empty = 0.0
 
-  implicit val formats = Json.format[Rate]
+  implicit val formats: OFormat[Rate] = Json.format[Rate]
 }
 
 sealed case class ApiRate(percent: String)
 
 object ApiRate {
 
-  implicit val formats = Json.format[ApiRate]
+  implicit val formats: OFormat[ApiRate] = Json.format[ApiRate]
 }
 
 sealed trait RateKey extends ApiValue

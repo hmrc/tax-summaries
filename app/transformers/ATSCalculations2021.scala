@@ -20,8 +20,6 @@ import models.Liability.{DividendsPartnership, SavingsPartnership, TaxOnNonExclu
 import models._
 import services._
 
-import scala.util.{Failure, Success, Try}
-
 trait ATSCalculations2021 extends ATSCalculations {
 
   val summaryData: TaxSummaryLiability

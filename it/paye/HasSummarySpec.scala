@@ -19,7 +19,6 @@ package paye
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import play.api.libs.json.JsResultException
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.{FileHelper, IntegrationSpec}

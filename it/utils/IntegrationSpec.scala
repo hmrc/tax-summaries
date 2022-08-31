@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.domain.{Generator, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.util.Random
@@ -38,8 +38,8 @@ import scala.util.Random
  */
 
 trait IntegrationSpec
-  extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with IntegrationPatience {
-  override def beforeEach() = {
+  extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with IntegrationWireMockHelper with ScalaFutures with IntegrationPatience {
+  override def beforeEach(): Unit = {
     super.beforeEach()
 
     val authResponse =
@@ -88,10 +88,10 @@ trait IntegrationSpec
       )
       .build()
 
-  val nino = new Generator(new Random).nextNino
-  val utr = new SaUtrGenerator(new Random).nextSaUtr
-  val hc = HeaderCarrier()
+  val nino: Nino = new Generator(new Random).nextNino
+  val utr: SaUtr = new SaUtrGenerator(new Random).nextSaUtr
+  val hc: HeaderCarrier = HeaderCarrier()
 
-  val taxYear = 2047
-  val taxYearMinusOne = 2047 - 1
+  val taxYear: Int = 2047
+  val taxYearMinusOne: Int = 2047 - 1
 }
