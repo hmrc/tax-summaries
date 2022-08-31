@@ -12,7 +12,7 @@ import DefaultBuildSettings._
 
 val appName = "tax-summaries"
 
-val silencerVersion = "1.7.3"
+val silencerVersion = "1.7.9"
 
 lazy val IntegrationTest = config("it") extend Test
 
@@ -51,14 +51,14 @@ lazy val microservice = Project(appName, file("."))
     scoverageSettings,
     publishingSettings,
     scalaSettings,
-    scalaVersion := "2.12.13",
+    scalaVersion := "2.13.8",
     majorVersion := 1,
-    libraryDependencies ++= AppDependencies.all,
+    libraryDependencies ++= AppDependencies.all ++ JacksonOverrides.allJacksonOverrides,
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     routesGenerator := InjectedRoutesGenerator,
     scalafmtOnCompile := true,
-    resolvers ++= Seq(Resolver.bintrayRepo("hmrc", "releases"), Resolver.jcenterRepo)
+    resolvers += Resolver.jcenterRepo
   )
   .configs(IntegrationTest)
   .settings(DefaultBuildSettings.integrationTestSettings())
