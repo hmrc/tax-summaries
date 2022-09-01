@@ -46,7 +46,7 @@ object AppDependencies {
     "org.scalacheck"         %% "scalacheck"                % "1.16.0",
     "com.github.tomakehurst" % "wiremock-jre8"              % "2.33.2",
     "org.pegdown"            %  "pegdown"                   % "1.6.0",
-    "com.vladsch.flexmark"   % "flexmark-all"               % "0.64.0",
+    "com.vladsch.flexmark"   % "flexmark-all"               % "0.35.10",
     "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test-$playVersion"  % hmrcMongoVersion
   ).map(_ % "test,it")
 
