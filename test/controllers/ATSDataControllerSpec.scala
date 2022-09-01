@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.auth.FakeAuthAction
-import org.mockito.Matchers.{eq => eqTo, _}
+import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status._
@@ -41,7 +41,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
   lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
 
-  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
+  implicit val defaultPatience: PatienceConfig =
+    PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 

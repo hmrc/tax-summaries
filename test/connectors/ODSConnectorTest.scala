@@ -18,6 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, JsString}
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, UpstreamErrorResponse}
@@ -36,7 +37,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
 
   lazy val sut: ODSConnector = inject[ODSConnector]
 
-  val json = JsObject(Map("foo" -> JsString("bar")))
+  val json: JsObject = JsObject(Map("foo" -> JsString("bar")))
 
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
@@ -88,7 +89,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
           val result = sut.connectToSelfAssessment(testUtr, 2014)
 
           whenReady(result) { res =>
-            res.left.get mustBe a[UpstreamErrorResponse]
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
           }
         }
       }
@@ -128,7 +129,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
           val result = sut.connectToSelfAssessmentList(testUtr)
 
           whenReady(result) { res =>
-            res.left.get mustBe a[UpstreamErrorResponse]
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
           }
         }
       }
@@ -168,7 +169,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
           val result = sut.connectToSATaxpayerDetails(testUtr)
 
           whenReady(result) { res =>
-            res.left.get mustBe a[UpstreamErrorResponse]
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
           }
         }
       }

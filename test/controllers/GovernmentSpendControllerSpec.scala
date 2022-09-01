@@ -18,7 +18,7 @@ package controllers
 
 import akka.stream.Materializer
 import controllers.auth.FakeAuthAction
-import org.mockito.Matchers.{eq => meq}
+import org.mockito.ArgumentMatchers.{eq => meq}
 import org.mockito.Mockito.when
 import play.api.http.Status.OK
 import play.api.test.FakeRequest
@@ -33,7 +33,7 @@ class GovernmentSpendControllerSpec extends BaseSpec {
 
   val taxYear = 2020
 
-  implicit val mat = app.injector.instanceOf[Materializer]
+  implicit val mat: Materializer = app.injector.instanceOf[Materializer]
 
   val expectedBody = """{"Environment":5.5}"""
 

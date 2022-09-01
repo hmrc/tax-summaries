@@ -20,7 +20,7 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import controllers.auth.{FakeAuthAction, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
-import org.mockito.Matchers.{eq => eqTo, _}
+import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
 import play.api.libs.json.Json
@@ -57,7 +57,8 @@ class ATSPAYEDataControllerTest extends BaseSpec {
   val notFoundError: UpstreamErrorResponse = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
   val badRequestError: UpstreamErrorResponse = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
   val downstreamClientError: UpstreamErrorResponse = UpstreamErrorResponse("", LOCKED, INTERNAL_SERVER_ERROR)
-  val downstreamServerError: UpstreamErrorResponse = UpstreamErrorResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+  val downstreamServerError: UpstreamErrorResponse =
+    UpstreamErrorResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
   "getAtsData" must {
 

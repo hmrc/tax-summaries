@@ -18,12 +18,12 @@ package services
 
 import connectors.ODSConnector
 import models.AtsCheck
-import org.mockito.Matchers.{eq => eqTo, _}
+import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import play.api.http.Status.INTERNAL_SERVER_ERROR
-import play.api.libs.json.{JsResultException, JsValue, Json}
+import play.api.http.Status._
+import play.api.libs.json.{JsObject, JsResultException, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
@@ -81,7 +81,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier])
 
           whenReady(result) { res =>
-            res.left.getOrElse() mustBe response
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
             verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
@@ -116,7 +116,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
         whenReady(result) { result =>
           result.isRight mustBe true
 
-          Json.fromJson[AtsCheck](result.getOrElse()).asOpt mustBe Some(AtsCheck(true))
+          Json.fromJson[AtsCheck](result.getOrElse(JsObject.empty)).asOpt mustBe Some(AtsCheck(true))
         }
       }
     }
@@ -143,7 +143,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           val result = service.getList(testUtr)(mock[HeaderCarrier])
 
           whenReady(result) { res =>
-            res.left.getOrElse() mustBe response
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
             verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
           }
@@ -203,7 +203,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
           whenReady(result) { res =>
-            res.left.getOrElse() mustBe response
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
             verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
             verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
@@ -226,7 +226,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { res =>
-          res.left.getOrElse() mustBe response
+          res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
           verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
@@ -248,7 +248,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
         val result = service.getATSList(testUtr)(mock[HeaderCarrier])
 
         whenReady(result) { res =>
-          res.left.getOrElse() mustBe response
+          res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
           verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])

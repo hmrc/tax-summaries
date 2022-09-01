@@ -26,6 +26,6 @@ object PensionTaxRate {
 
   implicit val reads: Reads[PensionTaxRate] = {
     case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue))
-    case _ => JsError("Unable to parse PensionTaxRate")
+    case _               => JsError("Unable to parse PensionTaxRate")
   }
 }

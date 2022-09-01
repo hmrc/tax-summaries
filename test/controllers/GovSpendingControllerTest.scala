@@ -19,9 +19,10 @@ package controllers
 import connectors.ODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.libs.json.Json
+import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
@@ -32,11 +33,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class GovSpendingControllerTest extends BaseSpec {
 
-  lazy val cc = stubControllerComponents()
-  val request = FakeRequest()
+  lazy val cc: ControllerComponents = stubControllerComponents()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
 
-  implicit lazy val ec = inject[ExecutionContext]
+  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   val summaryJson = "/utr_2014.json"
   val capitalGainsOnlyJson = "/test_gov_spend_capital_gains_only.json"
@@ -44,7 +45,7 @@ class GovSpendingControllerTest extends BaseSpec {
   val govSpendPath = "/test_gov_spend_ref_data_year_2014.json"
   val taxPayerDataPath = "/taxpayerData/test_individual_utr.json"
 
-  def makeController(inputJson: String) = {
+  def makeController(inputJson: String): ATSDataController = {
 
     val odsc = mock[ODSConnector]
     when(odsc.connectToSelfAssessment(any(), any())(any()))

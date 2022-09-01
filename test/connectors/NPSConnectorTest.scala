@@ -21,11 +21,11 @@ import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, RequestId, SessionId, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpResponse, RequestId, SessionId, UpstreamErrorResponse}
 import utils.TestConstants.testNino
 import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
@@ -58,7 +58,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
     "return successful response when provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
@@ -67,9 +67,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.right.get.json mustBe Json.parse(expectedNpsResponse)
+      result.getOrElse(HttpResponse(IM_A_TEAPOT, "")).json mustBe Json.parse(expectedNpsResponse)
 
       server.verify(
         getRequestedFor(urlEqualTo(url))
@@ -86,7 +86,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
     "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
@@ -95,15 +95,15 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody(expectedNpsResponse))
       )
 
-      val result = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
 
-      result.right.get.json mustBe Json.parse(expectedNpsResponse)
+      result.getOrElse(HttpResponse(IM_A_TEAPOT, "")).json mustBe Json.parse(expectedNpsResponse)
     }
 
     "return UpstreamErrorResponse" when {
       List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in new NPSConnectorSetUp {
-          val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+          val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
           server.stubFor(
             get(urlEqualTo(url)).willReturn(
@@ -112,10 +112,10 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
                 .withBody(""))
           )
 
-          val result = connectToPayeTaxSummary(testNino, currentYear)
+          val result: Future[Either[UpstreamErrorResponse, HttpResponse]] = connectToPayeTaxSummary(testNino, currentYear)
 
           whenReady(result) { res =>
-            res.left.get mustBe a[UpstreamErrorResponse]
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
           }
         }
       }
@@ -123,7 +123,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
     "return INTERNAL_SERVER_ERROR response in case of a timeout exception from http verbs" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
 
       server.stubFor(
@@ -134,17 +134,17 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withFixedDelay(10000))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.left.get.statusCode mustBe BAD_GATEWAY
-      result.left.get.reportAs mustBe BAD_GATEWAY
+      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).statusCode mustBe BAD_GATEWAY
+      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).reportAs mustBe BAD_GATEWAY
 
     }
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
 
-      val url = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
-      val serviceUnavailable = SERVICE_UNAVAILABLE
+      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val serviceUnavailable: Int = SERVICE_UNAVAILABLE
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
@@ -153,10 +153,10 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody("SERVICE_UNAVAILABLE"))
       )
 
-      val result = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
-      result.left.get.statusCode mustBe serviceUnavailable
-      result.left.get.reportAs mustBe BAD_GATEWAY
+      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).statusCode mustBe serviceUnavailable
+      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).reportAs mustBe BAD_GATEWAY
     }
   }
 }
