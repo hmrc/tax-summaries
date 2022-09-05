@@ -58,7 +58,8 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
       when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(Some(dataMongo)))
 
-      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
+      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
+        getPayeATSData("NONONONO", 5465)(HeaderCarrier())
       result.futureValue mustBe Right(data)
     }
 
@@ -82,7 +83,8 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
       when(repository.set(any())).thenReturn(Future.failed(new Exception("Failed")))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(Future.successful(Right(data)))
 
-      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
+      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
+        getPayeATSData("NONONONO", 5465)(HeaderCarrier())
 
       whenReady(result.failed) { e =>
         e mustBe a[Exception]
@@ -93,7 +95,8 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
     "Return an internal server error when retrieving from the cache fails" in new Fixture {
       when(repository.get(any(), any())).thenReturn(Future.failed(new Exception("Failed")))
 
-      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] = getPayeATSData("NONONONO", 5465)(HeaderCarrier())
+      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
+        getPayeATSData("NONONONO", 5465)(HeaderCarrier())
 
       whenReady(result.failed) { e =>
         e mustBe a[Exception]

@@ -67,7 +67,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody(expectedNpsResponse))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connectToPayeTaxSummary(testNino, currentYear).futureValue
 
       result.getOrElse(HttpResponse(IM_A_TEAPOT, "")).json mustBe Json.parse(expectedNpsResponse)
 
@@ -95,7 +96,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody(expectedNpsResponse))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
 
       result.getOrElse(HttpResponse(IM_A_TEAPOT, "")).json mustBe Json.parse(expectedNpsResponse)
     }
@@ -112,7 +114,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
                 .withBody(""))
           )
 
-          val result: Future[Either[UpstreamErrorResponse, HttpResponse]] = connectToPayeTaxSummary(testNino, currentYear)
+          val result: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+            connectToPayeTaxSummary(testNino, currentYear)
 
           whenReady(result) { res =>
             res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
@@ -134,7 +137,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withFixedDelay(10000))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connectToPayeTaxSummary(testNino, currentYear).futureValue
 
       result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).statusCode mustBe BAD_GATEWAY
       result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).reportAs mustBe BAD_GATEWAY
@@ -153,7 +157,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody("SERVICE_UNAVAILABLE"))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] =
+        connectToPayeTaxSummary(testNino, currentYear).futureValue
 
       result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).statusCode mustBe serviceUnavailable
       result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).reportAs mustBe BAD_GATEWAY
