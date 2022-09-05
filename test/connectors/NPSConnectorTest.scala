@@ -67,9 +67,9 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody(expectedNpsResponse))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
-        connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
 
+      result mustBe a[Right[_, _]]
       result.getOrElse(HttpResponse(IM_A_TEAPOT, "")).json mustBe Json.parse(expectedNpsResponse)
 
       server.verify(
@@ -96,9 +96,12 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withBody(expectedNpsResponse))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
-        connectToPayeTaxSummary(testNinoWithoutSuffix, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(
+        NINO = testNinoWithoutSuffix,
+        TAX_YEAR = currentYear
+      ).futureValue
 
+      result mustBe a[Right[_, _]]
       result.getOrElse(HttpResponse(IM_A_TEAPOT, "")).json mustBe Json.parse(expectedNpsResponse)
     }
 
@@ -114,11 +117,14 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
                 .withBody(""))
           )
 
-          val result: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-            connectToPayeTaxSummary(testNino, currentYear)
+          val result: Future[Either[UpstreamErrorResponse, HttpResponse]] = connectToPayeTaxSummary(
+            NINO = testNino,
+            TAX_YEAR = currentYear
+          )
 
           whenReady(result) { res =>
-            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
+            res mustBe a[Left[_, _]]
+            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe a[UpstreamErrorResponse]
           }
         }
       }
@@ -137,31 +143,31 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             .withFixedDelay(10000))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
-        connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      result mustBe a[Left[_, _]]
 
-      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).statusCode mustBe BAD_GATEWAY
-      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).reportAs mustBe BAD_GATEWAY
-
+      val error: UpstreamErrorResponse = result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT))
+      error.statusCode mustBe BAD_GATEWAY
+      error.reportAs mustBe BAD_GATEWAY
     }
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
 
       val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
-      val serviceUnavailable: Int = SERVICE_UNAVAILABLE
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
           aResponse()
-            .withStatus(serviceUnavailable)
+            .withStatus(SERVICE_UNAVAILABLE)
             .withBody("SERVICE_UNAVAILABLE"))
       )
 
-      val result: Either[UpstreamErrorResponse, HttpResponse] =
-        connectToPayeTaxSummary(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(testNino, currentYear).futureValue
+      result mustBe a[Left[_, _]]
 
-      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).statusCode mustBe serviceUnavailable
-      result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)).reportAs mustBe BAD_GATEWAY
+      val error: UpstreamErrorResponse = result.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT))
+      error.statusCode mustBe SERVICE_UNAVAILABLE
+      error.reportAs mustBe BAD_GATEWAY
     }
   }
 }
