@@ -59,7 +59,10 @@ lazy val microservice = Project(appName, file("."))
     resolvers += Resolver.jcenterRepo
   )
   .configs(IntegrationTest)
-  .settings(DefaultBuildSettings.integrationTestSettings())
+  .settings(
+    DefaultBuildSettings.integrationTestSettings(),
+    IntegrationTest / javaOptions += "-Dlogger.resource=logback-test.xml"
+  )
   .settings(scalacOptions ++= Seq(
     "-Werror",
     "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",

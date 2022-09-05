@@ -21,13 +21,13 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 import utils.IntegrationSpec
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.time.{Duration, Instant}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[PayeAtsMiddleTierMongo] {
 
- server.start()
+  server.start()
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -41,19 +41,32 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
 
   "a repository" must {
     "must be able to store and retrieve a payload" in {
-      // For some reason this is failing due to a different time format, but I don't know if this is a local only issue.
+      val taxYear: Int = 2018
+      val minuteOffset: Int = 15
 
-      val data = PayeAtsMiddleTier(2018, "NINONINO", None, None, None, None, None)
-      val dataMongo = PayeAtsMiddleTierMongo(buildId("NINONINO", 2018), data, Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant)
+      val data = PayeAtsMiddleTier(taxYear, "NINONINO", None, None, None, None, None)
+
+      /*
+        Upgrades to HMRC Mongo seem to have changed the JSON writes for JavaTime types to be truncated at milliseconds
+        rather than nano seconds. I've chosen to change the tests to reflect this rather than explicitly declaring a
+        JSON format implicit to include nanoseconds.
+      */
+
+      val dataMongo = PayeAtsMiddleTierMongo(
+        _id = buildId("NINONINO", taxYear),
+        data = data,
+        expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MILLIS)
+      )
+
+
       val storedOk = serviceRepo.set(dataMongo)
       storedOk.futureValue mustBe true
 
-      val retrieved = serviceRepo.get("NINONINO", 2018)
-        .map(_.getOrElse(fail("The record was not found in the database")))
+      val retrieved = serviceRepo.get("NINONINO", taxYear).map(
+        _.getOrElse(fail("The record was not found in the database"))
+      )
 
       retrieved.futureValue mustBe dataMongo
-
     }
   }
-
 }
