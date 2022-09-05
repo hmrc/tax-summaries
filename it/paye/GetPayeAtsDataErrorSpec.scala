@@ -26,7 +26,7 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
   val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"
 
   val apiUrl = s"/taxs/$nino/$taxYear/paye-ats-data"
-  def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl)
+  def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "Get Paye Ats Data" must {
     "return a BAD_REQUEST with an error message when NPS returns a BAD_REQUEST" in {
