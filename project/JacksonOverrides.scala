@@ -18,8 +18,8 @@ import sbt._
 
 object JacksonOverrides {
   // To resolve a Jackson version conflict
-  private val jacksonVersion = "2.13.3"
-  private val jacksonDatabindVersion = "2.13.3"
+  private val jacksonVersion = "2.13.4"
+  private val jacksonDatabindVersion = "2.13.4"
 
   val jacksonOverrides: Seq[ModuleID] = Seq(
     "com.fasterxml.jackson.core" % "jackson-core",
