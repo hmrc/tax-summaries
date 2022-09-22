@@ -40,6 +40,7 @@ object GoodsAndServices {
     HousingAndUtilities,
     OverseasAid,
     UkContributionToEuBudget,
+    OutstandingPaymentsToTheEU,
     PublicOrderAndSafety,
     Environment
   )
@@ -63,6 +64,7 @@ object GoodsAndServices {
   case object HousingAndUtilities extends ApiValue("HousingAndUtilities") with GoodsAndServices
   case object OverseasAid extends ApiValue("OverseasAid") with GoodsAndServices
   case object UkContributionToEuBudget extends ApiValue("UkContributionToEuBudget") with GoodsAndServices
+  case object OutstandingPaymentsToTheEU extends ApiValue("OutstandingPaymentsToTheEU") with GoodsAndServices
   case object PublicOrderAndSafety extends ApiValue("PublicOrderAndSafety") with GoodsAndServices
   case object Environment extends ApiValue("Environment") with GoodsAndServices
 
