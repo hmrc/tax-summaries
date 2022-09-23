@@ -19,22 +19,32 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import models.AtsMiddleTierData
 import models.LiabilityKey._
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.FileHelper
 
+import scala.concurrent.Future
+
 class AtsDataSpec2021 extends SaTestHelper {
 
   val taxPayerFile = "taxPayerDetails.json"
+  
+  trait Test {
+    val taxYear = 2021
 
-  def odsUrl(taxYear: Int) = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+    def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
 
-  def apiUrl(taxYear: Int) = s"/taxs/$utr/$taxYear/ats-data"
+    def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+
+    def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+      .withHeaders((AUTHORIZATION, "Bearer 123"))
+  }
+  
 
   "HasSummary (SIT001)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -74,22 +84,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_6602556503.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT002)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -129,14 +136,13 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_2752692244.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
 
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
@@ -144,8 +150,6 @@ class AtsDataSpec2021 extends SaTestHelper {
 
   //Regression test for 2021 spec
   "HasSummary (SIT013)" must {
-
-    val taxYear = 2020
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -185,22 +189,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_9784036411.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
 
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
     "HasSummary (SIT003)" must {
-
-      val taxYear = 2021
       val expected = Map(
         SelfEmploymentIncome -> 21055.0, // LS1a
         IncomeFromEmployment -> 48484.0, // LS1
@@ -239,22 +240,19 @@ class AtsDataSpec2021 extends SaTestHelper {
       )
 
       expected foreach { case (key, expectedValue) =>
-        s"return the correct key $key" in {
+        s"return the correct key $key" in new Test {
           server.stubFor(
             WireMock.get(urlEqualTo(odsUrl(taxYear)))
               .willReturn(ok(FileHelper.loadFile("2020-21/utr_2216360398.json")))
           )
-          val request = FakeRequest(GET, apiUrl(taxYear))
-          val result = resultToAtsData(route(app, request))
-
+          
+          val result: AtsMiddleTierData = resultToAtsData(route(app, request))
           checkResult(result, key, expectedValue)
         }
       }
     }
 
     "HasSummary (SIT004)" must {
-
-      val taxYear = 2021
       val expected = Map(
         SelfEmploymentIncome -> 0.0, // LS1a
         IncomeFromEmployment -> 49650.0, // LS1
@@ -293,22 +291,19 @@ class AtsDataSpec2021 extends SaTestHelper {
       )
 
       expected foreach { case (key, expectedValue) =>
-        s"return the correct key $key" in {
+        s"return the correct key $key" in new Test {
           server.stubFor(
             WireMock.get(urlEqualTo(odsUrl(taxYear)))
               .willReturn(ok(FileHelper.loadFile("2020-21/utr_8673565454.json")))
           )
-          val request = FakeRequest(GET, apiUrl(taxYear))
-          val result = resultToAtsData(route(app, request))
-
+          
+          val result: AtsMiddleTierData = resultToAtsData(route(app, request))
           checkResult(result, key, expectedValue)
         }
       }
     }
 
   "HasSummary (SIT005)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 50000.0, // LS1
@@ -347,22 +342,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_6309169120.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+       
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT006)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 14190.0, // LS1a
       IncomeFromEmployment -> 31555.0, // LS1
@@ -401,22 +393,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_7362435273.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT007)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 38076.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -455,22 +444,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_6721445140.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT008)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 55750.0, // LS1
@@ -509,22 +495,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_2839798608.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT009)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 50949.0, // LS1a
       IncomeFromEmployment -> 33254.0, // LS1
@@ -563,22 +546,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_3902670233.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
 
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT010)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 4153.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -617,22 +597,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_9716771495.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT011)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -671,22 +648,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_8842271803.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT012)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 50000.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -725,22 +699,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_7268957390.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT014)" must {
-
-    val taxYear = 2020
     val expected = Map(
       SelfEmploymentIncome -> 4153.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -779,22 +750,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_9290899941.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT015)" must {
-
-    val taxYear = 2020
     val expected = Map(
       SelfEmploymentIncome -> 69500.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -833,22 +801,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_9223146705.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT016)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 58104.0, // LS1
@@ -887,22 +852,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_7957650973.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT017)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 0.0, // LS1
@@ -941,22 +903,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_1023584560.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT018)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 56500.0, // LS1
@@ -995,22 +954,19 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_7741497270.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
   }
 
   "HasSummary (SIT019)" must {
-
-    val taxYear = 2021
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 38500.0, // LS1
@@ -1049,14 +1005,13 @@ class AtsDataSpec2021 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2020-21/utr_6180195454.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
-
+        
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
@@ -1064,34 +1019,23 @@ class AtsDataSpec2021 extends SaTestHelper {
 
 
 
-    "return NOT_FOUND when ODS returns NOT_FOUND response" in {
-
-      val taxYear = 2021
-
+    "return NOT_FOUND when ODS returns NOT_FOUND response" in new Test {
       server.stubFor(
         WireMock.get(urlEqualTo(odsUrl(taxYear)))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, apiUrl(taxYear))
-
-      val result = route(app, request)
-
+      val result: Option[Future[Result]] = route(app, request)
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
-    "return an exception when ODS returns an empty ok" in {
-
-      val taxYear = 2021
-
+    "return an exception when ODS returns an empty ok" in new Test {
       server.stubFor(
         WireMock.get(urlEqualTo(odsUrl(taxYear)))
           .willReturn(ok())
       )
 
-      val request = FakeRequest(GET, apiUrl(taxYear))
-
-      val result = route(app, request)
+      val result: Option[Future[Result]] = route(app, request)
 
       whenReady(result.get.failed) { e =>
         e mustBe a[MismatchedInputException]
@@ -1102,18 +1046,13 @@ class AtsDataSpec2021 extends SaTestHelper {
       IM_A_TEAPOT,
       LOCKED
     ).foreach { httpResponse =>
-      s"return an $httpResponse when data is retrieved from ODS" in {
-        val taxYear = 2021
-
+      s"return an $httpResponse when data is retrieved from ODS" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val request = FakeRequest(GET, apiUrl(taxYear))
-
-        val result = route(app, request)
-
+        val result: Option[Future[Result]] = route(app, request)
         result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       }
     }
@@ -1123,19 +1062,13 @@ class AtsDataSpec2021 extends SaTestHelper {
       BAD_GATEWAY,
       SERVICE_UNAVAILABLE
     ).foreach { httpResponse =>
-      s"return an 502 when $httpResponse status is received from ODS" in {
-
-        val taxYear = 2021
-
+      s"return an 502 when $httpResponse status is received from ODS" in new Test {
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val request = FakeRequest(GET, apiUrl(taxYear))
-
-        val result = route(app, request)
-
+        val result: Option[Future[Result]] = route(app, request)
         result.map(status) mustBe Some(BAD_GATEWAY)
       }
     }

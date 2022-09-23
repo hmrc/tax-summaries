@@ -14,18 +14,28 @@
  * limitations under the License.
  */
 
-package models
+import sbt.Setting
+import scoverage.ScoverageKeys
 
-import play.api.libs.json._
+object ScoverageSettings {
 
-final case class PensionTaxRate(value: Double) {
-  val percentage: Double = value * 100
-}
+  lazy val excludedPackages: Seq[String] = Seq(
+    "<empty>",
+    "app.*",
+    "config.*",
+    "Reverse.*",
+    ".*AuthService.*",
+    "models/.data/..*",
+    "view.*",
+    "uk.gov.hmrc.*",
+    "prod.*",
+    "testOnlyDoNotUseInAppConf.*"
+  )
 
-object PensionTaxRate {
-
-  implicit val reads: Reads[PensionTaxRate] = {
-    case JsNumber(value) => JsSuccess(PensionTaxRate(value.doubleValue))
-    case _               => JsError("Unable to parse PensionTaxRate")
-  }
+  val settings: Seq[Setting[_]] = Seq(
+    ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
+    ScoverageKeys.coverageMinimumStmtTotal := 91,
+    ScoverageKeys.coverageFailOnMinimum := false,
+    ScoverageKeys.coverageHighlighting := true
+  )
 }

@@ -19,22 +19,32 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import models.AtsMiddleTierData
 import models.LiabilityKey.{StatePension, _}
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.FileHelper
+
+import scala.concurrent.Future
 
 class AtsDataSpec2020 extends SaTestHelper {
 
   val taxPayerFile = "taxPayerDetailsWelsh.json"
 
-  def odsUrl(taxYear: Int) = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+  trait Test {
+    val taxYear: Int
 
-  def apiUrl(taxYear: Int) = s"/taxs/$utr/$taxYear/ats-data"
+    def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+    def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+
+    def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+      .withHeaders((AUTHORIZATION, "Bearer 123"))
+  }
 
   "HasSummary (TC4)" must {
 
-    val taxYear = 2020
     val expected = Map(
       SelfEmploymentIncome -> 0.0, // LS1a
       IncomeFromEmployment -> 40511.0, // LS1
@@ -56,8 +66,8 @@ class AtsDataSpec2020 extends SaTestHelper {
       UpperRate -> 191.75, //LS13.2
       AdditionalRate -> 0.0, //LS13.3
       //WelshIncomeTax -> 2909.0, //LS20a
-      OtherAdjustmentsIncreasing -> 0.0,  //LS15a
-      OtherAdjustmentsReducing -> 0.0,  //LS15b
+      OtherAdjustmentsIncreasing -> 0.0, //LS15a
+      OtherAdjustmentsReducing -> 0.0, //LS15b
       TotalIncomeTax -> 6453.0, //LS20
       TotalIncomeTaxAndNics -> 10278.48, //LS16
       EmployeeNicAmount -> 3825.48, //LS14
@@ -76,20 +86,20 @@ class AtsDataSpec2020 extends SaTestHelper {
     )
 
     expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in {
+      s"return the correct key $key" in new Test {
+        val taxYear = 2020
+
         server.stubFor(
           WireMock.get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("2019-20/TC4.json")))
         )
-        val request = FakeRequest(GET, apiUrl(taxYear))
-        val result = resultToAtsData(route(app, request))
 
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
     }
 
-    "return NOT_FOUND when ODS returns NOT_FOUND response" in {
-
+    "return NOT_FOUND when ODS returns NOT_FOUND response" in new Test {
       val taxYear = 2021
 
       server.stubFor(
@@ -97,15 +107,11 @@ class AtsDataSpec2020 extends SaTestHelper {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, apiUrl(taxYear))
-
-      val result = route(app, request)
-
+      val result: Option[Future[Result]] = route(app, request)
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
-    "return an exception when ODS returns an empty ok" in {
-
+    "return an exception when ODS returns an empty ok" in new Test {
       val taxYear = 2021
 
       server.stubFor(
@@ -113,10 +119,7 @@ class AtsDataSpec2020 extends SaTestHelper {
           .willReturn(ok())
       )
 
-      val request = FakeRequest(GET, apiUrl(taxYear))
-
-      val result = route(app, request)
-
+      val result: Option[Future[Result]] = route(app, request)
       whenReady(result.get.failed) { e =>
         e mustBe a[MismatchedInputException]
       }
@@ -126,7 +129,7 @@ class AtsDataSpec2020 extends SaTestHelper {
       IM_A_TEAPOT,
       LOCKED
     ).foreach { httpResponse =>
-      s"return an $httpResponse when data is retrieved from ODS" in {
+      s"return an $httpResponse when data is retrieved from ODS" in new Test {
         val taxYear = 2021
 
         server.stubFor(
@@ -134,10 +137,7 @@ class AtsDataSpec2020 extends SaTestHelper {
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val request = FakeRequest(GET, apiUrl(taxYear))
-
-        val result = route(app, request)
-
+        val result: Option[Future[Result]] = route(app, request)
         result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       }
     }
@@ -147,8 +147,7 @@ class AtsDataSpec2020 extends SaTestHelper {
       BAD_GATEWAY,
       SERVICE_UNAVAILABLE
     ).foreach { httpResponse =>
-      s"return an 502 when $httpResponse status is received from ODS" in {
-
+      s"return an 502 when $httpResponse status is received from ODS" in new Test {
         val taxYear = 2021
 
         server.stubFor(
@@ -156,10 +155,7 @@ class AtsDataSpec2020 extends SaTestHelper {
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val request = FakeRequest(GET, apiUrl(taxYear))
-
-        val result = route(app, request)
-
+        val result: Option[Future[Result]] = route(app, request)
         result.map(status) mustBe Some(BAD_GATEWAY)
       }
     }

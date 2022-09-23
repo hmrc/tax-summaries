@@ -18,7 +18,9 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
+import models.AtsMiddleTierData
 import models.LiabilityKey._
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.FileHelper
@@ -26,14 +28,20 @@ import utils.FileHelper
 import java.time.LocalDate
 
 class Regressions extends SaTestHelper {
-
   val taxPayerFile = "taxPayerDetails.json"
+  val currentYear: Int = LocalDate.now().getYear
 
-  def odsUrl(taxYear: Int) = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+  trait Test {
+    val taxYear = 2021
 
-  def apiUrl(taxYear: Int) = s"/taxs/$utr/$taxYear/ats-data"
+    def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
 
-  val currentYear = LocalDate.now().getYear
+    def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+
+    def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+      .withHeaders((AUTHORIZATION, "Bearer 123"))
+
+  }
 
   "DDCNL-5893: Incorrect Capital Gains Tax Calculation" must {
     (currentYear - 5 to currentYear).foreach { taxYear =>
@@ -76,14 +84,13 @@ class Regressions extends SaTestHelper {
         )
 
         expected foreach { case (key, expectedValue) =>
-          s"return the correct key $key" in {
+          s"return the correct key $key" in new Test {
             server.stubFor(
               WireMock.get(urlEqualTo(odsUrl(taxYear)))
                 .willReturn(ok(FileHelper.loadFile("regressions/DDCNL-5893-1.json").replace("<year>", taxYear.toString)))
             )
-            val request = FakeRequest(GET, apiUrl(taxYear))
-            val result = resultToAtsData(route(app, request))
 
+            val result: AtsMiddleTierData = resultToAtsData(route(app, request))
             checkResult(result, key, expectedValue)
           }
         }
@@ -130,13 +137,15 @@ class Regressions extends SaTestHelper {
         )
 
         expected foreach { case (key, expectedValue) =>
-          s"return the correct key $key" in {
+          s"return the correct key $key" in new Test {
             server.stubFor(
               WireMock.get(urlEqualTo(odsUrl(taxYear)))
-                .willReturn(ok(FileHelper.loadFile("regressions/DDCNL-5893-2.json").replace("<year>", taxYear.toString)))
+                .willReturn(ok(
+                  FileHelper.loadFile("regressions/DDCNL-5893-2.json").replace("<year>", taxYear.toString)
+                ))
             )
-            val request = FakeRequest(GET, apiUrl(taxYear))
-            val result = resultToAtsData(route(app, request))
+
+            val result: AtsMiddleTierData = resultToAtsData(route(app, request))
 
             checkResult(result, key, expectedValue)
           }
@@ -184,14 +193,15 @@ class Regressions extends SaTestHelper {
         )
 
         expected foreach { case (key, expectedValue) =>
-          s"return the correct key $key" in {
+          s"return the correct key $key" in new Test {
             server.stubFor(
               WireMock.get(urlEqualTo(odsUrl(taxYear)))
-                .willReturn(ok(FileHelper.loadFile("regressions/DDCNL-5893-3.json").replace("<year>", taxYear.toString)))
+                .willReturn(ok(
+                  FileHelper.loadFile("regressions/DDCNL-5893-3.json").replace("<year>", taxYear.toString)
+                ))
             )
-            val request = FakeRequest(GET, apiUrl(taxYear))
-            val result = resultToAtsData(route(app, request))
 
+            val result: AtsMiddleTierData = resultToAtsData(route(app, request))
             checkResult(result, key, expectedValue)
           }
         }

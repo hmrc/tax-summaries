@@ -19,7 +19,7 @@ package paye
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import play.api.libs.json.JsResultException
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.{FileHelper, IntegrationSpec}
@@ -27,8 +27,8 @@ import utils.{FileHelper, IntegrationSpec}
 class HasSummarySpec extends IntegrationSpec {
 
   val odsUrl = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-
   val apiUrl = s"/taxs/$utr/has_summary_for_previous_period"
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "HasSummary" must {
     "return an OK when data is retrieved from ODS" in {
@@ -38,10 +38,7 @@ class HasSummarySpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("odsData.json")))
       )
 
-      val request = FakeRequest(GET, apiUrl)
-
       val result = route(app, request)
-
       result.map(status) mustBe Some(OK)
     }
 
@@ -52,10 +49,7 @@ class HasSummarySpec extends IntegrationSpec {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val request = FakeRequest(GET, apiUrl)
-
       val result = route(app, request)
-
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
@@ -65,8 +59,6 @@ class HasSummarySpec extends IntegrationSpec {
         WireMock.get(urlEqualTo(odsUrl))
           .willReturn(ok())
       )
-
-      val request = FakeRequest(GET, apiUrl)
 
       val result = route(app, request)
 
@@ -86,10 +78,7 @@ class HasSummarySpec extends IntegrationSpec {
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val request = FakeRequest(GET, apiUrl)
-
         val result = route(app, request)
-
         result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       }
     }
@@ -106,10 +95,7 @@ class HasSummarySpec extends IntegrationSpec {
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val request = FakeRequest(GET, apiUrl)
-
         val result = route(app, request)
-
         result.map(status) mustBe Some(BAD_GATEWAY)
       }
     }
@@ -121,10 +107,7 @@ class HasSummarySpec extends IntegrationSpec {
           .willReturn(ok(FileHelper.loadFile("odsData.json")).withFixedDelay(10000))
       )
 
-      val request = FakeRequest(GET, apiUrl)
-
       val result = route(app, request)
-
       result.map(status) mustBe Some(BAD_GATEWAY)
     }
   }

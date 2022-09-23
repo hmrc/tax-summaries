@@ -18,9 +18,6 @@ package models.paye
 
 import models.{DataHolder, GovernmentSpendingOutputWrapper}
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
-
-import java.time.Instant
 
 case class PayeAtsMiddleTier(
   taxYear: Int,

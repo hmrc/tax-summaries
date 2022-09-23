@@ -39,8 +39,7 @@ class PayeAuthActionImpl @Inject()(
 
     val nino = ninoRegexHelper.findNinoIn(request.uri)
 
-    implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromHeadersAndSession(request.headers, None)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
     authorised(ConfidenceLevel.L50 and AuthNino(hasNino = true, nino = nino)) {
       Future.successful(None)

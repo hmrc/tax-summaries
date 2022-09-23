@@ -16,7 +16,6 @@
 
 package models
 
-import play.api.libs.json.JsonValidationError
 import play.api.libs.json._
 
 import scala.annotation.tailrec
@@ -48,12 +47,11 @@ object ApiValue extends DefaultReads {
     acc: List[(K, V)],
     errors: Seq[(JsPath, Seq[JsonValidationError])]): JsResult[Map[K, V]] =
     if (m.isEmpty) {
-      if (errors.isEmpty) JsSuccess(Map(acc: _*))
-      else JsError(errors)
+      if (errors.isEmpty) JsSuccess(Map(acc: _*)) else JsError(errors)
     } else {
       readPair(m.head, ls, reads) match {
         case JsSuccess(p, _) => readMapRecursive(m.tail, ls, reads, acc :+ p, errors)
-        case JsError(er)     => readMapRecursive(m.tail, ls, reads, acc, errors ++ er)
+        case JsError(er)     => readMapRecursive(m.tail, ls, reads, acc, errors ++ er.map(item => (item._1, item._2.toSeq)))
       }
     }
 

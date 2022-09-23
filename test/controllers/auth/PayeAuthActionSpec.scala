@@ -16,7 +16,7 @@
 
 package controllers.auth
 
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,16 +35,16 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
-  lazy val cc = stubControllerComponents()
+  lazy val cc: ControllerComponents = stubControllerComponents()
 
-  val mockAuthConnector = mock[AuthConnector]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val payeAuthAction = new PayeAuthActionImpl(
     mockAuthConnector,
     app.injector.instanceOf[NinoHelper],
     stubControllerComponents()
   )
   val harness = new Harness(payeAuthAction)
-  val request = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
 
   class Harness(payeAuthAction: PayeAuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = payeAuthAction { _ =>

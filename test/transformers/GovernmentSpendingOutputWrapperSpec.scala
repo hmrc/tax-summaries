@@ -50,33 +50,33 @@ class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdat
       govSpendData(Welfare).amount.amount must equal(
         BigDecimal(testAmount * 0.2452).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Health).amount.amount must equal(
-        BigDecimal(testAmount * 0.1887) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.1887).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Education).amount.amount must equal(
-        BigDecimal(testAmount * 0.1315) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.1315).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(StatePensions).amount.amount must equal(
-        BigDecimal(testAmount * 0.1212) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.1212).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(NationalDebtInterest).amount.amount must equal(
-        BigDecimal(testAmount * 0.07) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.07).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Defence).amount.amount must equal(
-        BigDecimal(testAmount * 0.0531) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0531).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(CriminalJustice).amount.amount must equal(
-        BigDecimal(testAmount * 0.044) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Transport).amount.amount must equal(
-        BigDecimal(testAmount * 0.0295) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0295).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(BusinessAndIndustry).amount.amount must equal(
-        BigDecimal(testAmount * 0.0274) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0274).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.0205) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0205).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Culture).amount.amount must equal(
-        BigDecimal(testAmount * 0.0169) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0169).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Environment).amount.amount must equal(
-        BigDecimal(testAmount * 0.0166) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0166).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(HousingAndUtilities).amount.amount must equal(
-        BigDecimal(testAmount * 0.0164) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0164).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(OverseasAid).amount.amount must equal(
-        BigDecimal(testAmount * 0.0115) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0115).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.0075) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0075).setScale(2, BigDecimal.RoundingMode.HALF_UP))
 
       govSpendData.values.foldLeft(BigDecimal(0.0)) {
         _ + _.amount.amount
@@ -102,33 +102,33 @@ class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdat
       govSpendData(Welfare).amount.amount must equal(
         BigDecimal(testAmount * 0.2452).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Health).amount.amount must equal(
-        BigDecimal(testAmount * 0.1887) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.1887).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Education).amount.amount must equal(
-        BigDecimal(testAmount * 0.1315) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.1315).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(StatePensions).amount.amount must equal(
-        BigDecimal(testAmount * 0.1212) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.1212).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(NationalDebtInterest).amount.amount must equal(
-        BigDecimal(testAmount * 0.07) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.07).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Defence).amount.amount must equal(
-        BigDecimal(testAmount * 0.0531) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0531).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(CriminalJustice).amount.amount must equal(
-        BigDecimal(testAmount * 0.044) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Transport).amount.amount must equal(
-        BigDecimal(testAmount * 0.0295) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0295).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(BusinessAndIndustry).amount.amount must equal(
-        BigDecimal(testAmount * 0.0274) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0274).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.0205) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0205).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Culture).amount.amount must equal(
-        BigDecimal(testAmount * 0.0169) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0169).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Environment).amount.amount must equal(
-        BigDecimal(testAmount * 0.0166) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0166).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(HousingAndUtilities).amount.amount must equal(
-        BigDecimal(testAmount * 0.0164) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0164).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(OverseasAid).amount.amount must equal(
-        BigDecimal(testAmount * 0.0115) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0115).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.0075) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.0075).setScale(2, BigDecimal.RoundingMode.HALF_UP))
 
       govSpendData.values.foldLeft(BigDecimal(0.0)) {
         _ + _.amount.amount
@@ -154,33 +154,33 @@ class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdat
       govSpendData(Welfare).amount.amount must equal(
         BigDecimal(testAmount * 0.253).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Health).amount.amount must equal(
-        BigDecimal(testAmount * 0.199) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.199).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(StatePensions).amount.amount must equal(
-        BigDecimal(testAmount * 0.128) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.128).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Education).amount.amount must equal(
-        BigDecimal(testAmount * 0.125) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.125).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Defence).amount.amount must equal(
-        BigDecimal(testAmount * 0.054) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.054).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(NationalDebtInterest).amount.amount must equal(
-        BigDecimal(testAmount * 0.05) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.05).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(PublicOrderAndSafety).amount.amount must equal(
-        BigDecimal(testAmount * 0.044) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Transport).amount.amount must equal(
-        BigDecimal(testAmount * 0.03) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.03).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(BusinessAndIndustry).amount.amount must equal(
-        BigDecimal(testAmount * 0.027) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.027).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.02) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.02).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Culture).amount.amount must equal(
-        BigDecimal(testAmount * 0.018) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.018).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Environment).amount.amount must equal(
-        BigDecimal(testAmount * 0.017) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.017).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(HousingAndUtilities).amount.amount must equal(
-        BigDecimal(testAmount * 0.016) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.016).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(OverseasAid).amount.amount must equal(
-        BigDecimal(testAmount * 0.013) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.013).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.006) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.006).setScale(2, BigDecimal.RoundingMode.HALF_UP))
 
       govSpendData.values.foldLeft(BigDecimal(0.0)) {
         _ + _.amount.amount
@@ -206,33 +206,33 @@ class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdat
       govSpendData(Welfare).amount.amount must equal(
         BigDecimal(testAmount * 0.253).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Health).amount.amount must equal(
-        BigDecimal(testAmount * 0.199) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.199).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(StatePensions).amount.amount must equal(
-        BigDecimal(testAmount * 0.128) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.128).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Education).amount.amount must equal(
-        BigDecimal(testAmount * 0.125) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.125).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Defence).amount.amount must equal(
-        BigDecimal(testAmount * 0.054) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.054).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(NationalDebtInterest).amount.amount must equal(
-        BigDecimal(testAmount * 0.05) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.05).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(PublicOrderAndSafety).amount.amount must equal(
-        BigDecimal(testAmount * 0.044) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Transport).amount.amount must equal(
-        BigDecimal(testAmount * 0.03) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.03).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(BusinessAndIndustry).amount.amount must equal(
-        BigDecimal(testAmount * 0.027) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.027).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.02) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.02).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Culture).amount.amount must equal(
-        BigDecimal(testAmount * 0.018) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.018).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(Environment).amount.amount must equal(
-        BigDecimal(testAmount * 0.017) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.017).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(HousingAndUtilities).amount.amount must equal(
-        BigDecimal(testAmount * 0.016) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.016).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(OverseasAid).amount.amount must equal(
-        BigDecimal(testAmount * 0.013) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.013).setScale(2, BigDecimal.RoundingMode.HALF_UP))
       govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.006) setScale (2, BigDecimal.RoundingMode.HALF_UP))
+        BigDecimal(testAmount * 0.006).setScale(2, BigDecimal.RoundingMode.HALF_UP))
 
       govSpendData.values.foldLeft(BigDecimal(0.0)) {
         _ + _.amount.amount

@@ -22,44 +22,43 @@ import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.sql.Timestamp
-import java.time.LocalDateTime
-import scala.collection.JavaConverters._
+import java.time.{Instant, LocalDateTime}
+import scala.jdk.CollectionConverters._
 
 class ApplicationConfig @Inject()(servicesConfig: ServicesConfig, configuration: Configuration) {
 
   private def defaultRatePercentages: Map[String, Double] =
     configuration
       .getOptional[ConfigObject]("taxRates.default.percentages")
-      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
+      .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def ratePercentagesByYear(year: Int): Map[String, Double] =
     configuration
       .getOptional[ConfigObject](s"taxRates.$year.percentages")
-      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
+      .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
   private def governmentSpendByYear(year: Int): Map[String, Double] =
     configuration
       .getOptional[ConfigObject](s"governmentSpend.$year.percentages")
-      .map(_.unwrapped().asScala.mapValues(_.toString.toDouble))
+      .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
       .getOrElse(Map())
       .toMap
 
-  def ratePercentages(year: Int) = defaultRatePercentages ++ ratePercentagesByYear(year)
+  def ratePercentages(year: Int): Map[String, Double] = defaultRatePercentages ++ ratePercentagesByYear(year)
 
-  def governmentSpend(year: Int) = governmentSpendByYear(year)
+  def governmentSpend(year: Int): Map[String, Double] = governmentSpendByYear(year)
 
-  def npsServiceUrl = servicesConfig.baseUrl("tax-summaries-hod")
+  def npsServiceUrl: String = servicesConfig.baseUrl("tax-summaries-hod")
 
-  lazy val mongoTTL = configuration.getOptional[Int]("mongodb.timeToLiveInMinutes").getOrElse(15).toLong
+  lazy val mongoTTL: Long = configuration.getOptional[Int]("mongodb.timeToLiveInMinutes").getOrElse(15).toLong
 
-  def calculateExpiryTime() = Timestamp.valueOf(LocalDateTime.now.plusMinutes(mongoTTL)).toInstant
+  def calculateExpiryTime(): Instant = Timestamp.valueOf(LocalDateTime.now.plusMinutes(mongoTTL)).toInstant
 
-  lazy val environment: String =
-    servicesConfig.getConfString("tax-summaries-hod.env", "local")
+  lazy val environment: String = servicesConfig.getConfString("tax-summaries-hod.env", "local")
 
   lazy val authorization: String = "Bearer " + servicesConfig
     .getConfString("tax-summaries-hod.authorizationToken", "local")

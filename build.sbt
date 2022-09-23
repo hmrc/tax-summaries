@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import play.sbt.routes.RoutesKeys._
 import sbt._
 import sbt.Keys._
@@ -12,60 +28,44 @@ import DefaultBuildSettings._
 
 val appName = "tax-summaries"
 
-val silencerVersion = "1.7.3"
+lazy val IntegrationTest = config("it") extend Test
 
-lazy val IntegrationTest = config("it") extend (Test)
-
-lazy val plugins: Seq[Plugins] =
-  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
-
-lazy val excludedPackages: Seq[String] = Seq(
-  "<empty>",
-  "app.*",
-  "config.*",
-  "Reverse.*",
-  ".*AuthService.*",
-  "models/.data/..*",
-  "view.*",
-  "uk.gov.hmrc.*",
-  "prod.*",
-  "testOnlyDoNotUseInAppConf.*"
+lazy val plugins: Seq[Plugins] = Seq(
+  play.sbt.PlayScala,
+  SbtAutoBuildPlugin,
+  SbtGitVersioning,
+  SbtDistributablesPlugin
 )
-
-lazy val scoverageSettings = {
-  import scoverage.ScoverageKeys
-  Seq(
-    ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
-    ScoverageKeys.coverageMinimum := 91,
-    ScoverageKeys.coverageFailOnMinimum := false,
-    ScoverageKeys.coverageHighlighting := true,
-    parallelExecution in Test := false
-  )
-}
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(plugins: _*)
   .settings(
+    // To resolve a bug with version 2.x.x of the scoverage plugin - https://github.com/sbt/sbt/issues/6997
+    libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
+  )
+  .settings(
     PlayKeys.playDefaultPort := 9323,
-    defaultSettings(),
-    scoverageSettings,
     publishingSettings,
+    ScoverageSettings.settings,
     scalaSettings,
-    scalaVersion := "2.12.13",
+    defaultSettings(),
     majorVersion := 1,
-    libraryDependencies ++= AppDependencies.all,
+    scalaVersion := "2.13.8",
+    libraryDependencies ++= AppDependencies.all ++ JacksonOverrides.allJacksonOverrides,
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+    update / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     routesGenerator := InjectedRoutesGenerator,
     scalafmtOnCompile := true,
-    resolvers ++= Seq(Resolver.bintrayRepo("hmrc", "releases"), Resolver.jcenterRepo)
+    resolvers += Resolver.jcenterRepo
   )
   .configs(IntegrationTest)
-  .settings(DefaultBuildSettings.integrationTestSettings())
   .settings(
-    scalacOptions += "-P:silencer:pathFilters=views;routes",
-    libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
-    )
+    DefaultBuildSettings.integrationTestSettings(),
+    IntegrationTest / javaOptions += "-Dlogger.resource=logback-test.xml"
   )
+  .settings(scalacOptions ++= Seq(
+    "-Werror",
+    "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+    "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+    "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+  ))

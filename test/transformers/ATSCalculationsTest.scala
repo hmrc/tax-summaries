@@ -47,14 +47,19 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       "scottishAdditionalRate"      -> 46
     )
 
-    val incomeTaxStatus = origin match {
+    val incomeTaxStatus: Option[String] = origin match {
       case _: Scottish => Some("0002")
       case _: Welsh    => Some("0003")
       case _           => None
     }
 
-    lazy val taxSummaryLiability =
-      TaxSummaryLiability(taxYear, pensionTaxRate, incomeTaxStatus, niData, atsData)
+    lazy val taxSummaryLiability: TaxSummaryLiability = TaxSummaryLiability(
+      taxYear,
+      pensionTaxRate,
+      incomeTaxStatus,
+      niData,
+      atsData
+    )
 
     lazy val taxRateService = new TaxRateService(self.taxYear, _ => configRates)
 
@@ -76,7 +81,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0), newAtsData: _*)
   }
 
-  val emptyValues = List(
+  val emptyValues: List[(Liability, Amount)] = List(
     SavingsTaxStartingRate  -> Amount.empty,
     DividendTaxLowRate      -> Amount.empty,
     DividendTaxHighRate     -> Amount.empty,
@@ -113,7 +118,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
       "tax years is > 2018 and type is scottish" in {
 
-        val calculation = new Fixture(2019, new Scottish())().calculation
+        val calculation = new Fixture(2019, Scottish())().calculation
         calculation mustBe a[ATSCalculationsScottish2019]
       }
     }
@@ -121,14 +126,14 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     "return Post2018rUKATSCalculations" when {
 
       "tax year is > 2018" in {
-        val calculation = new Fixture(2019, new UK())().calculation
+        val calculation = new Fixture(2019, UK())().calculation
         calculation mustBe a[ATSCalculationsUK2019]
       }
 
       "return WelshATSCalculations" when {
         "tax year is > 2019" in {
           forAll { (taxYear: Int) =>
-            val calculation = new Fixture(taxYear, new Welsh())().calculation
+            val calculation = new Fixture(taxYear, Welsh())().calculation
 
             if (taxYear == 2020) {
               calculation mustBe a[ATSCalculationsWelsh2020]
@@ -147,13 +152,13 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
       "tax year is < 2019 and type is scottish" in {
 
-        val calculation = new Fixture(2018, new Scottish())().calculation
+        val calculation = new Fixture(2018, Scottish())().calculation
         calculation mustBe a[DefaultATSCalculations]
       }
 
       "tax year is < 2019" in {
 
-        val calculation = new Fixture(2018, new UK())().calculation
+        val calculation = new Fixture(2018, UK())().calculation
         calculation mustBe a[DefaultATSCalculations]
       }
     }
@@ -161,7 +166,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     "return ATSCalculationsUK2020" when {
       "tax year is 2020 and type is UK" in {
 
-        val calculation = new Fixture(2021, new UK())().calculation
+        val calculation = new Fixture(2021, UK())().calculation
         calculation mustBe a[ATSCalculationsUK2021]
       }
     }
@@ -169,11 +174,14 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "DefaultATSCalculations" must {
 
-    val fixture = new Fixture(2016, new UK())
+    val fixture = new Fixture(2016, UK())
 
     "basicIncomeRateIncomeTax includes pension tax when pension rate matches basic rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double, savingsVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =
+          (BigDecimal(incomeVal), BigDecimal(pensionVal), BigDecimal(savingsVal))
+
         val sut = fixture(
           PensionTaxRate(0.20),
           IncomeChargeableBasicRate  -> Amount.gbp(income),
@@ -181,13 +189,16 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           SavingsChargeableLowerRate -> Amount.gbp(savings)
         )
 
-        sut.calculation.basicRateIncomeTax mustBe Amount.gbp(income + pension + savings)
+        sut.calculation.basicRateIncomeTax.roundAmount() mustBe Amount.gbp(income + pension + savings).roundAmount()
       }
     }
 
     "higherRateIncomeTaxAmount includes pension tax when pension rate matches basic rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double, savingsVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =
+          (BigDecimal(incomeVal), BigDecimal(pensionVal), BigDecimal(savingsVal))
+
         val sut = fixture(
           PensionTaxRate(0.40),
           IncomeChargeableHigherRate  -> Amount.gbp(income),
@@ -195,13 +206,16 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           SavingsChargeableHigherRate -> Amount.gbp(savings)
         )
 
-        sut.calculation.higherRateIncomeTax mustBe Amount.gbp(income + pension + savings)
+        sut.calculation.higherRateIncomeTax.roundAmount() mustBe Amount.gbp(income + pension + savings).roundAmount()
       }
     }
 
     "additionalRateIncomeTaxAmount includes pension tax when pension rate matches basic rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double, savingsVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =
+          (BigDecimal(incomeVal), BigDecimal(pensionVal), BigDecimal(savingsVal))
+
         val sut = fixture(
           PensionTaxRate(0.45),
           IncomeChargeableAddHRate  -> Amount.gbp(income),
@@ -209,18 +223,20 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           SavingsChargeableAddHRate -> Amount.gbp(savings)
         )
 
-        sut.calculation.additionalRateIncomeTax mustBe Amount.gbp(income + pension + savings)
+        sut.calculation.additionalRateIncomeTax
+          .roundAmount() mustBe Amount.gbp(income + pension + savings).roundAmount()
       }
     }
 
     "includePensionIncomeForRate returns StatePensionGross when percentages match" in {
 
-      forAll { (rate: Double, total: BigDecimal) =>
+      forAll { (rate: Double, totalVal: Double) =>
+        val total: BigDecimal = BigDecimal(totalVal)
         val sum = List.fill(10)(rate).fold(0.0)(_ + _)
         val prod = rate * 10
 
         val sut = fixture(PensionTaxRate(sum / 100), StatePensionGross -> Amount.gbp(total))
-        sut.calculation.includePensionIncomeForRate(Rate(prod)) mustBe Amount.gbp(total)
+        sut.calculation.includePensionIncomeForRate(Rate(prod)).roundAmount() mustBe Amount.gbp(total).roundAmount()
       }
     }
 
@@ -236,7 +252,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "includePensionTaxForRate returns PensionLsumTaxDue when percentages match" in {
 
-      forAll { (rate: Double, total: BigDecimal) =>
+      forAll { (rate: Double, totalVal: Double) =>
+        val total: BigDecimal = BigDecimal(totalVal)
         val sum = List.fill(10)(rate).fold(0.0)(_ + _)
         val prod = rate * 10
 
@@ -257,13 +274,14 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "totalCapitalGainsTax returns correct calculation" in {
 
-      forAll { (lower: BigDecimal, higher: BigDecimal) =>
+      forAll { (lowerVal: Double, higherVal: Double) =>
+        val (lower: BigDecimal, higher: BigDecimal) = (BigDecimal(lowerVal), BigDecimal(higherVal))
         val sut = fixture(
           LowerRateCgtRPCI  -> Amount.gbp(lower),
           HigherRateCgtRPCI -> Amount.gbp(higher)
         )
 
-        sut.calculation.totalCapitalGainsTax mustBe Amount.gbp((lower + higher).max(0))
+        sut.calculation.totalCapitalGainsTax.roundAmount() mustBe Amount.gbp((lower + higher).max(0)).roundAmount()
       }
     }
 
@@ -274,7 +292,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "Post2018rUKATSCalculations" must {
 
-    val fixture = new Fixture(2019, new UK())()
+    val fixture = new Fixture(2019, UK())()
     val calculation = fixture.calculation
 
     "return an empty amount for scottishIncomeTax" in {
@@ -299,7 +317,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "Post2018ScottishATSCalculations" must {
 
-    val scottishFixture = new Fixture(taxYear = 2019, new Scottish())
+    val scottishFixture = new Fixture(taxYear = 2019, Scottish())
     val calculation = scottishFixture().calculation
 
     "return an empty amount for scottishIncomeTax" in {
@@ -346,11 +364,13 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.19),
           TaxOnPayScottishStarterRate -> Amount.gbp(income),
-          PensionLsumTaxDue           -> Amount.gbp(pension))
+          PensionLsumTaxDue           -> Amount.gbp(pension)
+        )
 
         sut.calculation.scottishStarterRateTax mustBe Amount.gbp(income + pension)
       }
@@ -358,7 +378,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishBasicRateTaxAmount includes pension tax when pension rate matches basic rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.20),
           IncomeTaxBasicRate -> Amount.gbp(income),
@@ -370,7 +391,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishIntermediateRateTaxAmount includes pension tax when pension rate matches intermediate rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.21),
           TaxOnPayScottishIntermediateRate -> Amount.gbp(income),
@@ -382,7 +404,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishHigherRateTaxAmount includes pension tax when pension rate matches higher rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.41),
           IncomeTaxHigherRate -> Amount.gbp(income),
@@ -394,7 +417,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishAdditionalRateTaxAmount includes pension tax when pension rate matches additional rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.46),
           IncomeTaxAddHighRate -> Amount.gbp(income),
@@ -406,7 +430,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishStarterRateIncome include pension lump sum amount when matches starter rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.19),
           TaxablePayScottishStarterRate -> Amount.gbp(income),
@@ -418,7 +443,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishStarterRateIncome include pension lump sum amount when matches basic rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.20),
           IncomeChargeableBasicRate -> Amount.gbp(income),
@@ -430,7 +456,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishStarterRateIncome include pension lump sum amount when matches intermediate rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.21),
           TaxablePayScottishIntermediateRate -> Amount.gbp(income),
@@ -442,7 +469,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishStarterRateIncome include pension lump sum amount when matches higher rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.41),
           IncomeChargeableHigherRate -> Amount.gbp(income),
@@ -454,7 +482,8 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "scottishStarterRateIncome include pension lump sum amount when matches additional rate" in {
 
-      forAll { (income: BigDecimal, pension: BigDecimal) =>
+      forAll { (incomeVal: Double, pensionVal: Double) =>
+        val (income: BigDecimal, pension: BigDecimal) = (BigDecimal(incomeVal), BigDecimal(pensionVal))
         val sut = scottishFixture(
           PensionTaxRate(0.46),
           IncomeChargeableAddHRate -> Amount.gbp(income),
@@ -466,55 +495,63 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "savingsBasicRateTax returns tax on savings" in {
 
-      forAll { tax: BigDecimal =>
+      forAll { taxVal: Double =>
+        val tax: BigDecimal = BigDecimal(taxVal)
         val sut = scottishFixture(SavingsTaxLowerRate -> Amount.gbp(tax))
-        sut.calculation.savingsBasicRateTax mustBe Amount.gbp(tax)
+        sut.calculation.savingsBasicRateTax.roundAmount() mustBe Amount.gbp(tax).roundAmount()
       }
     }
 
     "savingsHigherRateTax returns tax on savings" in {
 
-      forAll { tax: BigDecimal =>
+      forAll { taxVal: Double =>
+        val tax: BigDecimal = BigDecimal(taxVal)
         val sut = scottishFixture(SavingsTaxHigherRate -> Amount.gbp(tax))
-        sut.calculation.savingsHigherRateTax mustBe Amount.gbp(tax)
+        sut.calculation.savingsHigherRateTax.roundAmount() mustBe Amount.gbp(tax).roundAmount()
       }
     }
 
     "savingsAdditionalRateTax returns tax on savings" in {
 
-      forAll { tax: BigDecimal =>
+      forAll { taxVal: Double =>
+        val tax: BigDecimal = BigDecimal(taxVal)
         val sut = scottishFixture(SavingsTaxAddHighRate -> Amount.gbp(tax))
-        sut.calculation.savingsAdditionalRateTax mustBe Amount.gbp(tax)
+        sut.calculation.savingsAdditionalRateTax.roundAmount() mustBe Amount.gbp(tax).roundAmount()
       }
     }
 
     "savingsBasicRateIncome returns income on savings" in {
 
-      forAll { tax: BigDecimal =>
+      forAll { taxVal: Double =>
+        val tax: BigDecimal = BigDecimal(taxVal)
         val sut = scottishFixture(SavingsChargeableLowerRate -> Amount.gbp(tax))
-        sut.calculation.savingsBasicRateIncome mustBe Amount.gbp(tax)
+        sut.calculation.savingsBasicRateIncome.roundAmount() mustBe Amount.gbp(tax).roundAmount()
       }
     }
 
     "savingsHigherRateIncome returns income on savings" in {
 
-      forAll { tax: BigDecimal =>
+      forAll { taxVal: Double =>
+        val tax: BigDecimal = BigDecimal(taxVal)
         val sut = scottishFixture(SavingsChargeableHigherRate -> Amount.gbp(tax))
-        sut.calculation.savingsHigherRateIncome mustBe Amount.gbp(tax)
+        sut.calculation.savingsHigherRateIncome.roundAmount() mustBe Amount.gbp(tax).roundAmount()
       }
     }
 
     "savingsAdditionalRateIncome returns income on savings" in {
 
-      forAll { tax: BigDecimal =>
+      forAll { taxVal: Double =>
+        val tax: BigDecimal = BigDecimal(taxVal)
         val sut = scottishFixture(SavingsChargeableAddHRate -> Amount.gbp(tax))
-        sut.calculation.savingsAdditionalRateIncome mustBe Amount.gbp(tax)
+        sut.calculation.savingsAdditionalRateIncome.roundAmount() mustBe Amount.gbp(tax).roundAmount()
       }
     }
 
     "scottishTotalTax includes any 2 random scottish taxes" in {
 
-      forAll { (first: BigDecimal, second: BigDecimal) =>
+      forAll { (firstVal: Double, secondVal: Double) =>
+        val (first: BigDecimal, second: BigDecimal) = (BigDecimal(firstVal), BigDecimal(secondVal))
+
         val keys =
           Random.shuffle(
             List(
@@ -522,7 +559,9 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
               IncomeTaxBasicRate,
               TaxOnPayScottishIntermediateRate,
               IncomeTaxHigherRate,
-              IncomeTaxAddHighRate))
+              IncomeTaxAddHighRate
+            )
+          )
 
         val sut = scottishFixture(
           keys.head -> Amount.gbp(first),
@@ -535,7 +574,9 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "totalIncomeTaxAmount includes any 2 random scottish taxes or savings taxes" in {
 
-      forAll { (first: BigDecimal, second: BigDecimal) =>
+      forAll { (firstVal: Double, secondVal: Double) =>
+        val (first: BigDecimal, second: BigDecimal) = (BigDecimal(firstVal), BigDecimal(secondVal))
+
         val keys =
           Random.shuffle(
             List(
@@ -563,9 +604,12 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   "WelshATSCalculations" must {
     "calculate the welshIncomeTax" in {
-      val welshFixture = new Fixture(taxYear = 2020, new Welsh())
+      val welshFixture = new Fixture(taxYear = 2020, Welsh())
 
-      forAll { (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =>
+      forAll { (basicRateVal: Double, higherRateVal: Double, additionalRateVal: Double) =>
+        val (basicRate: BigDecimal, higherRate: BigDecimal, additionalRate: BigDecimal) =
+          (BigDecimal(basicRateVal), BigDecimal(higherRateVal), BigDecimal(additionalRateVal))
+
         val sut = welshFixture(
           IncomeChargeableBasicRate  -> Amount.gbp(basicRate),
           IncomeChargeableHigherRate -> Amount.gbp(higherRate),

@@ -16,10 +16,10 @@
 
 package models
 
+import play.api.libs.json.{Format, Json, OFormat, Reads}
+
 import java.text.NumberFormat
 import java.util.Locale
-
-import play.api.libs.json.{Format, Json, Reads}
 
 case class Rate(percent: Double) {
 
@@ -32,55 +32,55 @@ case class Rate(percent: Double) {
 object Rate {
 
   def rateFromPerUnitAmount(amountPerUnit: Amount): Rate =
-    Rate((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN).doubleValue())
+    Rate((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN).doubleValue)
 
   val empty = 0.0
 
-  implicit val formats = Json.format[Rate]
+  implicit val formats: OFormat[Rate] = Json.format[Rate]
 }
 
 sealed case class ApiRate(percent: String)
 
 object ApiRate {
 
-  implicit val formats = Json.format[ApiRate]
+  implicit val formats: OFormat[ApiRate] = Json.format[ApiRate]
 }
 
-sealed trait RateKey extends ApiValue
+sealed class RateKey(apiValue: String) extends ApiValue(apiValue)
 
 object RateKey {
 
-  case object Additional extends ApiValue("additional_rate_rate") with RateKey
-  case object CapitalGainsEntrepreneur extends ApiValue("cg_entrepreneurs_rate") with RateKey
-  case object CapitalGainsOrdinary extends ApiValue("cg_ordinary_rate") with RateKey
-  case object CapitalGainsUpper extends ApiValue("cg_upper_rate") with RateKey
-  case object IncomeAdditional extends ApiValue("additional_rate_income_tax_rate") with RateKey
-  case object IncomeBasic extends ApiValue("basic_rate_income_tax_rate") with RateKey
-  case object IncomeHigher extends ApiValue("higher_rate_income_tax_rate") with RateKey
-  case object InterestHigher extends ApiValue("prop_interest_rate_higher_rate") with RateKey
-  case object InterestLower extends ApiValue("prop_interest_rate_lower_rate") with RateKey
-  case object NICS extends ApiValue("nics_and_tax_rate") with RateKey
-  case object Ordinary extends ApiValue("ordinary_rate_tax_rate") with RateKey
-  case object Savings extends ApiValue("starting_rate_for_savings_rate") with RateKey
-  case object TotalCapitalGains extends ApiValue("total_cg_tax_rate") with RateKey
-  case object Upper extends ApiValue("upper_rate_rate") with RateKey
+  case object Additional extends RateKey(apiValue = "additional_rate_rate")
+  case object CapitalGainsEntrepreneur extends RateKey(apiValue = "cg_entrepreneurs_rate")
+  case object CapitalGainsOrdinary extends RateKey(apiValue = "cg_ordinary_rate")
+  case object CapitalGainsUpper extends RateKey(apiValue = "cg_upper_rate")
+  case object IncomeAdditional extends RateKey(apiValue = "additional_rate_income_tax_rate")
+  case object IncomeBasic extends RateKey(apiValue = "basic_rate_income_tax_rate")
+  case object IncomeHigher extends RateKey(apiValue = "higher_rate_income_tax_rate")
+  case object InterestHigher extends RateKey(apiValue = "prop_interest_rate_higher_rate")
+  case object InterestLower extends RateKey(apiValue = "prop_interest_rate_lower_rate")
+  case object NICS extends RateKey(apiValue = "nics_and_tax_rate")
+  case object Ordinary extends RateKey(apiValue = "ordinary_rate_tax_rate")
+  case object Savings extends RateKey("starting_rate_for_savings_rate")
+  case object TotalCapitalGains extends RateKey("total_cg_tax_rate")
+  case object Upper extends RateKey("upper_rate_rate")
 
-  case object PayeDividendOrdinaryRate extends ApiValue("paye_ordinary_rate") with RateKey
-  case object PayeHigherRateIncomeTax extends ApiValue("paye_higher_rate_income_tax") with RateKey
-  case object PayeBasicRateIncomeTax extends ApiValue("paye_basic_rate_income_tax") with RateKey
-  case object PayeDividendUpperRate extends ApiValue("paye_upper_rate") with RateKey
-  case object PayeScottishStarterRate extends ApiValue("paye_scottish_starter_rate") with RateKey
-  case object PayeScottishBasicRate extends ApiValue("paye_scottish_basic_rate") with RateKey
-  case object PayeScottishIntermediateRate extends ApiValue("paye_scottish_intermediate_rate") with RateKey
-  case object PayeScottishHigherRate extends ApiValue("paye_scottish_higher_rate") with RateKey
-  case object ScottishStarterRate extends ApiValue("scottish_starter_rate") with RateKey
-  case object ScottishBasicRate extends ApiValue("scottish_basic_rate") with RateKey
-  case object ScottishIntermediateRate extends ApiValue("scottish_intermediate_rate") with RateKey
-  case object ScottishHigherRate extends ApiValue("scottish_higher_rate") with RateKey
-  case object ScottishAdditionalRate extends ApiValue("scottish_additional_rate") with RateKey
-  case object SavingsLowerRate extends ApiValue("savings_lower_rate") with RateKey
-  case object SavingsHigherRate extends ApiValue("savings_higher_rate") with RateKey
-  case object SavingsAdditionalRate extends ApiValue("savings_additional_rate") with RateKey
+  case object PayeDividendOrdinaryRate extends RateKey("paye_ordinary_rate")
+  case object PayeHigherRateIncomeTax extends RateKey("paye_higher_rate_income_tax")
+  case object PayeBasicRateIncomeTax extends RateKey("paye_basic_rate_income_tax")
+  case object PayeDividendUpperRate extends RateKey("paye_upper_rate")
+  case object PayeScottishStarterRate extends RateKey("paye_scottish_starter_rate")
+  case object PayeScottishBasicRate extends RateKey("paye_scottish_basic_rate")
+  case object PayeScottishIntermediateRate extends RateKey("paye_scottish_intermediate_rate")
+  case object PayeScottishHigherRate extends RateKey("paye_scottish_higher_rate")
+  case object ScottishStarterRate extends RateKey("scottish_starter_rate")
+  case object ScottishBasicRate extends RateKey("scottish_basic_rate")
+  case object ScottishIntermediateRate extends RateKey("scottish_intermediate_rate")
+  case object ScottishHigherRate extends RateKey("scottish_higher_rate")
+  case object ScottishAdditionalRate extends RateKey("scottish_additional_rate")
+  case object SavingsLowerRate extends RateKey(apiValue = "savings_lower_rate")
+  case object SavingsHigherRate extends RateKey(apiValue = "savings_higher_rate")
+  case object SavingsAdditionalRate extends RateKey(apiValue = "savings_additional_rate")
 
   // format: off
   val allItems: List[RateKey] =
