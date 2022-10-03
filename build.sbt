@@ -69,3 +69,7 @@ lazy val microservice = Project(appName, file("."))
     "-Wconf:cat=unused&src=.*Routes\\.scala:s",
     "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
   ))
+
+addCommandAlias("scalafmtAll", "all scalafmtSbt scalafmt test:scalafmt it:scalafmt")
+addCommandAlias("testAll", ";coverage ;test ;it:test ;coverageReport")
+addCommandAlias("testAllWithScalafmt", ";scalafmtAll ;testAll")
