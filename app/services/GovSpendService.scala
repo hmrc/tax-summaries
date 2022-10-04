@@ -40,6 +40,7 @@ object GoodsAndServices {
     HousingAndUtilities,
     OverseasAid,
     UkContributionToEuBudget,
+    OutstandingPaymentsToTheEU,
     PublicOrderAndSafety,
     Environment
   )
@@ -50,20 +51,37 @@ object GoodsAndServices {
   )
 
   case object Welfare extends GoodsAndServices("Welfare")
+
   case object Health extends GoodsAndServices("Health")
+
   case object Education extends GoodsAndServices("Education")
+
   case object StatePensions extends GoodsAndServices("StatePensions")
+
   case object NationalDebtInterest extends GoodsAndServices("NationalDebtInterest")
+
   case object Defence extends GoodsAndServices("Defence")
+
   case object CriminalJustice extends GoodsAndServices("CriminalJustice")
+
   case object Transport extends GoodsAndServices("Transport")
+
   case object BusinessAndIndustry extends GoodsAndServices("BusinessAndIndustry")
+
   case object GovernmentAdministration extends GoodsAndServices("GovernmentAdministration")
+
   case object Culture extends GoodsAndServices("Culture")
+
   case object HousingAndUtilities extends GoodsAndServices("HousingAndUtilities")
+
   case object OverseasAid extends GoodsAndServices("OverseasAid")
+
   case object UkContributionToEuBudget extends GoodsAndServices("UkContributionToEuBudget")
+
+  case object OutstandingPaymentsToTheEU extends GoodsAndServices("OutstandingPaymentsToTheEU")
+
   case object PublicOrderAndSafety extends GoodsAndServices("PublicOrderAndSafety")
+
   case object Environment extends GoodsAndServices("Environment")
 
   implicit def mapFormat[V: Format]: Format[Map[GoodsAndServices, V]] =

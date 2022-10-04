@@ -20,9 +20,9 @@ import models.Liability._
 import models._
 import play.api.Logging
 import services._
-import transformers.Scottish.{ATSCalculationsScottish2019, ATSCalculationsScottish2021}
-import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
-import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021}
+import transformers.Scottish.{ATSCalculationsScottish2019, ATSCalculationsScottish2021, ATSCalculationsScottish2022}
+import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021, ATSCalculationsUK2022}
+import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021, ATSCalculationsWelsh2022}
 import utils.DoubleUtils
 
 trait ATSCalculations extends DoubleUtils with Logging {
@@ -137,26 +137,38 @@ trait ATSCalculations extends DoubleUtils with Logging {
       includePensionTaxForRate(taxRates.additionalRateIncomeTaxRate())
 
   def scottishStarterRateTax: Amount = Amount.empty
+
   def scottishBasicRateTax: Amount = Amount.empty
+
   def scottishIntermediateRateTax: Amount = Amount.empty
+
   def scottishHigherRateTax: Amount = Amount.empty
+
   def scottishAdditionalRateTax: Amount = Amount.empty
 
   def scottishTotalTax: Amount =
     scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
 
   def scottishStarterRateIncome: Amount = Amount.empty
+
   def scottishBasicRateIncome: Amount = Amount.empty
+
   def scottishIntermediateRateIncome: Amount = Amount.empty
+
   def scottishHigherRateIncome: Amount = Amount.empty
+
   def scottishAdditionalRateIncome: Amount = Amount.empty
 
   def savingsBasicRateTax: Amount = Amount.empty
+
   def savingsHigherRateTax: Amount = Amount.empty
+
   def savingsAdditionalRateTax: Amount = Amount.empty
 
   def savingsBasicRateIncome: Amount = Amount.empty
+
   def savingsHigherRateIncome: Amount = Amount.empty
+
   def savingsAdditionalRateIncome: Amount = Amount.empty
 
   def welshIncomeTax: Amount = Amount.empty
@@ -277,6 +289,9 @@ object ATSCalculations {
 
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
     (summaryData.nationality, summaryData.taxYear) match {
+      case (_: UK, year) if year > 2021       => new ATSCalculationsUK2022(summaryData, taxRates)
+      case (_: Scottish, year) if year > 2021 => new ATSCalculationsScottish2022(summaryData, taxRates)
+      case (_: Welsh, year) if year > 2021    => new ATSCalculationsWelsh2022(summaryData, taxRates)
       case (_: UK, year) if year > 2020       => new ATSCalculationsUK2021(summaryData, taxRates)
       case (_: Scottish, year) if year > 2020 => new ATSCalculationsScottish2021(summaryData, taxRates)
       case (_: Welsh, year) if year > 2020    => new ATSCalculationsWelsh2021(summaryData, taxRates)

@@ -1,0 +1,97 @@
+/*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package sa
+
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
+import models.AtsMiddleTierData
+import models.LiabilityKey._
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import utils.FileHelper
+
+class AtsDataSpec2022 extends SaTestHelper {
+
+  val taxPayerFile = "taxPayerDetails.json"
+
+  trait Test {
+    val taxYear = 2022
+
+    def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+    def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+
+    def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+      .withHeaders((AUTHORIZATION, "Bearer 123"))
+  }
+
+
+  "HasSummary (SIT001)" must {
+    val expected = Map(
+      SelfEmploymentIncome -> 942.00, // LS1a e
+      IncomeFromEmployment -> 122500.00, // LS1 e
+      StatePension -> 3770.00, //LS2 e
+      OtherPensionIncome -> 3121.00, //LS3 e
+      TaxableStateBenefits -> 0.00, //LS4 e
+      OtherIncome -> 298111.00, //LS5 e
+      BenefitsFromEmployment -> 9600.00, //LS6 e
+      TotalIncomeBeforeTax -> 438044.00, //LS7 total income received e
+      PersonalTaxFreeAmount -> 0.00, //LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
+      OtherAllowancesAmount -> 15209.00, //LS9 e
+      TotalTaxFreeAmount -> 15209.00, //LS10 e
+      StartingRateForSavingsAmount -> 0.00, //LS12.1 e
+      BasicRateIncomeTax -> 9043.60, //lS12.2 e
+      HigherRateIncomeTax -> 44920.00, //LS12.3 e
+      AdditionalRateIncomeTax -> 92444.85, //LS12.4 e
+      OrdinaryRate -> 0.00, //LS13.1 e
+      UpperRate -> 0.00, //LS13.2 e
+      AdditionalRate -> 22053.80, //LS13.3 e
+      OtherAdjustmentsIncreasing -> 0.00, //LS15a e
+      OtherAdjustmentsReducing -> 5129.60, //LS15b e
+      WelshIncomeTax -> 0.00, //LS20a
+      TotalIncomeTax -> 163332.65, //LS20 e
+      TotalIncomeTaxAndNics -> 163491.25, //LS16 e
+      EmployeeNicAmount -> 158.60, //LS14 e
+      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
+      //EmployerNicAmount -> 15685.00, //LS18 e
+      PayCgTaxOn -> 28700.00, //LS19.8 e
+      TaxableGains -> 41000.00, //LS19.6 e
+      TotalTaxFreeAmount -> 12300.00, //LS19.7 e
+      AmountDueAtEntrepreneursRate -> 1200.00, //LS19.1 e
+      AmountDueAtOrdinaryRate -> 0.00, //LS19.2 e
+      AmountDueRPCIHigherRate -> 0.00, //LS19.3 e
+      AmountDueRPCILowerRate -> 3340.00, //LS19.3b e
+      Adjustments -> 0.00, //LS19.4 e
+      TotalCgTax -> 4540.00, //e
+      YourTotalTax -> 168031.25 //RS7 e
+    )
+
+    expected foreach { case (key, expectedValue) =>
+      s"return the correct key $key" in new Test {
+        server.stubFor(
+          WireMock.get(urlEqualTo(odsUrl(taxYear)))
+            .willReturn(ok(FileHelper.loadFile("2021-22/TC52.json")))
+        )
+
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
+        checkResult(result, key, expectedValue)
+      }
+    }
+  }
+}
