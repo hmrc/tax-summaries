@@ -20,7 +20,6 @@ import sbt.Keys._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import play.sbt.routes.RoutesKeys.routesGenerator
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
 import play.sbt.PlayImport.PlayKeys
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 import uk.gov.hmrc._
@@ -69,3 +68,7 @@ lazy val microservice = Project(appName, file("."))
     "-Wconf:cat=unused&src=.*Routes\\.scala:s",
     "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
   ))
+
+addCommandAlias("scalafmtAll", "all scalafmtSbt scalafmt test:scalafmt it:scalafmt")
+addCommandAlias("testAll", ";coverage ;test ;it:test ;coverageReport")
+addCommandAlias("testAllWithScalafmt", ";scalafmtAll ;testAll")
