@@ -68,8 +68,8 @@ trait ATSCalculations2021 extends ATSCalculations {
     val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
       basicRateIncomeTaxAmount + // LS12.2
       higherRateIncomeTaxAmount + // LS12.3
-      additionalRateIncomeTaxAmount +
-      get(DividendTaxLowRate) +
+      additionalRateIncomeTaxAmount + //LS12.4
+      get(DividendTaxLowRate) + //LS13.1
       get(DividendTaxHighRate) + //LS13.2
       get(DividendTaxAddHighRate) +
       otherAdjustmentsIncreasing -

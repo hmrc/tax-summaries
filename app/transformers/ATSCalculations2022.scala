@@ -46,6 +46,7 @@ trait ATSCalculations2022 extends ATSCalculations2021 {
       get(EisRelief) +
       get(SeedEisRelief) +
       get(CommInvTrustRel) +
+      get(SocialInvTaxRel) +
       get(SurplusMcaAlimonyRel) +
       getWithDefaultAmount(Alimony) +
       get(NotionalTaxCegs) +
@@ -55,7 +56,8 @@ trait ATSCalculations2022 extends ATSCalculations2021 {
       getWithDefaultAmount(LFIRelief)
 
   override def totalAmountEmployeeNic: Amount =
-    get(Class2NicAmt) +
+    get(EmployeeClass1NI) +
+      get(Class2NicAmt) +
       get(Class4Nic)
 
   override def otherAllowances: Amount =
@@ -70,4 +72,49 @@ trait ATSCalculations2022 extends ATSCalculations2021 {
         get(BPA)
     ).roundAmountUp()
 
+  override def basicRateIncomeTax: Amount =
+    getWithDefaultAmount(IncomeChargeableBasicRate) +
+      get(SavingsChargeableLowerRate) +
+      get(TaxableRedundancyBr) +
+      get(TaxableCegBr) +
+      includePensionIncomeForRate(taxRates.basicRateIncomeTaxRate())
+
+  override def basicRateIncomeTaxAmount: Amount =
+    get(IncomeTaxBasicRate) +
+      get(SavingsTaxLowerRate) +
+      get(TaxOnRedundancyBr) +
+      get(TaxOnCegBr) +
+      includePensionTaxForRate(taxRates.basicRateIncomeTaxRate())
+
+  override def additionalRateIncomeTaxAmount: Amount =
+    get(IncomeTaxAddHighRate) +
+      get(SavingsTaxAddHighRate) +
+      get(TaxOnRedundancyAhr) +
+      get(TaxOnCegAhr) +
+      includePensionTaxForRate(taxRates.additionalRateIncomeTaxRate())
+
+  override def additionalRateIncomeTax: Amount =
+    getWithDefaultAmount(IncomeChargeableAddHRate) +
+      get(SavingsChargeableAddHRate) +
+      get(TaxableRedundancyAhr) +
+      get(TaxableCegAhr) +
+      includePensionIncomeForRate(taxRates.additionalRateIncomeTaxRate())
+
+  override def higherRateIncomeTax: Amount =
+    getWithDefaultAmount(IncomeChargeableHigherRate) +
+      get(SavingsChargeableHigherRate) +
+      get(TaxableRedundancyHr) +
+      get(TaxableCegHr) +
+      includePensionIncomeForRate(taxRates.higherRateIncomeTaxRate())
+
+  override def higherRateIncomeTaxAmount: Amount =
+    get(IncomeTaxHigherRate) +
+      get(SavingsTaxHigherRate) +
+      get(TaxOnRedundancyHr) +
+      get(TaxOnCegHr) +
+      includePensionTaxForRate(taxRates.higherRateIncomeTaxRate())
+
+  override def savingsRateAmount: Amount = get(SavingsTaxStartingRate) + get(TaxOnCegSr)
+
+  override def savingsRate: Amount = get(SavingsChargeableStartRate) + get(TaxableCegSr)
 }

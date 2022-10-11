@@ -28,7 +28,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalScheduleD": {
-      "amount": 0.00,
+      "amount": 14190.00,
       "currency": "GBP"
     },
     "ctnSummaryTotalPartnership": {
@@ -36,7 +36,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalEmployment": {
-      "amount": 0.00,
+      "amount": 31717.00,
       "currency": "GBP"
     },
     "atsStatePensionAmt": {
@@ -92,7 +92,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalUkInterest": {
-      "amount": 0.00,
+      "amount": 678.00,
       "currency": "GBP"
     },
     "itfCegReceivedAfterTax": {
@@ -104,7 +104,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalUkIntDivs": {
-      "amount": 0.00,
+      "amount": 5500.00,
       "currency": "GBP"
     },
     "ctn4SumTotLifePolicyGains": {
@@ -112,7 +112,7 @@
       "currency": "GBP"
     },
     "ctnPersonalAllowance": {
-      "amount": 0.00,
+      "amount": 12570.00,
       "currency": "GBP"
     },
     "ctnEmploymentExpensesAmt": {
@@ -160,11 +160,11 @@
       "currency": "GBP"
     },
     "class4Nic": {
-      "amount": 0.00,
+      "amount": 415.98,
       "currency": "GBP"
     },
     "ctnClass2NicAmt": {
-      "amount": 0.00,
+      "amount": 118.95,
       "currency": "GBP"
     },
     "ctnSavingsChgbleStartRate": {
@@ -176,23 +176,23 @@
       "currency": "GBP"
     },
     "ctnIncomeChgbleBasicRate": {
-      "amount": 0.00,
+      "amount": 12254.00,
       "currency": "GBP"
     },
     "ctnSavingsChgbleLowerRate": {
-      "amount": 0.00,
+      "amount": 178.00,
       "currency": "GBP"
     },
     "ctnIncomeTaxBasicRate": {
-      "amount": 0.00,
+      "amount": 2450.80,
       "currency": "GBP"
     },
     "ctnSavingsTaxLowerRate": {
-      "amount": 0.00,
+      "amount": 35.60,
       "currency": "GBP"
     },
     "ctnIncomeChgbleHigherRate": {
-      "amount": 0.00,
+      "amount": 620.00,
       "currency": "GBP"
     },
     "ctnSavingsChgbleHigherRate": {
@@ -200,7 +200,7 @@
       "currency": "GBP"
     },
     "ctnIncomeTaxHigherRate": {
-      "amount": 0.00,
+      "amount": 254.20,
       "currency": "GBP"
     },
     "ctnSavingsTaxHigherRate": {
@@ -224,27 +224,27 @@
       "currency": "GBP"
     },
     "taxablePaySSR": {
-      "amount": 0.00,
+      "amount": 2097.00,
       "currency": "GBP"
     },
     "taxOnPaySSR": {
-      "amount": 0.00,
+      "amount": 398.43,
       "currency": "GBP"
     },
     "taxablePaySIR": {
-      "amount": 0.00,
+      "amount": 18366.00,
       "currency": "GBP"
     },
     "taxOnPaySIR": {
-      "amount": 0.00,
+      "amount": 3856.86,
       "currency": "GBP"
     },
     "ctnDividendChgbleLowRate": {
-      "amount": 0.00,
+      "amount": 3310.00,
       "currency": "GBP"
     },
     "ctnDividendTaxLowRate": {
-      "amount": 0.00,
+      "amount": 248.25,
       "currency": "GBP"
     },
     "ctnDividendChgbleHighRate": {
@@ -252,7 +252,7 @@
       "currency": "GBP"
     },
     "ctnDividendTaxHighRate": {
-      "amount": 0.00,
+      "amount": 61.75,
       "currency": "GBP"
     },
     "ctnDividendChgbleAddHRate": {
@@ -340,11 +340,11 @@
       "currency": "GBP"
     },
     "incomeTaxDue": {
-      "amount": 0.00,
+      "amount": 7305.89,
       "currency": "GBP"
     },
     "ctn4TaxDueAfterAllceRlf": {
-      "amount": 0.00,
+      "amount": 7305.89,
       "currency": "GBP"
     },
     "netAnnuityPaytsTaxDue": {
@@ -360,7 +360,7 @@
       "currency": "GBP"
     },
     "atsTaxCharged": {
-      "amount": 0.00,
+      "amount": 7305.89,
       "currency": "GBP"
     },
     "ctnDeficiencyRelief": {
@@ -444,7 +444,7 @@
       "currency": "GBP"
     },
     "atsCgAnnualExemptAmt": {
-      "amount": 0.00,
+      "amount": 12300.00,
       "currency": "GBP"
     },
     "ctnCgAtEntrepreneursRate": {

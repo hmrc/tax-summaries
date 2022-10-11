@@ -258,6 +258,26 @@ object Liability {
 
   case object TaxOnCegHr extends Liability("tax-on-CEG-HR")
 
+  case object TaxOnRedundancyBr extends Liability("ctnTaxOnRedundancyBR")
+
+  case object TaxOnCegBr extends Liability("tax-on-CEG-BR")
+
+  case object TaxOnRedundancyAhr extends Liability("tax-on-redundancy-AHR")
+
+  case object TaxOnCegAhr extends Liability("tax-on-CEG-AHR")
+
+  case object TaxableRedundancyBr extends Liability("ctnTaxableRedundancyBR")
+
+  case object TaxableCegBr extends Liability("taxable-CEG-BR")
+
+  case object TaxableRedundancyAhr extends Liability("taxable-redundancy-AHR")
+
+  case object TaxableCegAhr extends Liability("taxable-CEG-AHR")
+
+  case object TaxableCegSr extends Liability("taxable-CEG-SR")
+
+  case object TaxOnCegSr extends Liability("tax-on-CEG-SR")
+
   // format: off
   val allLiabilities: List[Liability with ApiValue] =
     List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
@@ -280,7 +300,8 @@ object Liability {
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced, ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted,
-      Class2NicAmt, TaxableRedundancyHr, TaxableCegHr, PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr)
+      Class2NicAmt, TaxableRedundancyHr, TaxableCegHr, PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr,
+      TaxOnRedundancyAhr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr, TaxableCegAhr, TaxableCegSr, TaxOnCegSr)
   // format: on
 
   implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)
