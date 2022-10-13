@@ -60,7 +60,7 @@ class Repository @Inject()(config: ApplicationConfig, mongoComponent: MongoCompo
         replacement = dataMongo,
         options = ReplaceOptions().upsert(true)
       )
-      .toFuture
+      .toFuture()
       .map(result => result.wasAcknowledged())
 
 }

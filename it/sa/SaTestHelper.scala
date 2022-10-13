@@ -18,8 +18,7 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.LiabilityKey.TotalIncomeTaxAndNics
-import models.{Amount, AtsMiddleTierData, DataHolder, LiabilityKey}
+import models.{AtsMiddleTierData, DataHolder, LiabilityKey}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}

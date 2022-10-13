@@ -21,11 +21,11 @@ import config.ApplicationConfig
 import models.ApiValue
 import play.api.libs.json.{Format, JsString, Writes}
 
-sealed trait GoodsAndServices extends ApiValue
+sealed class GoodsAndServices(apiValue: String) extends ApiValue(apiValue)
 
 object GoodsAndServices {
 
-  val allItems = List[GoodsAndServices](
+  val allItems: List[GoodsAndServices] = List[GoodsAndServices](
     Welfare,
     Health,
     Education,

@@ -16,14 +16,13 @@
 
 package utils
 
-import play.api.http.Status.{BAD_GATEWAY, BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
+import play.api.http.Status._
 import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, NotFound}
-import uk.gov.hmrc.auth.core.InternalError
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ATSErrorHandlerSpec extends BaseSpec {
 
-  lazy val sut = app.injector.instanceOf[ATSErrorHandler]
+  lazy val sut: ATSErrorHandler = app.injector.instanceOf[ATSErrorHandler]
 
   "errorToResponse" must {
 
