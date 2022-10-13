@@ -30,10 +30,11 @@ class ATSCalculationsWelsh2021(val summaryData: TaxSummaryLiability, val taxRate
         getWithDefaultAmount(IncomeChargeableBasicRate) +
           getWithDefaultAmount(IncomeChargeableHigherRate) +
           getWithDefaultAmount(IncomeChargeableAddHRate)
-      ).amount * welshRate)
+      ).amount * welshRate
+    )
   }
 
   override def scottishIncomeTax: Amount = Amount.empty
-  override def savingsRate: Amount = Amount.empty
+  override def savingsRate: Amount       = Amount.empty
   override def savingsRateAmount: Amount = Amount.empty
 }

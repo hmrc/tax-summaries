@@ -25,7 +25,12 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
 
 class BaseSpec
-    extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with Injecting with MockitoSugar with ScalaFutures
+    extends AnyWordSpec
+    with Matchers
+    with GuiceOneAppPerSuite
+    with Injecting
+    with MockitoSugar
+    with ScalaFutures
     with IntegrationPatience {
   lazy val applicationConfig = inject[ApplicationConfig]
 }

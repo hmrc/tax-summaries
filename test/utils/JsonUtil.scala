@@ -33,17 +33,16 @@ trait JsonUtil {
   def loadAndParseJsonWithDummyUTRData(path: String, replaceMap: Map[String, String]): String =
     bracket(Source.fromURL(getClass.getResource(path)))(_.close()) { json =>
       var jsonString = json.mkString
-      for ((key, value) <- replaceMap) {
+      for ((key, value) <- replaceMap)
         jsonString = jsonString.replace(key, value)
-      }
       jsonString
     }
 
   def loadAndReplace(path: String, replaceMap: JsObject) =
     bracket(Source.fromURL(getClass.getResource(path)))(_.close()) { json =>
-      val parsedJson = Json.parse(json.mkString)
-      val tlData = parsedJson.as[JsObject] \ "tliSlpAtsData"
-      val updatedtliSlp = tlData.as[JsObject] ++ replaceMap
+      val parsedJson     = Json.parse(json.mkString)
+      val tlData         = parsedJson.as[JsObject] \ "tliSlpAtsData"
+      val updatedtliSlp  = tlData.as[JsObject] ++ replaceMap
       val theUpdatedJson = JsObject(Seq("tliSlpAtsData" -> updatedtliSlp))
       parsedJson.as[JsObject] ++ theUpdatedJson
     }
@@ -54,8 +53,6 @@ trait JsonUtil {
     try {
       a = acquire
       use(a.asInstanceOf[A])
-    } finally {
-      release(a.asInstanceOf[A])
-    }
+    } finally release(a.asInstanceOf[A])
   }
 }

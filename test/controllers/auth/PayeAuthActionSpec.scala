@@ -37,13 +37,13 @@ class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAn
 
   lazy val cc: ControllerComponents = stubControllerComponents()
 
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val payeAuthAction = new PayeAuthActionImpl(
+  val mockAuthConnector: AuthConnector             = mock[AuthConnector]
+  val payeAuthAction                               = new PayeAuthActionImpl(
     mockAuthConnector,
     app.injector.instanceOf[NinoHelper],
     stubControllerComponents()
   )
-  val harness = new Harness(payeAuthAction)
+  val harness                                      = new Harness(payeAuthAction)
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
 
   class Harness(payeAuthAction: PayeAuthAction) extends AbstractController(cc) {

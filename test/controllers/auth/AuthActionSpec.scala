@@ -34,12 +34,16 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionSpec
-    extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar with Injecting {
+    extends PlaySpec
+    with GuiceOneAppPerSuite
+    with BeforeAndAfterEach
+    with MockitoSugar
+    with Injecting {
 
-  val cc: ControllerComponents = stubControllerComponents()
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val cc: ControllerComponents           = stubControllerComponents()
+  val mockAuthConnector: AuthConnector   = mock[AuthConnector]
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
-  implicit val timeout: Timeout = 5.seconds
+  implicit val timeout: Timeout          = 5.seconds
 
   class Harness(authAction: AuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = authAction { _ =>
@@ -47,9 +51,9 @@ class AuthActionSpec
     }
   }
   val utr: String = new SaUtrGenerator().nextSaUtr.utr
-  val uar = "SomeUar"
-  val authAction = new AuthActionImpl(mockAuthConnector, cc)
-  val harness = new Harness(authAction)
+  val uar         = "SomeUar"
+  val authAction  = new AuthActionImpl(mockAuthConnector, cc)
+  val harness     = new Harness(authAction)
 
   "AuthAction" must {
 

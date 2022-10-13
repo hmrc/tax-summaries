@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext)
+class NpsConnector @Inject() (http: HttpClient, applicationConfig: ApplicationConfig)(implicit ec: ExecutionContext)
     extends Logging {
 
   def serviceUrl: String = applicationConfig.npsServiceUrl
@@ -42,8 +42,9 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
     "CorrelationId"           -> UUID.randomUUID().toString
   )
 
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, HttpResponse]] = {
+  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, HttpResponse]] = {
     val ninoWithoutSuffix = NINO.take(8)
 
     http
@@ -52,24 +53,19 @@ class NpsConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
         headers = header
       )
       .map {
-        case response @ Right(_) => response
-        case Left(error) if error.statusCode >= 500 || error.statusCode == 429 => {
+        case response @ Right(_)                                               => response
+        case Left(error) if error.statusCode >= 500 || error.statusCode == 429 =>
           logger.error(error.message)
           Left(error)
-        }
-        case Left(error) if error.statusCode == 404 => {
+        case Left(error) if error.statusCode == 404                            =>
           logger.info(error.message)
           Left(error)
-        }
-        case Left(error) => {
+        case Left(error)                                                       =>
           logger.error(error.message, error)
           Left(error)
-        }
-      } recover {
-      case error: HttpException => {
-        logger.error(error.message)
-        Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
-      }
+      } recover { case error: HttpException =>
+      logger.error(error.message)
+      Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
     }
   }
 }

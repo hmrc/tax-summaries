@@ -24,7 +24,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.{GoodsAndServices, GovSpendService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-class GovernmentSpendController @Inject()(
+class GovernmentSpendController @Inject() (
   govSpendService: GovSpendService,
   authAction: AuthAction,
   cc: ControllerComponents

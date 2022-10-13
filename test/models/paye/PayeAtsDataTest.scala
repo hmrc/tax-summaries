@@ -44,10 +44,10 @@ import utils.{BaseSpec, PayeAtsDataUtil, TestConstants}
 class PayeAtsDataTest extends BaseSpec {
 
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
-  val nino: String = TestConstants.testNino
-  val taxYear = "2019"
-  lazy val servicesConfig = app.injector.instanceOf[ServicesConfig]
-  lazy val configuration = app.injector.instanceOf[Configuration]
+  val nino: String         = TestConstants.testNino
+  val taxYear              = "2019"
+  lazy val servicesConfig  = app.injector.instanceOf[ServicesConfig]
+  lazy val configuration   = app.injector.instanceOf[Configuration]
 
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
@@ -177,7 +177,7 @@ class PayeAtsDataTest extends BaseSpec {
           Education                -> SpendData(Amount(495.60, "GBP"), 11.8),
           StatePensions            -> SpendData(Amount(537.60, "GBP"), 12.8)
         )
-        val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
+        val spendData                                        = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
         spendData.govSpendAmountData mustBe expectedValues
       }
 
@@ -187,7 +187,7 @@ class PayeAtsDataTest extends BaseSpec {
       }
 
       "without nics included if employer contributions are not present" in {
-        val atsDataWithoutNics = atsData.copy(nationalInsurance = Some(NationalInsurance(Some(100.00), None)))
+        val atsDataWithoutNics                 = atsData.copy(nationalInsurance = Some(NationalInsurance(Some(100.00), None)))
         val transformedData: PayeAtsMiddleTier =
           atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
@@ -196,7 +196,7 @@ class PayeAtsDataTest extends BaseSpec {
       }
 
       "without nics included if national insurance section is not present" in {
-        val atsDataWithoutNics = atsData.copy(nationalInsurance = None)
+        val atsDataWithoutNics                 = atsData.copy(nationalInsurance = None)
         val transformedData: PayeAtsMiddleTier =
           atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 

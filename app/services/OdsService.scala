@@ -26,19 +26,18 @@ import utils.TaxsJsonHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsService @Inject()(
+class OdsService @Inject() (
   jsonHelper: TaxsJsonHelper,
   odsConnector: ODSConnector
 )(implicit ec: ExecutionContext) {
 
-  def getPayload(UTR: String, TAX_YEAR: Int)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+  def getPayload(UTR: String, TAX_YEAR: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, JsValue]] =
     (for {
       taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
       taxSummaries <- EitherT(odsConnector.connectToSelfAssessment(UTR, TAX_YEAR))
-    } yield {
-      jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
-    }).value
+    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)).value
 
   def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
     odsConnector.connectToSelfAssessmentList(UTR) map {
@@ -50,8 +49,6 @@ class OdsService @Inject()(
     (for {
       taxSummaries <- EitherT(odsConnector.connectToSelfAssessmentList(UTR))
       taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
-    } yield {
-      jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
-    }).value
+    } yield jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)).value
 
 }

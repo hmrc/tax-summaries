@@ -45,12 +45,12 @@ object TaxSummaryLiability extends Logging {
     Reads[Map[K, V]] {
       case JsObject(m) =>
         JsSuccess(m.foldLeft(Map.empty[K, V]) {
-          case (acc, ("tliLastUpdated", _))           => acc
-          case (acc, ("ctnPensionLumpSumTaxRate", _)) => acc
-          case (acc, ("incomeTaxStatus", _))          => acc
+          case (acc, ("tliLastUpdated", _))             => acc
+          case (acc, ("ctnPensionLumpSumTaxRate", _))   => acc
+          case (acc, ("incomeTaxStatus", _))            => acc
           case (acc, ("cap3AssessableChgeableGain", _)) =>
             acc // Key is not present in Liability object because it is not use in the service
-          case (acc, (key, value)) =>
+          case (acc, (key, value))                      =>
             val result = for {
               rv <- value.validate[V]
               rk <- JsString(key).validate[K]
@@ -58,12 +58,11 @@ object TaxSummaryLiability extends Logging {
 
             result match {
               case JsSuccess(v, _) => acc + v
-              case _ => {
+              case _               =>
                 val message = s"Error while parsing TaxSummaryLiability response for $key:${value.toString}"
-                val ex = new RuntimeException(message)
+                val ex      = new RuntimeException(message)
                 logger.warn(message, ex)
                 acc
-              }
             }
         })
 

@@ -28,35 +28,34 @@ import services.TaxRateService
 
 case class ATSParsingException(s: String) extends Exception(s)
 
-class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
+class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
 
   def atsDataDTO(
     taxRate: TaxRateService,
     calculations: ATSCalculations,
     rawTaxPayerJson: JsValue,
     UTR: String,
-    taxYear: Int): AtsMiddleTierData = {
+    taxYear: Int
+  ): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
-    try {
-      if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
+    try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
 
-        AtsMiddleTierData.make(
-          taxYear,
-          UTR,
-          createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
-          createSummaryData(calculations: ATSCalculations),
-          createIncomeData(calculations: ATSCalculations),
-          createAllowanceData(calculations: ATSCalculations),
-          createCapitalGainsData(calculations, taxRate),
-          createGovSpendData(calculations.totalTax, taxYear),
-          createTaxPayerData(rawTaxPayerJson)
-        )
-      } else {
-        AtsMiddleTierData.noAtsResult(taxYear)
-      }
+      AtsMiddleTierData.make(
+        taxYear,
+        UTR,
+        createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
+        createSummaryData(calculations: ATSCalculations),
+        createIncomeData(calculations: ATSCalculations),
+        createAllowanceData(calculations: ATSCalculations),
+        createCapitalGainsData(calculations, taxRate),
+        createGovSpendData(calculations.totalTax, taxYear),
+        createTaxPayerData(rawTaxPayerJson)
+      )
+    } else {
+      AtsMiddleTierData.noAtsResult(taxYear)
     } catch {
       case ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
-      case otherError: Throwable =>
+      case otherError: Throwable        =>
         logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData.error(taxYear, "Other Error")
     }
@@ -74,7 +73,8 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
   private def createIncomeTaxData(
     calculations: ATSCalculations,
     taxRate: TaxRateService,
-    incomeTaxStatus: Option[String]) =
+    incomeTaxStatus: Option[String]
+  ) =
     DataHolder
       .make(createTotalIncomeTaxPageBreakdown(calculations), createTotalIncomeTaxPageRates(taxRate), incomeTaxStatus)
 
@@ -185,7 +185,8 @@ class ATSRawDataTransformer @Inject()(applicationConfig: ApplicationConfig) {
 
   private def createCapitalGainsTaxRates(
     calculations: ATSCalculations,
-    taxRate: TaxRateService): Map[RateKey, ApiRate] =
+    taxRate: TaxRateService
+  ): Map[RateKey, ApiRate] =
     Map[RateKey, Rate](
       CapitalGainsEntrepreneur -> taxRate.cgEntrepreneursRate(),
       CapitalGainsOrdinary     -> taxRate.cgOrdinaryRate(),

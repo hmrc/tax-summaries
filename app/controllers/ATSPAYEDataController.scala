@@ -29,12 +29,14 @@ import utils.ATSErrorHandler
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
-class ATSPAYEDataController @Inject()(
+class ATSPAYEDataController @Inject() (
   npsService: NpsService,
   payeAuthAction: PayeAuthAction,
   atsErrorHandler: ATSErrorHandler,
-  cc: ControllerComponents)(implicit ec: ExecutionContext)
-    extends BackendController(cc) with LazyLogging {
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
+    with LazyLogging {
 
   def getATSData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
     npsService.getPayeATSData(nino, taxYear) map {
@@ -56,14 +58,13 @@ class ATSPAYEDataController @Inject()(
         val collection = dataList.foldLeft(Right(List.empty): Either[UpstreamErrorResponse, List[JsValue]]) {
           (resultEither, currentEither) =>
             resultEither match {
-              case Left(error) => Left(error)
-              case Right(result) => {
+              case Left(error)   => Left(error)
+              case Right(result) =>
                 currentEither match {
                   case Left(UpstreamErrorResponse(_, status, _, _)) if status == NOT_FOUND => Right(result)
                   case Left(error)                                                         => Left(error)
                   case Right(jsValue)                                                      => Right(result :+ jsValue)
                 }
-              }
             }
         }
 
