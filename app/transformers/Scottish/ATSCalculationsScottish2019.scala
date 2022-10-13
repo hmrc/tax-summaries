@@ -65,7 +65,8 @@ class ATSCalculationsScottish2019(val summaryData: TaxSummaryLiability, val taxR
 
   override def scottishIntermediateRateIncome: Amount =
     getWithDefaultAmount(TaxablePayScottishIntermediateRate) + includePensionIncomeForRate(
-      taxRates.scottishIntermediateRate)
+      taxRates.scottishIntermediateRate
+    )
 
   override def scottishHigherRateIncome: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) + includePensionIncomeForRate(taxRates.scottishHigherRate)

@@ -26,9 +26,10 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerComponents)(
-  implicit ec: ExecutionContext)
-    extends AuthAction with AuthorisedFunctions {
+class AuthActionImpl @Inject() (val authConnector: AuthConnector, cc: ControllerComponents)(implicit
+  ec: ExecutionContext
+) extends AuthAction
+    with AuthorisedFunctions {
 
   private val logger = Logger(getClass.getName)
 
@@ -45,15 +46,14 @@ class AuthActionImpl @Inject()(val authConnector: AuthConnector, cc: ControllerC
     } else {
       authorised(ConfidenceLevel.L50) {
         Future.successful(None)
-      }.recover {
-        case t: AuthorisationException =>
-          logger.error(t.getMessage, t)
-          Some(Unauthorized)
+      }.recover { case t: AuthorisationException =>
+        logger.error(t.getMessage, t)
+        Some(Unauthorized)
       }
     }
   }
 
-  override val parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override val parser: BodyParser[AnyContent]               = cc.parsers.defaultBodyParser
   override protected def executionContext: ExecutionContext = ec
 }
 

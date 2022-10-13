@@ -21,7 +21,7 @@ import config.ApplicationConfig
 import models.ApiValue
 import play.api.libs.json.{Format, JsString, Writes}
 
-sealed class GoodsAndServices(apiValue: String) extends ApiValue(apiValue)
+sealed trait GoodsAndServices extends ApiValue
 
 object GoodsAndServices {
 
@@ -40,6 +40,7 @@ object GoodsAndServices {
     HousingAndUtilities,
     OverseasAid,
     UkContributionToEuBudget,
+    OutstandingPaymentsToTheEU,
     PublicOrderAndSafety,
     Environment
   )
@@ -49,29 +50,30 @@ object GoodsAndServices {
     Writes[GoodsAndServices](o => JsString(o.apiValue))
   )
 
-  case object Welfare extends GoodsAndServices("Welfare")
-  case object Health extends GoodsAndServices("Health")
-  case object Education extends GoodsAndServices("Education")
-  case object StatePensions extends GoodsAndServices("StatePensions")
-  case object NationalDebtInterest extends GoodsAndServices("NationalDebtInterest")
-  case object Defence extends GoodsAndServices("Defence")
-  case object CriminalJustice extends GoodsAndServices("CriminalJustice")
-  case object Transport extends GoodsAndServices("Transport")
-  case object BusinessAndIndustry extends GoodsAndServices("BusinessAndIndustry")
-  case object GovernmentAdministration extends GoodsAndServices("GovernmentAdministration")
-  case object Culture extends GoodsAndServices("Culture")
-  case object HousingAndUtilities extends GoodsAndServices("HousingAndUtilities")
-  case object OverseasAid extends GoodsAndServices("OverseasAid")
-  case object UkContributionToEuBudget extends GoodsAndServices("UkContributionToEuBudget")
-  case object PublicOrderAndSafety extends GoodsAndServices("PublicOrderAndSafety")
-  case object Environment extends GoodsAndServices("Environment")
+  case object Welfare extends ApiValue("Welfare") with GoodsAndServices
+  case object Health extends ApiValue("Health") with GoodsAndServices
+  case object Education extends ApiValue("Education") with GoodsAndServices
+  case object StatePensions extends ApiValue("StatePensions") with GoodsAndServices
+  case object NationalDebtInterest extends ApiValue("NationalDebtInterest") with GoodsAndServices
+  case object Defence extends ApiValue("Defence") with GoodsAndServices
+  case object CriminalJustice extends ApiValue("CriminalJustice") with GoodsAndServices
+  case object Transport extends ApiValue("Transport") with GoodsAndServices
+  case object BusinessAndIndustry extends ApiValue("BusinessAndIndustry") with GoodsAndServices
+  case object GovernmentAdministration extends ApiValue("GovernmentAdministration") with GoodsAndServices
+  case object Culture extends ApiValue("Culture") with GoodsAndServices
+  case object HousingAndUtilities extends ApiValue("HousingAndUtilities") with GoodsAndServices
+  case object OverseasAid extends ApiValue("OverseasAid") with GoodsAndServices
+  case object UkContributionToEuBudget extends ApiValue("UkContributionToEuBudget") with GoodsAndServices
+  case object OutstandingPaymentsToTheEU extends ApiValue("OutstandingPaymentsToTheEU") with GoodsAndServices
+  case object PublicOrderAndSafety extends ApiValue("PublicOrderAndSafety") with GoodsAndServices
+  case object Environment extends ApiValue("Environment") with GoodsAndServices
 
   implicit def mapFormat[V: Format]: Format[Map[GoodsAndServices, V]] =
     ApiValue.formatMap[GoodsAndServices, V](allItems)
 }
 
 @Singleton
-class GovSpendService @Inject()(applicationConfig: ApplicationConfig) {
+class GovSpendService @Inject() (applicationConfig: ApplicationConfig) {
 
   import GoodsAndServices._
 
@@ -79,11 +81,11 @@ class GovSpendService @Inject()(applicationConfig: ApplicationConfig) {
     applicationConfig
       .governmentSpend(taxYear)
       .toList
-      .map {
-        case (k, v) => allItems.find(_.apiValue == k).map(k => (k, v))
+      .map { case (k, v) =>
+        allItems.find(_.apiValue == k).map(k => (k, v))
       }
-      .collect {
-        case Some(v) => v
+      .collect { case Some(v) =>
+        v
       }
       .toMap
 }

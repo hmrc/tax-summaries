@@ -29,9 +29,7 @@ object ApiValue extends DefaultReads {
     ls.find(_.apiValue == key)
       .fold[JsResult[K]](
         JsError(s"Failed to interpret key $key for key in Map")
-      )(
-        k => JsSuccess(k)
-      )
+      )(k => JsSuccess(k))
 
   private def readPair[K <: ApiValue, V](pair: (String, JsValue), ls: List[K], reads: Reads[V]): JsResult[(K, V)] =
     for {
@@ -45,7 +43,8 @@ object ApiValue extends DefaultReads {
     ls: List[K],
     reads: Reads[V],
     acc: List[(K, V)],
-    errors: Seq[(JsPath, Seq[JsonValidationError])]): JsResult[Map[K, V]] =
+    errors: Seq[(JsPath, Seq[JsonValidationError])]
+  ): JsResult[Map[K, V]] =
     if (m.isEmpty) {
       if (errors.isEmpty) JsSuccess(Map(acc: _*)) else JsError(errors)
     } else {
@@ -63,9 +62,8 @@ object ApiValue extends DefaultReads {
   def formatMap[A <: ApiValue, V: Format](ls: List[A]): Format[Map[A, V]] = Format(
     readsMap(ls, implicitly[Format[V]]),
     Writes[Map[A, V]] { o =>
-      JsObject(o.map {
-        case (k, v) =>
-          k.apiValue -> Json.toJson(v)
+      JsObject(o.map { case (k, v) =>
+        k.apiValue -> Json.toJson(v)
       })
     }
   )

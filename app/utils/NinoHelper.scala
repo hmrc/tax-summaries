@@ -20,7 +20,7 @@ import uk.gov.hmrc.domain.Nino
 
 import scala.util.{Failure, Success, Try}
 
-class NinoHelper @Inject()(nino: String) {
+class NinoHelper @Inject() (nino: String) {
 
   def findNinoIn(target: String): Option[String] =
     Try(Nino(target)) match {

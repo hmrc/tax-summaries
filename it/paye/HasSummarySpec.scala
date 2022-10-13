@@ -26,15 +26,16 @@ import utils.{FileHelper, IntegrationSpec}
 
 class HasSummarySpec extends IntegrationSpec {
 
-  val odsUrl = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-  val apiUrl = s"/taxs/$utr/has_summary_for_previous_period"
+  val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+  val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "HasSummary" must {
     "return an OK when data is retrieved from ODS" in {
 
       server.stubFor(
-        WireMock.get(urlEqualTo(odsUrl))
+        WireMock
+          .get(urlEqualTo(odsUrl))
           .willReturn(ok(FileHelper.loadFile("odsData.json")))
       )
 
@@ -45,7 +46,8 @@ class HasSummarySpec extends IntegrationSpec {
     "return NOT_FOUND when ODS returns NOT_FOUND response" in {
 
       server.stubFor(
-        WireMock.get(urlEqualTo(odsUrl))
+        WireMock
+          .get(urlEqualTo(odsUrl))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
@@ -56,7 +58,8 @@ class HasSummarySpec extends IntegrationSpec {
     "return an exception when ODS returns an empty ok" in {
 
       server.stubFor(
-        WireMock.get(urlEqualTo(odsUrl))
+        WireMock
+          .get(urlEqualTo(odsUrl))
           .willReturn(ok())
       )
 
@@ -74,7 +77,8 @@ class HasSummarySpec extends IntegrationSpec {
       s"return an $httpResponse when data is retrieved from ODS" in {
 
         server.stubFor(
-          WireMock.get(urlEqualTo(odsUrl))
+          WireMock
+            .get(urlEqualTo(odsUrl))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -91,7 +95,8 @@ class HasSummarySpec extends IntegrationSpec {
       s"return an 502 when $httpResponse status is received from ODS" in {
 
         server.stubFor(
-          WireMock.get(urlEqualTo(odsUrl))
+          WireMock
+            .get(urlEqualTo(odsUrl))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -103,7 +108,8 @@ class HasSummarySpec extends IntegrationSpec {
     s"return an 502 when ODS is timing out" in {
 
       server.stubFor(
-        WireMock.get(urlEqualTo(odsUrl))
+        WireMock
+          .get(urlEqualTo(odsUrl))
           .willReturn(ok(FileHelper.loadFile("odsData.json")).withFixedDelay(10000))
       )
 
