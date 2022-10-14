@@ -180,7 +180,7 @@
       "currency": "GBP"
     },
     "ctnSavingsChgbleLowerRate": {
-      "amount": 26950.00,
+      "amount": 29650.00,
       "currency": "GBP"
     },
     "ctnIncomeTaxBasicRate": {
@@ -244,15 +244,15 @@
       "currency": "GBP"
     },
     "ctnDividendTaxLowRate": {
-      "amount": 2735.00,
-      "currency": "GBP"
-    },
-    "ctnDividendChgbleHighRate": {
       "amount": 0.00,
       "currency": "GBP"
     },
+    "ctnDividendChgbleHighRate": {
+      "amount": 2735.00,
+      "currency": "GBP"
+    },
     "ctnDividendTaxHighRate": {
-      "amount": 8880.87,
+      "amount": 888.87,
       "currency": "GBP"
     },
     "ctnDividendChgbleAddHRate": {
@@ -516,6 +516,14 @@
       "currency": "GBP"
     },
     "giftAidTaxReduced": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-CEG-SR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-SR": {
       "amount": 0.00,
       "currency": "GBP"
     }

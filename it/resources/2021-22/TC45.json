@@ -28,7 +28,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalScheduleD": {
-      "amount": 6945.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnSummaryTotalPartnership": {
@@ -36,7 +36,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalEmployment": {
-      "amount": 8000.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "atsStatePensionAmt": {
@@ -92,7 +92,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalUkInterest": {
-      "amount": 6589.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "itfCegReceivedAfterTax": {
@@ -104,7 +104,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalUkIntDivs": {
-      "amount": 32139.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctn4SumTotLifePolicyGains": {
@@ -164,11 +164,11 @@
       "currency": "GBP"
     },
     "ctnClass2NicAmt": {
-      "amount": 158.60,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnSavingsChgbleStartRate": {
-      "amount": 5000.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnSavingsTaxStartingRate": {
@@ -188,7 +188,7 @@
       "currency": "GBP"
     },
     "ctnSavingsTaxLowerRate": {
-      "amount":1123.00,
+      "amount": 1123.00,
       "currency": "GBP"
     },
     "ctnIncomeChgbleHigherRate": {
@@ -240,11 +240,11 @@
       "currency": "GBP"
     },
     "ctnDividendChgbleLowRate": {
-      "amount": 30139.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnDividendTaxLowRate": {
-      "amount": 2260.42,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnDividendChgbleHighRate": {
@@ -272,11 +272,11 @@
       "currency": "GBP"
     },
     "ctnTaxableRedundancyBR": {
-      "amount": 61.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnTaxOnRedundancyBR": {
-      "amount": 12.20,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnTaxableRedundancySIR": {
@@ -288,11 +288,11 @@
       "currency": "GBP"
     },
     "taxable-redundancy-HR": {
-      "amount": 3403.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "tax-on-redundancy-HR": {
-      "amount": 1361.20,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "taxable-redundancy-AHR": {
@@ -516,6 +516,14 @@
       "currency": "GBP"
     },
     "giftAidTaxReduced": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-CEG-SR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-SR": {
       "amount": 0.00,
       "currency": "GBP"
     }

@@ -464,11 +464,11 @@
       "currency": "GBP"
     },
     "ctnCgAtHigherRate": {
-      "amount": 0.00,
+      "amount": 16700.00,
       "currency": "GBP"
     },
     "ctnCgDueHigherRate": {
-      "amount": 0.00,
+      "amount": 3340.00,
       "currency": "GBP"
     },
     "ctnCGAtLowerRateRPCI": {
@@ -480,11 +480,11 @@
       "currency": "GBP"
     },
     "ctnCGAtHigherRateRPCI": {
-      "amount": 16700.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnHigherRateCgtRPCI": {
-      "amount": 3340.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "capAdjustmentAmt": {
@@ -516,6 +516,14 @@
       "currency": "GBP"
     },
     "giftAidTaxReduced": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-CEG-SR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-SR": {
       "amount": 0.00,
       "currency": "GBP"
     }

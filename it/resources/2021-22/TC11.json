@@ -518,6 +518,14 @@
     "giftAidTaxReduced": {
       "amount": 0.00,
       "currency": "GBP"
+    },
+    "taxable-CEG-SR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-SR": {
+      "amount": 0.00,
+      "currency": "GBP"
     }
   }
 }

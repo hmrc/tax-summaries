@@ -34,8 +34,4 @@ class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRate
   }
 
   override def scottishIncomeTax: Amount = Amount.empty
-
-  override def savingsRate: Amount = Amount.empty
-
-  override def savingsRateAmount: Amount = Amount.empty
 }
