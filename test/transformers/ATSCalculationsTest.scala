@@ -23,7 +23,7 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
 import transformers.Scottish.ATSCalculationsScottish2019
 import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
-import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021}
+import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021, ATSCalculationsWelsh2022}
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
@@ -137,8 +137,10 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
             if (taxYear == 2020) {
               calculation mustBe a[ATSCalculationsWelsh2020]
-            } else if (taxYear > 2021) {
+            } else if (taxYear == 2021) {
               calculation mustBe a[ATSCalculationsWelsh2021]
+            } else if (taxYear > 2021) {
+              calculation mustBe a[ATSCalculationsWelsh2022]
             } else {
               calculation mustBe a[DefaultATSCalculations]
             }

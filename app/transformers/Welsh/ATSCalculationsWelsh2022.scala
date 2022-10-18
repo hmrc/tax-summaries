@@ -22,7 +22,7 @@ import services.TaxRateService
 import transformers.ATSCalculations2022
 
 class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-  extends ATSCalculations2022 {
+    extends ATSCalculations2022 {
   override def welshIncomeTax: Amount = {
     val welshRate = 0.1
     Amount.gbp(
@@ -33,7 +33,7 @@ class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRate
           get(TaxableRedundancyHr) +
           getWithDefaultAmount(IncomeChargeableAddHRate)
           + get(TaxableRedundancyAhr)
-        ).amount * welshRate)
+      ).amount * welshRate)
   }
 
   override def scottishIncomeTax: Amount = Amount.empty
