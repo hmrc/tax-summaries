@@ -19,8 +19,6 @@ package services
 import connectors.ODSConnector
 import models.AtsCheck
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
-import org.mockito.Mockito
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsResultException, JsValue, Json}
@@ -41,8 +39,8 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
   val service = new OdsService(jsonHelper, odsConnector)
 
   override def beforeEach(): Unit = {
-    Mockito.reset(odsConnector)
-    Mockito.reset(jsonHelper)
+    reset(odsConnector)
+    reset(jsonHelper)
     super.beforeEach()
   }
 
@@ -85,7 +83,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
             verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
-            verify(jsonHelper, never()).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+            verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
           }
         }
       }
@@ -145,7 +143,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           whenReady(result) { res =>
             res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
-            verify(jsonHelper, never()).hasAtsForPreviousPeriod(any[JsValue])
+            verify(jsonHelper, never).hasAtsForPreviousPeriod(any[JsValue])
           }
         }
       }
@@ -185,8 +183,8 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
         intercept[JsResultException](Await.result(service.getATSList(testUtr)(mock[HeaderCarrier]), 1.seconds))
 
         verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-        verify(odsConnector, never()).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-        verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+        verify(odsConnector, never).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
+        verify(jsonHelper, never).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
       }
     }
 
@@ -206,7 +204,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
             res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
             verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-            verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+            verify(jsonHelper, never).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
           }
         }
       }
@@ -229,7 +227,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+          verify(jsonHelper, never).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
         }
       }
     }
@@ -251,7 +249,7 @@ class OdsServiceSpec extends BaseSpec with BeforeAndAfterEach {
           res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
           verify(odsConnector, times(1)).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier])
-          verify(jsonHelper, never()).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
+          verify(jsonHelper, never).createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue])
         }
       }
     }
