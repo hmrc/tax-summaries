@@ -62,12 +62,14 @@ lazy val microservice = Project(appName, file("."))
     DefaultBuildSettings.integrationTestSettings(),
     IntegrationTest / javaOptions += "-Dlogger.resource=logback-test.xml"
   )
-  .settings(scalacOptions ++= Seq(
-    "-Werror",
-    "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-    "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-    "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
-  ))
+  .settings(
+    scalacOptions ++= Seq(
+      "-Werror",
+      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+    )
+  )
 
 addCommandAlias("scalafmtAll", "all scalafmtSbt scalafmt test:scalafmt it:scalafmt")
 addCommandAlias("testAll", ";coverage ;test ;it:test ;coverageReport")
