@@ -23,7 +23,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, NotFound}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-class ATSErrorHandler @Inject()() extends Logging {
+class ATSErrorHandler @Inject() () extends Logging {
 
   def errorToResponse(error: UpstreamErrorResponse): Result =
     error match {

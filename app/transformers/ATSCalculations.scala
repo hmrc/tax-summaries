@@ -34,11 +34,13 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability, {
-        val ex = ATSParsingException(liability.apiValue)
-        logger.error(s"Unable to retrieve $liability", ex)
-        throw ex
-      })
+      summaryData.nationalInsuranceData.getOrElse(
+        liability, {
+          val ex = ATSParsingException(liability.apiValue)
+          logger.error(s"Unable to retrieve $liability", ex)
+          throw ex
+        }
+      )
     )
 
   def getWithDefaultAmount(liability: Liability): Amount =
@@ -136,27 +138,27 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(SavingsTaxAddHighRate) +
       includePensionTaxForRate(taxRates.additionalRateIncomeTaxRate())
 
-  def scottishStarterRateTax: Amount = Amount.empty
-  def scottishBasicRateTax: Amount = Amount.empty
+  def scottishStarterRateTax: Amount      = Amount.empty
+  def scottishBasicRateTax: Amount        = Amount.empty
   def scottishIntermediateRateTax: Amount = Amount.empty
-  def scottishHigherRateTax: Amount = Amount.empty
-  def scottishAdditionalRateTax: Amount = Amount.empty
+  def scottishHigherRateTax: Amount       = Amount.empty
+  def scottishAdditionalRateTax: Amount   = Amount.empty
 
   def scottishTotalTax: Amount =
     scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
 
-  def scottishStarterRateIncome: Amount = Amount.empty
-  def scottishBasicRateIncome: Amount = Amount.empty
+  def scottishStarterRateIncome: Amount      = Amount.empty
+  def scottishBasicRateIncome: Amount        = Amount.empty
   def scottishIntermediateRateIncome: Amount = Amount.empty
-  def scottishHigherRateIncome: Amount = Amount.empty
-  def scottishAdditionalRateIncome: Amount = Amount.empty
+  def scottishHigherRateIncome: Amount       = Amount.empty
+  def scottishAdditionalRateIncome: Amount   = Amount.empty
 
-  def savingsBasicRateTax: Amount = Amount.empty
-  def savingsHigherRateTax: Amount = Amount.empty
+  def savingsBasicRateTax: Amount      = Amount.empty
+  def savingsHigherRateTax: Amount     = Amount.empty
   def savingsAdditionalRateTax: Amount = Amount.empty
 
-  def savingsBasicRateIncome: Amount = Amount.empty
-  def savingsHigherRateIncome: Amount = Amount.empty
+  def savingsBasicRateIncome: Amount      = Amount.empty
+  def savingsHigherRateIncome: Amount     = Amount.empty
   def savingsAdditionalRateIncome: Amount = Amount.empty
 
   def welshIncomeTax: Amount = Amount.empty
@@ -232,7 +234,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
         getWithDefaultAmount(IncomeChargeableBasicRate) +
           getWithDefaultAmount(IncomeChargeableHigherRate) +
           getWithDefaultAmount(IncomeChargeableAddHRate)
-      ).amount * scottishRate)
+      ).amount * scottishRate
+    )
   }
 
   def hasLiability: Boolean =

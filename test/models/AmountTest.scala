@@ -23,9 +23,9 @@ class AmountTest extends BaseSpec {
   "Testing Amount" must {
 
     "not change constructor parameter values" in {
-      val testValue: Double = 1.0
+      val testValue: Double    = 1.0
       val testCurrency: String = "GBP"
-      val testAmount: Amount = new Amount(1.0, "GBP")
+      val testAmount: Amount   = new Amount(1.0, "GBP")
       testValue mustEqual testAmount.amount
       testCurrency mustEqual testAmount.currency
     }
@@ -73,9 +73,9 @@ class AmountTest extends BaseSpec {
     }
 
     "transform to JSON" in {
-      val amountText = """{"amount":1.0,"currency":"GBP"}"""
-      val jsonFromText = Json.parse(amountText)
-      val amountObject = Amount(1.0, "GBP")
+      val amountText     = """{"amount":1.0,"currency":"GBP"}"""
+      val jsonFromText   = Json.parse(amountText)
+      val amountObject   = Amount(1.0, "GBP")
       val jsonFromObject = Json.toJson(amountObject)
       jsonFromText mustEqual jsonFromObject
     }

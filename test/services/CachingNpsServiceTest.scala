@@ -34,9 +34,9 @@ import scala.concurrent.Future
 class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
   val IM_A_TEAPOT = 418
 
-  val repository: Repository = mock[Repository]
+  val repository: Repository         = mock[Repository]
   val innerService: DirectNpsService = mock[DirectNpsService]
-  val config: ApplicationConfig = mock[ApplicationConfig]
+  val config: ApplicationConfig      = mock[ApplicationConfig]
 
   class Fixture extends NpsService(repository, innerService, config)
 
@@ -52,7 +52,7 @@ class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {
 
   "CachingNpsService" must {
     "Retrieve data from the cache" in new Fixture {
-      val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
+      val data      = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
       val dataMongo = new PayeAtsMiddleTierMongo(buildId("NINONINO", 2627), data, ttl)
 
       when(config.calculateExpiryTime()).thenReturn(ttl)

@@ -28,7 +28,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationConfig) extends Logging {
+class ODSConnector @Inject() (http: HttpClient, applicationConfig: ApplicationConfig) extends Logging {
 
   val serviceUrl = applicationConfig.npsServiceUrl
 
@@ -40,61 +40,56 @@ class ODSConnector @Inject()(http: HttpClient, applicationConfig: ApplicationCon
 
   private def handleResponse(response: Either[UpstreamErrorResponse, JsValue]): Either[UpstreamErrorResponse, JsValue] =
     response match {
-      case response @ Right(_) => response
-      case Left(error) if error.statusCode >= 500 || error.statusCode == 429 => {
+      case response @ Right(_)                                               => response
+      case Left(error) if error.statusCode >= 500 || error.statusCode == 429 =>
         logger.error(error.message)
         Left(error)
-      }
-      case Left(error) if error.statusCode == 404 => {
+      case Left(error) if error.statusCode == 404                            =>
         logger.info(error.message)
         Left(error)
-      }
-      case Left(error) => {
+      case Left(error)                                                       =>
         logger.error(error.message, error)
         Left(error)
-      }
     }
 
   def url(path: String) = s"$serviceUrl$path"
 
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, JsValue]] =
     http
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
         headers = header
       )
-      .map(handleResponse) recover {
-      case error: HttpException => {
-        logger.error(error.message)
-        Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
-      }
+      .map(handleResponse) recover { case error: HttpException =>
+      logger.error(error.message)
+      Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
     }
 
-  def connectToSelfAssessmentList(UTR: String)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+  def connectToSelfAssessmentList(
+    UTR: String
+  )(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
     http
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
-        headers = header)
-      .map(handleResponse) recover {
-      case error: HttpException => {
-        logger.error(error.message)
-        Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
-      }
+        headers = header
+      )
+      .map(handleResponse) recover { case error: HttpException =>
+      logger.error(error.message)
+      Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
     }
 
-  def connectToSATaxpayerDetails(UTR: String)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
+  def connectToSATaxpayerDetails(
+    UTR: String
+  )(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
     http
       .GET[Either[UpstreamErrorResponse, JsValue]](
         url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
         headers = header
       )
-      .map(handleResponse) recover {
-      case error: HttpException => {
-        logger.error(error.message)
-        Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
-      }
+      .map(handleResponse) recover { case error: HttpException =>
+      logger.error(error.message)
+      Left(UpstreamErrorResponse(error.message, BAD_GATEWAY, BAD_GATEWAY))
     }
 }

@@ -21,7 +21,8 @@ import play.api.libs.json.{Format, Json}
 case class DataHolder(
   payload: Option[Map[LiabilityKey, Amount]],
   rates: Option[Map[RateKey, ApiRate]],
-  incomeTaxStatus: Option[String])
+  incomeTaxStatus: Option[String]
+)
 
 object DataHolder {
   implicit val formats: Format[DataHolder] = Json.format[DataHolder]
@@ -35,6 +36,7 @@ object DataHolder {
   def make(
     payload: Map[LiabilityKey, Amount],
     rates: Map[RateKey, ApiRate],
-    incomeTaxStatus: Option[String]): DataHolder =
+    incomeTaxStatus: Option[String]
+  ): DataHolder =
     DataHolder(Some(payload), Some(rates), incomeTaxStatus)
 }

@@ -26,7 +26,7 @@ import utils.{FileHelper, IntegrationSpec}
 class GetPayeAtsDataSpec extends IntegrationSpec {
   val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"
 
-  val apiUrl = s"/taxs/$nino/$taxYear/paye-ats-data"
+  val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
   def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "Get Paye Ats Data" must {

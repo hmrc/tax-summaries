@@ -34,7 +34,7 @@ class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val returnValue: AtsMiddleTierTaxpayerData = ATSTaxpayerDataTransformer(parsedJson).atsTaxpayerDataDTO
 
       val parsedPayload = returnValue.taxpayer_name.get
-      val testPayload =
+      val testPayload   =
         Map("title" -> "Mr", "forename" -> "forename", "surname" -> "surname")
       testPayload mustEqual parsedPayload
     }
