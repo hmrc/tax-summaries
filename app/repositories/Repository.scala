@@ -28,7 +28,7 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class Repository @Inject()(config: ApplicationConfig, mongoComponent: MongoComponent)
+class Repository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)
     extends PlayMongoRepository[PayeAtsMiddleTierMongo](
       collectionName = "tax-summaries",
       mongoComponent = mongoComponent,

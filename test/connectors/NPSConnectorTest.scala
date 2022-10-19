@@ -51,20 +51,23 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
   class NPSConnectorSetUp
       extends NpsConnector(app.injector.instanceOf[HttpClient], applicationConfig)(
-        app.injector.instanceOf[ExecutionContext]) with JsonUtil
+        app.injector.instanceOf[ExecutionContext]
+      )
+      with JsonUtil
 
   "connectToPayeTaxSummary" must {
 
     "return successful response when provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
-      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
           aResponse()
             .withStatus(OK)
-            .withBody(expectedNpsResponse))
+            .withBody(expectedNpsResponse)
+        )
       )
 
       val result: Either[UpstreamErrorResponse, HttpResponse] =
@@ -81,20 +84,22 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
           .withHeader(HeaderNames.xRequestId, equalTo(requestId))
           .withHeader(
             "CorrelationId",
-            matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+            matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+          )
       )
     }
 
     "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
-      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(
           aResponse()
             .withStatus(OK)
-            .withBody(expectedNpsResponse))
+            .withBody(expectedNpsResponse)
+        )
       )
 
       val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(
@@ -115,7 +120,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
             get(urlEqualTo(url)).willReturn(
               aResponse()
                 .withStatus(status)
-                .withBody(""))
+                .withBody("")
+            )
           )
 
           val result: Future[Either[UpstreamErrorResponse, HttpResponse]] = connectToPayeTaxSummary(
@@ -133,7 +139,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
     "return INTERNAL_SERVER_ERROR response in case of a timeout exception from http verbs" in new NPSConnectorSetUp {
 
-      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
+      val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
       val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
 
       server.stubFor(
@@ -141,7 +147,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
           aResponse()
             .withStatus(OK)
             .withBody(expectedNpsResponse)
-            .withFixedDelay(10000))
+            .withFixedDelay(10000)
+        )
       )
 
       val result: Either[UpstreamErrorResponse, HttpResponse] =
@@ -161,7 +168,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
         get(urlEqualTo(url)).willReturn(
           aResponse()
             .withStatus(SERVICE_UNAVAILABLE)
-            .withBody("SERVICE_UNAVAILABLE"))
+            .withBody("SERVICE_UNAVAILABLE")
+        )
       )
 
       val result: Either[UpstreamErrorResponse, HttpResponse] =

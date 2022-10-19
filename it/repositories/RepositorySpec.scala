@@ -35,13 +35,13 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
   }
 
   val repository: PlayMongoRepository[PayeAtsMiddleTierMongo] = app.injector.instanceOf[Repository]
-  val serviceRepo: Repository = repository.asInstanceOf[Repository]
+  val serviceRepo: Repository                                 = repository.asInstanceOf[Repository]
 
   def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
 
   "a repository" must {
     "must be able to store and retrieve a payload" in {
-      val taxYear: Int = 2018
+      val taxYear: Int      = 2018
       val minuteOffset: Int = 15
 
       val data = PayeAtsMiddleTier(taxYear, "NINONINO", None, None, None, None, None)
@@ -50,7 +50,7 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
         Upgrades to HMRC Mongo seem to have changed the JSON writes for JavaTime types to be truncated at milliseconds
         rather than nano seconds. I've chosen to change the tests to reflect this rather than explicitly declaring a
         JSON format implicit to include nanoseconds.
-      */
+       */
 
       val dataMongo = PayeAtsMiddleTierMongo(
         _id = buildId("NINONINO", taxYear),
@@ -58,13 +58,14 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
         expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MILLIS)
       )
 
-
       val storedOk = serviceRepo.set(dataMongo)
       storedOk.futureValue mustBe true
 
-      val retrieved = serviceRepo.get("NINONINO", taxYear).map(
-        _.getOrElse(fail("The record was not found in the database"))
-      )
+      val retrieved = serviceRepo
+        .get("NINONINO", taxYear)
+        .map(
+          _.getOrElse(fail("The record was not found in the database"))
+        )
 
       retrieved.futureValue mustBe dataMongo
     }

@@ -24,9 +24,9 @@ import utils.Generators.genLiabilityMap
 class ApiValueTest extends BaseSpec with ScalaCheckPropertyChecks {
   "Round trip map through Json" in
     forAll(genLiabilityMap) { map =>
-      val OUT = ApiValue.formatMap(LiabilityKey.allItems)(Amount.formats)
-      val json = Json.toJson(map)(OUT)
+      val OUT    = ApiValue.formatMap(LiabilityKey.allItems)(Amount.formats)
+      val json   = Json.toJson(map)(OUT)
       val result = json.as[Map[LiabilityKey, Amount]](OUT)
-      result mustBe (map)
+      result mustBe map
     }
 }

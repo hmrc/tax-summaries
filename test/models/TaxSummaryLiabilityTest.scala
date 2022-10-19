@@ -34,7 +34,7 @@ class TaxSummaryLiabilityTest extends BaseSpec {
     }
 
     "correctly parse the data where incomeTaxStatus is Null" in {
-      val json = JsonUtil.load("/test_case_4.json")
+      val json   = JsonUtil.load("/test_case_4.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
@@ -44,7 +44,7 @@ class TaxSummaryLiabilityTest extends BaseSpec {
     }
 
     "correctly parse the data where fields are missing" in {
-      val json = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
+      val json   = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
@@ -54,7 +54,7 @@ class TaxSummaryLiabilityTest extends BaseSpec {
     }
 
     "correctly parse the data where incomeTaxStatus is missing and returns default empty string" in {
-      val json = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
+      val json   = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)

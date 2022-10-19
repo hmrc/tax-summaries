@@ -32,8 +32,8 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val expectedNpsResponse: JsValue = Json.parse(load("/paye_annual_tax_summary.json"))
-  val atsData: PayeAtsData = PayeAtsDataUtil.atsData
+  val expectedNpsResponse: JsValue            = Json.parse(load("/paye_annual_tax_summary.json"))
+  val atsData: PayeAtsData                    = PayeAtsDataUtil.atsData
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(applicationConfig, testNino, currentYear)
 

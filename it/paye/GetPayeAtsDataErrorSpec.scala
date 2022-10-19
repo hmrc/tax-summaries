@@ -25,7 +25,7 @@ import utils.IntegrationSpec
 class GetPayeAtsDataErrorSpec extends IntegrationSpec {
   val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"
 
-  val apiUrl = s"/taxs/$nino/$taxYear/paye-ats-data"
+  val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
   def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "Get Paye Ats Data" must {
@@ -34,7 +34,8 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
         get(urlEqualTo(npsAtsDataUrl)).willReturn(
           aResponse()
             .withStatus(BAD_REQUEST)
-            .withBody("Bad Request"))
+            .withBody("Bad Request")
+        )
       )
 
       val result = route(fakeApplication(), request)
@@ -49,7 +50,8 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
         get(urlEqualTo(npsAtsDataUrl)).willReturn(
           aResponse()
             .withStatus(NOT_FOUND)
-            .withBody("No data"))
+            .withBody("No data")
+        )
       )
 
       val result = route(fakeApplication(), request)

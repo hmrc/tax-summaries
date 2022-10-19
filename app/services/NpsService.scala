@@ -26,10 +26,11 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class NpsService @Inject()(repository: Repository, innerService: DirectNpsService, config: ApplicationConfig) {
+class NpsService @Inject() (repository: Repository, innerService: DirectNpsService, config: ApplicationConfig) {
 
-  def getPayeATSData(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
+  def getPayeATSData(nino: String, taxYear: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
     repository
       .get(nino, taxYear)
       .flatMap {
@@ -37,22 +38,24 @@ class NpsService @Inject()(repository: Repository, innerService: DirectNpsServic
         case None            => refreshCache(nino, taxYear)
       }
 
-  private def refreshCache(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
+  private def refreshCache(nino: String, taxYear: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
     innerService
       .getPayeATSData(nino, taxYear)
       .flatMap {
         case Left(response) => Future.successful(Left(response))
-        case Right(data) =>
+        case Right(data)    =>
           repository
             .set(PayeAtsMiddleTierMongo(s"$nino::$taxYear", data, config.calculateExpiryTime()))
             .map(_ => Right(data))
       }
 }
 
-class DirectNpsService @Inject()(applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
-  def getPayeATSData(nino: String, taxYear: Int)(
-    implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
+class DirectNpsService @Inject() (applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
+  def getPayeATSData(nino: String, taxYear: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
     npsConnector.connectToPayeTaxSummary(nino, taxYear - 1) map {
       case Right(value) => Right(value.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
       case Left(error)  => Left(error)

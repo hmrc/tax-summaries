@@ -25,7 +25,8 @@ case class GovernmentSpendingOutputWrapper(
   taxYear: Int,
   govSpendAmountData: Map[GoodsAndServices, SpendData],
   totalAmount: Amount,
-  errors: Option[AtsError])
+  errors: Option[AtsError]
+)
 
 object GovernmentSpendingOutputWrapper {
   implicit val formats = Json.format[GovernmentSpendingOutputWrapper]
@@ -33,10 +34,11 @@ object GovernmentSpendingOutputWrapper {
   def apply(
     applicationConfig: ApplicationConfig,
     totalTaxAmount: Amount,
-    taxYear: Int): GovernmentSpendingOutputWrapper = {
+    taxYear: Int
+  ): GovernmentSpendingOutputWrapper = {
 
     def createSpendDataItem(spendCategory: GoodsAndServices, spendPercentage: BigDecimal, amount: Amount): SpendData = {
-      val monetaryBD = getMonetaryAmount(spendPercentage, amount)
+      val monetaryBD     = getMonetaryAmount(spendPercentage, amount)
       val monetaryAmount = Amount.gbp(monetaryBD)
       SpendData(monetaryAmount, spendPercentage)
     }

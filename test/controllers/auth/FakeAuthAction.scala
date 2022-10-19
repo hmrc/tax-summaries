@@ -26,6 +26,6 @@ object FakeAuthAction extends AuthAction with PayeAuthAction {
 
   lazy val cc = stubControllerComponents()
 
-  override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override def parser: BodyParser[AnyContent]               = cc.parsers.defaultBodyParser
   override protected def executionContext: ExecutionContext = cc.executionContext
 }

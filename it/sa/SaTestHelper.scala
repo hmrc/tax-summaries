@@ -36,7 +36,8 @@ trait SaTestHelper extends IntegrationSpec {
     val taxPayerUrl = "/self-assessment/individual/" + utr + "/designatory-details/taxpayer"
 
     server.stubFor(
-      WireMock.get(urlEqualTo(taxPayerUrl))
+      WireMock
+        .get(urlEqualTo(taxPayerUrl))
         .willReturn(ok(FileHelper.loadFile(taxPayerFile)))
     )
 
@@ -45,17 +46,17 @@ trait SaTestHelper extends IntegrationSpec {
   def resultToAtsData(resultOption: Option[Future[Result]]): AtsMiddleTierData =
     resultOption match {
       case Some(result) => Json.parse(contentAsString(result)).as[AtsMiddleTierData]
-      case None => throw new NoSuchElementException
+      case None         => throw new NoSuchElementException
     }
 
   def checkResult(data: AtsMiddleTierData, key: LiabilityKey, value: Double): Unit = {
 
     def dataToFind(data: AtsMiddleTierData, key: LiabilityKey) = {
-      val incomeData = data.income_data
-      val summaryData = data.summary_data
-      val allowanceData = data.allowance_data
+      val incomeData       = data.income_data
+      val summaryData      = data.summary_data
+      val allowanceData    = data.allowance_data
       val capitalGainsData = data.capital_gains_data
-      val incomeTax = data.income_tax
+      val incomeTax        = data.income_tax
 
       val dataList: List[DataHolder] = List(incomeData, summaryData, allowanceData, capitalGainsData, incomeTax).flatten
 
@@ -74,14 +75,12 @@ trait SaTestHelper extends IntegrationSpec {
       }
     }
 
-    if(data.errors.isEmpty) {
+    if (data.errors.isEmpty) {
       dataToFind(data, key).amount mustBe BigDecimal(value)
     } else {
       throw new RuntimeException(s"error occurred ......." + data.errors.get.error)
     }
 
   }
-
-
 
 }

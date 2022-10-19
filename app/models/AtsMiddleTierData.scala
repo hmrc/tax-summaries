@@ -29,7 +29,8 @@ case class AtsMiddleTierData(
   capital_gains_data: Option[DataHolder],
   gov_spending: Option[GovernmentSpendingOutputWrapper],
   taxPayerData: Option[AtsMiddleTierTaxpayerData],
-  errors: Option[AtsError])
+  errors: Option[AtsError]
+)
 
 object AtsMiddleTierData {
   implicit val formats: Format[AtsMiddleTierData] = Json.format[AtsMiddleTierData]

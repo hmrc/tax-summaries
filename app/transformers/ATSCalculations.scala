@@ -34,11 +34,13 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def get(liability: Liability): Amount =
     summaryData.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability, {
-        val ex = ATSParsingException(liability.apiValue)
-        logger.error(s"Unable to retrieve $liability", ex)
-        throw ex
-      })
+      summaryData.nationalInsuranceData.getOrElse(
+        liability, {
+          val ex = ATSParsingException(liability.apiValue)
+          logger.error(s"Unable to retrieve $liability", ex)
+          throw ex
+        }
+      )
     )
 
   def getWithDefaultAmount(liability: Liability): Amount =
@@ -244,7 +246,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
         getWithDefaultAmount(IncomeChargeableBasicRate) +
           getWithDefaultAmount(IncomeChargeableHigherRate) +
           getWithDefaultAmount(IncomeChargeableAddHRate)
-      ).amount * scottishRate)
+      ).amount * scottishRate
+    )
   }
 
   def hasLiability: Boolean =

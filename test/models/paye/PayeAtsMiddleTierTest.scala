@@ -25,7 +25,7 @@ class PayeAtsMiddleTierTest extends BaseSpec with ScalaCheckPropertyChecks {
   "PayeAtsMiddleTier must round trip through Json " in {
     forAll(Generators.genPayeAsMiddleTier) { data =>
       val json = Json.toJson(data)
-      val obj = json.as[PayeAtsMiddleTier]
+      val obj  = json.as[PayeAtsMiddleTier]
 
       obj mustBe data
     }

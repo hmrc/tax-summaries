@@ -21,5 +21,5 @@ import play.api.{Configuration, Environment}
 
 class ATSModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
-    )
+  )
 }

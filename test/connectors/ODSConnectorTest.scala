@@ -71,7 +71,8 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
             .withHeader(HeaderNames.xRequestId, equalTo(requestId))
             .withHeader(
               "CorrelationId",
-              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+            )
         )
       }
     }
@@ -83,7 +84,8 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
             get(urlEqualTo(url)).willReturn(
               aResponse()
                 .withStatus(status)
-                .withBody(""))
+                .withBody("")
+            )
           )
 
           val result = sut.connectToSelfAssessment(testUtr, 2014)
@@ -123,7 +125,8 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
             get(urlEqualTo(url)).willReturn(
               aResponse()
                 .withStatus(status)
-                .withBody(""))
+                .withBody("")
+            )
           )
 
           val result = sut.connectToSelfAssessmentList(testUtr)
@@ -163,7 +166,8 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
             get(urlEqualTo(url)).willReturn(
               aResponse()
                 .withStatus(status)
-                .withBody(""))
+                .withBody("")
+            )
           )
 
           val result = sut.connectToSATaxpayerDetails(testUtr)

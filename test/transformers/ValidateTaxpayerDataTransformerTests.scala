@@ -26,10 +26,10 @@ import scala.io.Source
 
 class ValidateTaxpayerDataTransformerTests extends BaseSpec with AtsJsonDataUpdate {
 
-  val dataJson = Json.parse(Source.fromURL(getClass.getResource("/utr_2014.json")).mkString)
-  val taxYear: Int = 2014
-  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-  val calculations = ATSCalculations.make(dataJson.as[TaxSummaryLiability], taxRate)
+  val dataJson                   = Json.parse(Source.fromURL(getClass.getResource("/utr_2014.json")).mkString)
+  val taxYear: Int               = 2014
+  val taxRate                    = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val calculations               = ATSCalculations.make(dataJson.as[TaxSummaryLiability], taxRate)
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
   "With base data for utr" must {

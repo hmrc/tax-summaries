@@ -89,7 +89,7 @@ object GoodsAndServices {
 }
 
 @Singleton
-class GovSpendService @Inject()(applicationConfig: ApplicationConfig) {
+class GovSpendService @Inject() (applicationConfig: ApplicationConfig) {
 
   import GoodsAndServices._
 
@@ -97,11 +97,11 @@ class GovSpendService @Inject()(applicationConfig: ApplicationConfig) {
     applicationConfig
       .governmentSpend(taxYear)
       .toList
-      .map {
-        case (k, v) => allItems.find(_.apiValue == k).map(k => (k, v))
+      .map { case (k, v) =>
+        allItems.find(_.apiValue == k).map(k => (k, v))
       }
-      .collect {
-        case Some(v) => v
+      .collect { case Some(v) =>
+        v
       }
       .toMap
 }
