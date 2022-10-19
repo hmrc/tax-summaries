@@ -20,8 +20,8 @@ import sbt._
 
 object AppDependencies {
 
-  private val playVersion = "play-28"
-  private val hmrcMongoVersion = "0.71.0"
+  private val playVersion                = "play-28"
+  private val hmrcMongoVersion           = "0.71.0"
   private val jsonSchemaValidatorVersion = "2.2.6"
 
   val compile: Seq[ModuleID] = Seq(
@@ -29,7 +29,7 @@ object AppDependencies {
     ws,
     "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "7.8.0",
     "uk.gov.hmrc"                %% "domain"                    % s"8.1.0-$playVersion",
-    "com.github.fge"             % "json-schema-validator"      % jsonSchemaValidatorVersion,
+    "com.github.fge"              % "json-schema-validator"     % jsonSchemaValidatorVersion,
     "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % hmrcMongoVersion,
     "com.typesafe.scala-logging" %% "scala-logging"             % "3.9.5",
     "org.typelevel"              %% "cats-core"                 % "2.8.0"
@@ -39,11 +39,11 @@ object AppDependencies {
     "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"  % "7.8.0",
     "org.mockito"             %% "mockito-scala-scalatest"       % "1.17.12",
     "org.scalatestplus"       %% "scalacheck-1-16"               % "3.2.14.0",
-    "org.jsoup"              % "jsoup"                      % "1.15.3",
-    "com.github.fge"         % "json-schema-validator"      % jsonSchemaValidatorVersion,
-    "com.vladsch.flexmark"   % "flexmark-all"               % "0.62.2",
-    "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test-$playVersion"  % hmrcMongoVersion
+    "org.jsoup"                % "jsoup"                         % "1.15.3",
+    "com.github.fge"           % "json-schema-validator"         % jsonSchemaValidatorVersion,
+    "com.vladsch.flexmark"     % "flexmark-all"                  % "0.62.2",
+    "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test-$playVersion" % hmrcMongoVersion
   ).map(_ % "test,it")
 
-  val all: Seq[ModuleID] = compile ++ test
+  val all: Seq[ModuleID]  = compile ++ test
 }
