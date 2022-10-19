@@ -27,10 +27,10 @@ import scala.io.Source
 
 class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
-  val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  val taxYear = 2014
-  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val taxpayerDetailsJson        = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
+  val parsedTaxpayerDetailsJson  = Json.parse(taxpayerDetailsJson)
+  val taxYear                    = 2014
+  val taxRate                    = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
   "With base data for utr" must {
@@ -44,7 +44,7 @@ class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
-      val calculations = ATSCalculations.make(transformedJson.as[TaxSummaryLiability], taxRate)
+      val calculations    = ATSCalculations.make(transformedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)

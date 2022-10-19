@@ -27,11 +27,12 @@ import utils.ATSErrorHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ATSDataController @Inject()(
+class ATSDataController @Inject() (
   odsService: OdsService,
   atsErrorHandler: ATSErrorHandler,
   authAction: AuthAction,
-  cc: ControllerComponents)(implicit val ec: ExecutionContext)
+  cc: ControllerComponents
+)(implicit val ec: ExecutionContext)
     extends BackendController(cc) {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>

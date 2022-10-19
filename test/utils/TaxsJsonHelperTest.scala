@@ -101,7 +101,8 @@ class TaxsJsonHelperTest extends BaseSpec {
 
       result \ "utr" mustBe JsDefined(JsString(testUtr))
       result \ "taxPayer" mustBe JsDefined(
-        Json.parse("""{"taxpayer_name":{"title":"Mr","forename":"forename","surname":"surname"}}"""))
+        Json.parse("""{"taxpayer_name":{"title":"Mr","forename":"forename","surname":"surname"}}""")
+      )
       result \ "atsYearList" mustBe JsDefined(Json.parse("[2014, 2015]"))
     }
 

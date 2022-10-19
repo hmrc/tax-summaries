@@ -27,11 +27,13 @@ import utils.NinoHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayeAuthActionImpl @Inject()(
+class PayeAuthActionImpl @Inject() (
   val authConnector: AuthConnector,
   ninoRegexHelper: NinoHelper,
-  cc: ControllerComponents)(implicit ec: ExecutionContext)
-    extends PayeAuthAction with AuthorisedFunctions {
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends PayeAuthAction
+    with AuthorisedFunctions {
 
   private val logger = Logger(getClass.getName)
 
@@ -48,12 +50,12 @@ class PayeAuthActionImpl @Inject()(
     case ae: AuthorisationException =>
       logger.error(s"Authorisation exception", ae)
       Some(Unauthorized)
-    case t: Throwable =>
+    case t: Throwable               =>
       logger.error(s"Authorisation error", t)
       Some(InternalServerError)
   }
 
-  override val parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override val parser: BodyParser[AnyContent]               = cc.parsers.defaultBodyParser
   override protected def executionContext: ExecutionContext = ec
 }
 

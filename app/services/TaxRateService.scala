@@ -19,7 +19,7 @@ package services
 import com.google.inject.Inject
 import models.Rate
 
-class TaxRateService @Inject()(val taxYear: Int, configRate: Int => Map[String, Double]) {
+class TaxRateService @Inject() (val taxYear: Int, configRate: Int => Map[String, Double]) {
 
   private def getRate(rate: String): Rate = {
     val result = configRate(taxYear)
@@ -52,9 +52,9 @@ class TaxRateService @Inject()(val taxYear: Int, configRate: Int => Map[String, 
   def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate =
     getRate("RPCIHigherRate")
 
-  def scottishStarterRate: Rate = getRate("scottishStarterRate")
-  def scottishBasicRate: Rate = getRate("scottishBasicRate")
+  def scottishStarterRate: Rate      = getRate("scottishStarterRate")
+  def scottishBasicRate: Rate        = getRate("scottishBasicRate")
   def scottishIntermediateRate: Rate = getRate("scottishIntermediateRate")
-  def scottishHigherRate: Rate = getRate("scottishHigherRate")
-  def scottishAdditionalRate: Rate = getRate("scottishAdditionalRate")
+  def scottishHigherRate: Rate       = getRate("scottishHigherRate")
+  def scottishAdditionalRate: Rate   = getRate("scottishAdditionalRate")
 }

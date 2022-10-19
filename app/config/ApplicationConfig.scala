@@ -25,7 +25,7 @@ import java.sql.Timestamp
 import java.time.{Instant, LocalDateTime}
 import scala.jdk.CollectionConverters._
 
-class ApplicationConfig @Inject()(servicesConfig: ServicesConfig, configuration: Configuration) {
+class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration: Configuration) {
 
   private def defaultRatePercentages: Map[String, Double] =
     configuration

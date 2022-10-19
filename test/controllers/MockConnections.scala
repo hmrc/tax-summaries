@@ -30,7 +30,7 @@ object MockConnections {
 
   def connectToMockPayloadService(URL: String): Future[Either[UpstreamErrorResponse, JsValue]] =
     try {
-      val source = Source.fromURL(getClass.getResource(URL)).mkString
+      val source     = Source.fromURL(getClass.getResource(URL)).mkString
       val theJsValue = Json.parse(source)
       Future.successful(Right(theJsValue))
     } catch {
@@ -39,7 +39,7 @@ object MockConnections {
 
   def connectToMockGovSpendService(URL: String): JsValue = {
 
-    val source = Source.fromURL(getClass.getResource(URL)).mkString
+    val source     = Source.fromURL(getClass.getResource(URL)).mkString
     val theJsValue = Json.parse(source)
 
     theJsValue

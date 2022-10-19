@@ -27,10 +27,10 @@ import scala.io.Source
 
 class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
-  val taxpayerDetailsJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
+  val taxpayerDetailsJson       = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  val taxYear: Int = 2014
-  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val taxYear: Int              = 2014
+  val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
@@ -40,14 +40,14 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
 
-      val parsedJson = Json.parse(sampleJson)
+      val parsedJson   = Json.parse(sampleJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
-      val testRates =
+      val testRates   =
         Map(
           "cg_entrepreneurs_rate"          -> ApiRate("10%"),
           "cg_ordinary_rate"               -> ApiRate("18%"),
@@ -64,14 +64,14 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
 
-      val parsedJson = Json.parse(sampleJson)
+      val parsedJson   = Json.parse(sampleJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
-      val testPayload =
+      val testPayload   =
         Map(
           TaxableGains                 -> Amount(12250.00, "GBP"),
           LessTaxFreeAmount            -> Amount(10600.00, "GBP"),
@@ -93,7 +93,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
       testPayload mustEqual parsedPayload
 
       val parsedRates = returnValue.capital_gains_data.get.rates.get
-      val testRates =
+      val testRates   =
         Map(
           "cg_entrepreneurs_rate"          -> ApiRate("10%"),
           "cg_ordinary_rate"               -> ApiRate("18%"),
@@ -109,18 +109,18 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
       val sampleJson = Source.fromURL(getClass.getResource("/test_case_6.json")).mkString
 
-      val parsedJson = Json.parse(sampleJson)
+      val parsedJson   = Json.parse(sampleJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
-      val parsedYear = returnValue.taxYear
+      val parsedYear    = returnValue.taxYear
       val testYear: Int = 2014
       testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
-      val testPayload =
+      val testPayload   =
         Map(
           TaxableGains                 -> Amount(20000.00, "GBP"),
           LessTaxFreeAmount            -> Amount(10600.00, "GBP"),
@@ -152,7 +152,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
       )
 
       val transformedData = transformation(sourceJson = sampleJson, tliSlpAtsUpdate = update)
-      val calculations = ATSCalculations.make(transformedData.as[TaxSummaryLiability], taxRate)
+      val calculations    = ATSCalculations.make(transformedData.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)

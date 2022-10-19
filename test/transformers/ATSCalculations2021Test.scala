@@ -23,8 +23,8 @@ import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
 
 class ATSCalculations2021Test extends BaseSpec {
-  val taxYear = 2021
-  val json: String = JsonUtil.load("/utr_random_values.json")
+  val taxYear                                  = 2021
+  val json: String                             = JsonUtil.load("/utr_random_values.json")
   val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)

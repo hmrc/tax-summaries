@@ -29,16 +29,21 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.util.Random
 
 /**
- * GET   /:UTR/:TAX_YEAR/ats-data                  controllers.ATSDataController.getATSData(UTR: String, TAX_YEAR: Int)
- * GET   /:NINO/:TAX_YEAR/paye-ats-data            controllers.ATSPAYEDataController.getATSData(NINO: String, TAX_YEAR: Int)
- * GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data  controllers.ATSPAYEDataController.getATSDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
- *
- * GET   /:UTR/has_summary_for_previous_period     controllers.ATSDataController.hasAts(UTR: String)
- * GET   /:UTR/ats-list                            controllers.ATSDataController.getATSList(UTR: String)
- */
+  * GET   /:UTR/:TAX_YEAR/ats-data                  controllers.ATSDataController.getATSData(UTR: String, TAX_YEAR: Int)
+  * GET   /:NINO/:TAX_YEAR/paye-ats-data            controllers.ATSPAYEDataController.getATSData(NINO: String, TAX_YEAR: Int)
+  * GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data  controllers.ATSPAYEDataController.getATSDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
+  *
+  * GET   /:UTR/has_summary_for_previous_period     controllers.ATSDataController.hasAts(UTR: String)
+  * GET   /:UTR/ats-list                            controllers.ATSDataController.getATSList(UTR: String)
+  */
 
 trait IntegrationSpec
-  extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with IntegrationWireMockHelper with ScalaFutures with IntegrationPatience {
+    extends AnyWordSpec
+    with Matchers
+    with GuiceOneAppPerSuite
+    with IntegrationWireMockHelper
+    with ScalaFutures
+    with IntegrationPatience {
   override def beforeEach(): Unit = {
     super.beforeEach()
 
@@ -70,7 +75,8 @@ trait IntegrationSpec
 
     server.stubFor(
       post(urlEqualTo("/auth/authorise"))
-        .willReturn(ok(authResponse)))
+        .willReturn(ok(authResponse))
+    )
   }
 
   override def fakeApplication(): Application =
@@ -78,20 +84,20 @@ trait IntegrationSpec
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
         "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",
-        "microservice.services.auth.host" -> "localhost",
-        "microservice.services.auth.port" -> server.port(),
-        "metrics.enabled" -> false,
-        "auditing.enabled" -> false,
-        "play.ws.timeout.request" -> "1000ms",
-        "play.ws.timeout.connection" -> "500ms",
-        "mongodb.uri" -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
+        "microservice.services.auth.host"              -> "localhost",
+        "microservice.services.auth.port"              -> server.port(),
+        "metrics.enabled"                              -> false,
+        "auditing.enabled"                             -> false,
+        "play.ws.timeout.request"                      -> "1000ms",
+        "play.ws.timeout.connection"                   -> "500ms",
+        "mongodb.uri"                                  -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
       )
       .build()
 
-  val nino: Nino = new Generator(new Random).nextNino
-  val utr: SaUtr = new SaUtrGenerator(new Random).nextSaUtr
+  val nino: Nino        = new Generator(new Random).nextNino
+  val utr: SaUtr        = new SaUtrGenerator(new Random).nextSaUtr
   val hc: HeaderCarrier = HeaderCarrier()
 
-  val taxYear: Int = 2047
+  val taxYear: Int         = 2047
   val taxYearMinusOne: Int = 2047 - 1
 }

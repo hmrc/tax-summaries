@@ -24,20 +24,20 @@ import scala.io.Source
 trait AtsJsonDataUpdate {
 
   def transformation(sourceJson: URL, tliSlpAtsUpdate: JsObject): JsObject = {
-    val sampleJson = Source.fromURL(sourceJson).mkString
-    val parsedJson = Json.parse(sampleJson)
-    val tlData = parsedJson.as[JsObject] \ "tliSlpAtsData"
-    val updatedtliSlp = tlData.as[JsObject] ++ tliSlpAtsUpdate
+    val sampleJson     = Source.fromURL(sourceJson).mkString
+    val parsedJson     = Json.parse(sampleJson)
+    val tlData         = parsedJson.as[JsObject] \ "tliSlpAtsData"
+    val updatedtliSlp  = tlData.as[JsObject] ++ tliSlpAtsUpdate
     val theUpdatedJson = JsObject(Seq("tliSlpAtsData" -> updatedtliSlp))
     parsedJson.as[JsObject] ++ theUpdatedJson
   }
 
   def transformTaxpayerData(sourceJson: URL, jsonUpdateObject: JsObject): JsObject = {
-    val sampleJson = Source.fromURL(sourceJson).mkString
-    val parsedJson = Json.parse(sampleJson)
-    val tlData = parsedJson.as[JsObject] \ "name"
+    val sampleJson       = Source.fromURL(sourceJson).mkString
+    val parsedJson       = Json.parse(sampleJson)
+    val tlData           = parsedJson.as[JsObject] \ "name"
     val updatedNameField = tlData.as[JsObject] ++ jsonUpdateObject
-    val theUpdatedJson = JsObject(Seq("name" -> updatedNameField))
+    val theUpdatedJson   = JsObject(Seq("name" -> updatedNameField))
     parsedJson.as[JsObject] ++ theUpdatedJson
   }
 }

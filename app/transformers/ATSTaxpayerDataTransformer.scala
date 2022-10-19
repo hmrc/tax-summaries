@@ -27,14 +27,12 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
   def atsTaxpayerDataDTO = createATSDataDTO
 
   private def createATSDataDTO =
-    try {
-      hasTaxpayerName match {
-        case true  => AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
-        case false => throw new ATSParsingException("NoAtsTaxpayerDataError")
-      }
+    try hasTaxpayerName match {
+      case true  => AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
+      case false => throw new ATSParsingException("NoAtsTaxpayerDataError")
     } catch {
       case ATSParsingException(message) => throw new ATSParsingException(message)
-      case otherError: Throwable =>
+      case otherError: Throwable        =>
         logger.error("Unexpected error has occurred", otherError)
         throw new ATSParsingException("Other Error")
     }
@@ -46,7 +44,9 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
       Map(
         "title"    -> getTaxpayerNameData("title"),
         "forename" -> getTaxpayerNameData("forename"),
-        "surname"  -> getTaxpayerNameData("surname")))
+        "surname"  -> getTaxpayerNameData("surname")
+      )
+    )
 
   private def getTaxpayerNameData(key: String): String =
     jsonValLookupWithErrorHandling[String](key, "name")
@@ -56,9 +56,10 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
 
     theOption match {
       case s: JsSuccess[T] => s.get
-      case e: JsError =>
+      case e: JsError      =>
         logger.error(
-          "Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer)
+          "Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer
+        )
         throw new ATSParsingException(key)
     }
   }
