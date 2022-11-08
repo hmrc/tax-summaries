@@ -292,15 +292,15 @@ object ATSCalculations {
 
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
     (summaryData.nationality, summaryData.taxYear) match {
-      case (_: UK, year) if year > 2021        => new ATSCalculationsUK2022(summaryData, taxRates)
-      case (_: Scottish, year) if year > 2021  => new ATSCalculationsScottish2022(summaryData, taxRates)
-      case (_: Welsh, year) if year > 2021     => new ATSCalculationsWelsh2022(summaryData, taxRates)
-      case (_: UK, year) if year == 2021       => new ATSCalculationsUK2021(summaryData, taxRates)
-      case (_: Scottish, year) if year == 2021 => new ATSCalculationsScottish2021(summaryData, taxRates)
-      case (_: Welsh, year) if year == 2021    => new ATSCalculationsWelsh2021(summaryData, taxRates)
-      case (_: Welsh, year) if year == 2020    => new ATSCalculationsWelsh2020(summaryData, taxRates)
-      case (_: UK, year) if year == 2019       => new ATSCalculationsUK2019(summaryData, taxRates)
-      case (_: Scottish, year) if year == 2019 => new ATSCalculationsScottish2019(summaryData, taxRates)
-      case _                                   => new DefaultATSCalculations(summaryData, taxRates)
+      case (_: UK, year) if year > 2021       => new ATSCalculationsUK2022(summaryData, taxRates)
+      case (_: Scottish, year) if year > 2021 => new ATSCalculationsScottish2022(summaryData, taxRates)
+      case (_: Welsh, year) if year > 2021    => new ATSCalculationsWelsh2022(summaryData, taxRates)
+      case (_: UK, year) if year > 2020       => new ATSCalculationsUK2021(summaryData, taxRates)
+      case (_: Scottish, year) if year > 2020 => new ATSCalculationsScottish2021(summaryData, taxRates)
+      case (_: Welsh, year) if year > 2020    => new ATSCalculationsWelsh2021(summaryData, taxRates)
+      case (_: Scottish, year) if year > 2018 => new ATSCalculationsScottish2019(summaryData, taxRates)
+      case (_: Welsh, year) if year > 2019    => new ATSCalculationsWelsh2020(summaryData, taxRates)
+      case (_: UK, year) if year > 2018       => new ATSCalculationsUK2019(summaryData, taxRates)
+      case _                                  => new DefaultATSCalculations(summaryData, taxRates)
     }
 }

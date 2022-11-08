@@ -219,7 +219,7 @@ object LiabilityKey extends DefaultReads {
     ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
     SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax
   )
-  // format: on
+    // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =
     ApiValue.formatMap[LiabilityKey, V](allItems)
