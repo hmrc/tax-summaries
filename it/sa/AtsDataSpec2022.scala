@@ -18,11 +18,12 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.AtsMiddleTierData
-import models.LiabilityKey._
+import models.LiabilityKey.{StatePension, _}
+import models.{Amount, AtsMiddleTierData, GovernmentSpendingOutputWrapper, SpendData}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.GoodsAndServices._
 import utils.FileHelper
 
 class AtsDataSpec2022 extends SaTestHelper {
@@ -464,4 +465,42 @@ class AtsDataSpec2022 extends SaTestHelper {
       }
     }
   }
+
+  "return correct government spending" in new Test {
+
+    val expectedValue: GovernmentSpendingOutputWrapper = GovernmentSpendingOutputWrapper(
+      2022,
+      Map(
+        PublicOrderAndSafety       -> SpendData(Amount(280.59, "GBP"), 4.4),
+        BusinessAndIndustry        -> SpendData(Amount(344.36, "GBP"), 5.4),
+        NationalDebtInterest       -> SpendData(Amount(484.65, "GBP"), 7.6),
+        Defence                    -> SpendData(Amount(325.23, "GBP"), 5.1),
+        Health                     -> SpendData(Amount(1453.96, "GBP"), 22.80),
+        HousingAndUtilities        -> SpendData(Amount(102.03, "GBP"), 1.60),
+        GovernmentAdministration   -> SpendData(Amount(127.54, "GBP"), 2),
+        Environment                -> SpendData(Amount(95.66, "GBP"), 1.5),
+        OverseasAid                -> SpendData(Amount(57.39, "GBP"), 0.90),
+        Culture                    -> SpendData(Amount(82.90, "GBP"), 1.3),
+        OutstandingPaymentsToTheEU -> SpendData(Amount(44.64, "GBP"), 0.7),
+        Transport                  -> SpendData(Amount(299.72, "GBP"), 4.7),
+        Welfare                    -> SpendData(Amount(1300.91, "GBP"), 20.40),
+        Education                  -> SpendData(Amount(669.59, "GBP"), 10.50),
+        StatePensions              -> SpendData(Amount(701.47, "GBP"), 11)
+      ),
+      Amount(6377, "GBP"),
+      None
+    )
+
+    override val taxYear = 2022
+
+    server.stubFor(
+      WireMock
+        .get(urlEqualTo(odsUrl(taxYear)))
+        .willReturn(ok(FileHelper.loadFile("2019-20/utr_1097172561.json")))
+    )
+
+    val result: AtsMiddleTierData = resultToAtsData(route(app, request))
+    result.gov_spending.get mustBe expectedValue
+  }
+
 }
