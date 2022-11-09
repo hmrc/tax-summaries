@@ -65,6 +65,11 @@ trait ATSCalculations2021 extends ATSCalculations {
       get(PensionSavingChargeable)
 
   override def totalIncomeTaxAmount: Amount = {
+    /*println(
+      s"dividends L13: " + (get(DividendTaxLowRate)) + //LS13.1
+        (get(DividendTaxHighRate)) + //LS13.2
+        (get(DividendTaxAddHighRate))
+    )*/
     val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
       basicRateIncomeTaxAmount + // LS12.2
       higherRateIncomeTaxAmount + // LS12.3

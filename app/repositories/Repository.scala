@@ -24,11 +24,11 @@ import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
-class Repository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)
+@Singleton
+class Repository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[PayeAtsMiddleTierMongo](
       collectionName = "tax-summaries",
       mongoComponent = mongoComponent,

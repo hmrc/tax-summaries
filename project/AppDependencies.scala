@@ -23,11 +23,12 @@ object AppDependencies {
   private val playVersion                = "play-28"
   private val hmrcMongoVersion           = "0.71.0"
   private val jsonSchemaValidatorVersion = "2.2.6"
+  private val bootstrapVersion = "7.11.0"
 
   val compile: Seq[ModuleID] = Seq(
     filters,
     ws,
-    "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "7.8.0",
+    "uk.gov.hmrc"                %% s"bootstrap-backend-$playVersion" % bootstrapVersion,
     "uk.gov.hmrc"                %% "domain"                    % s"8.1.0-$playVersion",
     "com.github.fge"              % "json-schema-validator"     % jsonSchemaValidatorVersion,
     "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % hmrcMongoVersion,
@@ -36,7 +37,7 @@ object AppDependencies {
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"  % "7.8.0",
+    "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"  % bootstrapVersion,
     "org.mockito"             %% "mockito-scala-scalatest"       % "1.17.12",
     "org.scalatestplus"       %% "scalacheck-1-16"               % "3.2.14.0",
     "org.jsoup"                % "jsoup"                         % "1.15.3",

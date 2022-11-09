@@ -86,20 +86,6 @@ trait ATSCalculations2022 extends ATSCalculations2021 {
       get(TaxOnCegBr) +
       includePensionTaxForRate(taxRates.basicRateIncomeTaxRate())
 
-  override def additionalRateIncomeTaxAmount: Amount =
-    get(IncomeTaxAddHighRate) +
-      get(SavingsTaxAddHighRate) +
-      get(TaxOnRedundancyAhr) +
-      get(TaxOnCegAhr) +
-      includePensionTaxForRate(taxRates.additionalRateIncomeTaxRate())
-
-  override def additionalRateIncomeTax: Amount =
-    getWithDefaultAmount(IncomeChargeableAddHRate) +
-      get(SavingsChargeableAddHRate) +
-      get(TaxableRedundancyAhr) +
-      get(TaxableCegAhr) +
-      includePensionIncomeForRate(taxRates.additionalRateIncomeTaxRate())
-
   override def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +

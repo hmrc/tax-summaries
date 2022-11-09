@@ -21,6 +21,7 @@
     }
   },
   "tliSlpAtsData": {
+    "incomeTaxStatus": "0002",
     "tliLastUpdated": "2022-09-01",
     "ctnPensionLumpSumTaxRate": 0.00,
     "ctnEmploymentBenefitsAmt": {

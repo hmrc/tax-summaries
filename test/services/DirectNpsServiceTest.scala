@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DirectNpsServiceTest extends BaseSpec with JsonUtil {

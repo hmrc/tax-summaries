@@ -28,6 +28,7 @@ import utils.BaseSpec
 
 import java.sql.Timestamp
 import java.time.{Instant, LocalDateTime}
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {

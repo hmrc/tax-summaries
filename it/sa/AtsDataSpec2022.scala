@@ -19,11 +19,10 @@ package sa
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
 import models.LiabilityKey.{StatePension, _}
-import models.{Amount, AtsMiddleTierData, GovernmentSpendingOutputWrapper, SpendData}
+import models._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.GoodsAndServices._
 import utils.FileHelper
 
 class AtsDataSpec2022 extends SaTestHelper {
@@ -46,11 +45,11 @@ class AtsDataSpec2022 extends SaTestHelper {
       SelfEmploymentIncome               -> 942.00, // LS1a e
       IncomeFromEmployment               -> 122500.00, // LS1 e
       StatePension                       -> 0.00, //LS2 e
-      //OtherPensionIncome -> 3121.00, //LS3 e Excel
+      OtherPensionIncome                 -> 3121.00, //LS3 e Excel
       TaxableStateBenefits               -> 0.00, //LS4 e
       OtherIncome                        -> 298111.00, //LS5 e
       BenefitsFromEmployment             -> 9600.00, //LS6 e
-      //TotalIncomeBeforeTax -> 438044.00, //LS7 total income received e Excel
+      TotalIncomeBeforeTax               -> 438044.00, //LS7 total income received e Excel
       PersonalTaxFreeAmount              -> 0.00, //LS8.1 e
       MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
       OtherAllowancesAmount              -> 15209.00, //LS9 e
@@ -75,14 +74,12 @@ class AtsDataSpec2022 extends SaTestHelper {
       TotalIncomeTax                     -> 163332.65, //LS20 e
       TotalIncomeTaxAndNics              -> 163491.25, //LS16 e
       EmployeeNicAmount                  -> 158.60, //LS14 e
-      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
-      //EmployerNicAmount -> 15685.00, //LS18 e
       PayCgTaxOn                         -> 28700.00, //LS19.8 e
       TaxableGains                       -> 41000.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 1200.00, //LS19.1 e
       AmountAtEntrepreneursRate          -> 12000.00, //LS19.1 e
       AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      //AmountDueRPCIHigherRate -> 3340.00, //LS19.3 e Excel
+      AmountDueRPCIHigherRate            -> 3340.00, //LS19.3 e Excel
       AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
       Adjustments                        -> 0.00, //LS19.4 e
       TotalCgTax                         -> 4540.00, //e
@@ -137,8 +134,6 @@ class AtsDataSpec2022 extends SaTestHelper {
       TotalIncomeTax                     -> 3633.82, //LS20 e
       TotalIncomeTaxAndNics              -> 3792.42, //LS16 e
       EmployeeNicAmount                  -> 158.60, //LS14 e
-      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
-      //EmployerNicAmount -> 15685.00, //LS18 e
       PayCgTaxOn                         -> 0.00, //LS19.8 e
       TaxableGains                       -> 0.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
@@ -199,8 +194,6 @@ class AtsDataSpec2022 extends SaTestHelper {
       TotalIncomeTax                     -> 3681.50, //LS20 e
       TotalIncomeTaxAndNics              -> 3681.50, //LS16 e
       EmployeeNicAmount                  -> 0.00, //LS14 e
-      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
-      //EmployerNicAmount -> 15685.00, //LS18 e
       PayCgTaxOn                         -> 0.00, //LS19.8 e
       TaxableGains                       -> 0.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
@@ -252,11 +245,9 @@ class AtsDataSpec2022 extends SaTestHelper {
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
       OtherAdjustmentsReducing           -> 0.00, //LS15b e
       WelshIncomeTax                     -> 0.00, //LS20a
-      //TotalIncomeTax -> 56492.86, //LS20 e excel
-      //TotalIncomeTaxAndNics -> 61668.70, //LS16 e excel
+      TotalIncomeTax                     -> 56492.86, //LS20 e excel
+      TotalIncomeTaxAndNics              -> 61668.70, //LS16 e excel
       EmployeeNicAmount                  -> 5175.84, //LS14 e
-      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
-      //EmployerNicAmount -> 15685.00, //LS18 e
       PayCgTaxOn                         -> 34000.00, //LS19.8 e
       TaxableGains                       -> 46300.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
@@ -265,8 +256,27 @@ class AtsDataSpec2022 extends SaTestHelper {
       AmountDueRPCIHigherRate            -> 9520.00, //LS19.3 e
       AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
       Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 9520.00 //e
-      // YourTotalTax -> 71188.70, //RS7 e Excel
+      TotalCgTax                         -> 9520.00, //e
+      YourTotalTax                       -> 71188.70, //RS7 e Excel
+      ScottishIncomeTax                  -> 0.0,
+      WelshIncomeTax                     -> 0.0,
+      ScottishStarterRateTax             -> 398.43, // LS12.5	Scottish Starter rate
+      ScottishBasicRateTax               -> 2485.8, // LS12.6	Scottish Basic rate
+      ScottishIntermediateRateTax        -> 3856.86, // LS12.7	Intermediate rate
+      ScottishHigherRateTax              -> 43246.39, // LS12.8	Scottish Higher rate ?
+      ScottishAdditionalRateTax          -> 2176.26, // LS12.9	Scottish Top rate ?
+      ScottishTotalTax                   -> 52163.74, // LS12a	Total Scottish Income Tax ?
+      ScottishStarterIncome              -> 0.0,
+      ScottishBasicIncome                -> 2485.80,
+      //ScottishIntermediateIncome         -> 0.0, ???
+      ScottishHigherIncome               -> 0.0,
+      ScottishAdditionalIncome           -> 0.0,
+      SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
+      SavingsHigherRateTax               -> 3278.40, // LS12b.2	Higher rate Income Tax
+      SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
+      //SavingsLowerIncome                 -> 0.0,
+      //SavingsHigherIncome                -> 0.0,
+      //SavingsAdditionalIncome            -> 0.0
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -283,6 +293,7 @@ class AtsDataSpec2022 extends SaTestHelper {
     }
   }
 
+  /*
   "HasSummary (SIT005)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
@@ -317,8 +328,6 @@ class AtsDataSpec2022 extends SaTestHelper {
       TotalIncomeTax                     -> 55869.35, //LS20 e
       TotalIncomeTaxAndNics              -> 55869.35, //LS16 e
       EmployeeNicAmount                  -> 0.00, //LS14 e
-      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
-      //EmployerNicAmount -> 15685.00, //LS18 e
       PayCgTaxOn                         -> 0.00, //LS19.8 e
       TaxableGains                       -> 0.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
@@ -378,8 +387,6 @@ class AtsDataSpec2022 extends SaTestHelper {
       TotalIncomeTax                     -> 3050.60, //LS20 e
       TotalIncomeTaxAndNics              -> 3585.53, //LS16 e
       EmployeeNicAmount                  -> 534.93, //LS14 e
-      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
-      //EmployerNicAmount -> 15685.00, //LS18 e
       PayCgTaxOn                         -> 0.00, //LS19.8 e
       TaxableGains                       -> 0.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
@@ -409,12 +416,12 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 0.00, // LS1 e
-      //StatePension -> 6198.00, //LS2 e Wrong in excel
-      //OtherPensionIncome -> 12302.00, //LS3 e Wrong in excel
+      StatePension                       -> 6198.00, //LS2 e Wrong in excel
+      OtherPensionIncome                 -> 12302.00, //LS3 e Wrong in excel
       TaxableStateBenefits               -> 0.00, //LS4 e
       OtherIncome                        -> 36505.00, //LS5 e
       BenefitsFromEmployment             -> 0.00, //LS6 e
-      //TotalIncomeBeforeTax -> 55005.00, //LS7 total income received e Excel
+      TotalIncomeBeforeTax               -> 55005.00, //LS7 total income received e Excel
       PersonalTaxFreeAmount              -> 12570.00, //LS8.1 e
       MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
       OtherAllowancesAmount              -> 0.00, //LS9 e
@@ -439,8 +446,6 @@ class AtsDataSpec2022 extends SaTestHelper {
       TotalIncomeTax                     -> 8328.87, //LS20 e
       TotalIncomeTaxAndNics              -> 8328.87, //LS16 e
       EmployeeNicAmount                  -> 0.00, //LS14 e
-      //IncomeAfterTaxAndNics -> 274552.75, //LS17, RS5 e
-      //EmployerNicAmount -> 15685.00, //LS18 e
       PayCgTaxOn                         -> 0.00, //LS19.8 e
       TaxableGains                       -> 0.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
@@ -502,5 +507,5 @@ class AtsDataSpec2022 extends SaTestHelper {
     val result: AtsMiddleTierData = resultToAtsData(route(app, request))
     result.gov_spending.get mustBe expectedValue
   }
-
+   */
 }
