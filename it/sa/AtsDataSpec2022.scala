@@ -27,6 +27,55 @@ import utils.FileHelper
 
 class AtsDataSpec2022 extends SaTestHelper {
 
+  val scottishBands = Map(
+    "Personal Allowance" -> scottishBand("Personal Allowance", 0, 12570, 0.0),
+    "Starter rate"       -> scottishBand("Starter rate", 12571, 14667, 0.19),
+    "Basic rate"         -> scottishBand("Basic rate", 14668, 25296, 0.20),
+    "Intermediate rate"  -> scottishBand("Intermediate rate", 25297, 43662, 0.21),
+    "Higher rate"        -> scottishBand("Higher rate", 43663, 150000, 0.41),
+    "Top rate"           -> scottishBand("Top rate", 150001, Int.MaxValue, 0.46)
+  )
+
+  case class scottishBand(band: String, start: Double, end: Double, rate: Double)
+
+  def expectedScottishIncomeTaxes(totalIncomeBeforeTax: Double) = {
+    val totalIncomeBeforeTaxStarter = {
+      val band                 = scottishBands("Starter rate").end - scottishBands("Personal Allowance").end
+      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Personal Allowance").end
+      if (incomeMinusAllowance > band) band else incomeMinusAllowance
+    }
+    val totalIncomeBeforeTaxBasic = {
+      val band                 = scottishBands("Basic rate").end - scottishBands("Starter rate").end
+      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Starter rate").end
+      if (incomeMinusAllowance > band) band else incomeMinusAllowance
+    }
+    val totalIncomeBeforeTaxIntermedaiate = {
+      val band                 = scottishBands("Intermediate rate").end - scottishBands("Basic rate").end
+      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Basic rate").end
+      if (incomeMinusAllowance > band) band else incomeMinusAllowance
+    }
+    val totalIncomeBeforeTaxHigher = {
+      val band                 = scottishBands("Higher rate").end - scottishBands("Intermediate rate").end
+      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Intermediate rate").end
+      if (incomeMinusAllowance > band) band else incomeMinusAllowance
+    }
+    val totalIncomeBeforeTaxTop = {
+      val band                 = scottishBands("Top rate").end - scottishBands("Higher rate").end
+      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Higher rate").end
+      if (incomeMinusAllowance > band) band else incomeMinusAllowance
+    }
+    println(
+      (
+        totalIncomeBeforeTaxStarter * scottishBands("Starter rate").rate,
+        totalIncomeBeforeTaxBasic * scottishBands("Basic rate").rate,
+        totalIncomeBeforeTaxIntermedaiate * scottishBands("Intermediate rate").rate,
+        totalIncomeBeforeTaxHigher * scottishBands("Higher rate").rate,
+        totalIncomeBeforeTaxTop * scottishBands("Top rate").rate
+      )
+    )
+
+  }
+
   val taxPayerFile = "taxPayerDetails.json"
 
   trait Test {
@@ -266,11 +315,11 @@ class AtsDataSpec2022 extends SaTestHelper {
       ScottishHigherRateTax              -> 43246.39, // LS12.8	Scottish Higher rate ?
       ScottishAdditionalRateTax          -> 2176.26, // LS12.9	Scottish Top rate ?
       ScottishTotalTax                   -> 52163.74, // LS12a	Total Scottish Income Tax ?
-      ScottishStarterIncome              -> 0.0,
-      ScottishBasicIncome                -> 2485.80,
-      //ScottishIntermediateIncome         -> 0.0, ???
-      ScottishHigherIncome               -> 0.0,
-      ScottishAdditionalIncome           -> 0.0,
+      ScottishStarterIncome              -> 398.43 / 0.19, // Starter rate	£12,571 to £14,667	19%
+      ScottishBasicIncome                -> 2485.8 / 0.2,
+      ScottishIntermediateIncome         -> 3856.86 / 0.21,
+      ScottishHigherIncome               -> 43246.39 / 0.41,
+      ScottishAdditionalIncome           -> 2176.26 / 0.46,
       SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
       SavingsHigherRateTax               -> 3278.40, // LS12b.2	Higher rate Income Tax
       SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
@@ -290,6 +339,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
+
     }
   }
 

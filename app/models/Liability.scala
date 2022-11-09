@@ -256,6 +256,10 @@ object Liability {
 
   case object TaxOnRedundancyHr extends Liability("tax-on-redundancy-HR")
 
+  case object TaxOnRedundancySsr extends Liability("ctnTaxOnRedundancySSR")
+
+  case object TaxOnRedundancySir extends Liability("ctnTaxOnRedundancySIR")
+
   case object TaxOnCegHr extends Liability("tax-on-CEG-HR")
 
   case object TaxOnRedundancyBr extends Liability("ctnTaxOnRedundancyBR")
@@ -301,7 +305,7 @@ object Liability {
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced, ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted,
       Class2NicAmt, TaxableRedundancyHr, TaxableCegHr, PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr,
-      TaxOnRedundancyAhr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr, TaxableCegAhr, TaxableCegSr, TaxOnCegSr)
+      TaxOnRedundancyAhr, TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr, TaxableCegAhr, TaxableCegSr, TaxOnCegSr)
   // format: on
 
   implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)
