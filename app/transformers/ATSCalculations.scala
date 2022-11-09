@@ -149,7 +149,6 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def scottishAdditionalRateTax: Amount = Amount.empty
 
   def scottishTotalTax: Amount =
-    //println( s"scottishTotalTax: $scottishStarterRateTax + $scottishBasicRateTax + $scottishIntermediateRateTax + $scottishHigherRateTax + $scottishAdditionalRateTax" )
     scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
 
   def scottishStarterRateIncome: Amount = Amount.empty
@@ -292,7 +291,6 @@ sealed class DefaultATSCalculations(val summaryData: TaxSummaryLiability, val ta
 object ATSCalculations {
 
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
-    //println(s"make: ${summaryData.nationality}, ${summaryData.taxYear}")
     (summaryData.nationality, summaryData.taxYear) match {
       case (_: UK, year) if year > 2021       => new ATSCalculationsUK2022(summaryData, taxRates)
       case (_: Scottish, year) if year > 2021 => new ATSCalculationsScottish2022(summaryData, taxRates)

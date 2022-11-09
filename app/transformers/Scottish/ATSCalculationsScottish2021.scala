@@ -89,7 +89,6 @@ class ATSCalculationsScottish2021(val summaryData: TaxSummaryLiability, val taxR
   private val savingsTotalTax = savingsBasicRateTax + savingsHigherRateTax + savingsAdditionalRateTax
 
   override def totalIncomeTaxAmount: Amount =
-    //println(s"savingsTotalTax: $savingsBasicRateTax + $savingsHigherRateTax + $savingsAdditionalRateTax")
     super.totalIncomeTaxAmount + scottishTotalTax + savingsTotalTax
 
 }

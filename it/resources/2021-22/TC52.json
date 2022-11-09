@@ -468,7 +468,7 @@
       "currency": "GBP"
     },
     "ctnCgDueHigherRate": {
-      "amount": 3340.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnCGAtLowerRateRPCI": {
@@ -484,7 +484,7 @@
       "currency": "GBP"
     },
     "ctnHigherRateCgtRPCI": {
-      "amount": 0.00,
+      "amount": 3340.0,
       "currency": "GBP"
     },
     "capAdjustmentAmt": {

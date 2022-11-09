@@ -37,9 +37,7 @@ class OdsService @Inject() (
     (for {
       taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
       taxSummaries <- EitherT(odsConnector.connectToSelfAssessment(UTR, TAX_YEAR))
-    } yield
-    //println(taxSummaries.as[TaxSummaryLiability].nationality)
-    jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)).value
+    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)).value
 
   def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
     odsConnector.connectToSelfAssessmentList(UTR) map {

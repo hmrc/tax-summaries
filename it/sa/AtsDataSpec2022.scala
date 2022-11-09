@@ -18,63 +18,15 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.LiabilityKey.{StatePension, _}
+import models.LiabilityKey._
 import models._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.GoodsAndServices._
 import utils.FileHelper
 
 class AtsDataSpec2022 extends SaTestHelper {
-
-  val scottishBands = Map(
-    "Personal Allowance" -> scottishBand("Personal Allowance", 0, 12570, 0.0),
-    "Starter rate"       -> scottishBand("Starter rate", 12571, 14667, 0.19),
-    "Basic rate"         -> scottishBand("Basic rate", 14668, 25296, 0.20),
-    "Intermediate rate"  -> scottishBand("Intermediate rate", 25297, 43662, 0.21),
-    "Higher rate"        -> scottishBand("Higher rate", 43663, 150000, 0.41),
-    "Top rate"           -> scottishBand("Top rate", 150001, Int.MaxValue, 0.46)
-  )
-
-  case class scottishBand(band: String, start: Double, end: Double, rate: Double)
-
-  def expectedScottishIncomeTaxes(totalIncomeBeforeTax: Double) = {
-    val totalIncomeBeforeTaxStarter = {
-      val band                 = scottishBands("Starter rate").end - scottishBands("Personal Allowance").end
-      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Personal Allowance").end
-      if (incomeMinusAllowance > band) band else incomeMinusAllowance
-    }
-    val totalIncomeBeforeTaxBasic = {
-      val band                 = scottishBands("Basic rate").end - scottishBands("Starter rate").end
-      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Starter rate").end
-      if (incomeMinusAllowance > band) band else incomeMinusAllowance
-    }
-    val totalIncomeBeforeTaxIntermedaiate = {
-      val band                 = scottishBands("Intermediate rate").end - scottishBands("Basic rate").end
-      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Basic rate").end
-      if (incomeMinusAllowance > band) band else incomeMinusAllowance
-    }
-    val totalIncomeBeforeTaxHigher = {
-      val band                 = scottishBands("Higher rate").end - scottishBands("Intermediate rate").end
-      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Intermediate rate").end
-      if (incomeMinusAllowance > band) band else incomeMinusAllowance
-    }
-    val totalIncomeBeforeTaxTop = {
-      val band                 = scottishBands("Top rate").end - scottishBands("Higher rate").end
-      val incomeMinusAllowance = totalIncomeBeforeTax - scottishBands("Higher rate").end
-      if (incomeMinusAllowance > band) band else incomeMinusAllowance
-    }
-    println(
-      (
-        totalIncomeBeforeTaxStarter * scottishBands("Starter rate").rate,
-        totalIncomeBeforeTaxBasic * scottishBands("Basic rate").rate,
-        totalIncomeBeforeTaxIntermedaiate * scottishBands("Intermediate rate").rate,
-        totalIncomeBeforeTaxHigher * scottishBands("Higher rate").rate,
-        totalIncomeBeforeTaxTop * scottishBands("Top rate").rate
-      )
-    )
-
-  }
 
   val taxPayerFile = "taxPayerDetails.json"
 
@@ -132,7 +84,23 @@ class AtsDataSpec2022 extends SaTestHelper {
       AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
       Adjustments                        -> 0.00, //LS19.4 e
       TotalCgTax                         -> 4540.00, //e
-      YourTotalTax                       -> 168031.25 //RS7 e
+      YourTotalTax                       -> 168031.25, //RS7 e
+      ScottishIncomeTax                  -> 0.0,
+      WelshIncomeTax                     -> 0.0,
+      ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
+      ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
+      ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
+      ScottishHigherRateTax              -> 0.0, // LS12.8	Scottish Higher rate ?
+      ScottishAdditionalRateTax          -> 0.0, // LS12.9	Scottish Top rate ?
+      ScottishTotalTax                   -> 0.0, // LS12a	Total Scottish Income Tax ?
+      ScottishStarterIncome              -> 0.0, // Starter rate	£12,571 to £14,667	19%
+      ScottishBasicIncome                -> 0.0,
+      ScottishIntermediateIncome         -> 0.0,
+      ScottishHigherIncome               -> 0.0,
+      ScottishAdditionalIncome           -> 0.0,
+      SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
+      SavingsHigherRateTax               -> 0.0, // LS12b.2	Higher rate Income Tax
+      SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -343,7 +311,6 @@ class AtsDataSpec2022 extends SaTestHelper {
     }
   }
 
-  /*
   "HasSummary (SIT005)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
@@ -557,5 +524,5 @@ class AtsDataSpec2022 extends SaTestHelper {
     val result: AtsMiddleTierData = resultToAtsData(route(app, request))
     result.gov_spending.get mustBe expectedValue
   }
-   */
+
 }
