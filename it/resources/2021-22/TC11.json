@@ -21,6 +21,7 @@
     }
   },
   "tliSlpAtsData": {
+    "incomeTaxStatus": "0002",
     "tliLastUpdated": "2022-09-01",
     "ctnPensionLumpSumTaxRate": 0.00,
     "ctnEmploymentBenefitsAmt": {
@@ -40,7 +41,7 @@
       "currency": "GBP"
     },
     "atsStatePensionAmt": {
-      "amount": 0.00,
+      "amount": 9783.00,
       "currency": "GBP"
     },
     "atsOtherPensionAmt": {
@@ -112,7 +113,7 @@
       "currency": "GBP"
     },
     "ctnPersonalAllowance": {
-      "amount": 12750.00,
+      "amount": 12570.00,
       "currency": "GBP"
     },
     "ctnEmploymentExpensesAmt": {
