@@ -56,12 +56,12 @@ class GovSpendServiceTest extends BaseSpec {
       result.get(Defence) mustBe Some(5.10)
       result.get(Transport) mustBe Some(4.70)
       result.get(PublicOrderAndSafety) mustBe Some(4.40)
-      result.get(GovernmentAdministration) mustBe Some(2.00)
+      result.get(GovernmentAdministration) mustBe Some(2.30)
       result.get(HousingAndUtilities) mustBe Some(1.60)
       result.get(Environment) mustBe Some(1.50)
       result.get(Culture) mustBe Some(1.30)
-      result.get(OverseasAid) mustBe Some(0.90)
       result.get(OutstandingPaymentsToTheEU) mustBe Some(0.70)
+      result.get(OverseasAid) mustBe Some(0.60)
     }
   }
 }
