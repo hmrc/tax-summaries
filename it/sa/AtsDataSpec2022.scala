@@ -676,7 +676,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         HousingAndUtilities        -> SpendData(Amount(102.03, "GBP"), 1.60),
         GovernmentAdministration   -> SpendData(Amount(146.67, "GBP"), 2.3),
         Environment                -> SpendData(Amount(95.66, "GBP"), 1.5),
-        OverseasAid                -> SpendData(Amount(38.60, "GBP"), 0.60),
+        OverseasAid                -> SpendData(Amount(38.26, "GBP"), 0.60),
         Culture                    -> SpendData(Amount(82.90, "GBP"), 1.3),
         OutstandingPaymentsToTheEU -> SpendData(Amount(44.64, "GBP"), 0.7),
         Transport                  -> SpendData(Amount(299.72, "GBP"), 4.7),
