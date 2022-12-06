@@ -20,7 +20,6 @@ import config.ApplicationConfig
 import models.paye.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.Status.BAD_GATEWAY
 import repositories.Repository
@@ -29,6 +28,7 @@ import utils.BaseSpec
 
 import java.sql.Timestamp
 import java.time.{Instant, LocalDateTime}
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CachingNpsServiceTest extends BaseSpec with BeforeAndAfterEach {

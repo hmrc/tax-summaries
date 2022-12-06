@@ -23,11 +23,12 @@ object AppDependencies {
   private val playVersion                = "play-28"
   private val hmrcMongoVersion           = "0.71.0"
   private val jsonSchemaValidatorVersion = "2.2.6"
+  private val bootstrapVersion = "7.11.0"
 
   val compile: Seq[ModuleID] = Seq(
     filters,
     ws,
-    "uk.gov.hmrc"                %% "bootstrap-backend-play-28" % "7.1.0",
+    "uk.gov.hmrc"                %% s"bootstrap-backend-$playVersion" % bootstrapVersion,
     "uk.gov.hmrc"                %% "domain"                    % s"8.1.0-$playVersion",
     "com.github.fge"              % "json-schema-validator"     % jsonSchemaValidatorVersion,
     "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % hmrcMongoVersion,
@@ -36,18 +37,13 @@ object AppDependencies {
   )
 
   val test: Seq[ModuleID] = Seq(
-    "com.typesafe.play"      %% "play-test"                     % PlayVersion.current,
-    "org.scalatestplus.play" %% "scalatestplus-play"            % "5.1.0",
-    "org.scalatestplus"      %% "scalatestplus-scalacheck"      % "3.1.0.0-RC2",
-    "org.scalatestplus"      %% "scalatestplus-mockito"         % "1.0.0-M2",
-    "org.jsoup"               % "jsoup"                         % "1.15.3",
-    "com.github.fge"          % "json-schema-validator"         % jsonSchemaValidatorVersion,
-    "org.mockito"             % "mockito-core"                  % "4.7.0",
-    "org.scalacheck"         %% "scalacheck"                    % "1.16.0",
-    "com.github.tomakehurst"  % "wiremock-jre8"                 % "2.33.2",
-    "org.pegdown"             % "pegdown"                       % "1.6.0",
-    "com.vladsch.flexmark"    % "flexmark-all"                  % "0.35.10",
-    "uk.gov.hmrc.mongo"      %% s"hmrc-mongo-test-$playVersion" % hmrcMongoVersion
+    "uk.gov.hmrc"             %% s"bootstrap-test-$playVersion"  % bootstrapVersion,
+    "org.mockito"             %% "mockito-scala-scalatest"       % "1.17.12",
+    "org.scalatestplus"       %% "scalacheck-1-16"               % "3.2.14.0",
+    "org.jsoup"                % "jsoup"                         % "1.15.3",
+    "com.github.fge"           % "json-schema-validator"         % jsonSchemaValidatorVersion,
+    "com.vladsch.flexmark"     % "flexmark-all"                  % "0.62.2",
+    "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test-$playVersion" % hmrcMongoVersion
   ).map(_ % "test,it")
 
   val all: Seq[ModuleID]  = compile ++ test

@@ -1,0 +1,531 @@
+{
+  "links": [
+    {
+      "href": "/self-assessment/individuals/1130492359/annual-tax-summaries/2022",
+      "rel": "self"
+    }
+  ],
+  "taxYear": 2022,
+  "saPayeNicDetails": {
+    "employeeClass1Nic": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "employeeClass2Nic": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "employerNic": {
+      "amount": 0.00,
+      "currency": "GBP"
+    }
+  },
+  "tliSlpAtsData": {
+    "tliLastUpdated": "2022-09-01",
+    "ctnPensionLumpSumTaxRate": 0.00,
+    "ctnEmploymentBenefitsAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalScheduleD": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalPartnership": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalEmployment": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsStatePensionAmt": {
+      "amount": 6198.00,
+      "currency": "GBP"
+    },
+    "atsOtherPensionAmt": {
+      "amount": 12302.00,
+      "currency": "GBP"
+    },
+    "itfStatePensionLsGrossAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsIncBenefitSuppAllowAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsJobSeekersAllowanceAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsOthStatePenBenefitsAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotShareOptions": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalUklProperty": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotForeignIncome": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotTrustEstates": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalOtherIncome": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotForeignSav": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnForeignCegDedn": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalUkInterest": {
+      "amount": 30150.00,
+      "currency": "GBP"
+    },
+    "itfCegReceivedAfterTax": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotForeignDiv": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalUkIntDivs": {
+      "amount": 6355.00,
+      "currency": "GBP"
+    },
+    "ctn4SumTotLifePolicyGains": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnPersonalAllowance": {
+      "amount": 12570.00,
+      "currency": "GBP"
+    },
+    "ctnEmploymentExpensesAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSummaryTotalDedPpr": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSumTotForeignTaxRelief": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSumTotLoanRestricted": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSumTotLossRestricted": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "grossAnnuityPayts": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "itf4GiftsInvCharitiesAmo": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "itfTradeUnionDeathBenefits": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnBpaAllowanceAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "itfBpaAmount": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "grossExcludedIncome": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "class4Nic": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnClass2NicAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsChgbleStartRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsTaxStartingRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnIncomeChgbleBasicRate": {
+      "amount": 7550.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsChgbleLowerRate": {
+      "amount": 29650.00,
+      "currency": "GBP"
+    },
+    "ctnIncomeTaxBasicRate": {
+      "amount": 1510.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsTaxLowerRate": {
+      "amount": 5930.00,
+      "currency": "GBP"
+    },
+    "ctnIncomeChgbleHigherRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsChgbleHigherRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnIncomeTaxHigherRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsTaxHigherRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnIncomeChgbleAddHRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsChgbleAddHRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnIncomeTaxAddHighRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsTaxAddHighRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxablePaySSR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxOnPaySSR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxablePaySIR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxOnPaySIR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnDividendChgbleLowRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnDividendTaxLowRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnDividendChgbleHighRate": {
+      "amount": 2735.00,
+      "currency": "GBP"
+    },
+    "ctnDividendTaxHighRate": {
+      "amount": 888.87,
+      "currency": "GBP"
+    },
+    "ctnDividendChgbleAddHRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnDividendTaxAddHighRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxableRedundancySSR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxOnRedundancySSR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxableRedundancyBR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxOnRedundancyBR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxableRedundancySIR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxOnRedundancySIR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-redundancy-HR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-redundancy-HR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-redundancy-AHR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-redundancy-AHR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-CEG-BR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-BR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-CEG-HR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-HR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-CEG-AHR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-AHR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "nonDomChargeAmount": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxExcluded": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxOnNonExcludedInc": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "incomeTaxDue": {
+      "amount": 8328.87,
+      "currency": "GBP"
+    },
+    "ctn4TaxDueAfterAllceRlf": {
+      "amount": 8328.87,
+      "currency": "GBP"
+    },
+    "netAnnuityPaytsTaxDue": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnChildBenefitChrgAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnPensionSavingChrgbleAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsTaxCharged": {
+      "amount": 8328.87,
+      "currency": "GBP"
+    },
+    "ctnDeficiencyRelief": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "topSlicingRelief": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnVctSharesReliefAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnEisReliefAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSeedEisReliefAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCommInvTrustRelAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsSurplusMcaAlimonyRel": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "alimony": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnNotionalTaxCegs": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnNotlTaxOthrSrceAmo": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnFtcrRestricted": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "reliefForFinanceCosts": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "lfiRelief": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxCredForDivs": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnQualDistnReliefAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "figTotalTaxCreditRelief": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnNonPayableTaxCredits": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsCgTotGainsAfterLosses": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsCgGainsAfterLossesAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "cap3AssessableChgeableGain": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "atsCgAnnualExemptAmt": {
+      "amount": 12300.00,
+      "currency": "GBP"
+    },
+    "ctnCgAtEntrepreneursRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCgDueEntrepreneursRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCgAtLowerRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCgDueLowerRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCgAtHigherRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCgDueHigherRate": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCGAtLowerRateRPCI": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnLowerRateCgtRPCI": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnCGAtHigherRateRPCI": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnHigherRateCgtRPCI": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "capAdjustmentAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnPensionLsumTaxDueAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnMarriageAllceInAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnMarriageAllceOutAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSocialInvTaxRelAmt": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnSavingsPartnership": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnDividendsPartnership": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "giftAidTaxReduced": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "taxable-CEG-SR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "tax-on-CEG-SR": {
+      "amount": 0.00,
+      "currency": "GBP"
+    }
+  }
+}

@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package utils
+package transformers.UK
 
-import config.ApplicationConfig
-import org.mockito.MockitoSugar
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.test.Injecting
+import models.{Amount, TaxSummaryLiability}
+import services.TaxRateService
+import transformers.ATSCalculations2022
 
-class BaseSpec
-    extends AnyWordSpec
-    with Matchers
-    with GuiceOneAppPerSuite
-    with Injecting
-    with MockitoSugar
-    with ScalaFutures
-    with IntegrationPatience {
-  lazy val applicationConfig = inject[ApplicationConfig]
+class ATSCalculationsUK2022(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations2022 {
+  override def scottishIncomeTax: Amount = Amount.empty
 }

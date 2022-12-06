@@ -20,7 +20,6 @@ import connectors.ODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.FakeRequest
