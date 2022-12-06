@@ -16,17 +16,18 @@
 
 package services
 
+import cats.data.EitherT
 import connectors.NpsConnector
 import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import play.api.http.Status.BAD_GATEWAY
-import play.api.libs.json.{JsResultException, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
@@ -48,9 +49,10 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
     "return a successful response after transforming NPS data to PAYE model" in new TestService {
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.successful(Right(HttpResponse(200, expectedNpsResponse, Map.empty))))
+        .thenReturn(EitherT.rightT(HttpResponse(200, expectedNpsResponse, Map.empty)))
 
-      val result: Either[UpstreamErrorResponse, PayeAtsMiddleTier] = getPayeATSData(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, PayeAtsMiddleTier] =
+        getPayeATSData(testNino, currentYear).value.futureValue
 
       result mustBe Right(transformedData)
     }
@@ -60,23 +62,13 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
       val response: UpstreamErrorResponse = UpstreamErrorResponse("Bad Gateway", BAD_GATEWAY, BAD_GATEWAY)
 
       when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.successful(Left(response)))
+        .thenReturn(EitherT.leftT(response))
 
-      val result: Either[UpstreamErrorResponse, PayeAtsMiddleTier] = getPayeATSData(testNino, currentYear).futureValue
+      val result: Either[UpstreamErrorResponse, PayeAtsMiddleTier] =
+        getPayeATSData(testNino, currentYear).value.futureValue
 
       result mustBe Left(response)
     }
 
-    "return INTERNAL_SERVER_ERROR response in case of Exception from NPS" in new TestService {
-
-      when(npsConnector.connectToPayeTaxSummary(eqTo(testNino), eqTo(currentYear - 1))(any()))
-        .thenReturn(Future.failed(JsResultException(List())))
-
-      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] = getPayeATSData(testNino, currentYear)
-
-      whenReady(result.failed) { e =>
-        e mustBe a[JsResultException]
-      }
-    }
   }
 }

@@ -16,10 +16,13 @@
 
 package services
 
+import cats.data.EitherT
+import cats.implicits._
 import com.google.inject.Inject
 import config.ApplicationConfig
 import connectors.NpsConnector
 import models.paye._
+import play.api.http.Status.NOT_FOUND
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
@@ -28,36 +31,49 @@ import scala.concurrent.Future
 
 class NpsService @Inject() (repository: Repository, innerService: DirectNpsService, config: ApplicationConfig) {
 
+  def getAtsPayeDataMultipleYears(nino: String, taxYears: List[Int])(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, List[PayeAtsMiddleTier]] =
+    taxYears
+      .map { year =>
+        getPayeATSData(nino, year).transform {
+          case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => Right(None)
+          case Right(data)                                     => Right(Some(data))
+          case Left(error)                                     => Left(error)
+        }
+      }
+      .sequence
+      .map(_.flatten)
+
   def getPayeATSData(nino: String, taxYear: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
-    repository
-      .get(nino, taxYear)
-      .flatMap {
-        case Some(dataMongo) => Future.successful(Right(dataMongo.data))
-        case None            => refreshCache(nino, taxYear)
-      }
+  ): EitherT[Future, UpstreamErrorResponse, PayeAtsMiddleTier] =
+    EitherT(
+      repository
+        .get(nino, taxYear)
+        .flatMap {
+          case Some(dataMongo) => Future.successful(Right(dataMongo.data))
+          case None            => refreshCache(nino, taxYear).value
+        }
+    )
 
   private def refreshCache(nino: String, taxYear: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
-    innerService
-      .getPayeATSData(nino, taxYear)
-      .flatMap {
-        case Left(response) => Future.successful(Left(response))
-        case Right(data)    =>
-          repository
-            .set(PayeAtsMiddleTierMongo(s"$nino::$taxYear", data, config.calculateExpiryTime()))
-            .map(_ => Right(data))
-      }
+  ): EitherT[Future, UpstreamErrorResponse, PayeAtsMiddleTier] =
+    for {
+      data <- innerService.getPayeATSData(nino, taxYear)
+      _    <-
+        EitherT[Future, UpstreamErrorResponse, Boolean](
+          repository.set(PayeAtsMiddleTierMongo(s"$nino::$taxYear", data, config.calculateExpiryTime())).map(Right(_))
+        )
+    } yield data
 }
 
 class DirectNpsService @Inject() (applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
   def getPayeATSData(nino: String, taxYear: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
-    npsConnector.connectToPayeTaxSummary(nino, taxYear - 1) map {
-      case Right(value) => Right(value.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
-      case Left(error)  => Left(error)
-    }
+  ): EitherT[Future, UpstreamErrorResponse, PayeAtsMiddleTier] =
+    npsConnector
+      .connectToPayeTaxSummary(nino, taxYear - 1)
+      .map(_.json.as[PayeAtsData].transformToPayeMiddleTier(applicationConfig, nino, taxYear))
 }

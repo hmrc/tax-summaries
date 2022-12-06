@@ -59,10 +59,10 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
           get(url).willReturn(ok(json.toString()))
         )
 
-        val result = sut.connectToSelfAssessment(testUtr, 2014)
+        val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
         whenReady(result) {
-          _ mustBe Right(json)
+          _.map(_.json) mustBe Right(json)
         }
 
         server.verify(
@@ -88,7 +88,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
             )
           )
 
-          val result = sut.connectToSelfAssessment(testUtr, 2014)
+          val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
           whenReady(result) { res =>
             res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
@@ -110,10 +110,10 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
           get(url).willReturn(ok(json.toString()))
         )
 
-        val result = sut.connectToSelfAssessmentList(testUtr)
+        val result = sut.connectToSelfAssessmentList(testUtr).value
 
         whenReady(result) {
-          _ mustBe Right(json)
+          _.map(_.json) mustBe Right(json)
         }
       }
     }
@@ -129,7 +129,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
             )
           )
 
-          val result = sut.connectToSelfAssessmentList(testUtr)
+          val result = sut.connectToSelfAssessmentList(testUtr).value
 
           whenReady(result) { res =>
             res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
@@ -151,10 +151,10 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
           get(url).willReturn(ok(json.toString()))
         )
 
-        val result = sut.connectToSATaxpayerDetails(testUtr)
+        val result = sut.connectToSATaxpayerDetails(testUtr).value
 
         whenReady(result) {
-          _ mustBe Right(json)
+          _.map(_.json) mustBe Right(json)
         }
       }
     }
@@ -170,7 +170,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
             )
           )
 
-          val result = sut.connectToSATaxpayerDetails(testUtr)
+          val result = sut.connectToSATaxpayerDetails(testUtr).value
 
           whenReady(result) { res =>
             res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)

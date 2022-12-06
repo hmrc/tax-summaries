@@ -29,12 +29,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.util.Random
 
 /**
-  * GET   /:UTR/:TAX_YEAR/ats-data                  controllers.ATSDataController.getATSData(UTR: String, TAX_YEAR: Int)
+  * GET   /:UTR/:TAX_YEAR/ats-data                  controllers.AtsSaDataController.getATSData(UTR: String, TAX_YEAR: Int)
   * GET   /:NINO/:TAX_YEAR/paye-ats-data            controllers.ATSPAYEDataController.getATSData(NINO: String, TAX_YEAR: Int)
   * GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data  controllers.ATSPAYEDataController.getATSDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
   *
-  * GET   /:UTR/has_summary_for_previous_period     controllers.ATSDataController.hasAts(UTR: String)
-  * GET   /:UTR/ats-list                            controllers.ATSDataController.getATSList(UTR: String)
+  * GET   /:UTR/has_summary_for_previous_period     controllers.AtsSaDataController.hasAts(UTR: String)
+  * GET   /:UTR/ats-list                            controllers.AtsSaDataController.getATSList(UTR: String)
   */
 
 trait IntegrationSpec

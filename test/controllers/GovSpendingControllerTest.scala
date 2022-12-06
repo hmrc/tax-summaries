@@ -45,7 +45,7 @@ class GovSpendingControllerTest extends BaseSpec {
   val govSpendPath         = "/test_gov_spend_ref_data_year_2014.json"
   val taxPayerDataPath     = "/taxpayerData/test_individual_utr.json"
 
-  def makeController(inputJson: String): ATSDataController = {
+  def makeController(inputJson: String): AtsSaDataController = {
 
     val odsc = mock[ODSConnector]
     when(odsc.connectToSelfAssessment(any(), any())(any()))
@@ -54,15 +54,15 @@ class GovSpendingControllerTest extends BaseSpec {
       .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
-    new ATSDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
+    new AtsSaDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
   }
 
   "Calling Government Spend with no session"                                must {
     "return a 200 response" in {
 
       val controllerUnderTest = makeController(summaryJson)
-      val result2014          = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
-      val result2015          = Future.successful(controllerUnderTest.getATSData("user", 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
 
       status(result2014.futureValue) mustBe 200
       status(result2015.futureValue) mustBe 200
@@ -70,8 +70,8 @@ class GovSpendingControllerTest extends BaseSpec {
     "have the right data in the output Json" in {
 
       val controllerUnderTest = makeController(summaryJson)
-      val result2014          = Future.successful(controllerUnderTest.getATSData(testUtr, 2014)(request))
-      val result2015          = Future.successful(controllerUnderTest.getATSData(testUtr, 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2015)(request))
 
       val rawJsonString2014 = contentAsString(result2014.futureValue)
       val rawJson2014       = Json.parse(rawJsonString2014)
@@ -118,8 +118,8 @@ class GovSpendingControllerTest extends BaseSpec {
     "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(capitalGainsOnlyJson)
-      val result2014          = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
-      val result2015          = Future.successful(controllerUnderTest.getATSData("user", 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
 
       val rawJsonString2014 = contentAsString(result2014.futureValue)
       val rawJson2014       = Json.parse(rawJsonString2014)
@@ -166,8 +166,8 @@ class GovSpendingControllerTest extends BaseSpec {
     "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(allTaxJson)
-      val result2014          = Future.successful(controllerUnderTest.getATSData("user", 2014)(request))
-      val result2015          = Future.successful(controllerUnderTest.getATSData("user", 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
 
       val rawJsonString2014 = contentAsString(result2014.futureValue)
       val rawJson2014       = Json.parse(rawJsonString2014)

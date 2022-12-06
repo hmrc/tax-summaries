@@ -16,12 +16,13 @@
 
 package controllers
 
+import cats.data.EitherT
 import controllers.auth.FakeAuthAction
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.mockito.Mockito._
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status._
-import play.api.libs.json.{JsResultException, JsString}
+import play.api.libs.json.JsString
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
@@ -30,10 +31,9 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{ATSErrorHandler, BaseSpec}
 
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-class ATSDataControllerSpec extends BaseSpec {
+class AtsSaDataControllerSpec extends BaseSpec {
 
   lazy val cc: ControllerComponents = stubControllerComponents()
 
@@ -47,7 +47,7 @@ class ATSDataControllerSpec extends BaseSpec {
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   val odsService: OdsService = mock[OdsService]
-  val controller             = new ATSDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
+  val controller             = new AtsSaDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
 
   val taxYear        = 2021
   val json: JsString = JsString("success")
@@ -58,10 +58,8 @@ class ATSDataControllerSpec extends BaseSpec {
 
       "the service returns a right" in {
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
-          Right(json)
-        )
-        val result = controller.getATSData(testUtr, taxYear)(request)
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])).thenReturn(EitherT.rightT(json))
+        val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe json
@@ -74,11 +72,10 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val msg = "Record not found"
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(UpstreamErrorResponse(msg, NOT_FOUND, INTERNAL_SERVER_ERROR))
-        )
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier]))
+          .thenReturn(EitherT.leftT(UpstreamErrorResponse(msg, NOT_FOUND, INTERNAL_SERVER_ERROR)))
 
-        val result = controller.getATSData(testUtr, taxYear)(request)
+        val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe msg
@@ -91,25 +88,13 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val msg = "Record not found"
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
-          Left(UpstreamErrorResponse(msg, BAD_REQUEST, INTERNAL_SERVER_ERROR))
-        )
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier]))
+          .thenReturn(EitherT.leftT(UpstreamErrorResponse(msg, BAD_REQUEST, INTERNAL_SERVER_ERROR)))
 
-        val result = controller.getATSData(testUtr, taxYear)(request)
+        val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe BAD_REQUEST
         contentAsString(result) mustBe msg
-      }
-    }
-
-    "return an exception" when {
-      "connector returns a left with JsonParseError" in {
-
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.failed(
-          JsResultException(List())
-        )
-
-        intercept[JsResultException](Await.result(controller.getATSData(testUtr, taxYear)(request), 1.seconds))
       }
     }
 
@@ -119,11 +104,10 @@ class ATSDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
-            Left(upstreamError)
-          )
+          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier]))
+            .thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getATSData(testUtr, taxYear)(request)
+          val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
           status(result) mustBe INTERNAL_SERVER_ERROR
           contentAsString(result) mustBe upstreamError.getMessage
@@ -138,11 +122,10 @@ class ATSDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, BAD_GATEWAY)
 
-          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier])) thenReturn Future.successful(
-            Left(upstreamError)
-          )
+          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier]))
+            .thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getATSData(testUtr, taxYear)(request)
+          val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
           status(result) mustBe BAD_GATEWAY
           contentAsString(result) mustBe upstreamError.getMessage
@@ -157,7 +140,7 @@ class ATSDataControllerSpec extends BaseSpec {
 
       "the service returns a right" in {
 
-        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Right(json))
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.rightT(json))
 
         val result = controller.hasAts(testUtr)(request)
 
@@ -172,7 +155,7 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val upstreamError = UpstreamErrorResponse("Record not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
 
-        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(upstreamError))
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
         val result = controller.hasAts(testUtr)(request)
 
@@ -187,24 +170,12 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val upstreamError = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
 
-        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(upstreamError))
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
         val result = controller.hasAts(testUtr)(request)
 
         status(result) mustBe BAD_REQUEST
         contentAsString(result) mustBe upstreamError.getMessage
-      }
-    }
-
-    "return en exception" when {
-      "connector returns a left with JsonParseError" in {
-        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(JsResultException(List()))
-
-        val result = controller.hasAts(testUtr)(request)
-
-        whenReady(result.failed) { e =>
-          e mustBe a[JsResultException]
-        }
       }
     }
 
@@ -214,7 +185,7 @@ class ATSDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(upstreamError))
+          when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
           val result = controller.hasAts(testUtr)(request)
 
@@ -231,7 +202,7 @@ class ATSDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(upstreamError))
+          when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
           val result = controller.hasAts(testUtr)(request)
 
@@ -248,9 +219,9 @@ class ATSDataControllerSpec extends BaseSpec {
 
       "connector returns a right" in {
 
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Right(json))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.rightT(json))
 
-        val result = controller.getATSList(testUtr)(request)
+        val result = controller.getAtsSaList(testUtr)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe json
@@ -263,9 +234,9 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val upstreamError = UpstreamErrorResponse("NoAtaData", NOT_FOUND, INTERNAL_SERVER_ERROR)
 
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(upstreamError))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-        val result = controller.getATSList(testUtr)(request)
+        val result = controller.getAtsSaList(testUtr)(request)
 
         status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe upstreamError.getMessage
@@ -278,23 +249,12 @@ class ATSDataControllerSpec extends BaseSpec {
 
         val upstreamError = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
 
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(Left(upstreamError))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-        val result = controller.getATSList(testUtr)(request)
+        val result = controller.getAtsSaList(testUtr)(request)
 
         status(result) mustBe BAD_REQUEST
         contentAsString(result) mustBe upstreamError.getMessage
-      }
-    }
-
-    "return an exception" when {
-
-      "connector returns a left with JsonParseError" in {
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(
-          JsResultException(List())
-        )
-
-        intercept[JsResultException](Await.result(controller.getATSList(testUtr)(request), 1.seconds))
       }
     }
 
@@ -304,11 +264,9 @@ class ATSDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Error", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
-            Left(upstreamError)
-          )
+          when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getATSList(testUtr)(request)
+          val result = controller.getAtsSaList(testUtr)(request)
 
           status(result) mustBe INTERNAL_SERVER_ERROR
           contentAsString(result) mustBe upstreamError.getMessage
@@ -322,25 +280,13 @@ class ATSDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Error", statusCode, BAD_GATEWAY)
 
-          when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.successful(
-            Left(upstreamError)
-          )
+          when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getATSList(testUtr)(request)
+          val result = controller.getAtsSaList(testUtr)(request)
 
           status(result) mustBe BAD_GATEWAY
           contentAsString(result) mustBe upstreamError.getMessage
         }
-      }
-    }
-
-    "return a failed future" in {
-      when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])) thenReturn Future.failed(new Exception("failed"))
-
-      val result = controller.getATSList(testUtr)(request)
-
-      whenReady(result.failed) { exception =>
-        exception mustBe a[Exception]
       }
     }
   }

@@ -17,6 +17,7 @@
 package utils
 
 import config.ApplicationConfig
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -31,6 +32,7 @@ class BaseSpec
     with Injecting
     with MockitoSugar
     with ScalaFutures
-    with IntegrationPatience {
+    with IntegrationPatience
+    with BeforeAndAfterEach {
   lazy val applicationConfig = inject[ApplicationConfig]
 }
