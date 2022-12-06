@@ -24,14 +24,14 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpResponse, UpstreamErrorResponse}
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ODSConnector @Inject() (
   http: HttpClient,
   applicationConfig: ApplicationConfig,
   httpClientResponse: HttpClientResponse
-) extends Logging {
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   val serviceUrl = applicationConfig.npsServiceUrl
 

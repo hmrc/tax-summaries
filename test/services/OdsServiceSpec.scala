@@ -21,7 +21,6 @@ import cats.implicits._
 import connectors.ODSConnector
 import models.AtsCheck
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
-import org.mockito.Mockito
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
@@ -40,8 +39,8 @@ class OdsServiceSpec extends BaseSpec {
   val service = new OdsService(jsonHelper, odsConnector)
 
   override def beforeEach(): Unit = {
-    Mockito.reset(odsConnector)
-    Mockito.reset(jsonHelper)
+    reset(odsConnector)
+    reset(jsonHelper)
     super.beforeEach()
   }
 

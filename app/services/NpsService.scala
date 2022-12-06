@@ -26,10 +26,11 @@ import play.api.http.Status.NOT_FOUND
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class NpsService @Inject() (repository: Repository, innerService: DirectNpsService, config: ApplicationConfig) {
+class NpsService @Inject() (repository: Repository, innerService: DirectNpsService, config: ApplicationConfig)(implicit
+  ec: ExecutionContext
+) {
 
   def getAtsPayeDataMultipleYears(nino: String, taxYears: List[Int])(implicit
     hc: HeaderCarrier
@@ -69,7 +70,9 @@ class NpsService @Inject() (repository: Repository, innerService: DirectNpsServi
     } yield data
 }
 
-class DirectNpsService @Inject() (applicationConfig: ApplicationConfig, npsConnector: NpsConnector) {
+class DirectNpsService @Inject() (applicationConfig: ApplicationConfig, npsConnector: NpsConnector)(implicit
+  ec: ExecutionContext
+) {
   def getPayeATSData(nino: String, taxYear: Int)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, PayeAtsMiddleTier] =

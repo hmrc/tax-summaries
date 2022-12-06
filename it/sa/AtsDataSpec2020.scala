@@ -71,8 +71,6 @@ class AtsDataSpec2020 extends SaTestHelper {
       TotalIncomeTax                     -> 6453.0, //LS20
       TotalIncomeTaxAndNics              -> 10278.48, //LS16
       EmployeeNicAmount                  -> 3825.48, //LS14
-      //IncomeAfterTaxAndNics -> 40311.52, //LS17, RS5
-      //EmployerNicAmount -> 4399.30, //LS18 PAYE data
       PayCgTaxOn                         -> 0.0, //LS19.8
       TaxableGains                       -> 0.0, //LS19.6
       //??? -> 12000.0, //LS19.7
@@ -128,8 +126,6 @@ class AtsDataSpec2020 extends SaTestHelper {
       TotalIncomeTax                     -> 4297.00, //LS20
       TotalIncomeTaxAndNics              -> 4497.00, //LS16
       EmployeeNicAmount                  -> 200.00, //LS14
-      //IncomeAfterTaxAndNics -> 40311.52, //LS17, RS5
-      //EmployerNicAmount -> 4399.30, //LS18 PAYE data
       PayCgTaxOn                         -> 2000.0, //LS19.8
       TaxableGains                       -> 2100.0, //LS19.6
       //??? -> 12000.0, //LS19.7
