@@ -17,7 +17,6 @@
 package controllers.auth
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}

@@ -19,7 +19,6 @@ package controllers
 import akka.stream.Materializer
 import controllers.auth.FakeAuthAction
 import org.mockito.ArgumentMatchers.{eq => meq}
-import org.mockito.Mockito.when
 import play.api.http.Status.OK
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
@@ -38,7 +37,7 @@ class GovernmentSpendControllerSpec extends BaseSpec {
   val expectedBody = """{"Environment":5.5}"""
 
   "GovernmentSpendController" must {
-    def sut = new GovernmentSpendController(
+    def sut: GovernmentSpendController = new GovernmentSpendController(
       mockGovSpendService,
       FakeAuthAction,
       stubControllerComponents()

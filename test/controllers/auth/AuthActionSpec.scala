@@ -18,7 +18,6 @@ package controllers.auth
 
 import akka.util.Timeout
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import play.api.test.Helpers.{status, stubControllerComponents}
