@@ -267,63 +267,63 @@
       "amount": 0.00,
       "currency": "GBP"
     },
-    "ctnTaxOnRedundancySSR": {
+    "ctnTaxOnRedundancySsr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "ctnTaxableRedundancyBR": {
+    "ctnTaxableRedundancyBr": {
       "amount": 61.00,
       "currency": "GBP"
     },
-    "ctnTaxOnRedundancyBR": {
+    "ctnTaxOnRedundancyBr": {
       "amount": 12.20,
       "currency": "GBP"
     },
-    "ctnTaxableRedundancySIR": {
+    "ctnTaxableRedundancySir": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "ctnTaxOnRedundancySIR": {
+    "ctnTaxOnRedundancySir": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "taxable-redundancy-HR": {
+    "ctnTaxableRedundancyHr": {
       "amount": 3403.00,
       "currency": "GBP"
     },
-    "tax-on-redundancy-HR": {
+    "ctnTaxOnRedundancyHr": {
       "amount": 1361.20,
       "currency": "GBP"
     },
-    "taxable-redundancy-AHR": {
+    "ctnTaxableRedundancyAhr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "tax-on-redundancy-AHR": {
+    "ctnTaxOnRedundancyAhr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "taxable-CEG-BR": {
+    "ctnTaxableCegBr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "tax-on-CEG-BR": {
+    "ctnTaxOnCegBr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "taxable-CEG-HR": {
+    "ctnTaxableCegHr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "tax-on-CEG-HR": {
+    "ctnTaxOnCegHr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "taxable-CEG-AHR": {
+    "ctnTaxableCegAhr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "tax-on-CEG-AHR": {
+    "ctnTaxOnCegAhr": {
       "amount": 0.00,
       "currency": "GBP"
     },
@@ -519,11 +519,15 @@
       "amount": 0.00,
       "currency": "GBP"
     },
-    "taxable-CEG-SR": {
+    "ctnTaxableCegSr": {
       "amount": 0.00,
       "currency": "GBP"
     },
-    "tax-on-CEG-SR": {
+    "ctnTaxOnCegSr": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
+    "ctnTaxableRedundancySsr": {
       "amount": 0.00,
       "currency": "GBP"
     }
