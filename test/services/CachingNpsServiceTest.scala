@@ -20,12 +20,13 @@ import cats.data.EitherT
 import config.ApplicationConfig
 import models.paye.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import play.api.http.Status.BAD_GATEWAY
+import org.mockito.{ArgumentCaptor, Mockito}
+import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import repositories.Repository
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.BaseSpec
 
+import scala.jdk.CollectionConverters._
 import java.sql.Timestamp
 import java.time.{Instant, LocalDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -50,41 +51,99 @@ class CachingNpsServiceTest extends BaseSpec {
 
   val ttl: Instant = Timestamp.valueOf(LocalDateTime.now.plusMinutes(15)).toInstant
 
-  "CachingNpsService" must {
-    "Retrieve data from the cache" in new Fixture {
-      val data      = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
-      val dataMongo = new PayeAtsMiddleTierMongo(buildId("NINONINO", 2627), data, ttl)
-
-      when(config.calculateExpiryTime()).thenReturn(ttl)
-      when(repository.get(any(), any())).thenReturn(Future.successful(Some(dataMongo)))
-
-      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
-        getPayeATSData("NONONONO", 5465)(HeaderCarrier()).value
-      result.futureValue mustBe Right(data)
-    }
-
-    "Retrieve data from the InnerService when cache empty and refresh the cache" in new Fixture {
-      val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
+  "getAtsPayeDataMultipleYears" must {
+    "return a successful response" in new Fixture {
+      val data        = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
       when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(repository.set(any())).thenReturn(Future.successful(true))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(EitherT.rightT(data))
 
-      whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier()).value) { result =>
+      whenReady(getAtsPayeDataMultipleYears(generatedNino.nino, List(2000, 2001))(HeaderCarrier()).value) { result =>
+        result mustBe Right(List(data, data))
+        verify(repository, times(2)).set(any())
+        verify(innerService, times(2)).getPayeATSData(any(), eventCaptor.capture())(any())
+        val argsYear: List[Int] = eventCaptor.getAllValues.asScala.toList
+        argsYear.sorted mustBe List(2000, 2001)
+      }
+    }
+
+    "return an empty list" in new Fixture {
+      val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
+      when(config.calculateExpiryTime()).thenReturn(ttl)
+      when(repository.get(any(), any())).thenReturn(Future.successful(None))
+      when(repository.set(any())).thenReturn(Future.successful(true))
+      when(innerService.getPayeATSData(any(), any())(any()))
+        .thenReturn(EitherT.leftT(UpstreamErrorResponse("", NOT_FOUND)))
+
+      whenReady(getAtsPayeDataMultipleYears(generatedNino.nino, List(2000, 2001))(HeaderCarrier()).value) { result =>
+        result mustBe Right(List.empty)
+        verify(repository, times(0)).set(any())
+        verify(innerService, times(2)).getPayeATSData(any(), eventCaptor.capture())(any())
+        val argsYear: List[Int] = eventCaptor.getAllValues.asScala.toList
+        argsYear.sorted mustBe List(2000, 2001)
+      }
+    }
+
+    "return a failure" in new Fixture {
+      val data        = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
+      when(config.calculateExpiryTime()).thenReturn(ttl)
+      when(repository.get(any(), any())).thenReturn(Future.successful(None))
+      when(repository.set(any())).thenReturn(Future.successful(true))
+      when(innerService.getPayeATSData(any(), any())(any())).thenReturn(
+        EitherT.rightT(data),
+        EitherT.leftT(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)),
+        EitherT.rightT(data)
+      )
+
+      whenReady(getAtsPayeDataMultipleYears(generatedNino.nino, List(2000, 2001, 2002))(HeaderCarrier()).value) {
+        result =>
+          result mustBe a[Left[UpstreamErrorResponse, _]]
+          verify(repository, times(2)).set(any())
+          verify(innerService, times(3)).getPayeATSData(any(), eventCaptor.capture())(any())
+          val argsYear: List[Int] = eventCaptor.getAllValues.asScala.toList
+          argsYear.sorted mustBe List(2000, 2001, 2002)
+      }
+    }
+  }
+
+  "caching getPayeATSData" must {
+    "Retrieve data from the cache" in new Fixture {
+      val data      = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val dataMongo = new PayeAtsMiddleTierMongo(buildId(generatedNino.nino, 2627), data, ttl)
+
+      when(config.calculateExpiryTime()).thenReturn(ttl)
+      when(repository.get(any(), any())).thenReturn(Future.successful(Some(dataMongo)))
+
+      val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
+        getPayeATSData(generatedNino.nino, 5465)(HeaderCarrier()).value
+      result.futureValue mustBe Right(data)
+    }
+
+    "Retrieve data from the InnerService when cache empty and refresh the cache" in new Fixture {
+      val data = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      when(config.calculateExpiryTime()).thenReturn(ttl)
+      when(repository.get(any(), any())).thenReturn(Future.successful(None))
+      when(repository.set(any())).thenReturn(Future.successful(true))
+      when(innerService.getPayeATSData(any(), any())(any())).thenReturn(EitherT.rightT(data))
+
+      whenReady(getPayeATSData(generatedNino.nino, 5465)(HeaderCarrier()).value) { result =>
         result mustBe Right(data)
         verify(repository).set(any())
       }
     }
 
     "Return an internal server error when refreshing the cache fails" in new Fixture {
-      val data = new PayeAtsMiddleTier(2627, "NINONINO", None, None, None, None, None)
+      val data = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
 
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(repository.set(any())).thenReturn(Future.failed(new Exception("Failed")))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(EitherT.rightT(data))
 
       val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
-        getPayeATSData("NONONONO", 5465)(HeaderCarrier()).value
+        getPayeATSData(generatedNino.nino, 5465)(HeaderCarrier()).value
 
       whenReady(result.failed) { e =>
         e mustBe a[Exception]
@@ -96,7 +155,7 @@ class CachingNpsServiceTest extends BaseSpec {
       when(repository.get(any(), any())).thenReturn(Future.failed(new Exception("Failed")))
 
       val result: Future[Either[UpstreamErrorResponse, PayeAtsMiddleTier]] =
-        getPayeATSData("NONONONO", 5465)(HeaderCarrier()).value
+        getPayeATSData(generatedNino.nino, 5465)(HeaderCarrier()).value
 
       whenReady(result.failed) { e =>
         e mustBe a[Exception]
@@ -110,7 +169,7 @@ class CachingNpsServiceTest extends BaseSpec {
       when(innerService.getPayeATSData(any(), any())(any()))
         .thenReturn(EitherT.leftT(response))
 
-      whenReady(getPayeATSData("NONONONO", 5465)(HeaderCarrier()).value) {
+      whenReady(getPayeATSData(generatedNino.nino, 5465)(HeaderCarrier()).value) {
         case Left(response) => response mustBe a[UpstreamErrorResponse]
         case _              => fail("Incorrect reponse from Caching Service")
       }
