@@ -248,39 +248,43 @@ object Liability {
 
   case object Class2NicAmt extends Liability("ctnClass2NicAmt")
 
-  case object TaxableRedundancyHr extends Liability("taxable-redundancy-HR")
+  case object TaxableRedundancyHr extends Liability("ctnTaxableRedundancyHr")
 
-  case object TaxableCegHr extends Liability("taxable-CEG-HR")
+  case object TaxableCegHr extends Liability("ctnTaxableCegHr")
 
   case object PensionLumpSumTaxRate extends Liability("ctnPensionLumpSumTaxRate")
 
-  case object TaxOnRedundancyHr extends Liability("tax-on-redundancy-HR")
+  case object TaxOnRedundancyHr extends Liability("ctnTaxOnRedundancyHr")
 
-  case object TaxOnRedundancySsr extends Liability("ctnTaxOnRedundancySSR")
+  case object TaxOnRedundancySsr extends Liability("ctnTaxOnRedundancySsr")
 
-  case object TaxOnRedundancySir extends Liability("ctnTaxOnRedundancySIR")
+  case object TaxOnRedundancySir extends Liability("ctnTaxOnRedundancySir")
 
-  case object TaxOnCegHr extends Liability("tax-on-CEG-HR")
+  case object TaxOnCegHr extends Liability("ctnTaxOnCegHr")
 
-  case object TaxOnRedundancyBr extends Liability("ctnTaxOnRedundancyBR")
+  case object TaxOnRedundancyBr extends Liability("ctnTaxOnRedundancyBr")
 
-  case object TaxOnCegBr extends Liability("tax-on-CEG-BR")
+  case object TaxOnCegBr extends Liability("ctnTaxOnCegBr")
 
-  case object TaxOnRedundancyAhr extends Liability("tax-on-redundancy-AHR")
+  case object TaxOnRedundancyAhr extends Liability("ctnTaxOnRedundancyAhr")
 
-  case object TaxOnCegAhr extends Liability("tax-on-CEG-AHR")
+  case object TaxOnCegAhr extends Liability("ctnTaxOnCegAhr")
 
-  case object TaxableRedundancyBr extends Liability("ctnTaxableRedundancyBR")
+  case object TaxableRedundancyBr extends Liability("ctnTaxableRedundancyBr")
 
-  case object TaxableCegBr extends Liability("taxable-CEG-BR")
+  case object TaxableCegBr extends Liability("ctnTaxableCegBr")
 
-  case object TaxableRedundancyAhr extends Liability("taxable-redundancy-AHR")
+  case object TaxableRedundancyAhr extends Liability("ctnTaxableRedundancyAhr")
 
-  case object TaxableCegAhr extends Liability("taxable-CEG-AHR")
+  case object TaxableCegAhr extends Liability("ctnTaxableCegAhr")
 
-  case object TaxableCegSr extends Liability("taxable-CEG-SR")
+  case object TaxableCegSr extends Liability("ctnTaxableCegSr")
 
-  case object TaxOnCegSr extends Liability("tax-on-CEG-SR")
+  case object TaxOnCegSr extends Liability("ctnTaxOnCegSr")
+
+  case object TaxableRedundancySsr extends Liability("ctnTaxableRedundancySsr")
+
+  case object TaxableRedundancySir extends Liability("ctnTaxableRedundancySir")
 
   // format: off
   val allLiabilities: List[Liability with ApiValue] =
@@ -305,7 +309,8 @@ object Liability {
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced, ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted,
       Class2NicAmt, TaxableRedundancyHr, TaxableCegHr, PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr,
-      TaxOnRedundancyAhr, TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr, TaxableCegAhr, TaxableCegSr, TaxOnCegSr)
+      TaxOnRedundancyAhr, TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
+      TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir)
   // format: on
 
   implicit val reads: Reads[Liability] = ApiValue.readFromList(allLiabilities)
