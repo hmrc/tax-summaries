@@ -83,75 +83,75 @@ class ATSCalculationsScottish2022Test extends BaseSpec {
     }
 
     "return scottishStarterRateTax" in {
-      sut().scottishStarterRateTax mustBe Amount(2200.84, "GBP")
+      sut().scottishStarterRateTax mustBe Amount(113.55, "GBP")
     }
 
     "return scottishBasicRateTax" in {
-      sut().scottishBasicRateTax mustBe Amount(5672.02, "GBP")
+      sut().scottishBasicRateTax mustBe Amount(574.73, "GBP")
     }
 
     "return scottishBasicRateTax intermediate rate" in {
       val taxSummaryLiabilityIntermediateRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishIntermediateRate")))
-      sut(taxSummaryLiabilityIntermediateRate).scottishBasicRateTax mustBe Amount(5548.62, "GBP")
+      sut(taxSummaryLiabilityIntermediateRate).scottishBasicRateTax mustBe Amount(451.33, "GBP")
     }
 
     "return scottishIntermediateRateTax with basic rate" in {
-      sut().scottishIntermediateRateTax mustBe Amount(4230.84, "GBP")
+      sut().scottishIntermediateRateTax mustBe Amount(145.55, "GBP")
     }
 
     "return scottishIntermediateRateTax" in {
       val taxSummaryLiabilityIntermediateRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishIntermediateRate")))
-      sut(taxSummaryLiabilityIntermediateRate).scottishIntermediateRateTax mustBe Amount(4354.24, "GBP")
+      sut(taxSummaryLiabilityIntermediateRate).scottishIntermediateRateTax mustBe Amount(268.95, "GBP")
     }
 
     "return scottishHigherRateTax" in {
       val taxSummaryLiabilityHigherRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishHigherRate")))
-      sut(taxSummaryLiabilityHigherRate).scottishHigherRateTax mustBe Amount(1333.55, "GBP")
+      sut(taxSummaryLiabilityHigherRate).scottishHigherRateTax mustBe Amount(238.26, "GBP")
     }
 
     "return scottishAdditionalRateTax" in {
       val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishAdditionalRate")))
-      sut(taxSummaryLiabilityAdditionalRate).scottishAdditionalRateTax mustBe Amount(1565.79, "GBP")
+      sut(taxSummaryLiabilityAdditionalRate).scottishAdditionalRateTax mustBe Amount(275.95, "GBP")
     }
 
     "does not return scottishAdditionalRateTax when used with basic rate" in {
-      sut().scottishAdditionalRateTax mustBe Amount(1442.39, "GBP")
+      sut().scottishAdditionalRateTax mustBe Amount(152.55, "GBP")
     }
 
     "return scottishStarterRateIncome" in {
       val taxSummaryLiabilityStarterRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishStarterRate")))
-      sut(taxSummaryLiabilityStarterRate).scottishStarterRateIncome mustBe Amount(34.25, "GBP")
+      sut(taxSummaryLiabilityStarterRate).scottishStarterRateIncome mustBe Amount(122.58, "GBP")
     }
 
     "does not return scottishStarterRateIncome when used with basic rate" in {
-      sut().scottishStarterRateIncome mustBe Amount(21.11, "GBP")
+      sut().scottishStarterRateIncome mustBe Amount(109.44, "GBP")
     }
 
     "return scottishBasicRateIncome" in {
-      sut().scottishBasicRateIncome mustBe Amount(2050.11, "GBP")
+      sut().scottishBasicRateIncome mustBe Amount(1951.47, "GBP")
     }
 
     "return scottishIntermediateRateIncome" in {
       val taxSummaryLiabilityIntermediateRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishIntermediateRate")))
-      sut(taxSummaryLiabilityIntermediateRate).scottishIntermediateRateIncome mustBe Amount(1247.35, "GBP")
+      sut(taxSummaryLiabilityIntermediateRate).scottishIntermediateRateIncome mustBe Amount(1337.68, "GBP")
     }
 
     "return scottishHigherRateIncome" in {
       val taxSummaryLiabilityHigherRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishHigherRate")))
-      sut(taxSummaryLiabilityHigherRate).scottishHigherRateIncome mustBe Amount(1255.58, "GBP")
+      sut(taxSummaryLiabilityHigherRate).scottishHigherRateIncome mustBe Amount(111.70, "GBP")
     }
 
     "return scottishAdditionalRateIncome" in {
       val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishAdditionalRate")))
-      sut(taxSummaryLiabilityAdditionalRate).scottishAdditionalRateIncome mustBe Amount(6139.98, "GBP")
+      sut(taxSummaryLiabilityAdditionalRate).scottishAdditionalRateIncome mustBe Amount(100.69, "GBP")
     }
 
     "return savingsBasicRateTax" in {
@@ -167,7 +167,7 @@ class ATSCalculationsScottish2022Test extends BaseSpec {
     "return savingsAdditionalRateTax" in {
       val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(getRate("scottishAdditionalRate")))
-      sut(taxSummaryLiabilityAdditionalRate).savingsAdditionalRateTax mustBe Amount(9178.93, "GBP")
+      sut(taxSummaryLiabilityAdditionalRate).savingsAdditionalRateTax mustBe Amount(89.64, "GBP")
     }
 
     "return savingsBasicRateIncome" in {
@@ -187,7 +187,7 @@ class ATSCalculationsScottish2022Test extends BaseSpec {
     }
 
     "return totalIncomeTaxAmount" in {
-      sut().totalIncomeTaxAmount mustBe Amount(22907.35, "GBP")
+      sut().totalIncomeTaxAmount mustBe Amount(1352.05, "GBP")
     }
 
   }

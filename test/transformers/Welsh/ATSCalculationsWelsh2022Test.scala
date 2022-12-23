@@ -49,16 +49,16 @@ class ATSCalculationsWelsh2022Test extends BaseSpec {
       }
 
       "savingsRate is called" in {
-        sut().savingsRate mustBe Amount(6156.72, "GBP")
+        sut().savingsRate mustBe Amount(87.43, "GBP")
       }
 
       "savingsRateAmount is called" in {
-        sut().savingsRateAmount mustBe Amount(6159.82, "GBP")
+        sut().savingsRateAmount mustBe Amount(80.53, "GBP")
       }
     }
 
     "return welshIncomeTax" in {
-      sut().welshIncomeTax mustBe Amount(940.625, "GBP")
+      sut().welshIncomeTax mustBe Amount(212.444, "GBP")
     }
   }
 }

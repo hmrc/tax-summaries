@@ -37,31 +37,31 @@ class ATSCalculations2022Test extends BaseSpec {
 
   "Generic calculations 2022" must {
     "calculate totalAmountEmployeeNic" in {
-      sut().totalAmountEmployeeNic mustBe Amount(8893.54, "GBP")
+      sut().totalAmountEmployeeNic mustBe Amount(225.66, "GBP")
     }
 
     "calculate basicRateIncomeTax" in {
-      sut().basicRateIncomeTax mustBe Amount(8176.78, "GBP")
+      sut().basicRateIncomeTax mustBe Amount(2032.85, "GBP")
     }
 
     "calculate basicRateIncomeTaxAmount" in {
-      sut().basicRateIncomeTaxAmount mustBe Amount(11850.94, "GBP")
+      sut().basicRateIncomeTaxAmount mustBe Amount(657.36, "GBP")
     }
 
     "calculate higherRateIncomeTax" in {
-      sut().higherRateIncomeTax mustBe Amount(1460.91, "GBP")
+      sut().higherRateIncomeTax mustBe Amount(183.24, "GBP")
     }
 
     "calculate higherRateIncomeTaxAmount" in {
-      sut().higherRateIncomeTaxAmount mustBe Amount(39412.32, "GBP")
+      sut().higherRateIncomeTaxAmount mustBe Amount(223.74, "GBP")
     }
 
     "calculate additionalRateIncomeTaxAmount" in {
-      sut().additionalRateIncomeTaxAmount mustBe Amount(10621.32, "GBP")
+      sut().additionalRateIncomeTaxAmount mustBe Amount(242.19, "GBP")
     }
 
     "calculate additionalRateIncomeTax" in {
-      sut().additionalRateIncomeTax mustBe Amount(12316.98, "GBP")
+      sut().additionalRateIncomeTax mustBe Amount(228.40, "GBP")
     }
 
     "calculate selfEmployment" in {
@@ -69,7 +69,7 @@ class ATSCalculations2022Test extends BaseSpec {
     }
 
     "calculate otherIncome" in {
-      sut().otherIncome mustBe Amount(17481.29, "GBP")
+      sut().otherIncome mustBe Amount(1289.99, "GBP")
     }
 
     "calculate otherAllowances" in {
