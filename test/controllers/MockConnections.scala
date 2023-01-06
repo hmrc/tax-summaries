@@ -16,25 +16,29 @@
 
 package controllers
 
+import cats.data.EitherT
+import play.api.http.Status.OK
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import java.io.IOException
 import scala.concurrent.Future
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 object MockConnections {
 
   def connectToServiceWithBrokenIO(URL: String): Future[JsValue] =
     throw new IOException()
 
-  def connectToMockPayloadService(URL: String): Future[Either[UpstreamErrorResponse, JsValue]] =
-    try {
-      val source     = Source.fromURL(getClass.getResource(URL)).mkString
-      val theJsValue = Json.parse(source)
-      Future.successful(Right(theJsValue))
-    } catch {
-      case error: Throwable => Future.failed(error)
+  def connectToMockPayloadService(URL: String): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    Try {
+      Source.fromURL(getClass.getResource(URL)).mkString
+    } match {
+      case Success(value) => EitherT.rightT(HttpResponse(OK, value))
+      case Failure(error) => throw new RuntimeException("Mock file not found: " + error.getMessage)
     }
 
   def connectToMockGovSpendService(URL: String): JsValue = {

@@ -134,6 +134,7 @@
     "ctnTaxableRedundancySir": {"amount":  90.33, "currency":  "GBP"},
     "ctnTaxOnRedundancySir": {"amount":  91.33, "currency":  "GBP"},
     "ctnClass2NicAmt": {"amount":  92.33, "currency":  "GBP"},
+    "ctnTaxableRedundancyHr": {"amount":  93.33, "currency":  "GBP"},
     "incomeTaxStatus":"0003"
   }
 }

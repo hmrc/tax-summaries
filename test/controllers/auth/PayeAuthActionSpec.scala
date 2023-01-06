@@ -17,20 +17,16 @@
 package controllers.auth
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
-import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, _}
 import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientConfidenceLevel, InternalError, MissingBearerToken}
-import utils.NinoHelper
+import utils.{BaseSpec, NinoHelper}
 import utils.TestConstants._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayeAuthActionSpec extends PlaySpec with GuiceOneAppPerSuite with BeforeAndAfterEach with MockitoSugar {
+class PayeAuthActionSpec extends BaseSpec {
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 

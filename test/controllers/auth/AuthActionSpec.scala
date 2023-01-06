@@ -18,26 +18,18 @@ package controllers.auth
 
 import akka.util.Timeout
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
-import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.{BAD_REQUEST, OK, UNAUTHORIZED}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import play.api.test.Helpers.{status, stubControllerComponents}
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.domain.SaUtrGenerator
+import utils.BaseSpec
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionSpec
-    extends PlaySpec
-    with GuiceOneAppPerSuite
-    with BeforeAndAfterEach
-    with MockitoSugar
-    with Injecting {
+class AuthActionSpec extends BaseSpec {
 
   val cc: ControllerComponents           = stubControllerComponents()
   val mockAuthConnector: AuthConnector   = mock[AuthConnector]

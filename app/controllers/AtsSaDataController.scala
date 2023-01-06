@@ -18,16 +18,14 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.auth.AuthAction
-import play.api.libs.json.JsValue
-import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.OdsService
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.ATSErrorHandler
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-class ATSDataController @Inject() (
+class AtsSaDataController @Inject() (
   odsService: OdsService,
   atsErrorHandler: ATSErrorHandler,
   authAction: AuthAction,
@@ -36,20 +34,29 @@ class ATSDataController @Inject() (
     extends BackendController(cc) {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    handleResponse(odsService.getList(utr))
+    odsService
+      .getList(utr)
+      .fold(
+        error => atsErrorHandler.errorToResponse(error),
+        result => Ok(result)
+      )
   }
 
-  def getATSData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
-    handleResponse(odsService.getPayload(utr, tax_year))
+  def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
+    odsService
+      .getPayload(utr, tax_year)
+      .fold(
+        error => atsErrorHandler.errorToResponse(error),
+        result => Ok(result)
+      )
   }
 
-  def getATSList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    handleResponse(odsService.getATSList(utr))
+  def getAtsSaList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
+    odsService
+      .getATSList(utr)
+      .fold(
+        error => atsErrorHandler.errorToResponse(error),
+        result => Ok(result)
+      )
   }
-
-  private def handleResponse(call: Future[Either[UpstreamErrorResponse, JsValue]]): Future[Result] = call map {
-    case Left(error)  => atsErrorHandler.errorToResponse(error)
-    case Right(value) => Ok(value)
-  }
-
 }

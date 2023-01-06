@@ -37,7 +37,7 @@ class GovernmentSpendControllerSpec extends BaseSpec {
   val expectedBody = """{"Environment":5.5}"""
 
   "GovernmentSpendController" must {
-    def sut = new GovernmentSpendController(
+    def sut: GovernmentSpendController = new GovernmentSpendController(
       mockGovSpendService,
       FakeAuthAction,
       stubControllerComponents()

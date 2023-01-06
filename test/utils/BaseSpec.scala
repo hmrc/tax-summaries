@@ -18,11 +18,13 @@ package utils
 
 import config.ApplicationConfig
 import org.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
+import uk.gov.hmrc.domain.Generator
 
 class BaseSpec
     extends AnyWordSpec
@@ -31,6 +33,10 @@ class BaseSpec
     with Injecting
     with MockitoSugar
     with ScalaFutures
-    with IntegrationPatience {
+    with IntegrationPatience
+    with BeforeAndAfterEach {
   lazy val applicationConfig = inject[ApplicationConfig]
+
+  val generatedNino = new Generator().nextNino
+
 }

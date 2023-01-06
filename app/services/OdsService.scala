@@ -33,22 +33,21 @@ class OdsService @Inject() (
 
   def getPayload(UTR: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[UpstreamErrorResponse, JsValue]] =
-    (for {
-      taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
-      taxSummaries <- EitherT(odsConnector.connectToSelfAssessment(UTR, TAX_YEAR))
-    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)).value
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    for {
+      taxpayer     <- odsConnector.connectToSATaxpayerDetails(UTR).map(_.json.as[JsValue])
+      taxSummaries <- odsConnector.connectToSelfAssessment(UTR, TAX_YEAR).map(_.json.as[JsValue])
+    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
 
-  def getList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
-    odsConnector.connectToSelfAssessmentList(UTR) map {
-      case Right(value) => Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(value))))
-      case Left(error)  => Left(error)
-    }
+  def getList(UTR: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    odsConnector
+      .connectToSelfAssessmentList(UTR)
+      .map(response => Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(response.json.as[JsValue]))))
 
-  def getATSList(UTR: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, JsValue]] =
-    (for {
-      taxSummaries <- EitherT(odsConnector.connectToSelfAssessmentList(UTR))
-      taxpayer     <- EitherT(odsConnector.connectToSATaxpayerDetails(UTR))
-    } yield jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)).value
+  def getATSList(UTR: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    for {
+      taxSummaries <- odsConnector.connectToSelfAssessmentList(UTR).map(_.json.as[JsValue])
+      taxpayer     <- odsConnector.connectToSATaxpayerDetails(UTR).map(_.json.as[JsValue])
+    } yield jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
 
 }

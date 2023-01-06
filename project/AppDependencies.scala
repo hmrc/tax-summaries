@@ -32,8 +32,7 @@ object AppDependencies {
     "uk.gov.hmrc"                %% "domain"                    % s"8.1.0-$playVersion",
     "com.github.fge"              % "json-schema-validator"     % jsonSchemaValidatorVersion,
     "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % hmrcMongoVersion,
-    "com.typesafe.scala-logging" %% "scala-logging"             % "3.9.5",
-    "org.typelevel"              %% "cats-core"                 % "2.8.0"
+    "org.typelevel"              %% "cats-core"                 % "2.9.0"
   )
 
   val test: Seq[ModuleID] = Seq(
