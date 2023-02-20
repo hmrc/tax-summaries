@@ -32,7 +32,7 @@ object Generators {
       } yield (key, value))
       .map(Map.apply(_: _*))
 
-  val genGbpAmount: Gen[Amount] = arbitrary[Double].map(Amount.gbp(_))
+  val genGbpAmount: Gen[Amount] = arbitrary[Double].map(Amount(_, "GBP"))
 
   val genLiabilityMap: Gen[Map[LiabilityKey, Amount]] =
     keyValueGen(LiabilityKey.allItems, genGbpAmount)
@@ -57,8 +57,8 @@ object Generators {
   val genGovernmentSpending: Gen[GovernmentSpendingOutputWrapper] = for {
     taxYear <- arbitrary[Int]
     spend   <- genSpendDataMap
-    total   <- arbitrary[Double].map(Amount.gbp(_))
-    errors  <- Gen.option(arbitrary[String].map(AtsError.apply(_)))
+    total   <- arbitrary[Double].map(Amount(_, "GBP"))
+    errors  <- Gen.option(arbitrary[String].map(AtsError.apply))
   } yield GovernmentSpendingOutputWrapper(taxYear, spend, total, errors)
 
   val genPayeAsMiddleTier: Gen[PayeAtsMiddleTier] = for {

@@ -24,23 +24,23 @@ import transformers.ATSCalculations
 class ATSCalculationsScottish2019(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
 
-  override def scottishIncomeTax: Amount = Amount.empty
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxScottish1019")
 
-  override def savingsRate: Amount = Amount.empty
+  override def savingsRate: Amount = Amount.empty("savingsRateScottish2019")
 
-  override def savingsRateAmount: Amount = Amount.empty
+  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountScottish2019")
 
-  override def basicRateIncomeTaxAmount: Amount = Amount.empty
+  override def basicRateIncomeTaxAmount: Amount = Amount.empty("basicRateIncomeTaxAmountScottish2019")
 
-  override def higherRateIncomeTaxAmount: Amount = Amount.empty
+  override def higherRateIncomeTaxAmount: Amount = Amount.empty("higherRateIncomeTaxAmountScottish2019")
 
-  override def additionalRateIncomeTaxAmount: Amount = Amount.empty
+  override def additionalRateIncomeTaxAmount: Amount = Amount.empty("additionalRateIncomeTaxAmountScottish2019")
 
-  override def basicRateIncomeTax: Amount = Amount.empty
+  override def basicRateIncomeTax: Amount = Amount.empty("basicRateIncomeTaxScottish2019")
 
-  override def higherRateIncomeTax: Amount = Amount.empty
+  override def higherRateIncomeTax: Amount = Amount.empty("higherRateIncomeTaxScottish2019")
 
-  override def additionalRateIncomeTax: Amount = Amount.empty
+  override def additionalRateIncomeTax: Amount = Amount.empty("additionalRateIncomeTaxScottish2019")
 
   override def scottishStarterRateTax: Amount =
     getWithDefaultAmount(TaxOnPayScottishStarterRate) + includePensionTaxForRate(taxRates.scottishStarterRate)

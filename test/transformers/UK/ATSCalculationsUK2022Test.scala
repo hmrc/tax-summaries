@@ -46,15 +46,19 @@ class ATSCalculationsUK2022Test extends BaseSpec {
   "UK 2022" must {
     "return empty" when {
       "scottishIncomeTax is called" in {
-        sut().scottishIncomeTax mustBe Amount.empty
+        sut().scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxUK2022")
       }
 
       "savingsRate is called" in {
-        sut().savingsRate mustBe Amount(87.43, "GBP")
+        sut().savingsRate mustBe Amount(87.43, "GBP", Some("11.10(ctnSavingsChgbleStartRate) + 76.33(ctnTaxableCegSr)"))
       }
 
       "savingsRateAmount is called" in {
-        sut().savingsRateAmount mustBe Amount(80.53, "GBP")
+        sut().savingsRateAmount mustBe Amount(
+          80.53,
+          "GBP",
+          Some("3.20(ctnSavingsTaxStartingRate) + 77.33(ctnTaxOnCegSr)")
+        )
       }
     }
   }

@@ -46,15 +46,15 @@ class ATSCalculationsUK2021Test extends BaseSpec {
   "UK 2021" must {
     "return empty" when {
       "scottishIncomeTax is called" in {
-        sut().scottishIncomeTax mustBe Amount.empty
+        sut().scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxUK2021")
       }
 
       "savingsRate is called" in {
-        sut().savingsRate mustBe Amount.empty
+        sut().savingsRate mustBe Amount.empty("savingsRateUK2021")
       }
 
       "savingsRateAmount is called" in {
-        sut().savingsRateAmount mustBe Amount.empty
+        sut().savingsRateAmount mustBe Amount.empty("savingsRateAmountUK2021")
       }
     }
   }

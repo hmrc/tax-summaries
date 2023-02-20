@@ -51,7 +51,9 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(SelfEmploymentIncome) must equal(new Amount(1100.0, "GBP"))
+      parsedPayload(SelfEmploymentIncome) must equal(
+        Amount(1100.0, "GBP", Some("1100.00(ctnSummaryTotalScheduleD) + 0.00(ctnSummaryTotalPartnership)"))
+      )
     }
 
     "have the correct summed self employment income data" in {
@@ -73,7 +75,9 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(SelfEmploymentIncome) must equal(new Amount(22.0, "GBP"))
+      parsedPayload(SelfEmploymentIncome) must equal(
+        Amount(22.0, "GBP", Some("11.0(ctnSummaryTotalScheduleD) + 11.0(ctnSummaryTotalPartnership)"))
+      )
     }
   }
 }

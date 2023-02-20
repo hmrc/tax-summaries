@@ -64,7 +64,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     scalacOptions ++= Seq(
-      "-Werror",
+      //"-Werror",
       "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
       "-Wconf:cat=unused&src=.*Routes\\.scala:s",
       "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"

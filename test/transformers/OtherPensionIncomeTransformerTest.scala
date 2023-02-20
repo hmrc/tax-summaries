@@ -50,7 +50,9 @@ class OtherPensionIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate 
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherPensionIncome) must equal(new Amount(0.0, "GBP"))
+      parsedPayload(OtherPensionIncome) must equal(
+        new Amount(0.0, "GBP", Some("0.00(atsOtherPensionAmt) + 0.00(itfStatePensionLsGrossAmt)"))
+      )
     }
 
     "have the correct summed other pension income data" in {
@@ -71,7 +73,9 @@ class OtherPensionIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate 
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherPensionIncome) must equal(new Amount(300.0, "GBP"))
+      parsedPayload(OtherPensionIncome) must equal(
+        new Amount(300.0, "GBP", Some("200.0(atsOtherPensionAmt) + 100.0(itfStatePensionLsGrossAmt)"))
+      )
     }
   }
 }

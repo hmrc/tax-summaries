@@ -51,8 +51,24 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsIncreasing) must equal(new Amount(0.0, "GBP"))
-      parsedPayload(OtherAdjustmentsReducing)   must equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsIncreasing) must equal(
+        new Amount(
+          0.0,
+          "GBP",
+          Some(
+            "0.00(nonDomChargeAmount) + 0.00(taxExcluded) + 0.00(incomeTaxDue) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) + 0.00(ctn4TaxDueAfterAllceRlf)"
+          )
+        )
+      )
+      parsedPayload(OtherAdjustmentsReducing)   must equal(
+        new Amount(
+          200.0,
+          "GBP",
+          Some(
+            "10.00(ctnDeficiencyRelief) + 10.00(topSlicingRelief) + 10.00(ctnVctSharesReliefAmt) + 10.00(ctnEisReliefAmt) + 10.00(ctnSeedEisReliefAmt) + 10.00(ctnCommInvTrustRelAmt) + 10.00(atsSurplusMcaAlimonyRel) + 10.00(ctnNotionalTaxCegs) + 10.00(ctnNotlTaxOthrSrceAmo) + 10.00(ctnTaxCredForDivs) + 10.00(ctnQualDistnReliefAmt) + 10.00(figTotalTaxCreditRelief) + 80.00(ctnNonPayableTaxCredits) + 0.00(reliefForFinanceCosts) + 0(lfiRelief) + 0(alimony)"
+          )
+        )
+      )
     }
 
     "have the correct adjustment data with Relief for Financial Costs" in {
@@ -73,8 +89,24 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsIncreasing) must equal(new Amount(0.0, "GBP"))
-      parsedPayload(OtherAdjustmentsReducing)   must equal(new Amount(220.0, "GBP"))
+      parsedPayload(OtherAdjustmentsIncreasing) must equal(
+        new Amount(
+          0.0,
+          "GBP",
+          Some(
+            "0.00(nonDomChargeAmount) + 0.00(taxExcluded) + 0.00(incomeTaxDue) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) + 0.00(ctn4TaxDueAfterAllceRlf)"
+          )
+        )
+      )
+      parsedPayload(OtherAdjustmentsReducing)   must equal(
+        new Amount(
+          220.0,
+          "GBP",
+          Some(
+            "10.00(ctnDeficiencyRelief) + 10.00(topSlicingRelief) + 10.00(ctnVctSharesReliefAmt) + 10.00(ctnEisReliefAmt) + 10.00(ctnSeedEisReliefAmt) + 10.00(ctnCommInvTrustRelAmt) + 10.00(atsSurplusMcaAlimonyRel) + 10.00(ctnNotionalTaxCegs) + 10.00(ctnNotlTaxOthrSrceAmo) + 10.00(ctnTaxCredForDivs) + 10.00(ctnQualDistnReliefAmt) + 10.00(figTotalTaxCreditRelief) + 80.00(ctnNonPayableTaxCredits) + 20.0(reliefForFinanceCosts) + 0(lfiRelief) + 0(alimony)"
+          )
+        )
+      )
     }
     "have a correct 'other_adjustments_reducing' roundup data" in {
 
@@ -94,7 +126,15 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(
+        new Amount(
+          200.0,
+          "GBP",
+          Some(
+            "9.01(ctnDeficiencyRelief) + 10.00(topSlicingRelief) + 10.00(ctnVctSharesReliefAmt) + 10.00(ctnEisReliefAmt) + 10.00(ctnSeedEisReliefAmt) + 10.00(ctnCommInvTrustRelAmt) + 10.00(atsSurplusMcaAlimonyRel) + 10.00(ctnNotionalTaxCegs) + 10.00(ctnNotlTaxOthrSrceAmo) + 10.00(ctnTaxCredForDivs) + 10.00(ctnQualDistnReliefAmt) + 10.00(figTotalTaxCreditRelief) + 80.00(ctnNonPayableTaxCredits) + 0.00(reliefForFinanceCosts) + 0(lfiRelief) + 0(alimony)"
+          )
+        )
+      )
     }
 
     "have the correct adjustment increase data" in {
@@ -123,8 +163,24 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsIncreasing) must equal(new Amount(56.0, "GBP"))
-      parsedPayload(OtherAdjustmentsReducing)   must equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsIncreasing) must equal(
+        new Amount(
+          56.0,
+          "GBP",
+          Some(
+            "11.0(nonDomChargeAmount) + 11.0(taxExcluded) + 12.0(incomeTaxDue) + 11.0(netAnnuityPaytsTaxDue) + 11.0(ctnChildBenefitChrgAmt) + 11.0(ctnPensionSavingChrgbleAmt) + 11.0(ctn4TaxDueAfterAllceRlf)"
+          )
+        )
+      )
+      parsedPayload(OtherAdjustmentsReducing)   must equal(
+        new Amount(
+          200.0,
+          "GBP",
+          Some(
+            "10.00(ctnDeficiencyRelief) + 10.00(topSlicingRelief) + 10.00(ctnVctSharesReliefAmt) + 10.00(ctnEisReliefAmt) + 10.00(ctnSeedEisReliefAmt) + 10.00(ctnCommInvTrustRelAmt) + 10.00(atsSurplusMcaAlimonyRel) + 10.00(ctnNotionalTaxCegs) + 10.00(ctnNotlTaxOthrSrceAmo) + 10.00(ctnTaxCredForDivs) + 10.00(ctnQualDistnReliefAmt) + 10.00(figTotalTaxCreditRelief) + 80.00(ctnNonPayableTaxCredits) + 0.00(reliefForFinanceCosts) + 0(lfiRelief) + 0(alimony)"
+          )
+        )
+      )
     }
 
     "have a correct 'other_adjustments_reducing' roundup data when alimony is not given in payload" in {
@@ -141,7 +197,15 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(200.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(
+        new Amount(
+          200.0,
+          "GBP",
+          Some(
+            "10.00(ctnDeficiencyRelief) + 10.00(topSlicingRelief) + 10.00(ctnVctSharesReliefAmt) + 10.00(ctnEisReliefAmt) + 10.00(ctnSeedEisReliefAmt) + 10.00(ctnCommInvTrustRelAmt) + 10.00(atsSurplusMcaAlimonyRel) + 10.00(ctnNotionalTaxCegs) + 10.00(ctnNotlTaxOthrSrceAmo) + 10.00(ctnTaxCredForDivs) + 10.00(ctnQualDistnReliefAmt) + 10.00(figTotalTaxCreditRelief) + 80.00(ctnNonPayableTaxCredits) + 0.00(reliefForFinanceCosts) + 0(lfiRelief) + 0(alimony)"
+          )
+        )
+      )
     }
 
     "have a correct 'other_adjustments_reducing' roundup data when alimony is given" in {
@@ -164,7 +228,15 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_tax.get.payload.get
 
-      parsedPayload(OtherAdjustmentsReducing) must equal(new Amount(210.0, "GBP"))
+      parsedPayload(OtherAdjustmentsReducing) must equal(
+        new Amount(
+          210.0,
+          "GBP",
+          Some(
+            "10.00(ctnDeficiencyRelief) + 10.00(topSlicingRelief) + 10.00(ctnVctSharesReliefAmt) + 10.00(ctnEisReliefAmt) + 10.00(ctnSeedEisReliefAmt) + 10.00(ctnCommInvTrustRelAmt) + 10.00(atsSurplusMcaAlimonyRel) + 10.00(ctnNotionalTaxCegs) + 10.00(ctnNotlTaxOthrSrceAmo) + 10.00(ctnTaxCredForDivs) + 10.00(ctnQualDistnReliefAmt) + 10.00(figTotalTaxCreditRelief) + 80.00(ctnNonPayableTaxCredits) + 0.00(reliefForFinanceCosts) + 0(lfiRelief) + 9.01(alimony)"
+          )
+        )
+      )
     }
   }
 }
