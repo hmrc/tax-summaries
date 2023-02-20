@@ -64,7 +64,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
             9740.0,
             "GBP",
             Some(
-              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) + 0.00(ctnMarriageAllceOutAmt)"
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) - 0.00(ctnMarriageAllceOutAmt)"
             )
           )
         )
@@ -102,7 +102,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
             9740.0,
             "GBP",
             Some(
-              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) + 0(ctnMarriageAllceOutAmt)"
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) - 0(ctnMarriageAllceOutAmt)"
             )
           )
         )
@@ -139,7 +139,7 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
             9540.0,
             "GBP",
             Some(
-              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) + 200.0(ctnMarriageAllceOutAmt)"
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) - 200.0(ctnMarriageAllceOutAmt)"
             )
           )
         )

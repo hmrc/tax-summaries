@@ -33,15 +33,9 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
   def +(that: Amount): Amount = {
     require(this.currency equals that.currency)
     val calculus = (this.calculus, that.calculus) match {
-      case (None, None)                             => None
-      case (Some(thisCalculus), None)               =>
-        val ex = new RuntimeException(s"No calculus present in plus that $that")
-        ex.printStackTrace()
-        Some(s"$thisCalculus + None")
-      case (None, Some(thatCalculus))               =>
-        val ex = new RuntimeException(s"No calculus present in plus this $this")
-        ex.printStackTrace()
-        Some(s"None + $thatCalculus")
+      case (None, None)                             => throw new RuntimeException("bad calculus") //None
+      case (Some(thisCalculus), None)               => throw new RuntimeException("bad calculus") //Some(s"$thisCalculus + None")
+      case (None, Some(thatCalculus))               => throw new RuntimeException("bad calculus") //Some(s"None + $thatCalculus")
       case (Some(thisCalculus), Some(thatCalculus)) => Some(s"$thisCalculus + $thatCalculus")
     }
     copy(amount = this.amount + that.amount, calculus = calculus)
@@ -50,16 +44,10 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
   def -(that: Amount): Amount = {
     require(this.currency equals that.currency)
     val calculus = (this.calculus, that.calculus) match {
-      case (None, None)                             => None
-      case (Some(thisCalculus), None)               =>
-        val ex = new RuntimeException("No calculus present in minus that")
-        ex.printStackTrace()
-        Some(s"$thisCalculus - None")
-      case (None, Some(thatCalculus))               =>
-        val ex = new RuntimeException("No calculus present in minus this")
-        ex.printStackTrace()
-        Some(s"None - $thatCalculus")
-      case (Some(thisCalculus), Some(thatCalculus)) => Some(s"$thisCalculus + $thatCalculus")
+      case (None, None)                             => throw new RuntimeException("bad calculus") //None
+      case (Some(thisCalculus), None)               => throw new RuntimeException("bad calculus") //Some(s"$thisCalculus - None")
+      case (None, Some(thatCalculus))               => throw new RuntimeException("bad calculus") //Some(s"None - $thatCalculus")
+      case (Some(thisCalculus), Some(thatCalculus)) => Some(s"$thisCalculus - $thatCalculus")
     }
     copy(amount = this.amount - that.amount, calculus = calculus)
   }
@@ -102,9 +90,5 @@ object Amount {
 
   def empty(calculus: String) = Amount(0, "GBP", Some(s"null ($calculus)"))
 
-  def gbp(amount: BigDecimal, calculus: String) =
-    //val ex = new RuntimeException(s"$calculus")
-    //ex.printStackTrace()
-    //println("XXXXXX: " + Some(s"$calculus"))
-    Amount(amount, "GBP", Some(s"$calculus"))
+  def gbp(amount: BigDecimal, calculus: String) = Amount(amount, "GBP", Some(s"$calculus"))
 }

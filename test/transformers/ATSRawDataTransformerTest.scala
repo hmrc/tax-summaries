@@ -332,8 +332,8 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
             "293.0(ctnDividendTaxLowRate) + 487.0(ctnDividendTaxHighRate) + " +
             "725.0(ctnDividendTaxAddHighRate) + 64.0(nonDomChargeAmount) + " +
             "88.0(taxExcluded) + 75.0(incomeTaxDue) + 111.0(netAnnuityPaytsTaxDue) + " +
-            "119.0(ctnChildBenefitChrgAmt) + 127.0(ctnPensionSavingChrgbleAmt) + " +
-            "100.0(ctn4TaxDueAfterAllceRlf) + 612.2(ctnDeficiencyRelief) + " +
+            "119.0(ctnChildBenefitChrgAmt) + 127.0(ctnPensionSavingChrgbleAmt) - " +
+            "100.0(ctn4TaxDueAfterAllceRlf) - 612.2(ctnDeficiencyRelief) + " +
             "134.0(topSlicingRelief) + 532.0(ctnVctSharesReliefAmt) + " +
             "762.0(ctnEisReliefAmt) + 159.0(ctnSeedEisReliefAmt) + " +
             "854.0(ctnCommInvTrustRelAmt) + 137.0(atsSurplusMcaAlimonyRel) + " +
@@ -341,7 +341,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
             "166.0(ctnTaxCredForDivs) + 258(ctnQualDistnReliefAmt) + " +
             "789.0(figTotalTaxCreditRelief) + 198.0(ctnNonPayableTaxCredits) + " +
             "469.0(reliefForFinanceCosts) + 17.17(lfiRelief) + " +
-            "0(alimony) + 587.0(ctnMarriageAllceInAmt)"
+            "0(alimony) - 587.0(ctnMarriageAllceInAmt)"
         )
       )
     }

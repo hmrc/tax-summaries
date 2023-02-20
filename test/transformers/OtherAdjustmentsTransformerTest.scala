@@ -56,7 +56,7 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           0.0,
           "GBP",
           Some(
-            "0.00(nonDomChargeAmount) + 0.00(taxExcluded) + 0.00(incomeTaxDue) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) + 0.00(ctn4TaxDueAfterAllceRlf)"
+            "0.00(nonDomChargeAmount) + 0.00(taxExcluded) + 0.00(incomeTaxDue) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) - 0.00(ctn4TaxDueAfterAllceRlf)"
           )
         )
       )
@@ -94,7 +94,7 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           0.0,
           "GBP",
           Some(
-            "0.00(nonDomChargeAmount) + 0.00(taxExcluded) + 0.00(incomeTaxDue) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) + 0.00(ctn4TaxDueAfterAllceRlf)"
+            "0.00(nonDomChargeAmount) + 0.00(taxExcluded) + 0.00(incomeTaxDue) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) - 0.00(ctn4TaxDueAfterAllceRlf)"
           )
         )
       )
@@ -168,7 +168,7 @@ class OtherAdjustmentsTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           56.0,
           "GBP",
           Some(
-            "11.0(nonDomChargeAmount) + 11.0(taxExcluded) + 12.0(incomeTaxDue) + 11.0(netAnnuityPaytsTaxDue) + 11.0(ctnChildBenefitChrgAmt) + 11.0(ctnPensionSavingChrgbleAmt) + 11.0(ctn4TaxDueAfterAllceRlf)"
+            "11.0(nonDomChargeAmount) + 11.0(taxExcluded) + 12.0(incomeTaxDue) + 11.0(netAnnuityPaytsTaxDue) + 11.0(ctnChildBenefitChrgAmt) + 11.0(ctnPensionSavingChrgbleAmt) - 11.0(ctn4TaxDueAfterAllceRlf)"
           )
         )
       )

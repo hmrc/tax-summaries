@@ -164,5 +164,15 @@ class ATSCalculations2022Test extends BaseSpec {
         )
       }
     }
+    "calculate taxLiability" in {
+      sut(taxSummaryLiability).taxLiability mustBe Amount(
+        203.82,
+        "GBP",
+        Some(
+          "max(0, Some(2.00(ctnLowerRateCgtRPCI) + 7.00(ctnHigherRateCgtRPCI) + 45.00(ctnCgDueEntrepreneursRate) + 5.40(ctnCgDueLowerRate) + 3.40(ctnCgDueHigherRate) + 7.70(capAdjustmentAmt))) + 10.10(taxExcluded) + 123.22(taxOnNonExcludedInc)"
+        )
+      )
+
+    }
   }
 }

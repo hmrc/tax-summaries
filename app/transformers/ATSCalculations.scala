@@ -249,10 +249,10 @@ trait ATSCalculations extends DoubleUtils with Logging {
       getWithDefaultAmount(IncomeChargeableAddHRate)) * scottishRate
   }
 
-  def hasLiability: Boolean = {
-    println("EEEEE: " + (totalCapitalGainsTax + totalIncomeTaxAmount).calculus.mkString(","))
-    !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
-  }
+  def taxLiability: Amount = totalCapitalGainsTax + totalIncomeTaxAmount
+
+  def hasLiability: Boolean =
+    !taxLiability.isZeroOrLess
 
   def capitalGainsTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())
