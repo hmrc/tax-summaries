@@ -16,10 +16,13 @@
 
 package models
 
+import play.api.Logging
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class Amount(amount: BigDecimal, currency: String, calculus: Option[String] = None) extends Ordered[Amount] {
+case class Amount(amount: BigDecimal, currency: String, calculus: Option[String] = None)
+    extends Ordered[Amount]
+    with Logging {
 
   def isZero: Boolean =
     amount.equals(BigDecimal(0))
@@ -33,9 +36,18 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
   def +(that: Amount): Amount = {
     require(this.currency equals that.currency)
     val calculus = (this.calculus, that.calculus) match {
-      case (None, None)                             => throw new RuntimeException("bad calculus") //None
-      case (Some(thisCalculus), None)               => throw new RuntimeException("bad calculus") //Some(s"$thisCalculus + None")
-      case (None, Some(thatCalculus))               => throw new RuntimeException("bad calculus") //Some(s"None + $thatCalculus")
+      case (None, None)                             =>
+        val error = new RuntimeException("A None calculus was found in both values")
+        logger.error(error.getMessage, error)
+        None
+      case (Some(thisCalculus), None)               =>
+        val error = new RuntimeException("A None calculus was found for argument that")
+        logger.error(error.getMessage, error)
+        Some(s"$thisCalculus + None")
+      case (None, Some(thatCalculus))               =>
+        val error = new RuntimeException("A None calculus was found for argument this")
+        logger.error(error.getMessage, error)
+        Some(s"None + $thatCalculus")
       case (Some(thisCalculus), Some(thatCalculus)) => Some(s"$thisCalculus + $thatCalculus")
     }
     copy(amount = this.amount + that.amount, calculus = calculus)
@@ -44,9 +56,18 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
   def -(that: Amount): Amount = {
     require(this.currency equals that.currency)
     val calculus = (this.calculus, that.calculus) match {
-      case (None, None)                             => throw new RuntimeException("bad calculus") //None
-      case (Some(thisCalculus), None)               => throw new RuntimeException("bad calculus") //Some(s"$thisCalculus - None")
-      case (None, Some(thatCalculus))               => throw new RuntimeException("bad calculus") //Some(s"None - $thatCalculus")
+      case (None, None)                             =>
+        val error = new RuntimeException("A None calculus was found in both values")
+        logger.error(error.getMessage, error)
+        None
+      case (Some(thisCalculus), None)               =>
+        val error = new RuntimeException("A None calculus was found for argument that")
+        logger.error(error.getMessage, error)
+        Some(s"$thisCalculus - None")
+      case (None, Some(thatCalculus))               =>
+        val error = new RuntimeException("A None calculus was found for argument this")
+        logger.error(error.getMessage, error)
+        Some(s"None - $thatCalculus")
       case (Some(thisCalculus), Some(thatCalculus)) => Some(s"$thisCalculus - $thatCalculus")
     }
     copy(amount = this.amount - that.amount, calculus = calculus)
