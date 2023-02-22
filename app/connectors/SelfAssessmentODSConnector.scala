@@ -77,7 +77,6 @@ class CachingSelfAssessmentODSConnector @Inject() (
 
   override def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     cache(UTR + "/" + TAX_YEAR) {
