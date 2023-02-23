@@ -16,7 +16,7 @@
 
 package transformers
 
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
 import models.Liability.{StatePension, _}
 import models.LiabilityKey.{ScottishIncomeTax, _}
