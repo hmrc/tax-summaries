@@ -22,13 +22,14 @@ import models.Liability.{StatePension, _}
 import models.LiabilityKey.{ScottishIncomeTax, _}
 import models.RateKey._
 import models._
-import play.api.Logger
+import play.api.{Logger, Logging}
 import play.api.libs.json._
 import services.TaxRateService
 
 case class ATSParsingException(s: String) extends Exception(s)
 
-class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
+@Singleton
+class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) extends Logging {
 
   def atsDataDTO(
     taxRate: TaxRateService,
@@ -52,6 +53,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
         createTaxPayerData(rawTaxPayerJson)
       )
     } else {
+      logger.warn(s"There is no liability for the year $taxYear")
       AtsMiddleTierData.noAtsResult(taxYear)
     } catch {
       case ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
