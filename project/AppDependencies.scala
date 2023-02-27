@@ -29,6 +29,7 @@ object AppDependencies {
     filters,
     ws,
     "uk.gov.hmrc"                %% s"bootstrap-backend-$playVersion" % bootstrapVersion,
+    "uk.gov.hmrc"                %% "http-caching-client"             % s"9.6.0-$playVersion",
     "uk.gov.hmrc"                %% "domain"                    % s"8.1.0-$playVersion",
     "com.github.fge"              % "json-schema-validator"     % jsonSchemaValidatorVersion,
     "uk.gov.hmrc.mongo"          %% s"hmrc-mongo-$playVersion"  % hmrcMongoVersion,

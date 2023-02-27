@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.ODSConnector
+import connectors.{ODSConnector, SelfAssessmentODSConnector}
 import controllers.auth.FakeAuthAction
 import models.SpendData
 import org.mockito.ArgumentMatchers.any
@@ -36,7 +36,8 @@ class GovSpendingControllerTest extends BaseSpec {
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   lazy val atsErrorHandler: ATSErrorHandler        = inject[ATSErrorHandler]
 
-  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  implicit lazy val ec: ExecutionContext                        = inject[ExecutionContext]
+  implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   val summaryJson          = "/utr_2014.json"
   val capitalGainsOnlyJson = "/test_gov_spend_capital_gains_only.json"
@@ -46,13 +47,14 @@ class GovSpendingControllerTest extends BaseSpec {
 
   def makeController(inputJson: String): AtsSaDataController = {
 
-    val odsc = mock[ODSConnector]
-    when(odsc.connectToSelfAssessment(any(), any())(any()))
+    val odsc  = mock[ODSConnector]
+    val sodsc = mock[SelfAssessmentODSConnector]
+    when(sodsc.connectToSelfAssessment(any(), any())(any(), any()))
       .thenReturn(MockConnections.connectToMockPayloadService(inputJson))
     when(odsc.connectToSATaxpayerDetails(any())(any()))
       .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
-    val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
+    val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc, sodsc)
     new AtsSaDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
   }
 

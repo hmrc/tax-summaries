@@ -33,7 +33,7 @@ class ODSConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  val serviceUrl = applicationConfig.npsServiceUrl
+  val serviceUrl: String = applicationConfig.npsServiceUrl
 
   private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
     HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
@@ -42,17 +42,6 @@ class ODSConnector @Inject() (
   )
 
   def url(path: String) = s"$serviceUrl$path"
-
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
-    hc: HeaderCarrier
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
-      http
-        .GET[Either[UpstreamErrorResponse, HttpResponse]](
-          url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
-          headers = header
-        )
-    )
 
   def connectToSelfAssessmentList(
     UTR: String

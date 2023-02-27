@@ -18,11 +18,12 @@ package services
 
 import cats.data.EitherT
 import cats.implicits._
-import connectors.ODSConnector
+import connectors.{ODSConnector, SelfAssessmentODSConnector}
 import models.AtsCheck
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.mvc.Request
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
@@ -33,13 +34,15 @@ class OdsServiceSpec extends BaseSpec {
 
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
-  val odsConnector: ODSConnector = mock[ODSConnector]
-  val jsonHelper: TaxsJsonHelper = mock[TaxsJsonHelper]
+  val odsConnector: ODSConnector                = mock[ODSConnector]
+  val sodsConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
+  val jsonHelper: TaxsJsonHelper                = mock[TaxsJsonHelper]
 
-  val service = new OdsService(jsonHelper, odsConnector)
+  val service = new OdsService(jsonHelper, odsConnector, sodsConnector)
 
   override def beforeEach(): Unit = {
     reset(odsConnector)
+    reset(sodsConnector)
     reset(jsonHelper)
     super.beforeEach()
   }
@@ -51,12 +54,12 @@ class OdsServiceSpec extends BaseSpec {
 
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
+        when(sodsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
         when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014)))
           .thenReturn(mock[JsValue])
 
-        val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier]).value
+        val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res.isRight mustBe true
@@ -73,17 +76,17 @@ class OdsServiceSpec extends BaseSpec {
 
           when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier]))
             .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-          when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier]))
+          when(sodsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any()))
             .thenReturn(EitherT.leftT(response))
 
-          val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier]).value
+          val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier], mock[Request[_]]).value
 
           whenReady(result) { res =>
             res mustBe a[Left[UpstreamErrorResponse, _]]
             res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier])
-            verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier])
+            verify(sodsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
             verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
           }
         }

@@ -16,10 +16,16 @@
 
 package config
 
+import connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 
 class ATSModule extends Module {
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
-  )
+
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
+    Seq(
+      bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
+      bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector]
+    )
+
 }

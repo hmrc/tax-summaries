@@ -22,14 +22,14 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
 import play.api.Logging
-import play.api.libs.json.Format
+import play.api.libs.json.{Format, OFormat}
 import play.api.mvc.Request
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
-
+import play.api.libs.json.Json
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -78,10 +78,12 @@ class CachingSelfAssessmentODSConnector @Inject() (
   override def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
     cache(UTR + "/" + TAX_YEAR) {
       underlying.connectToSelfAssessment(UTR, TAX_YEAR)
     }
+  }
 }
 
 @Singleton
