@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.{ODSConnector, SelfAssessmentODSConnector}
+import connectors.SelfAssessmentODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData
 import org.mockito.ArgumentMatchers.any
@@ -47,14 +47,13 @@ class GovSpendingControllerTest extends BaseSpec {
 
   def makeController(inputJson: String): AtsSaDataController = {
 
-    val odsc  = mock[ODSConnector]
-    val sodsc = mock[SelfAssessmentODSConnector]
-    when(sodsc.connectToSelfAssessment(any(), any())(any(), any()))
+    val odsc = mock[SelfAssessmentODSConnector]
+    when(odsc.connectToSelfAssessment(any(), any())(any(), any()))
       .thenReturn(MockConnections.connectToMockPayloadService(inputJson))
-    when(odsc.connectToSATaxpayerDetails(any())(any()))
+    when(odsc.connectToSATaxpayerDetails(any())(any(), any()))
       .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
-    val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc, sodsc)
+    val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
     new AtsSaDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
   }
 

@@ -39,6 +39,16 @@ trait SelfAssessmentODSConnector {
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+
+  def connectToSelfAssessmentList(UTR: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+
+  def connectToSATaxpayerDetails(UTR: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 }
 
 class CachingSelfAssessmentODSConnector @Inject() (
@@ -84,6 +94,26 @@ class CachingSelfAssessmentODSConnector @Inject() (
       underlying.connectToSelfAssessment(UTR, TAX_YEAR)
     }
   }
+
+  override def connectToSelfAssessmentList(UTR: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
+    cache(UTR) {
+      underlying.connectToSelfAssessmentList(UTR)
+    }
+  }
+
+  override def connectToSATaxpayerDetails(UTR: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
+    cache("taxpayer/" + UTR) {
+      underlying.connectToSATaxpayerDetails(UTR)
+    }
+  }
 }
 
 @Singleton
@@ -114,5 +144,29 @@ class DefaultSelfAssessmentODSConnector @Inject() (
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
         headers = header
       )
+    )
+
+  def connectToSelfAssessmentList(UTR: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    httpClientResponse.read(
+      httpClient
+        .GET[Either[UpstreamErrorResponse, HttpResponse]](
+          url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
+          headers = header
+        )
+    )
+
+  def connectToSATaxpayerDetails(UTR: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    httpClientResponse.read(
+      httpClient
+        .GET[Either[UpstreamErrorResponse, HttpResponse]](
+          url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
+          headers = header
+        )
     )
 }

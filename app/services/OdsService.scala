@@ -18,7 +18,7 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import connectors.{ODSConnector, SelfAssessmentODSConnector}
+import connectors.SelfAssessmentODSConnector
 import models._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
@@ -29,7 +29,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OdsService @Inject() (
   jsonHelper: TaxsJsonHelper,
-  odsConnector: ODSConnector,
   selfAssessmentOdsConnector: SelfAssessmentODSConnector
 )(implicit ec: ExecutionContext) {
 
@@ -38,19 +37,23 @@ class OdsService @Inject() (
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxpayer     <- odsConnector.connectToSATaxpayerDetails(UTR).map(_.json.as[JsValue])
+      taxpayer     <- selfAssessmentOdsConnector.connectToSATaxpayerDetails(UTR).map(_.json.as[JsValue])
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(UTR, TAX_YEAR).map(_.json.as[JsValue])
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
 
-  def getList(UTR: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, JsValue] =
-    odsConnector
+  def getList(
+    UTR: String
+  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    selfAssessmentOdsConnector
       .connectToSelfAssessmentList(UTR)
       .map(response => Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(response.json.as[JsValue]))))
 
-  def getATSList(UTR: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, JsValue] =
+  def getATSList(
+    UTR: String
+  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxSummaries <- odsConnector.connectToSelfAssessmentList(UTR).map(_.json.as[JsValue])
-      taxpayer     <- odsConnector.connectToSATaxpayerDetails(UTR).map(_.json.as[JsValue])
+      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessmentList(UTR).map(_.json.as[JsValue])
+      taxpayer     <- selfAssessmentOdsConnector.connectToSATaxpayerDetails(UTR).map(_.json.as[JsValue])
     } yield jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
 
 }
