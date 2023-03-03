@@ -28,7 +28,7 @@ class ATSCalculationsWelsh2020Test extends BaseSpec {
     percentage / 100.0
   }
 
-  val json: String                             = JsonUtil.load("/utr_random_values.json")
+  val json: String                             = JsonUtil.load("/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
   val taxSummaryLiability: TaxSummaryLiability = Json
     .parse(json)
     .as[TaxSummaryLiability]

@@ -70,10 +70,11 @@ object TaxSummaryLiability extends Logging {
 
   implicit val reads: Reads[TaxSummaryLiability] = new Reads[TaxSummaryLiability] {
     override def reads(json: JsValue): JsResult[TaxSummaryLiability] = {
-      val taxYear          = (json \ "taxYear").as[Int]
-      val incomeTaxStatus  = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[String].getOrElse("")
-      val nationality      = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[Nationality].getOrElse(UK())
-      val pensionTaxRate   = (json \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").as[PensionTaxRate]
+      val taxYear         = (json \ "taxYear").as[Int]
+      val incomeTaxStatus = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[String].getOrElse("")
+      val nationality     = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[Nationality].getOrElse(UK())
+      val pensionTaxRate  = (json \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").as[PensionTaxRate]
+
       val saPayeNicDetails = (json \ "saPayeNicDetails").as[JsValue]
       val tliSlpAtsData    = (json \ "tliSlpAtsData").as[JsValue]
 

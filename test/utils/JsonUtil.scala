@@ -27,8 +27,12 @@ trait JsonUtil {
 
   lazy val dummyDataMap = Map("$utr" -> testUtr)
 
-  def load(path: String): String =
-    bracket(Source.fromInputStream(getClass.getResourceAsStream(path)))(_.close())(_.mkString)
+  def load(path: String, replacements: Map[String, String] = Map.empty): String = {
+    val content = bracket(Source.fromInputStream(getClass.getResourceAsStream(path)))(_.close())(_.mkString)
+    replacements.foldLeft(content) { case (acc, (key, value)) =>
+      acc.replace(key, value)
+    }
+  }
 
   def loadAndParseJsonWithDummyUTRData(path: String, replaceMap: Map[String, String]): String =
     bracket(Source.fromURL(getClass.getResource(path)))(_.close()) { json =>

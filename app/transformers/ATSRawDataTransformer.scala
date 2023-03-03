@@ -54,7 +54,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
     } else {
       AtsMiddleTierData.noAtsResult(taxYear)
     } catch {
-      case ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
+      case ATSParsingException(message) =>
+        AtsMiddleTierData.error(taxYear, message)
       case otherError: Throwable        =>
         logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData.error(taxYear, "Other Error")
