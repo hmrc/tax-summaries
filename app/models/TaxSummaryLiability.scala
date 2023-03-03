@@ -60,7 +60,7 @@ object TaxSummaryLiability extends Logging {
                 // The liability key exists but the amount is invalid
                 JsError(s"Error while parsing $key:${value.toString}")
               case _                                                        =>
-                // The liability key does not exists
+                // The liability key should not be used, ignoring.
                 JsSuccess(acc)
             }
           case (JsError(error), _)                            => JsError(error)
