@@ -25,15 +25,11 @@ import play.api.libs.json._
 final case class TaxSummaryLiability(
   taxYear: Int,
   pensionLumpSumTaxRate: PensionTaxRate,
-  incomeTaxStatus: Option[String],
+  incomeTaxStatus: Option[Nationality],
   nationalInsuranceData: Map[ODSLiabilities, Amount],
   atsData: Map[ODSLiabilities, Amount]
 ) {
-  val nationality: Nationality = incomeTaxStatus match {
-    case Some("0002") => Scottish()
-    case Some("0003") => Welsh()
-    case _            => UK()
-  }
+  val nationality: Nationality = incomeTaxStatus.getOrElse(UK())
 }
 
 object TaxSummaryLiability extends Logging {
@@ -70,10 +66,9 @@ object TaxSummaryLiability extends Logging {
 
   implicit val reads: Reads[TaxSummaryLiability] = new Reads[TaxSummaryLiability] {
     override def reads(json: JsValue): JsResult[TaxSummaryLiability] = {
-      val taxYear         = (json \ "taxYear").as[Int]
-      val incomeTaxStatus = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[String].getOrElse("")
-      val nationality     = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[Nationality].getOrElse(UK())
-      val pensionTaxRate  = (json \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").as[PensionTaxRate]
+      val taxYear        = (json \ "taxYear").as[Int]
+      val nationality    = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[Nationality].getOrElse(UK())
+      val pensionTaxRate = (json \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").as[PensionTaxRate]
 
       val saPayeNicDetails = (json \ "saPayeNicDetails").as[JsValue]
       val tliSlpAtsData    = (json \ "tliSlpAtsData").as[JsValue]
@@ -98,7 +93,7 @@ object TaxSummaryLiability extends Logging {
         TaxSummaryLiability.apply(
           taxYear,
           pensionTaxRate,
-          Some(incomeTaxStatus),
+          Some(nationality),
           nationalInsuranceData,
           atsData
         )

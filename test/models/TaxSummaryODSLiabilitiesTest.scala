@@ -28,7 +28,7 @@ class TaxSummaryODSLiabilitiesTest extends BaseSpec {
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
-      result.incomeTaxStatus mustBe Some("0002")
+      result.incomeTaxStatus mustBe Some(Scottish())
       result.nationalInsuranceData.size mustBe 3
       result.atsData.size mustBe 95
     }
@@ -38,7 +38,7 @@ class TaxSummaryODSLiabilitiesTest extends BaseSpec {
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
-      result.incomeTaxStatus mustBe Some("")
+      result.incomeTaxStatus mustBe Some(UK())
       result.nationalInsuranceData.size mustBe 3
       result.atsData.size mustBe 95
     }
@@ -48,7 +48,7 @@ class TaxSummaryODSLiabilitiesTest extends BaseSpec {
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
-      result.incomeTaxStatus mustBe Some("")
+      result.incomeTaxStatus mustBe Some(UK())
       result.nationalInsuranceData.size mustBe 3
       result.atsData.size mustBe 89
     }
@@ -58,7 +58,7 @@ class TaxSummaryODSLiabilitiesTest extends BaseSpec {
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
-      result.incomeTaxStatus mustBe Some("")
+      result.incomeTaxStatus mustBe Some(UK())
     }
   }
 }

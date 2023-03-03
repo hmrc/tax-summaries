@@ -74,7 +74,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
   private def createIncomeTaxData(
     calculations: ATSCalculations,
     taxRate: TaxRateService,
-    incomeTaxStatus: Option[String]
+    incomeTaxStatus: Option[Nationality]
   ) =
     DataHolder
       .make(createTotalIncomeTaxPageBreakdown(calculations), createTotalIncomeTaxPageRates(taxRate), incomeTaxStatus)

@@ -58,7 +58,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     lazy val taxSummaryLiability: TaxSummaryLiability = TaxSummaryLiability(
       taxYear,
       pensionTaxRate,
-      incomeTaxStatus,
+      Some(origin),
       niData,
       atsData
     )

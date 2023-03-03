@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{JsResult, JsSuccess, JsValue, Reads}
+import play.api.libs.json.{JsResult, JsString, JsSuccess, JsValue, Reads, Writes}
 
 sealed trait Nationality
 case class Scottish() extends Nationality
@@ -32,4 +32,15 @@ object Nationality {
         case _            => JsSuccess(UK())
       }
   }
+
+  implicit val writes: Writes[Nationality] = new Writes[Nationality] {
+    override def writes(o: Nationality): JsValue =
+      o match {
+        case Scottish() => JsString("0002")
+        case Welsh()    => JsString("0003")
+        case UK()       => JsString("0001")
+        case _          => JsString("0001")
+      }
+  }
+
 }

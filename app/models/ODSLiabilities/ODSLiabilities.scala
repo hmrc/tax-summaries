@@ -312,13 +312,12 @@ object ODSLiabilities {
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced)
   // format: on
 
-  def readsLiabilities(taxYear: Int, nationality: Nationality): Reads[ODSLiabilities] = {
+  def readsLiabilities(taxYear: Int, nationality: Nationality): Reads[ODSLiabilities] =
     (taxYear, nationality) match {
       case (2022, _) =>
         ApiValue.readFromList[ODSLiabilities](all2021Liabilities)
       case _         =>
         ApiValue.readFromList[ODSLiabilities](allLiabilities)
     }
-  }
 
 }
