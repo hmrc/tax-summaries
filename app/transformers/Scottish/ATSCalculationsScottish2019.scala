@@ -16,7 +16,7 @@
 
 package transformers.Scottish
 
-import models.Liability._
+import models.ODSLiabilities.ODSLiabilities._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations

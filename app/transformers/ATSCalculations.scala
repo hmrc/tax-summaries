@@ -16,7 +16,8 @@
 
 package transformers
 
-import models.Liability._
+import models.ODSLiabilities.ODSLiabilities
+import models.ODSLiabilities.ODSLiabilities._
 import models._
 import play.api.Logging
 import services._
@@ -31,7 +32,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
   val taxRates: TaxRateService
   val incomeTaxStatus: Option[String] = summaryData.incomeTaxStatus
 
-  def get(liability: Liability): Amount =
+  def get(liability: ODSLiabilities): Amount =
     summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(
@@ -43,7 +44,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       )
     )
 
-  def getWithDefaultAmount(liability: Liability): Amount =
+  def getWithDefaultAmount(liability: ODSLiabilities): Amount =
     summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(liability, Amount.empty)

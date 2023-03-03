@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.Liability.TaxOnNonExcludedIncome
+import models.ODSLiabilities.ODSLiabilities.TaxOnNonExcludedIncome
 import models.{Amount, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService

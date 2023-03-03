@@ -17,7 +17,8 @@
 package transformers
 
 import config.ApplicationConfig
-import models.Liability._
+import models.ODSLiabilities.ODSLiabilities
+import models.ODSLiabilities.ODSLiabilities._
 import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
@@ -32,12 +33,12 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
   class CalcFixtures(val taxYear: Int, val origin: Nationality, applicationConfig: ApplicationConfig)(
     pensionTaxRate: PensionTaxRate,
-    newAtsData: (Liability, Amount)*
+    newAtsData: (ODSLiabilities, Amount)*
   ) { self =>
 
-    val atsData: Map[Liability, Amount]  = (newAtsData ++ emptyValues).toMap
-    val niData: Map[Liability, Amount]   = Map()
-    val configRates: Map[String, Double] = Map(
+    val atsData: Map[ODSLiabilities, Amount] = (newAtsData ++ emptyValues).toMap
+    val niData: Map[ODSLiabilities, Amount]  = Map()
+    val configRates: Map[String, Double]     = Map(
       "basicRateIncomeTaxRate"      -> 20,
       "higherRateIncomeTaxRate"     -> 40,
       "additionalRateIncomeTaxRate" -> 45,
@@ -72,17 +73,17 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     def apply(): CalcFixtures =
       new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0))
 
-    def apply(newPensionTaxRate: PensionTaxRate, newAtsData: (Liability, Amount)*): CalcFixtures =
+    def apply(newPensionTaxRate: PensionTaxRate, newAtsData: (ODSLiabilities, Amount)*): CalcFixtures =
       new CalcFixtures(taxYear, origin, applicationConfig)(newPensionTaxRate, newAtsData: _*)
 
-    def apply(newAtsData: (Liability, Amount)*): CalcFixtures =
+    def apply(newAtsData: (ODSLiabilities, Amount)*): CalcFixtures =
       new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0), newAtsData: _*)
 
-    def apply(newAtsData: List[(Liability, Amount)]): CalcFixtures =
+    def apply(newAtsData: List[(ODSLiabilities, Amount)]): CalcFixtures =
       new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0), newAtsData: _*)
   }
 
-  val emptyValues: List[(Liability, Amount)] = List(
+  val emptyValues: List[(ODSLiabilities, Amount)] = List(
     SavingsTaxStartingRate  -> Amount.empty,
     DividendTaxLowRate      -> Amount.empty,
     DividendTaxHighRate     -> Amount.empty,

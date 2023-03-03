@@ -16,21 +16,18 @@
 
 package models
 
+import models.ODSLiabilities.ODSLiabilities
+import models.ODSLiabilities.ODSLiabilities.readsLiabilities
 import play.api.Logging
-import play.api.libs.functional.syntax._
+import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json._
-
-sealed trait Nationality
-case class Scottish() extends Nationality
-case class Welsh() extends Nationality
-case class UK() extends Nationality
 
 final case class TaxSummaryLiability(
   taxYear: Int,
   pensionLumpSumTaxRate: PensionTaxRate,
   incomeTaxStatus: Option[String],
-  nationalInsuranceData: Map[Liability, Amount],
-  atsData: Map[Liability, Amount]
+  nationalInsuranceData: Map[ODSLiabilities, Amount],
+  atsData: Map[ODSLiabilities, Amount]
 ) {
   val nationality: Nationality = incomeTaxStatus match {
     case Some("0002") => Scottish()
@@ -41,42 +38,71 @@ final case class TaxSummaryLiability(
 
 object TaxSummaryLiability extends Logging {
 
-  implicit def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, V]] =
-    Reads[Map[K, V]] {
+  def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, Option[V]]] =
+    Reads[Map[K, Option[V]]] {
       case JsObject(m) =>
-        JsSuccess(m.foldLeft(Map.empty[K, V]) {
-          case (acc, ("tliLastUpdated", _))             => acc
-          case (acc, ("ctnPensionLumpSumTaxRate", _))   => acc
-          case (acc, ("incomeTaxStatus", _))            => acc
-          case (acc, ("cap3AssessableChgeableGain", _)) =>
-            acc // Key is not present in Liability object because it is not use in the service
-          case (acc, (key, value))                      =>
-            val result = for {
-              rv <- value.validate[V]
-              rk <- JsString(key).validate[K]
-            } yield rk -> rv
-
-            result match {
-              case JsSuccess(v, _) => acc + v
-              case _               =>
-                val message = s"Error while parsing TaxSummaryLiability response for $key:${value.toString}"
-                val ex      = new RuntimeException(message)
-                logger.warn(message, ex)
-                acc
+        m.foldLeft(JsSuccess(Map.empty[K, Option[V]]): JsResult[Map[K, Option[V]]]) {
+          case (accJsResult, ("ctnPensionLumpSumTaxRate", _)) =>
+            // This field is read separately. See Reads[TaxSummaryLiability] below
+            accJsResult
+          case (accJsResult, ("incomeTaxStatus", _))          =>
+            // This field is read separately. See Reads[TaxSummaryLiability] below
+            accJsResult
+          case (JsSuccess(acc, _), (key, value))              =>
+            (JsString(key).validate[K], value.validate[V]) match {
+              case (JsSuccess(liability, _), JsSuccess(amount, _))          =>
+                // Happy path. The liability exists and the amount is valid
+                JsSuccess(acc ++ Map[K, Option[V]](liability -> Some(amount)))
+              case (JsSuccess(liability, _), JsError(_)) if value == JsNull =>
+                // The liability key exists but no value
+                JsSuccess(acc ++ Map[K, Option[V]](liability -> None))
+              case (JsSuccess(_, _), JsError(_))                            =>
+                // The liability key exists but the amount is invalid
+                JsError(s"Error while parsing $key:${value.toString}")
+              case _                                                        =>
+                // The liability key does not exists
+                JsSuccess(acc)
             }
-        })
-
-      case _ => JsError("error.expected.jsobject")
-
+          case (JsError(error), _)                            => JsError(error)
+        }
+      case _           => JsError("error.expected.jsobject")
     }
 
-  implicit val reads: Reads[TaxSummaryLiability] =
-    (
-      (JsPath \ "taxYear").read[Int] and
-        (JsPath \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").read[PensionTaxRate] and
-        (JsPath \ "tliSlpAtsData" \ "incomeTaxStatus").readNullable[String].map(x => Some(x.getOrElse(""))) and
-        (JsPath \ "saPayeNicDetails").read(alwaysSuccessfulMapReads[Liability, Amount]) and
-        (JsPath \ "tliSlpAtsData").read(alwaysSuccessfulMapReads[Liability, Amount])
-    )(TaxSummaryLiability.apply _)
+  implicit val reads: Reads[TaxSummaryLiability] = new Reads[TaxSummaryLiability] {
+    override def reads(json: JsValue): JsResult[TaxSummaryLiability] = {
+      val taxYear          = (json \ "taxYear").as[Int]
+      val incomeTaxStatus  = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[String].getOrElse("")
+      val nationality      = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[Nationality].getOrElse(UK())
+      val pensionTaxRate   = (json \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").as[PensionTaxRate]
+      val saPayeNicDetails = (json \ "saPayeNicDetails").as[JsValue]
+      val tliSlpAtsData    = (json \ "tliSlpAtsData").as[JsValue]
+
+      val nationalInsuranceData = saPayeNicDetails
+        .as[Map[ODSLiabilities, Option[Amount]]](
+          alwaysSuccessfulMapReads[ODSLiabilities, Amount](readsLiabilities(taxYear, nationality), implicitly)
+        )
+        .map { case (k, v) =>
+          k -> v.getOrElse(Amount(0, "GBP"))
+        }
+
+      val atsData = tliSlpAtsData
+        .as[Map[ODSLiabilities, Option[Amount]]](
+          alwaysSuccessfulMapReads[ODSLiabilities, Amount](readsLiabilities(taxYear, nationality), implicitly)
+        )
+        .map { case (k, v) =>
+          k -> v.getOrElse(Amount(0, "GBP"))
+        }
+
+      JsSuccess(
+        TaxSummaryLiability.apply(
+          taxYear,
+          pensionTaxRate,
+          Some(incomeTaxStatus),
+          nationalInsuranceData,
+          atsData
+        )
+      )
+    }
+  }
 
 }

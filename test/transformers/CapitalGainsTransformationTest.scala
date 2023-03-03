@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.Liability.{CgGainsAfterLosses, CgTotGainsAfterLosses}
+import models.ODSLiabilities.ODSLiabilities.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models.LiabilityKey._
 import models._
 import play.api.libs.json.Json
