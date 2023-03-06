@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.Liability.TaxOnNonExcludedIncome
+import models.ODSLiabilities.ODSLiabilities.TaxOnNonExcludedIncome
 import models.{Amount, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
@@ -24,7 +24,7 @@ import utils.{BaseSpec, JsonUtil}
 
 class ATSCalculations2021Test extends BaseSpec {
   val taxYear                                  = 2021
-  val json: String                             = JsonUtil.load("/utr_random_values.json")
+  val json: String                             = JsonUtil.load("/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
   val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)

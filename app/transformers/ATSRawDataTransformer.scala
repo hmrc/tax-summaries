@@ -18,7 +18,7 @@ package transformers
 
 import com.google.inject.Inject
 import config.ApplicationConfig
-import models.Liability.{StatePension, _}
+import models.ODSLiabilities.ODSLiabilities.{StatePension, _}
 import models.LiabilityKey.{ScottishIncomeTax, _}
 import models.RateKey._
 import models._
@@ -54,7 +54,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
     } else {
       AtsMiddleTierData.noAtsResult(taxYear)
     } catch {
-      case ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
+      case ATSParsingException(message) =>
+        AtsMiddleTierData.error(taxYear, message)
       case otherError: Throwable        =>
         logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData.error(taxYear, "Other Error")
@@ -73,7 +74,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
   private def createIncomeTaxData(
     calculations: ATSCalculations,
     taxRate: TaxRateService,
-    incomeTaxStatus: Option[String]
+    incomeTaxStatus: Option[Nationality]
   ) =
     DataHolder
       .make(createTotalIncomeTaxPageBreakdown(calculations), createTotalIncomeTaxPageRates(taxRate), incomeTaxStatus)
