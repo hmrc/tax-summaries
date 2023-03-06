@@ -16,7 +16,7 @@
 
 package transformers.Welsh
 
-import models.Liability._
+import models.ODSLiabilities.ODSLiabilities._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations2022

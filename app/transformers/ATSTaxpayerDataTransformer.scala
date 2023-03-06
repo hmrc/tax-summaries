@@ -29,7 +29,8 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
   private def createATSDataDTO =
     try hasTaxpayerName match {
       case true  => AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
-      case false => throw new ATSParsingException("NoAtsTaxpayerDataError")
+      case false =>
+        throw new ATSParsingException("NoAtsTaxpayerDataError")
     } catch {
       case ATSParsingException(message) => throw new ATSParsingException(message)
       case otherError: Throwable        =>

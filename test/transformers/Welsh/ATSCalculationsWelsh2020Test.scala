@@ -16,7 +16,7 @@
 
 package transformers.Welsh
 
-import models.{Amount, TaxSummaryLiability}
+import models.{Amount, TaxSummaryLiability, Welsh}
 import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
@@ -28,11 +28,11 @@ class ATSCalculationsWelsh2020Test extends BaseSpec {
     percentage / 100.0
   }
 
-  val json: String                             = JsonUtil.load("/utr_random_values.json")
+  val json: String                             = JsonUtil.load("/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
   val taxSummaryLiability: TaxSummaryLiability = Json
     .parse(json)
     .as[TaxSummaryLiability]
-    .copy(incomeTaxStatus = Some("0003"))
+    .copy(incomeTaxStatus = Some(Welsh()))
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 

@@ -16,7 +16,7 @@
 
 package transformers.Scottish
 
-import models.{Amount, PensionTaxRate, TaxSummaryLiability}
+import models.{Amount, PensionTaxRate, Scottish, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
 import utils.{BaseSpec, JsonUtil}
@@ -29,11 +29,11 @@ class ATSCalculationsScottish2019Test extends BaseSpec {
     percentage / 100.0
   }
 
-  val json: String                             = JsonUtil.load("/utr_random_values.json")
+  val json: String                             = JsonUtil.load("/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
   val taxSummaryLiability: TaxSummaryLiability = Json
     .parse(json)
     .as[TaxSummaryLiability]
-    .copy(incomeTaxStatus = Some("0002"))
+    .copy(incomeTaxStatus = Some(Scottish()))
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 

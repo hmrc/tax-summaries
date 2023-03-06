@@ -16,7 +16,7 @@
 
 package transformers.Welsh
 
-import models.Liability.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate}
+import models.ODSLiabilities.ODSLiabilities._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations
