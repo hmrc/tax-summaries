@@ -21,6 +21,7 @@ import models.paye.PayeAtsMiddleTier
 import models._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
+import org.scalacheck.Gen.oneOf
 import services.GoodsAndServices
 
 object Generators {
@@ -43,7 +44,7 @@ object Generators {
   val genDataHolder: Gen[DataHolder] = for {
     payload <- Gen.option(genLiabilityMap)
     rates   <- Gen.option(genRateMap)
-    status  <- Gen.option(arbitrary[String])
+    status  <- Gen.option(oneOf(List(UK(), Welsh(), Scottish())))
   } yield DataHolder(payload, rates, status)
 
   val genSpendData: Gen[SpendData] = for {

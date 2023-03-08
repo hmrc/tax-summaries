@@ -16,7 +16,7 @@
 
 package transformers
 
-import models.Liability.{DividendsPartnership, SavingsPartnership, TaxOnNonExcludedIncome, _}
+import models.ODSLiabilities.ODSLiabilities._
 import models._
 import services._
 
