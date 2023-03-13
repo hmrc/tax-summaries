@@ -219,9 +219,8 @@ class AtsSaDataControllerSpec extends BaseSpec {
       "connector returns a right" in {
 
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.rightT(json))
-        when(odsService.getPayload(eqTo(testUtr), any())(any[HeaderCarrier])).thenReturn(EitherT.rightT(json))
 
-        val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
+        val result = controller.getAtsSaList(testUtr)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe json
@@ -236,7 +235,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-        val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
+        val result = controller.getAtsSaList(testUtr)(request)
 
         status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe upstreamError.getMessage
@@ -251,7 +250,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-        val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
+        val result = controller.getAtsSaList(testUtr)(request)
 
         status(result) mustBe BAD_REQUEST
         contentAsString(result) mustBe upstreamError.getMessage
@@ -266,7 +265,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
+          val result = controller.getAtsSaList(testUtr)(request)
 
           status(result) mustBe INTERNAL_SERVER_ERROR
           contentAsString(result) mustBe upstreamError.getMessage
@@ -282,7 +281,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier])).thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
+          val result = controller.getAtsSaList(testUtr)(request)
 
           status(result) mustBe BAD_GATEWAY
           contentAsString(result) mustBe upstreamError.getMessage
