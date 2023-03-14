@@ -39,7 +39,7 @@ class ODSConnector @Inject() (
     HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
     HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
     "CorrelationId"        -> UUID.randomUUID().toString
-  )
+  ).distinct
 
   def url(path: String) = s"$serviceUrl$path"
 

@@ -44,7 +44,7 @@ class NpsConnector @Inject() (
     HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
     HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
     "CorrelationId"           -> UUID.randomUUID().toString
-  )
+  ).distinct
 
   def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier
