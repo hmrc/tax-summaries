@@ -41,8 +41,8 @@ class NpsConnector @Inject() (
     HeaderNames.authorisation -> applicationConfig.authorization,
     "Environment"             -> applicationConfig.environment,
     "OriginatorId"            -> applicationConfig.originatorId,
-    HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
-    HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
+    HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value).split(",").head,
+    HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value).split(",").head,
     "CorrelationId"           -> UUID.randomUUID().toString
   ).distinct
 

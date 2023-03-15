@@ -36,10 +36,10 @@ class ODSConnector @Inject() (
   val serviceUrl = applicationConfig.npsServiceUrl
 
   private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
-    HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
-    HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+    HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value).split(",").head,
+    HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value).split(",").head,
     "CorrelationId"        -> UUID.randomUUID().toString
-  ).distinct
+  )
 
   def url(path: String) = s"$serviceUrl$path"
 
