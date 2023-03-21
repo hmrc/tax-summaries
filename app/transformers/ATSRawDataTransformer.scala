@@ -39,8 +39,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) ext
     taxYear: Int
   ): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
+    logger.debug(s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}")
     try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
-
       AtsMiddleTierData.make(
         taxYear,
         UTR,
