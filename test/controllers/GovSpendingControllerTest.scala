@@ -26,15 +26,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import utils.TestConstants._
-import utils.{ATSErrorHandler, BaseSpec, TaxsJsonHelper}
+import utils.{ATSErrorHandler, BaseSpec, OdsIndividualYearsService, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class GovSpendingControllerTest extends BaseSpec {
 
-  lazy val cc: ControllerComponents                = stubControllerComponents()
-  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  lazy val atsErrorHandler: ATSErrorHandler        = inject[ATSErrorHandler]
+  lazy val cc: ControllerComponents                      = stubControllerComponents()
+  lazy val request: FakeRequest[AnyContentAsEmpty.type]  = FakeRequest()
+  lazy val atsErrorHandler: ATSErrorHandler              = inject[ATSErrorHandler]
+  lazy val odsFakeListOfYears: OdsIndividualYearsService = inject[OdsIndividualYearsService]
 
   implicit lazy val ec: ExecutionContext                        = inject[ExecutionContext]
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -54,7 +55,7 @@ class GovSpendingControllerTest extends BaseSpec {
       .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
-    new AtsSaDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
+    new AtsSaDataController(odsService, odsFakeListOfYears, atsErrorHandler, FakeAuthAction, cc)
   }
 
   "Calling Government Spend with no session"                                must {

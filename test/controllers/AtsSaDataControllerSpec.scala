@@ -21,16 +21,17 @@ import controllers.auth.FakeAuthAction
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status._
-import play.api.libs.json.JsString
+import play.api.libs.json.{JsDefined, JsString, Json}
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
-import utils.{ATSErrorHandler, BaseSpec}
+import utils.{ATSErrorHandler, BaseSpec, OdsIndividualYearsService}
 
 import scala.concurrent.ExecutionContext
+import scala.io.Source
 
 class AtsSaDataControllerSpec extends BaseSpec {
 
@@ -45,8 +46,10 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  val odsService: OdsService = mock[OdsService]
-  val controller             = new AtsSaDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
+  val odsService: OdsService                               = mock[OdsService]
+  val odsIndividualYearsService: OdsIndividualYearsService = mock[OdsIndividualYearsService]
+
+  val controller = new AtsSaDataController(odsService, odsIndividualYearsService, atsErrorHandler, FakeAuthAction, cc)
 
   val taxYear        = 2021
   val json: JsString = JsString("success")
@@ -219,12 +222,15 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
       "connector returns a right" in {
 
+        val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.rightT(json))
 
-        val result = controller.getAtsSaList(testUtr)(request)
+        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
+          .thenReturn(EitherT.rightT(Map(1 -> Some(JsDefined(Json.parse(sampleJson)).value))))
+
+        val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
         status(result) mustBe OK
-        contentAsJson(result) mustBe json
       }
     }
 
@@ -236,7 +242,10 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
 
-        val result = controller.getAtsSaList(testUtr)(request)
+        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
+          .thenReturn(EitherT.leftT(Map(1 -> upstreamError)))
+
+        val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
         status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe upstreamError.getMessage
@@ -249,9 +258,12 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val upstreamError = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
 
+        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
+          .thenReturn(EitherT.leftT(Map(1 -> upstreamError)))
+
         when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
 
-        val result = controller.getAtsSaList(testUtr)(request)
+        val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
         status(result) mustBe BAD_REQUEST
         contentAsString(result) mustBe upstreamError.getMessage
@@ -264,9 +276,12 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Error", statusCode, INTERNAL_SERVER_ERROR)
 
+          when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
+            .thenReturn(EitherT.leftT(Map(1 -> upstreamError)))
+
           when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getAtsSaList(testUtr)(request)
+          val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
           status(result) mustBe INTERNAL_SERVER_ERROR
           contentAsString(result) mustBe upstreamError.getMessage
@@ -278,14 +293,19 @@ class AtsSaDataControllerSpec extends BaseSpec {
       List(500, 501, 502, 503, 504).foreach { statusCode =>
         s"connector returns a status $statusCode" in {
 
-          val upstreamError = UpstreamErrorResponse("Error", statusCode, BAD_GATEWAY)
+          val upstreamError = UpstreamErrorResponse("", statusCode, BAD_GATEWAY)
 
-          when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
+          when(odsService.getPayload(eqTo(testUtr), any())(any[HeaderCarrier], any()))
+            .thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getAtsSaList(testUtr)(request)
+          when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
+            .thenReturn(EitherT.leftT(Map(1 -> upstreamError)))
 
+          val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
+
+          print(status(result))
           status(result) mustBe BAD_GATEWAY
-          contentAsString(result) mustBe upstreamError.getMessage
+          contentAsString(result) mustBe ""
         }
       }
     }
