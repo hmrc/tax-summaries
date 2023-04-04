@@ -17,6 +17,7 @@
 package controllers
 
 import cats.data.EitherT
+import connectors.SelfAssessmentODSConnector
 import controllers.auth.FakeAuthAction
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.scalatest.time.{Millis, Seconds, Span}
@@ -26,9 +27,9 @@ import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
-import utils.{ATSErrorHandler, BaseSpec, OdsIndividualYearsService}
+import utils.{ATSErrorHandler, BaseSpec, OdsIndividualYearsService, TaxsJsonHelper}
 
 import scala.concurrent.ExecutionContext
 import scala.io.Source
@@ -46,12 +47,22 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  val odsService: OdsService                               = mock[OdsService]
+  val odsService: OdsService = mock[OdsService]
   val odsIndividualYearsService: OdsIndividualYearsService = mock[OdsIndividualYearsService]
+  val jsonHelper: TaxsJsonHelper = inject[TaxsJsonHelper]
+  val selfAssessmentODSConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
 
-  val controller = new AtsSaDataController(odsService, odsIndividualYearsService, atsErrorHandler, FakeAuthAction, cc)
+  val controller = new AtsSaDataController(
+    odsService,
+    odsIndividualYearsService,
+    atsErrorHandler,
+    FakeAuthAction,
+    cc,
+    jsonHelper,
+    selfAssessmentODSConnector
+  )
 
-  val taxYear        = 2021
+  val taxYear = 2021
   val json: JsString = JsString("success")
 
   "getAtsData" must {
@@ -222,15 +233,43 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
       "connector returns a right" in {
 
-        val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
-        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.rightT(json))
+        val singleAtsListSource = Source.fromURL(getClass.getResource("/ats-List-SingleService.json"))
+        val individualAtsListSource = Source.fromURL(getClass.getResource("/ats-List-IndividualService.json"))
+        val taxPayerSource = Source.fromURL(getClass.getResource("/taxPayerResponse.json"))
+
+        val singleAtsList = singleAtsListSource.mkString
+        val individualAtsList = individualAtsListSource.mkString
+        val taxPayer = taxPayerSource.mkString
+
+        singleAtsListSource.close()
+        individualAtsListSource.close()
+        taxPayerSource.close()
+
+        when(selfAssessmentODSConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
+          .thenReturn(EitherT.rightT(HttpResponse(OK, taxPayer)))
+        when(odsService.getATSList(eqTo(testUtr))(any[HeaderCarrier], any()))
+          .thenReturn(EitherT.rightT(JsDefined(Json.parse(singleAtsList)).value))
 
         when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
-          .thenReturn(EitherT.rightT(Map(1 -> Some(JsDefined(Json.parse(sampleJson)).value))))
+          .thenReturn(
+            EitherT.rightT(
+              Map(
+                2020 -> None,
+                2017 -> None,
+                2022 -> None,
+                2019 -> None,
+                2021 -> None,
+                2018 -> Some(JsDefined(Json.parse(individualAtsList)).value)
+              )
+            )
+          )
 
         val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
         status(result) mustBe OK
+        contentAsString(
+          result
+        ) mustBe s"""{"utr":"$testUtr","taxPayer":{"taxpayer_name":{"title":"Miss","forename":"Jane","surname":"Fisher"}},"atsYearList":[2018]}"""
       }
     }
 
@@ -303,7 +342,6 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
-          print(status(result))
           status(result) mustBe BAD_GATEWAY
           contentAsString(result) mustBe ""
         }
