@@ -16,19 +16,20 @@
 
 package transformers
 
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
 import models.ODSLiabilities.ODSLiabilities.{StatePension, _}
 import models.LiabilityKey.{ScottishIncomeTax, _}
 import models.RateKey._
 import models._
-import play.api.Logger
+import play.api.{Logger, Logging}
 import play.api.libs.json._
 import services.TaxRateService
 
 case class ATSParsingException(s: String) extends Exception(s)
 
-class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
+@Singleton
+class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) extends Logging {
 
   def atsDataDTO(
     taxRate: TaxRateService,
@@ -38,8 +39,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
     taxYear: Int
   ): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
+    logger.debug(s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}")
     try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
-
       AtsMiddleTierData.make(
         taxYear,
         UTR,
@@ -52,6 +53,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) {
         createTaxPayerData(rawTaxPayerJson)
       )
     } else {
+      logger.warn(s"There is no liability for the year $taxYear")
       AtsMiddleTierData.noAtsResult(taxYear)
     } catch {
       case ATSParsingException(message) =>

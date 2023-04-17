@@ -40,7 +40,7 @@ class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val originalJson = getClass.getResource("/test_case_2.json")
 
       val update = Json.obj(
-        "ctnIncomeTaxBasicRate" -> Amount.gbp(0.0)
+        "ctnIncomeTaxBasicRate" -> Amount.gbp(0.0, "ctnIncomeTaxBasicRate")
       )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)

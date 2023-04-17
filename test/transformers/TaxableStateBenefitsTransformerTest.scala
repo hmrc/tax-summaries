@@ -51,7 +51,13 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(TaxableStateBenefits) must equal(new Amount(0.0, "GBP"))
+      parsedPayload(TaxableStateBenefits) must equal(
+        new Amount(
+          0.0,
+          "GBP",
+          Some("0.00(atsIncBenefitSuppAllowAmt) + 0.00(atsJobSeekersAllowanceAmt) + 0.00(atsOthStatePenBenefitsAmt)")
+        )
+      )
     }
 
     "have the correct summed other pension income data" in {
@@ -71,7 +77,13 @@ class TaxableStateBenefitsTransformerTest extends BaseSpec with AtsJsonDataUpdat
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedPayload = returnValue.income_data.get.payload.get
-      parsedPayload(TaxableStateBenefits) must equal(new Amount(600.0, "GBP"))
+      parsedPayload(TaxableStateBenefits) must equal(
+        new Amount(
+          600.0,
+          "GBP",
+          Some("100.0(atsIncBenefitSuppAllowAmt) + 200.0(atsJobSeekersAllowanceAmt) + 300.0(atsOthStatePenBenefitsAmt)")
+        )
+      )
     }
   }
 }

@@ -32,8 +32,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
   val taxRates: TaxRateService
   val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
 
-  def get(liability: ODSLiabilities): Amount =
-    summaryData.atsData.getOrElse(
+  def get(liability: ODSLiabilities): Amount = {
+    val result = summaryData.atsData.getOrElse(
       liability,
       summaryData.nationalInsuranceData.getOrElse(
         liability, {
@@ -43,19 +43,23 @@ trait ATSCalculations extends DoubleUtils with Logging {
         }
       )
     )
+    result.copy(calculus = Some(s"${result.amount}(${liability.apiValue})"))
+  }
 
-  def getWithDefaultAmount(liability: ODSLiabilities): Amount =
-    summaryData.atsData.getOrElse(
+  def getWithDefaultAmount(liability: ODSLiabilities): Amount = {
+    val result = summaryData.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability, Amount.empty)
+      summaryData.nationalInsuranceData.getOrElse(liability, Amount.empty(liability.apiValue))
     )
+    result.copy(calculus = Some(s"${result.amount}(${liability.apiValue})"))
+  }
 
   def taxableGains(): Amount =
     get(CgTotGainsAfterLosses) +
       get(CgGainsAfterLosses)
 
   def payCapitalGainsTaxOn: Amount =
-    if (taxableGains() < get(CgAnnualExempt)) Amount.empty
+    if (taxableGains() < get(CgAnnualExempt)) Amount.empty("taxableGains() < get(CgAnnualExempt)")
     else taxableGains() - get(CgAnnualExempt)
 
   def totalCapitalGainsTax: Amount =
@@ -139,42 +143,42 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(SavingsTaxAddHighRate) +
       includePensionTaxForRate(taxRates.additionalRateIncomeTaxRate())
 
-  def scottishStarterRateTax: Amount = Amount.empty
+  def scottishStarterRateTax: Amount = Amount.empty("scottishStarterRateTax")
 
-  def scottishBasicRateTax: Amount = Amount.empty
+  def scottishBasicRateTax: Amount = Amount.empty("scottishBasicRateTax")
 
-  def scottishIntermediateRateTax: Amount = Amount.empty
+  def scottishIntermediateRateTax: Amount = Amount.empty("scottishIntermediateRateTax")
 
-  def scottishHigherRateTax: Amount = Amount.empty
+  def scottishHigherRateTax: Amount = Amount.empty("scottishHigherRateTax")
 
-  def scottishAdditionalRateTax: Amount = Amount.empty
+  def scottishAdditionalRateTax: Amount = Amount.empty("scottishAdditionalRateTax")
 
   def scottishTotalTax: Amount =
     scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
 
-  def scottishStarterRateIncome: Amount = Amount.empty
+  def scottishStarterRateIncome: Amount = Amount.empty("scottishStarterRateIncome")
 
-  def scottishBasicRateIncome: Amount = Amount.empty
+  def scottishBasicRateIncome: Amount = Amount.empty("scottishBasicRateIncome")
 
-  def scottishIntermediateRateIncome: Amount = Amount.empty
+  def scottishIntermediateRateIncome: Amount = Amount.empty("scottishIntermediateRateIncome")
 
-  def scottishHigherRateIncome: Amount = Amount.empty
+  def scottishHigherRateIncome: Amount = Amount.empty("scottishHigherRateIncome")
 
-  def scottishAdditionalRateIncome: Amount = Amount.empty
+  def scottishAdditionalRateIncome: Amount = Amount.empty("scottishAdditionalRateIncome")
 
-  def savingsBasicRateTax: Amount = Amount.empty
+  def savingsBasicRateTax: Amount = Amount.empty("savingsBasicRateTax")
 
-  def savingsHigherRateTax: Amount = Amount.empty
+  def savingsHigherRateTax: Amount = Amount.empty("savingsHigherRateTax")
 
-  def savingsAdditionalRateTax: Amount = Amount.empty
+  def savingsAdditionalRateTax: Amount = Amount.empty("savingsAdditionalRateTax")
 
-  def savingsBasicRateIncome: Amount = Amount.empty
+  def savingsBasicRateIncome: Amount = Amount.empty("savingsBasicRateIncome")
 
-  def savingsHigherRateIncome: Amount = Amount.empty
+  def savingsHigherRateIncome: Amount = Amount.empty("savingsHigherRateIncome")
 
-  def savingsAdditionalRateIncome: Amount = Amount.empty
+  def savingsAdditionalRateIncome: Amount = Amount.empty("savingsAdditionalRateIncome")
 
-  def welshIncomeTax: Amount = Amount.empty
+  def welshIncomeTax: Amount = Amount.empty("welshIncomeTax")
 
   def otherAdjustmentsIncreasing: Amount =
     (
@@ -241,18 +245,15 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   def scottishIncomeTax: Amount = {
     val scottishRate = 0.1
-
-    Amount.gbp(
-      (
-        getWithDefaultAmount(IncomeChargeableBasicRate) +
-          getWithDefaultAmount(IncomeChargeableHigherRate) +
-          getWithDefaultAmount(IncomeChargeableAddHRate)
-      ).amount * scottishRate
-    )
+    (getWithDefaultAmount(IncomeChargeableBasicRate) +
+      getWithDefaultAmount(IncomeChargeableHigherRate) +
+      getWithDefaultAmount(IncomeChargeableAddHRate)) * scottishRate
   }
 
+  def taxLiability: Amount = totalCapitalGainsTax + totalIncomeTaxAmount
+
   def hasLiability: Boolean =
-    !(totalCapitalGainsTax + totalIncomeTaxAmount).isZeroOrLess
+    !taxLiability.isZeroOrLess
 
   def capitalGainsTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())
@@ -276,11 +277,11 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   def includePensionTaxForRate(taxRate: Rate): Amount =
     if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(PensionLsumTaxDue)
-    else Amount.empty
+    else Amount.empty(PensionLsumTaxDue.apiValue)
 
   def includePensionIncomeForRate(taxRate: Rate): Amount =
     if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(StatePensionGross)
-    else Amount.empty
+    else Amount.empty(StatePensionGross.apiValue)
 
   protected def liabilityAsPercentage(amountPerUnit: Amount): Rate =
     Rate.rateFromPerUnitAmount(amountPerUnit)

@@ -90,10 +90,10 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
           AmountAtRPCIHigheRate        -> Amount(0.00, "GBP"),
           AmountDueRPCIHigherRate      -> Amount(0.00, "GBP")
         )
-      testPayload mustEqual parsedPayload
+      testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
 
-      val parsedRates = returnValue.capital_gains_data.get.rates.get
-      val testRates   =
+      val parsedRates   = returnValue.capital_gains_data.get.rates.get
+      val testRates     =
         Map(
           "cg_entrepreneurs_rate"          -> ApiRate("10%"),
           "cg_ordinary_rate"               -> ApiRate("18%"),
@@ -139,7 +139,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
           AmountAtRPCIHigheRate        -> Amount(0.00, "GBP"),
           AmountDueRPCIHigherRate      -> Amount(0.00, "GBP")
         )
-      testPayload mustEqual parsedPayload
+      testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
     }
 
     "return an amount of 0 when CapitalGains Annual Exempt is larger than the Taxable Gains" in {
@@ -158,7 +158,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedPayload = returnValue.capital_gains_data.get.payload.get
-      parsedPayload(PayCgTaxOn) must equal(Amount.empty)
+      parsedPayload(PayCgTaxOn) must equal(Amount.empty("taxableGains() < get(CgAnnualExempt)"))
     }
   }
 }

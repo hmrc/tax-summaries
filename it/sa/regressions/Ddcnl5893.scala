@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sa
+package sa.regressions
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
@@ -23,11 +23,12 @@ import models.LiabilityKey._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import sa.SaTestHelper
 import utils.FileHelper
 
 import java.time.LocalDate
 
-class Regressions extends SaTestHelper {
+class Ddcnl5893 extends SaTestHelper {
   val taxPayerFile     = "taxPayerDetails.json"
   val currentYear: Int = LocalDate.now().getYear
 

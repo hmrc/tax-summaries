@@ -63,11 +63,11 @@ class PayeAtsDataTest extends BaseSpec {
         transformedData.allowance_data.getOrElse(fail("No allowance data"))
 
       val expectedValues: Map[LiabilityKey, Amount] = Map(
-        PersonalTaxFreeAmount              -> Amount.gbp(12500.00),
-        MarriageAllowanceTransferredAmount -> Amount.gbp(1250.00),
-        OtherAllowancesAmount              -> Amount.gbp(6000.00),
-        TotalTaxFreeAmount                 -> Amount.gbp(25500.00),
-        TotalIncomeBeforeTax               -> Amount.gbp(28000.00)
+        PersonalTaxFreeAmount              -> Amount.gbp(12500.00, PersonalTaxFreeAmount.apiValue),
+        MarriageAllowanceTransferredAmount -> Amount.gbp(1250.00, MarriageAllowanceTransferredAmount.apiValue),
+        OtherAllowancesAmount              -> Amount.gbp(6000.00, OtherAllowancesAmount.apiValue),
+        TotalTaxFreeAmount                 -> Amount.gbp(25500.00, TotalTaxFreeAmount.apiValue),
+        TotalIncomeBeforeTax               -> Amount.gbp(28000.00, TotalIncomeBeforeTax.apiValue)
       )
 
       allowanceData mustBe DataHolder(Some(expectedValues), None, None)
@@ -80,14 +80,14 @@ class PayeAtsDataTest extends BaseSpec {
         transformedData.income_data.getOrElse(fail("No income data"))
 
       val expectedValues: Map[LiabilityKey, Amount] = Map(
-        IncomeFromEmployment   -> Amount.gbp(25000.00),
-        StatePension           -> Amount.gbp(1000.00),
-        OtherPensionIncome     -> Amount.gbp(500.00),
-        OtherIncome            -> Amount.gbp(3000.00),
-        TotalIncomeBeforeTax   -> Amount.gbp(28000.00),
-        ScottishIncomeTax      -> Amount.gbp(2550.00),
-        BenefitsFromEmployment -> Amount.gbp(200.00),
-        TaxableStateBenefits   -> Amount.gbp(500.00)
+        IncomeFromEmployment   -> Amount.gbp(25000.00, IncomeFromEmployment.apiValue),
+        StatePension           -> Amount.gbp(1000.00, StatePension.apiValue),
+        OtherPensionIncome     -> Amount.gbp(500.00, OtherPensionIncome.apiValue),
+        OtherIncome            -> Amount.gbp(3000.00, OtherIncome.apiValue),
+        TotalIncomeBeforeTax   -> Amount.gbp(28000.00, TotalIncomeBeforeTax.apiValue),
+        ScottishIncomeTax      -> Amount.gbp(2550.00, ScottishIncomeTax.apiValue),
+        BenefitsFromEmployment -> Amount.gbp(200.00, BenefitsFromEmployment.apiValue),
+        TaxableStateBenefits   -> Amount.gbp(500.00, TaxableStateBenefits.apiValue)
       )
       incomeData mustBe DataHolder(Some(expectedValues), None, None)
     }
@@ -97,15 +97,15 @@ class PayeAtsDataTest extends BaseSpec {
         transformedData.summary_data.getOrElse(fail("No summary data"))
 
       val expectedValues: Map[LiabilityKey, Amount] = Map(
-        TotalIncomeBeforeTax  -> Amount.gbp(28000.00),
-        TotalTaxFreeAmount    -> Amount.gbp(25500.00),
-        TotalIncomeTaxAndNics -> Amount.gbp(4200.00),
-        TotalIncomeTax2Nics   -> Amount.gbp(2500.00),
-        IncomeAfterTaxAndNics -> Amount.gbp(5000.00),
-        TotalIncomeTax        -> Amount.gbp(4010.00),
-        EmployeeNicAmount     -> Amount.gbp(200.00),
-        EmployerNicAmount     -> Amount.gbp(100.00),
-        LiableTaxAmount       -> Amount.gbp(15000.00)
+        TotalIncomeBeforeTax  -> Amount.gbp(28000.00, TotalIncomeBeforeTax.apiValue),
+        TotalTaxFreeAmount    -> Amount.gbp(25500.00, TotalTaxFreeAmount.apiValue),
+        TotalIncomeTaxAndNics -> Amount.gbp(4200.00, TotalIncomeTaxAndNics.apiValue),
+        TotalIncomeTax2Nics   -> Amount.gbp(2500.00, TotalIncomeTax2Nics.apiValue),
+        IncomeAfterTaxAndNics -> Amount.gbp(5000.00, IncomeAfterTaxAndNics.apiValue),
+        TotalIncomeTax        -> Amount.gbp(4010.00, TotalIncomeTax.apiValue),
+        EmployeeNicAmount     -> Amount.gbp(200.00, EmployeeNicAmount.apiValue),
+        EmployerNicAmount     -> Amount.gbp(100.00, EmployerNicAmount.apiValue),
+        LiableTaxAmount       -> Amount.gbp(15000.00, LiableTaxAmount.apiValue)
       )
 
       summaryData mustBe DataHolder(Some(expectedValues), Some(Map(NICS -> ApiRate("25%"))), None)
@@ -116,30 +116,30 @@ class PayeAtsDataTest extends BaseSpec {
         transformedData.income_tax.getOrElse(fail("No income tax data"))
 
       val expectedPayloadValues: Map[LiabilityKey, Amount] = Map(
-        BasicRateIncomeTaxAmount                -> Amount.gbp(2000.00),
-        BasicRateIncomeTax                      -> Amount.gbp(10000.00),
-        TotalUKIncomeTax                        -> Amount.gbp(2000.0),
-        HigherRateIncomeTaxAmount               -> Amount.gbp(2000.00),
-        HigherRateIncomeTax                     -> Amount.gbp(10000.00),
-        OrdinaryRateAmount                      -> Amount.gbp(200.00),
-        OrdinaryRate                            -> Amount.gbp(2000.00),
-        UpperRateAmount                         -> Amount.gbp(200.00),
-        UpperRate                               -> Amount.gbp(2000.00),
-        MarriedCouplesAllowance                 -> Amount.gbp(500.00),
-        MarriageAllowanceReceivedAmount         -> Amount.gbp(1250.00),
-        LessTaxAdjustmentPrevYear               -> Amount.gbp(200.00),
-        TaxUnderpaidPrevYear                    -> Amount.gbp(200.00),
-        TotalIncomeTax                          -> Amount.gbp(4000.00),
-        ScottishTotalTax                        -> Amount.gbp(2000.00),
-        ScottishStarterRateIncomeTaxAmount      -> Amount.gbp(380.00),
-        ScottishStarterRateIncomeTax            -> Amount.gbp(2000.00),
-        ScottishBasicRateIncomeTaxAmount        -> Amount.gbp(2030.0),
-        ScottishBasicRateIncomeTax              -> Amount.gbp(10150.0),
-        TotalIncomeTax2                         -> Amount.gbp(4010.0),
-        ScottishIntermediateRateIncomeTaxAmount -> Amount.gbp(4080.3),
-        ScottishIntermediateRateIncomeTax       -> Amount.gbp(19430.0),
-        ScottishHigherRateIncomeTaxAmount       -> Amount.gbp(12943.7),
-        ScottishHigherRateIncomeTax             -> Amount.gbp(31570.0)
+        BasicRateIncomeTaxAmount                -> Amount.gbp(2000.00, BasicRateIncomeTaxAmount.apiValue),
+        BasicRateIncomeTax                      -> Amount.gbp(10000.00, BasicRateIncomeTax.apiValue),
+        TotalUKIncomeTax                        -> Amount.gbp(2000.0, TotalUKIncomeTax.apiValue),
+        HigherRateIncomeTaxAmount               -> Amount.gbp(2000.00, HigherRateIncomeTaxAmount.apiValue),
+        HigherRateIncomeTax                     -> Amount.gbp(10000.00, HigherRateIncomeTax.apiValue),
+        OrdinaryRateAmount                      -> Amount.gbp(200.00, OrdinaryRateAmount.apiValue),
+        OrdinaryRate                            -> Amount.gbp(2000.00, OrdinaryRate.apiValue),
+        UpperRateAmount                         -> Amount.gbp(200.00, UpperRateAmount.apiValue),
+        UpperRate                               -> Amount.gbp(2000.00, UpperRate.apiValue),
+        MarriedCouplesAllowance                 -> Amount.gbp(500.00, MarriedCouplesAllowance.apiValue),
+        MarriageAllowanceReceivedAmount         -> Amount.gbp(1250.00, MarriageAllowanceReceivedAmount.apiValue),
+        LessTaxAdjustmentPrevYear               -> Amount.gbp(200.00, LessTaxAdjustmentPrevYear.apiValue),
+        TaxUnderpaidPrevYear                    -> Amount.gbp(200.00, TaxUnderpaidPrevYear.apiValue),
+        TotalIncomeTax                          -> Amount.gbp(4000.00, TotalIncomeTax.apiValue),
+        ScottishTotalTax                        -> Amount.gbp(2000.00, ScottishTotalTax.apiValue),
+        ScottishStarterRateIncomeTaxAmount      -> Amount.gbp(380.00, ScottishStarterRateIncomeTaxAmount.apiValue),
+        ScottishStarterRateIncomeTax            -> Amount.gbp(2000.00, ScottishStarterRateIncomeTax.apiValue),
+        ScottishBasicRateIncomeTaxAmount        -> Amount.gbp(2030.0, ScottishBasicRateIncomeTaxAmount.apiValue),
+        ScottishBasicRateIncomeTax              -> Amount.gbp(10150.0, ScottishBasicRateIncomeTax.apiValue),
+        TotalIncomeTax2                         -> Amount.gbp(4010.0, TotalIncomeTax2.apiValue),
+        ScottishIntermediateRateIncomeTaxAmount -> Amount.gbp(4080.3, ScottishIntermediateRateIncomeTaxAmount.apiValue),
+        ScottishIntermediateRateIncomeTax       -> Amount.gbp(19430.0, ScottishIntermediateRateIncomeTax.apiValue),
+        ScottishHigherRateIncomeTaxAmount       -> Amount.gbp(12943.7, ScottishHigherRateIncomeTaxAmount.apiValue),
+        ScottishHigherRateIncomeTax             -> Amount.gbp(31570.0, ScottishHigherRateIncomeTax.apiValue)
       )
 
       val expectedRatesValues: Map[RateKey, ApiRate] = Map(
@@ -178,12 +178,17 @@ class PayeAtsDataTest extends BaseSpec {
           StatePensions            -> SpendData(Amount(537.60, "GBP"), 12.8)
         )
         val spendData                                        = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.govSpendAmountData mustBe expectedValues
+        spendData.govSpendAmountData.map(x => x._1 -> x._2.amount.amount) mustBe expectedValues.map(x =>
+          x._1 -> x._2.amount.amount
+        )
+        spendData.govSpendAmountData.map(x => x._1 -> x._2.percentage) mustBe expectedValues.map(x =>
+          x._1 -> x._2.percentage
+        )
       }
 
       "with nics included if employer contributions are present" in {
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.totalAmount mustBe Amount.gbp(4200.00)
+        spendData.totalAmount mustBe Amount.gbp(4200.00, "total_income_tax")
       }
 
       "without nics included if employer contributions are not present" in {
@@ -192,7 +197,7 @@ class PayeAtsDataTest extends BaseSpec {
           atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.totalAmount mustBe Amount.gbp(4000.00)
+        spendData.totalAmount mustBe Amount.gbp(4000.00, "total_income_tax")
       }
 
       "without nics included if national insurance section is not present" in {
@@ -201,7 +206,7 @@ class PayeAtsDataTest extends BaseSpec {
           atsDataWithoutNics.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
-        spendData.totalAmount mustBe Amount.gbp(4000.00)
+        spendData.totalAmount mustBe Amount.gbp(4000.00, "total_income_tax")
       }
 
     }

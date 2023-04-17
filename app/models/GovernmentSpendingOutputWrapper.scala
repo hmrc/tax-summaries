@@ -39,7 +39,7 @@ object GovernmentSpendingOutputWrapper {
 
     def createSpendDataItem(spendCategory: GoodsAndServices, spendPercentage: BigDecimal, amount: Amount): SpendData = {
       val monetaryBD     = getMonetaryAmount(spendPercentage, amount)
-      val monetaryAmount = Amount.gbp(monetaryBD)
+      val monetaryAmount = Amount.gbp(monetaryBD, spendCategory.toString)
       SpendData(monetaryAmount, spendPercentage)
     }
 

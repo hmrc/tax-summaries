@@ -52,42 +52,72 @@ case class PayeAtsData(
       Some(createGovSpendData(applicationConfig, taxYear))
     )
 
-  def optionToAmount(opt: Option[Double]): Amount = opt.fold(Amount.empty)(Amount.gbp(_))
-  def optionToRate(opt: Option[Double]): ApiRate  = Rate(opt.getOrElse(0)).apiValue
+  def optionToAmount(key: LiabilityKey, opt: Option[Double]): Amount =
+    opt.fold(Amount.empty(key.apiValue))(Amount.gbp(_, key.apiValue))
+  def optionToRate(opt: Option[Double]): ApiRate                     = Rate(opt.getOrElse(0)).apiValue
 
   private def createIncomeTaxData: DataHolder =
     DataHolder.make(createIncomeTaxPayload, createIncomeTaxRates)
 
   private def createIncomeTaxPayload: Map[LiabilityKey, Amount] =
     Map(
-      BasicRateIncomeTaxAmount                -> optionToAmount(basicRateBand.map(_.basicRateTax)),
-      BasicRateIncomeTax                      -> optionToAmount(basicRateBand.map(_.basicRateTaxAmount)),
-      HigherRateIncomeTaxAmount               -> optionToAmount(higherRateBand.map(_.higherRateTax)),
-      HigherRateIncomeTax                     -> optionToAmount(higherRateBand.map(_.higherRateTaxAmount)),
-      OrdinaryRateAmount                      -> optionToAmount(dividendLowerBand.map(_.dividendLowRateTax)),
-      OrdinaryRate                            -> optionToAmount(dividendLowerBand.map(_.dividendLowRateAmount)),
-      UpperRateAmount                         -> optionToAmount(dividendHigherBand.map(_.dividendHigherRateTax)),
-      UpperRate                               -> optionToAmount(dividendHigherBand.map(_.dividendHigherRateAmount)),
-      MarriedCouplesAllowance                 -> optionToAmount(adjustments.flatMap(_.marriedCouplesAllowanceAdjustment)),
-      MarriageAllowanceReceivedAmount         -> optionToAmount(adjustments.flatMap(_.marriageAllowanceReceived)),
-      LessTaxAdjustmentPrevYear               -> optionToAmount(adjustments.flatMap(_.lessTaxAdjustmentPreviousYear)),
-      TaxUnderpaidPrevYear                    -> optionToAmount(adjustments.flatMap(_.taxUnderpaidPreviousYear)),
-      TotalIncomeTax                          -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax)),
-      TotalUKIncomeTax                        -> optionToAmount(calculatedTotals.flatMap(_.totalUKIncomeTax)),
-      TotalIncomeTax2                         -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2)),
-      ScottishTotalTax                        -> optionToAmount(calculatedTotals.flatMap(_.totalScottishIncomeTax)),
-      ScottishStarterRateIncomeTaxAmount      -> optionToAmount(scottishStarterBand.map(_.scottishStarterRateTax)),
-      ScottishStarterRateIncomeTax            -> optionToAmount(scottishStarterBand.map(_.scottishStarterRateTaxAmount)),
-      ScottishBasicRateIncomeTaxAmount        -> optionToAmount(scottishBasicBand.map(_.scottishBasicRateTax)),
-      ScottishBasicRateIncomeTax              -> optionToAmount(scottishBasicBand.map(_.scottishBasicRateTaxAmount)),
+      BasicRateIncomeTaxAmount                -> optionToAmount(BasicRateIncomeTaxAmount, basicRateBand.map(_.basicRateTax)),
+      BasicRateIncomeTax                      -> optionToAmount(BasicRateIncomeTax, basicRateBand.map(_.basicRateTaxAmount)),
+      HigherRateIncomeTaxAmount               -> optionToAmount(HigherRateIncomeTaxAmount, higherRateBand.map(_.higherRateTax)),
+      HigherRateIncomeTax                     -> optionToAmount(HigherRateIncomeTax, higherRateBand.map(_.higherRateTaxAmount)),
+      OrdinaryRateAmount                      -> optionToAmount(OrdinaryRateAmount, dividendLowerBand.map(_.dividendLowRateTax)),
+      OrdinaryRate                            -> optionToAmount(OrdinaryRate, dividendLowerBand.map(_.dividendLowRateAmount)),
+      UpperRateAmount                         -> optionToAmount(UpperRateAmount, dividendHigherBand.map(_.dividendHigherRateTax)),
+      UpperRate                               -> optionToAmount(UpperRate, dividendHigherBand.map(_.dividendHigherRateAmount)),
+      MarriedCouplesAllowance                 -> optionToAmount(
+        MarriedCouplesAllowance,
+        adjustments.flatMap(_.marriedCouplesAllowanceAdjustment)
+      ),
+      MarriageAllowanceReceivedAmount         -> optionToAmount(
+        MarriageAllowanceReceivedAmount,
+        adjustments.flatMap(_.marriageAllowanceReceived)
+      ),
+      LessTaxAdjustmentPrevYear               -> optionToAmount(
+        LessTaxAdjustmentPrevYear,
+        adjustments.flatMap(_.lessTaxAdjustmentPreviousYear)
+      ),
+      TaxUnderpaidPrevYear                    -> optionToAmount(TaxUnderpaidPrevYear, adjustments.flatMap(_.taxUnderpaidPreviousYear)),
+      TotalIncomeTax                          -> optionToAmount(TotalIncomeTax, calculatedTotals.flatMap(_.totalIncomeTax)),
+      TotalUKIncomeTax                        -> optionToAmount(TotalUKIncomeTax, calculatedTotals.flatMap(_.totalUKIncomeTax)),
+      TotalIncomeTax2                         -> optionToAmount(TotalIncomeTax2, calculatedTotals.flatMap(_.totalIncomeTax2)),
+      ScottishTotalTax                        -> optionToAmount(ScottishTotalTax, calculatedTotals.flatMap(_.totalScottishIncomeTax)),
+      ScottishStarterRateIncomeTaxAmount      -> optionToAmount(
+        ScottishStarterRateIncomeTaxAmount,
+        scottishStarterBand.map(_.scottishStarterRateTax)
+      ),
+      ScottishStarterRateIncomeTax            -> optionToAmount(
+        ScottishStarterRateIncomeTax,
+        scottishStarterBand.map(_.scottishStarterRateTaxAmount)
+      ),
+      ScottishBasicRateIncomeTaxAmount        -> optionToAmount(
+        ScottishBasicRateIncomeTaxAmount,
+        scottishBasicBand.map(_.scottishBasicRateTax)
+      ),
+      ScottishBasicRateIncomeTax              -> optionToAmount(
+        ScottishBasicRateIncomeTax,
+        scottishBasicBand.map(_.scottishBasicRateTaxAmount)
+      ),
       ScottishIntermediateRateIncomeTaxAmount -> optionToAmount(
+        ScottishIntermediateRateIncomeTaxAmount,
         scottishIntermediateBand.map(_.scottishIntermediateRateTax)
       ),
       ScottishIntermediateRateIncomeTax       -> optionToAmount(
+        ScottishIntermediateRateIncomeTax,
         scottishIntermediateBand.map(_.scottishIntermediateRateTaxAmount)
       ),
-      ScottishHigherRateIncomeTaxAmount       -> optionToAmount(scottishHigherBand.map(_.scottishHigherRateTax)),
-      ScottishHigherRateIncomeTax             -> optionToAmount(scottishHigherBand.map(_.scottishHigherRateTaxAmount))
+      ScottishHigherRateIncomeTaxAmount       -> optionToAmount(
+        ScottishHigherRateIncomeTaxAmount,
+        scottishHigherBand.map(_.scottishHigherRateTax)
+      ),
+      ScottishHigherRateIncomeTax             -> optionToAmount(
+        ScottishHigherRateIncomeTax,
+        scottishHigherBand.map(_.scottishHigherRateTaxAmount)
+      )
     )
 
   private def createIncomeTaxRates: Map[RateKey, ApiRate] =
@@ -107,15 +137,15 @@ case class PayeAtsData(
 
   private def createSummaryDataMap: Map[LiabilityKey, Amount] =
     Map(
-      TotalIncomeBeforeTax  -> optionToAmount(income.flatMap(_.incomeBeforeTax)),
-      TotalTaxFreeAmount    -> optionToAmount(income.flatMap(_.taxableIncome)),
-      TotalIncomeTaxAndNics -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTaxNics)),
-      IncomeAfterTaxAndNics -> optionToAmount(calculatedTotals.flatMap(_.incomeAfterTaxNics)),
-      TotalIncomeTax        -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2)),
-      TotalIncomeTax2Nics   -> optionToAmount(calculatedTotals.flatMap(_.totalIncomeTax2Nics)),
-      EmployeeNicAmount     -> optionToAmount(nationalInsurance.flatMap(_.employeeContributions)),
-      EmployerNicAmount     -> optionToAmount(nationalInsurance.flatMap(_.employerContributions)),
-      LiableTaxAmount       -> optionToAmount(calculatedTotals.flatMap(_.liableTaxAmount))
+      TotalIncomeBeforeTax  -> optionToAmount(TotalIncomeBeforeTax, income.flatMap(_.incomeBeforeTax)),
+      TotalTaxFreeAmount    -> optionToAmount(TotalTaxFreeAmount, income.flatMap(_.taxableIncome)),
+      TotalIncomeTaxAndNics -> optionToAmount(TotalIncomeTaxAndNics, calculatedTotals.flatMap(_.totalIncomeTaxNics)),
+      IncomeAfterTaxAndNics -> optionToAmount(IncomeAfterTaxAndNics, calculatedTotals.flatMap(_.incomeAfterTaxNics)),
+      TotalIncomeTax        -> optionToAmount(TotalIncomeTax, calculatedTotals.flatMap(_.totalIncomeTax2)),
+      TotalIncomeTax2Nics   -> optionToAmount(TotalIncomeTax2Nics, calculatedTotals.flatMap(_.totalIncomeTax2Nics)),
+      EmployeeNicAmount     -> optionToAmount(EmployeeNicAmount, nationalInsurance.flatMap(_.employeeContributions)),
+      EmployerNicAmount     -> optionToAmount(EmployerNicAmount, nationalInsurance.flatMap(_.employerContributions)),
+      LiableTaxAmount       -> optionToAmount(LiableTaxAmount, calculatedTotals.flatMap(_.liableTaxAmount))
     )
 
   private def createSummaryRates: Map[RateKey, ApiRate] = Map(
@@ -127,14 +157,14 @@ case class PayeAtsData(
 
   private def createIncomePayload: Map[LiabilityKey, Amount] =
     Map(
-      IncomeFromEmployment   -> optionToAmount(income.flatMap(_.incomeFromEmployment)),
-      StatePension           -> optionToAmount(income.flatMap(_.statePension)),
-      OtherPensionIncome     -> optionToAmount(income.flatMap(_.otherPensionIncome)),
-      OtherIncome            -> optionToAmount(income.flatMap(_.otherIncome)),
-      TotalIncomeBeforeTax   -> optionToAmount(income.flatMap(_.incomeBeforeTax)),
-      BenefitsFromEmployment -> optionToAmount(income.flatMap(_.employmentBenefits)),
-      TaxableStateBenefits   -> optionToAmount(taxableStateBenefits),
-      ScottishIncomeTax      -> optionToAmount(scottishIncomeTax)
+      IncomeFromEmployment   -> optionToAmount(IncomeFromEmployment, income.flatMap(_.incomeFromEmployment)),
+      StatePension           -> optionToAmount(StatePension, income.flatMap(_.statePension)),
+      OtherPensionIncome     -> optionToAmount(OtherPensionIncome, income.flatMap(_.otherPensionIncome)),
+      OtherIncome            -> optionToAmount(OtherIncome, income.flatMap(_.otherIncome)),
+      TotalIncomeBeforeTax   -> optionToAmount(TotalIncomeBeforeTax, income.flatMap(_.incomeBeforeTax)),
+      BenefitsFromEmployment -> optionToAmount(BenefitsFromEmployment, income.flatMap(_.employmentBenefits)),
+      TaxableStateBenefits   -> optionToAmount(TaxableStateBenefits, taxableStateBenefits),
+      ScottishIncomeTax      -> optionToAmount(ScottishIncomeTax, scottishIncomeTax)
     )
 
   private def createAllowanceData: DataHolder =
@@ -142,11 +172,17 @@ case class PayeAtsData(
 
   private def createAllowancePayload: Map[LiabilityKey, Amount] =
     Map(
-      PersonalTaxFreeAmount              -> optionToAmount(adjustments.flatMap(_.taxFreeAmount)),
-      MarriageAllowanceTransferredAmount -> optionToAmount(adjustments.flatMap(_.marriageAllowanceTransferred)),
-      OtherAllowancesAmount              -> optionToAmount(income.flatMap(_.otherAllowancesDeductionsExpenses)),
-      TotalTaxFreeAmount                 -> optionToAmount(income.flatMap(_.taxableIncome)),
-      TotalIncomeBeforeTax               -> optionToAmount(income.flatMap(_.incomeBeforeTax))
+      PersonalTaxFreeAmount              -> optionToAmount(PersonalTaxFreeAmount, adjustments.flatMap(_.taxFreeAmount)),
+      MarriageAllowanceTransferredAmount -> optionToAmount(
+        MarriageAllowanceTransferredAmount,
+        adjustments.flatMap(_.marriageAllowanceTransferred)
+      ),
+      OtherAllowancesAmount              -> optionToAmount(
+        OtherAllowancesAmount,
+        income.flatMap(_.otherAllowancesDeductionsExpenses)
+      ),
+      TotalTaxFreeAmount                 -> optionToAmount(TotalTaxFreeAmount, income.flatMap(_.taxableIncome)),
+      TotalIncomeBeforeTax               -> optionToAmount(TotalIncomeBeforeTax, income.flatMap(_.incomeBeforeTax))
     )
 
   private def createGovSpendData(
@@ -154,6 +190,7 @@ case class PayeAtsData(
     taxYear: Int
   ): GovernmentSpendingOutputWrapper = {
     val totalIncome = optionToAmount(
+      TotalIncomeTax,
       if (nationalInsurance.flatMap(_.employeeContributions).isDefined) {
         calculatedTotals.flatMap(_.totalIncomeTaxNics)
       } else {

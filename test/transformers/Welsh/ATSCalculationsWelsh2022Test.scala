@@ -45,20 +45,30 @@ class ATSCalculationsWelsh2022Test extends BaseSpec {
   "Welsh 2022" must {
     "return empty" when {
       "scottishIncomeTax is called" in {
-        sut().scottishIncomeTax mustBe Amount.empty
+        sut().scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxWelsh2022")
       }
 
       "savingsRate is called" in {
-        sut().savingsRate mustBe Amount(87.43, "GBP")
+        sut().savingsRate mustBe Amount(87.43, "GBP", Some("11.10(ctnSavingsChgbleStartRate) + 76.33(ctnTaxableCegSr)"))
       }
 
       "savingsRateAmount is called" in {
-        sut().savingsRateAmount mustBe Amount(80.53, "GBP")
+        sut().savingsRateAmount mustBe Amount(
+          80.53,
+          "GBP",
+          Some("3.20(ctnSavingsTaxStartingRate) + 77.33(ctnTaxOnCegSr)")
+        )
       }
     }
 
     "return welshIncomeTax" in {
-      sut().welshIncomeTax mustBe Amount(212.444, "GBP")
+      sut().welshIncomeTax mustBe Amount(
+        212.444,
+        "GBP",
+        Some(
+          "0.1 * (1860.00(ctnIncomeChgbleBasicRate) + 78.33(ctnTaxableRedundancyBr) + 5.23(ctnIncomeChgbleHigherRate) + 93.33(ctnTaxableRedundancyHr) + 3.22(ctnIncomeChgbleAddHRate) + 84.33(ctnTaxableRedundancyAhr))"
+        )
+      )
     }
   }
 }
