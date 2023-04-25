@@ -22,14 +22,16 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
 import play.api.Logging
+import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{Format, OFormat}
 import play.api.mvc.Request
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import play.api.libs.json.Json
+
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -135,6 +137,12 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     "CorrelationId"        -> UUID.randomUUID().toString
   )
 
+  def readEitherOfWithNotFound[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
+    HttpReads.ask.flatMap {
+      case (_, _, response) if response.status == NOT_FOUND => HttpReads[A].map(Right.apply)
+      case _                                                => HttpReads[Either[UpstreamErrorResponse, A]]
+    }
+
   def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -143,7 +151,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
         url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
         headers = header
-      )
+      )(readEitherOfWithNotFound, implicitly, implicitly)
     )
 
   def connectToSelfAssessmentList(UTR: String)(implicit

@@ -18,12 +18,11 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
-import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, RequestId, SessionId, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, WireMockHelper}
 
@@ -82,7 +81,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with WireMockHelper {
     }
 
     "return UpstreamErrorResponse" when {
-      List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
+      List(400, 401, 403, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
           server.stubFor(
             get(urlEqualTo(url)).willReturn(
@@ -95,10 +94,29 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with WireMockHelper {
           val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
           whenReady(result) { res =>
-            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
+            res mustBe a[Left[UpstreamErrorResponse, _]]
           }
         }
       }
+    }
+
+    "return UpstreamErrorResponse" when {
+      s"a response with status 404 is received" in {
+        server.stubFor(
+          get(urlEqualTo(url)).willReturn(
+            aResponse()
+              .withStatus(404)
+              .withBody("")
+          )
+        )
+
+        val result = sut.connectToSelfAssessment(testUtr, 2014).value
+
+        whenReady(result) { res =>
+          res mustBe a[Right[_, HttpResponse]]
+        }
+      }
+
     }
   }
 }

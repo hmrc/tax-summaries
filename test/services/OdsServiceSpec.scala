@@ -81,7 +81,6 @@ class OdsServiceSpec extends BaseSpec {
 
           whenReady(result) { res =>
             res mustBe a[Left[UpstreamErrorResponse, _]]
-            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe response
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
             verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())

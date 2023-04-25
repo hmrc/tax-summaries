@@ -20,6 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.SelfAssessmentODSConnector
 import models._
+import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
@@ -38,7 +39,12 @@ class OdsService @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
       taxpayer     <- selfAssessmentOdsConnector.connectToSATaxpayerDetails(UTR).map(_.json.as[JsValue])
-      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(UTR, TAX_YEAR).map(_.json.as[JsValue])
+      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(UTR, TAX_YEAR).transform {
+                        case Right(response) if response.status == 404 =>
+                          Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
+                        case Right(response)                           => Right(response.json.as[JsValue])
+                        case Left(error)                               => Left(error)
+                      }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
 
   def getList(
