@@ -47,9 +47,9 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  val odsService: OdsService = mock[OdsService]
-  val odsIndividualYearsService: OdsIndividualYearsService = mock[OdsIndividualYearsService]
-  val jsonHelper: TaxsJsonHelper = inject[TaxsJsonHelper]
+  val odsService: OdsService                                 = mock[OdsService]
+  val odsIndividualYearsService: OdsIndividualYearsService   = mock[OdsIndividualYearsService]
+  val jsonHelper: TaxsJsonHelper                             = inject[TaxsJsonHelper]
   val selfAssessmentODSConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
 
   val controller = new AtsSaDataController(
@@ -62,7 +62,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
     selfAssessmentODSConnector
   )
 
-  val taxYear = 2021
+  val taxYear        = 2021
   val json: JsString = JsString("success")
 
   "getAtsData" must {
@@ -233,13 +233,13 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
       "connector returns a right" in {
 
-        val singleAtsListSource = Source.fromURL(getClass.getResource("/ats-List-SingleService.json"))
+        val singleAtsListSource     = Source.fromURL(getClass.getResource("/ats-List-SingleService.json"))
         val individualAtsListSource = Source.fromURL(getClass.getResource("/ats-List-IndividualService.json"))
-        val taxPayerSource = Source.fromURL(getClass.getResource("/taxPayerResponse.json"))
+        val taxPayerSource          = Source.fromURL(getClass.getResource("/taxPayerResponse.json"))
 
-        val singleAtsList = singleAtsListSource.mkString
+        val singleAtsList     = singleAtsListSource.mkString
         val individualAtsList = individualAtsListSource.mkString
-        val taxPayer = taxPayerSource.mkString
+        val taxPayer          = taxPayerSource.mkString
 
         singleAtsListSource.close()
         individualAtsListSource.close()

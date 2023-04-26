@@ -32,21 +32,21 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class GovSpendingControllerTest extends BaseSpec {
 
-  lazy val cc: ControllerComponents = stubControllerComponents()
-  lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
+  lazy val cc: ControllerComponents                             = stubControllerComponents()
+  lazy val request: FakeRequest[AnyContentAsEmpty.type]         = FakeRequest()
+  lazy val atsErrorHandler: ATSErrorHandler                     = inject[ATSErrorHandler]
   lazy val odsIndividualYearsService: OdsIndividualYearsService = inject[OdsIndividualYearsService]
 
-  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  implicit lazy val ec: ExecutionContext                        = inject[ExecutionContext]
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  val jsonHelper: TaxsJsonHelper = mock[TaxsJsonHelper]
-  val selfAssessmentODSConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
+  val jsonHelper: TaxsJsonHelper                                = mock[TaxsJsonHelper]
+  val selfAssessmentODSConnector: SelfAssessmentODSConnector    = mock[SelfAssessmentODSConnector]
 
-  val summaryJson = "/utr_2014.json"
+  val summaryJson          = "/utr_2014.json"
   val capitalGainsOnlyJson = "/test_gov_spend_capital_gains_only.json"
-  val allTaxJson = "/test_gov_spend_all_tax.json"
-  val govSpendPath = "/test_gov_spend_ref_data_year_2014.json"
-  val taxPayerDataPath = "/taxpayerData/test_individual_utr.json"
+  val allTaxJson           = "/test_gov_spend_all_tax.json"
+  val govSpendPath         = "/test_gov_spend_ref_data_year_2014.json"
+  val taxPayerDataPath     = "/taxpayerData/test_individual_utr.json"
 
   def makeController(inputJson: String): AtsSaDataController = {
 
@@ -69,12 +69,12 @@ class GovSpendingControllerTest extends BaseSpec {
 
   }
 
-  "Calling Government Spend with no session" must {
+  "Calling Government Spend with no session"                                must {
     "return a 200 response" in {
 
       val controllerUnderTest = makeController(summaryJson)
-      val result2014 = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
-      val result2015 = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
 
       status(result2014.futureValue) mustBe 200
       status(result2015.futureValue) mustBe 200
@@ -82,14 +82,14 @@ class GovSpendingControllerTest extends BaseSpec {
     "have the right data in the output Json" in {
 
       val controllerUnderTest = makeController(summaryJson)
-      val result2014 = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2014)(request))
-      val result2015 = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2015)(request))
 
       val rawJsonString2014 = contentAsString(result2014.futureValue)
-      val rawJson2014 = Json.parse(rawJsonString2014)
+      val rawJson2014       = Json.parse(rawJsonString2014)
 
       val rawJsonString2015 = contentAsString(result2015.futureValue)
-      val rawJson2015 = Json.parse(rawJsonString2015)
+      val rawJson2015       = Json.parse(rawJsonString2015)
 
       (rawJson2014 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
         "70.20"
@@ -126,18 +126,18 @@ class GovSpendingControllerTest extends BaseSpec {
         .percentage mustBe BigDecimal("1.3")
     }
   }
-  "Calling Government Spend with only capital gains tax to pay" must {
+  "Calling Government Spend with only capital gains tax to pay"             must {
     "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(capitalGainsOnlyJson)
-      val result2014 = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
-      val result2015 = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
 
       val rawJsonString2014 = contentAsString(result2014.futureValue)
-      val rawJson2014 = Json.parse(rawJsonString2014)
+      val rawJson2014       = Json.parse(rawJsonString2014)
 
       val rawJsonString2015 = contentAsString(result2015.futureValue)
-      val rawJson2015 = Json.parse(rawJsonString2015)
+      val rawJson2015       = Json.parse(rawJsonString2015)
 
       (rawJson2014 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
         "33.97"
@@ -178,14 +178,14 @@ class GovSpendingControllerTest extends BaseSpec {
     "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(allTaxJson)
-      val result2014 = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
-      val result2015 = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
+      val result2014          = Future.successful(controllerUnderTest.getAtsSaData("user", 2014)(request))
+      val result2015          = Future.successful(controllerUnderTest.getAtsSaData("user", 2015)(request))
 
       val rawJsonString2014 = contentAsString(result2014.futureValue)
-      val rawJson2014 = Json.parse(rawJsonString2014)
+      val rawJson2014       = Json.parse(rawJsonString2014)
 
       val rawJsonString2015 = contentAsString(result2015.futureValue)
-      val rawJson2015 = Json.parse(rawJsonString2015)
+      val rawJson2015       = Json.parse(rawJsonString2015)
 
       (rawJson2014 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
         "104.16"

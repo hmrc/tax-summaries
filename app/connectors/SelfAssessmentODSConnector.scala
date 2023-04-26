@@ -37,17 +37,17 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 trait SelfAssessmentODSConnector {
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
+  def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 
-  def connectToSelfAssessmentList(UTR: String)(implicit
+  def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 
-  def connectToSATaxpayerDetails(UTR: String)(implicit
+  def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
@@ -87,33 +87,33 @@ class CachingSelfAssessmentODSConnector @Inject() (
     }
   }
 
-  override def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
+  override def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
-    cache(UTR + "/" + TAX_YEAR) {
-      underlying.connectToSelfAssessment(UTR, TAX_YEAR)
+    cache(utr + "/" + taxYear) {
+      underlying.connectToSelfAssessment(utr, taxYear)
     }
   }
 
-  override def connectToSelfAssessmentList(UTR: String)(implicit
+  override def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
-    cache(UTR) {
-      underlying.connectToSelfAssessmentList(UTR)
+    cache(utr) {
+      underlying.connectToSelfAssessmentList(utr)
     }
   }
 
-  override def connectToSATaxpayerDetails(UTR: String)(implicit
+  override def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
-    cache("taxpayer/" + UTR) {
-      underlying.connectToSATaxpayerDetails(UTR)
+    cache("taxpayer/" + utr) {
+      underlying.connectToSATaxpayerDetails(utr)
     }
   }
 }
@@ -143,38 +143,38 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       case _                                                => HttpReads[Either[UpstreamErrorResponse, A]]
     }
 
-  def connectToSelfAssessment(UTR: String, TAX_YEAR: Int)(implicit
+  def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     httpClientResponse.read(
       httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-        url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries/" + TAX_YEAR),
+        url = url("/self-assessment/individuals/" + utr + "/annual-tax-summaries/" + taxYear),
         headers = header
       )(readEitherOfWithNotFound, implicitly, implicitly)
     )
 
-  def connectToSelfAssessmentList(UTR: String)(implicit
+  def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     httpClientResponse.read(
       httpClient
         .GET[Either[UpstreamErrorResponse, HttpResponse]](
-          url = url("/self-assessment/individuals/" + UTR + "/annual-tax-summaries"),
+          url = url("/self-assessment/individuals/" + utr + "/annual-tax-summaries"),
           headers = header
-        )
+        )(readEitherOfWithNotFound, implicitly, implicitly)
     )
 
-  def connectToSATaxpayerDetails(UTR: String)(implicit
+  def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     httpClientResponse.read(
       httpClient
         .GET[Either[UpstreamErrorResponse, HttpResponse]](
-          url("/self-assessment/individual/" + UTR + "/designatory-details/taxpayer"),
+          url("/self-assessment/individual/" + utr + "/designatory-details/taxpayer"),
           headers = header
-        )
+        )(readEitherOfWithNotFound, implicitly, implicitly)
     )
 }

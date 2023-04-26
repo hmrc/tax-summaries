@@ -36,7 +36,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
   val mockSessionCacheRepository: SessionCacheRepository         = mock[SessionCacheRepository]
 
   override implicit val hc: HeaderCarrier         = HeaderCarrier()
-  override implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  override implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   override implicit lazy val app: Application = app(
     Map("microservice.services.agent-client-authorisation.port" -> server.port()),
@@ -72,7 +72,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
         when(mockSelfAssessmentODSConnector.connectToSelfAssessment("utr", 2022))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
 
-        connector.connectToSelfAssessment("utr", 2022).value.futureValue
+        val saResponse = connector.connectToSelfAssessment("utr", 2022).value.futureValue
 
         verify(mockSessionCacheRepository, times(1))
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
@@ -81,6 +81,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
           .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
 
         verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessment("utr", 2022)
+
+        saResponse mustBe a[Right[_, _]]
       }
 
       "a value is cached" in {
@@ -95,7 +97,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
         )
           .thenReturn(null)
 
-        connector.connectToSelfAssessment("utr", 2022).value.futureValue
+        val saResponse = connector.connectToSelfAssessment("utr", 2022).value.futureValue
 
         verify(mockSessionCacheRepository, times(1))
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
@@ -104,6 +106,9 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
           .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
 
         verify(mockSelfAssessmentODSConnector, times(0)).connectToSelfAssessment("utr", 2022)
+
+        saResponse mustBe a[Right[_, _]]
+
       }
     }
 

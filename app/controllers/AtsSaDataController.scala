@@ -30,16 +30,16 @@ import utils.{ATSErrorHandler, OdsIndividualYearsService, TaxsJsonHelper}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext}
 
-class AtsSaDataController @Inject()(
-                                     odsService: OdsService,
-                                     odsIndividualYearsService: OdsIndividualYearsService,
-                                     atsErrorHandler: ATSErrorHandler,
-                                     authAction: AuthAction,
-                                     cc: ControllerComponents,
-                                     jsonHelper: TaxsJsonHelper,
-                                     selfAssessmentOdsConnector: SelfAssessmentODSConnector
-                                   )(implicit val ec: ExecutionContext)
-  extends BackendController(cc)
+class AtsSaDataController @Inject() (
+  odsService: OdsService,
+  odsIndividualYearsService: OdsIndividualYearsService,
+  atsErrorHandler: ATSErrorHandler,
+  authAction: AuthAction,
+  cc: ControllerComponents,
+  jsonHelper: TaxsJsonHelper,
+  selfAssessmentOdsConnector: SelfAssessmentODSConnector
+)(implicit val ec: ExecutionContext)
+    extends BackendController(cc)
     with Logging {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
@@ -71,11 +71,11 @@ class AtsSaDataController @Inject()(
       val yearData = odsIndividualYearsService.getAtsList(utr: String, endYear: Int, numberOfYears: Int)
 
       for {
-        madeupList <- singleListForAllYears
+        madeupList          <- singleListForAllYears
         individualYearsList <- yearData.bimap(
-          _ => UpstreamErrorResponse("", 500),
-          json => json.collect { case (key, Some(value)) => (key, value) }.keys.toList
-        )
+                                 _ => UpstreamErrorResponse("", 500),
+                                 json => json.collect { case (key, Some(value)) => (key, value) }.keys.toList
+                               )
       } yield {
         val differentYears = madeupList.filter(_ > endYear - numberOfYears).diff(individualYearsList)
         if (differentYears.nonEmpty) {
@@ -94,7 +94,16 @@ class AtsSaDataController @Inject()(
           val resultEmptyYearsRemoved = result.collect { case (key, Some(value)) => (key, value) }
 
           val taxpayer = Await.result(
-            selfAssessmentOdsConnector.connectToSATaxpayerDetails(utr).map(_.json.as[JsValue]).getOrElse(Json.obj()),
+            selfAssessmentOdsConnector
+              .connectToSATaxpayerDetails(utr)
+              .transform {
+                case Right(response) if response.status == 404 =>
+                  Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+                case Right(response)                           =>
+                  Right(response.json.as[JsValue])
+                case Left(error)                               => Left(error)
+              }
+              .getOrElse(Json.obj()),
             Duration.Inf
           )
 
@@ -105,9 +114,9 @@ class AtsSaDataController @Inject()(
                   resultEmptyYearsRemoved.keys.map { year =>
                     Json.obj(
                       "taxYearEnd" -> year,
-                      "links" -> List(
+                      "links"      -> List(
                         Json.obj(
-                          "rel" -> "details",
+                          "rel"  -> "details",
                           "href" -> s"https://digital.ws.hmrc.gov.uk/self-assessment/individuals/$utr/annual-tax-summaries/$year"
                         )
                       )

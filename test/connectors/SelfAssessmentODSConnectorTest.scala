@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, RequestId, Se
 import utils.TestConstants._
 import utils.{BaseSpec, WireMockHelper}
 
-class SelfAssessmentODSConnectorTest extends BaseSpec with WireMockHelper {
+class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with WireMockHelper {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -45,7 +45,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with WireMockHelper {
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(
+  override implicit val hc: HeaderCarrier = HeaderCarrier(
     sessionId = Some(SessionId(sessionId)),
     requestId = Some(RequestId(requestId))
   )
@@ -58,9 +58,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with WireMockHelper {
 
       "200 is returned" in {
 
-        server.stubFor(
-          get(url).willReturn(ok(json.toString()))
-        )
+        stubGet(url, OK, Some(json.toString()))
 
         val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
@@ -83,13 +81,8 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with WireMockHelper {
     "return UpstreamErrorResponse" when {
       List(400, 401, 403, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
-          server.stubFor(
-            get(urlEqualTo(url)).willReturn(
-              aResponse()
-                .withStatus(status)
-                .withBody("")
-            )
-          )
+
+          stubGet(url, status, Some(""))
 
           val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
@@ -102,13 +95,8 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with WireMockHelper {
 
     "return UpstreamErrorResponse" when {
       s"a response with status 404 is received" in {
-        server.stubFor(
-          get(urlEqualTo(url)).willReturn(
-            aResponse()
-              .withStatus(404)
-              .withBody("")
-          )
-        )
+
+        stubGet(url, NOT_FOUND, Some(""))
 
         val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
