@@ -16,29 +16,36 @@
 
 package transformers
 
-import models.ODSLiabilities.ODSLiabilities.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models.LiabilityKey._
+import models.ODSLiabilities.ODSLiabilities.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import services.TaxRateService
 import utils._
 
-import scala.io.Source
+import scala.concurrent.ExecutionContext
+import scala.io.{BufferedSource, Source}
 
 class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
-  val taxpayerDetailsJson       = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  val taxYear: Int              = 2014
-  val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val taxpayerDetailsJsonSource: BufferedSource =
+    Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json"))
+  val taxpayerDetailsJson: String               = taxpayerDetailsJsonSource.mkString
+  taxpayerDetailsJsonSource.close()
+  val parsedTaxpayerDetailsJson: JsValue        = Json.parse(taxpayerDetailsJson)
+  val taxYear: Int                              = 2014
+  val taxRate                                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
-  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  val SUT: ATSRawDataTransformer    = inject[ATSRawDataTransformer]
+  implicit val ec: ExecutionContext = inject[ExecutionContext]
 
   "The capital gains" must {
 
     "display rates (based on test_case_5.json)" in {
 
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
+      val sampleJsonSource = Source.fromURL(getClass.getResource("/test_case_5.json"))
+      val sampleJson       = sampleJsonSource.mkString
+      sampleJsonSource.close()
 
       val parsedJson   = Json.parse(sampleJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
@@ -62,7 +69,9 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
     "display the user's capital gains earned in the selected tax year (based on test_case_5.json)" in {
 
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_5.json")).mkString
+      val sampleJsonSource = Source.fromURL(getClass.getResource("/test_case_5.json"))
+      val sampleJson       = sampleJsonSource.mkString
+      sampleJsonSource.close()
 
       val parsedJson   = Json.parse(sampleJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
@@ -107,7 +116,9 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
     "display the user's capital gains earned in the selected tax year (based on test_case_6.json)" in {
 
-      val sampleJson = Source.fromURL(getClass.getResource("/test_case_6.json")).mkString
+      val sampleJsonSource = Source.fromURL(getClass.getResource("/test_case_6.json"))
+      val sampleJson       = sampleJsonSource.mkString
+      sampleJsonSource.close()
 
       val parsedJson   = Json.parse(sampleJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)

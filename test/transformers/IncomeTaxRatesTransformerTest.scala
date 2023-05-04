@@ -18,19 +18,24 @@ package transformers
 
 import models.LiabilityKey._
 import models.{Amount, AtsMiddleTierData, LiabilityKey, TaxSummaryLiability}
-import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
+import play.api.libs.json.{JsValue, Json}
 import services.TaxRateService
 import utils._
 
-import scala.io.Source
+import scala.concurrent.ExecutionContext
+import scala.io.{BufferedSource, Source}
 
 class IncomeTaxRatesTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
-  val taxpayerDetailsJson       = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  val taxYear: Int              = 2014
-  val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val taxpayerDetailsJsonSource: BufferedSource =
+    Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json"))
+  val taxpayerDetailsJson: String               = taxpayerDetailsJsonSource.mkString
+  taxpayerDetailsJsonSource.close()
+  val parsedTaxpayerDetailsJson: JsValue        = Json.parse(taxpayerDetailsJson)
+  val taxYear: Int                              = 2014
+  val taxRate                                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  implicit val ec: ExecutionContext             = inject[ExecutionContext]
 
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 

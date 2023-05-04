@@ -18,18 +18,23 @@ package transformers
 
 import models.LiabilityKey._
 import models._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import services.TaxRateService
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
+
+import scala.concurrent.ExecutionContext
 
 class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
-  val taxpayerDetailsJson       = JsonUtil.load("/taxpayerData/test_individual_utr.json")
-  val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  val taxYear: Int              = 2014
-  val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val taxpayerDetailsJson: String        = JsonUtil.load("/taxpayerData/test_individual_utr.json")
+  val parsedTaxpayerDetailsJson: JsValue = Json.parse(taxpayerDetailsJson)
+  val taxYear: Int                       = 2014
+  val taxRate                            = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
-  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  val auditConnector: AuditConnector = mock[AuditConnector]
+  implicit val ec: ExecutionContext  = mock[ExecutionContext]
+  val SUT: ATSRawDataTransformer     = inject[ATSRawDataTransformer]
 
   "The income before tax" must {
 

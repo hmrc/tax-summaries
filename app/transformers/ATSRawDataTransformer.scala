@@ -18,18 +18,23 @@ package transformers
 
 import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
-import models.ODSLiabilities.ODSLiabilities.{StatePension, _}
 import models.LiabilityKey.{ScottishIncomeTax, _}
+import models.ODSLiabilities.ODSLiabilities.{StatePension, _}
 import models.RateKey._
 import models._
-import play.api.{Logger, Logging}
 import play.api.libs.json._
+import play.api.{Logger, Logging}
 import services.TaxRateService
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.DataEvent
+
+import scala.concurrent.ExecutionContext
 
 case class ATSParsingException(s: String) extends Exception(s)
 
 @Singleton
-class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) extends Logging {
+class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, auditConnector: AuditConnector)
+    extends Logging {
 
   def atsDataDTO(
     taxRate: TaxRateService,
@@ -37,10 +42,23 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) ext
     rawTaxPayerJson: JsValue,
     UTR: String,
     taxYear: Int
-  ): AtsMiddleTierData = {
+  )(implicit ec: ExecutionContext): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
     logger.debug(s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}")
     try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
+      auditConnector.sendEvent(
+        DataEvent(
+          auditSource = applicationConfig.appName,
+          auditType = "taxLiability",
+          detail = Map(
+            "utr"              -> UTR,
+            "taxYear"          -> taxYear.toString,
+            "liabilityAmount"  -> calculations.taxLiability.amount.toString,
+            "LiabilityDetails" -> calculations.taxLiability.calculus.getOrElse("No calculation details present")
+          )
+        )
+      )
+
       AtsMiddleTierData.make(
         taxYear,
         UTR,
@@ -53,12 +71,13 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) ext
         createTaxPayerData(rawTaxPayerJson)
       )
     } else {
+
       logger.warn(s"There is no liability for the year $taxYear")
       AtsMiddleTierData.noAtsResult(taxYear)
     } catch {
       case ATSParsingException(message) =>
         AtsMiddleTierData.error(taxYear, message)
-      case otherError: Throwable        =>
+      case otherError: Throwable =>
         logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData.error(taxYear, "Other Error")
     }

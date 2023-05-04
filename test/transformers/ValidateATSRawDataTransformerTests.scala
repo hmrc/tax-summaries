@@ -18,19 +18,24 @@ package transformers
 
 import errors.AtsError
 import models.{AtsMiddleTierData, TaxSummaryLiability}
-import play.api.libs.json.{JsNull, JsResultException, Json}
+import play.api.libs.json.{JsNull, JsResultException, JsValue, Json}
 import services.TaxRateService
 import utils.{AtsJsonDataUpdate, BaseSpec}
 
-import scala.io.Source
+import scala.concurrent.ExecutionContext
+import scala.io.{BufferedSource, Source}
 
 class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate {
 
-  val taxpayerDetailsJson        = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson  = Json.parse(taxpayerDetailsJson)
-  val taxYear: Int               = 2014
-  val taxRate                    = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  val taxpayerDetailsJsonSource: BufferedSource =
+    Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json"))
+  val taxpayerDetailsJson: String               = taxpayerDetailsJsonSource.mkString
+  taxpayerDetailsJsonSource.close()
+  val parsedTaxpayerDetailsJson: JsValue        = Json.parse(taxpayerDetailsJson)
+  val taxYear: Int                              = 2014
+  val taxRate                                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val SUT: ATSRawDataTransformer                = inject[ATSRawDataTransformer]
+  implicit val ec: ExecutionContext             = inject[ExecutionContext]
 
   "With base data for utr" must {
 
@@ -54,7 +59,9 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
 
     "gracefully handle a missing field" in {
 
-      val originalJson = Source.fromURL(getClass.getResource("/utr_2014_field_removed.json")).mkString
+      val originalJsonSource = Source.fromURL(getClass.getResource("/utr_2014_field_removed.json"))
+      val originalJson       = originalJsonSource.mkString
+      originalJsonSource.close()
 
       val parsedJson   = Json.parse(originalJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
@@ -67,7 +74,9 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
     }
 
     "Invalid Json causes a Json parser exception" in {
-      val originalJson = Source.fromURL(getClass.getResource("/utr_2014_incorrect_amount_format.json")).mkString
+      val originalJsonSource = Source.fromURL(getClass.getResource("/utr_2014_incorrect_amount_format.json"))
+      val originalJson       = originalJsonSource.mkString
+      originalJsonSource.close()
 
       val parsedJson = Json.parse(originalJson)
       a[JsResultException] mustBe thrownBy(
@@ -77,9 +86,14 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
 
     "return a JSON containing taxpayer name errors" in {
 
-      val taxpayerJson =
-        Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json")).mkString
-      val originalJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
+      val taxpayerJsonSource =
+        Source.fromURL(getClass.getResource("/taxpayerData/incorrect_format_taxpayer_json_utr.json"))
+      val taxpayerJson       = taxpayerJsonSource.mkString
+      taxpayerJsonSource.close()
+
+      val originalJsonSource = Source.fromURL(getClass.getResource("/utr_2014.json"))
+      val originalJson       = originalJsonSource.mkString
+      originalJsonSource.close()
 
       val parsedJson                = Json.parse(originalJson)
       val parsedTaxpayerDetailsJson = Json.parse(taxpayerJson)
