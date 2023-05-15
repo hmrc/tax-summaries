@@ -31,11 +31,11 @@ class AmountTest extends BaseSpec {
     }
 
     "calculate this : £1.00 + £2.00 = £3.00" in {
-      Amount(3.0, "GBP") mustEqual Amount(1.0, "GBP") + Amount(2.0, "GBP")
+      Amount(3.0, "GBP", Some("a + b")) mustEqual Amount(1.0, "GBP", Some("a")) + Amount(2.0, "GBP", Some("b"))
     }
 
     "calculate this : £3.00 - £1.00 = £2.00" in {
-      Amount(2.0, "GBP") mustEqual Amount(3.0, "GBP") - Amount(1.0, "GBP")
+      Amount(2.0, "GBP", Some("a - b")) mustEqual Amount(3.0, "GBP", Some("a")) - Amount(1.0, "GBP", Some("b"))
     }
 
     "properly compare £1.00 < £2.00" in {

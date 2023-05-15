@@ -55,11 +55,11 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           StatePension           -> Amount(0.0, "GBP"),
           OtherPensionIncome     -> Amount(0.0, "GBP"),
           TaxableStateBenefits   -> Amount(0.0, "GBP"),
-          OtherIncome            -> Amount.empty,
+          OtherIncome            -> Amount.empty("other_income"),
           BenefitsFromEmployment -> Amount(0.0, "GBP"),
           TotalIncomeBeforeTax   -> Amount(11600.00, "GBP")
         )
-      testPayload mustEqual parsedPayload
+      testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
     }
 
     "parse the income values for test case 2" in {
@@ -87,7 +87,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           BenefitsFromEmployment -> Amount(1.0, "GBP"),
           TotalIncomeBeforeTax   -> Amount(524287.00, "GBP")
         )
-      testPayload mustEqual parsedPayload
+      testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
     }
   }
 
@@ -120,9 +120,9 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
           NicsAndTaxPerCurrencyUnit -> Amount(0.0478, "GBP")
         )
-      testPayload mustEqual parsedPayload
+      testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
 
-      val parsedRates = returnValue.summary_data.get.rates.get
+      val parsedRates   = returnValue.summary_data.get.rates.get
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("0%"),
@@ -159,9 +159,9 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           CgTaxPerCurrencyUnit      -> Amount(0.00, "GBP"),
           NicsAndTaxPerCurrencyUnit -> Amount(0.0478, "GBP")
         )
-      testPayload mustEqual parsedPayload
+      testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
 
-      val parsedRates = returnValue.summary_data.get.rates.get
+      val parsedRates   = returnValue.summary_data.get.rates.get
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("0%"),
@@ -200,9 +200,9 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           CgTaxPerCurrencyUnit      -> Amount(0.4534, "GBP"),
           NicsAndTaxPerCurrencyUnit -> Amount(0.0469, "GBP")
         )
-      testPayload mustEqual parsedPayload
+      testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
 
-      val parsedRates = returnValue.summary_data.get.rates.get
+      val parsedRates   = returnValue.summary_data.get.rates.get
 
       val testRates = Map(
         "total_cg_tax_rate" -> ApiRate("45.34%"),
@@ -250,10 +250,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           ScottishIncomeTax               -> Amount(186.00, "GBP"),
           TotalIncomeTax                  -> Amount(344.83, "GBP")
         )
-      parsedPayload must contain allElementsOf testPayload
+      parsedPayload.map(x => x._1 -> x._2.amount) must contain allElementsOf testPayload.map(x => x._1 -> x._2.amount)
 
-      val parsedRates = returnValue.income_tax.get.rates.get
-      val testRates   =
+      val parsedRates   = returnValue.income_tax.get.rates.get
+      val testRates     =
         Map(
           "starting_rate_for_savings_rate"  -> ApiRate("10%"),
           "basic_rate_income_tax_rate"      -> ApiRate("20%"),
@@ -320,7 +320,30 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
       val parsedPayload                  = returnValue.income_tax.get.payload.get
-      parsedPayload(TotalIncomeTax) mustEqual Amount(8872.63, "GBP")
+      parsedPayload(TotalIncomeTax) mustEqual Amount(
+        8872.63,
+        "GBP",
+        Some(
+          "991.0(ctnSavingsTaxStartingRate) + 1153.0(ctnIncomeTaxBasicRate) + " +
+            "1174.0(ctnSavingsTaxLowerRate) + null (ctnPensionLsumTaxDueAmt) + " +
+            "1816.0(ctnIncomeTaxHigherRate) + 1725.0(ctnSavingsTaxHigherRate) + " +
+            "null (ctnPensionLsumTaxDueAmt) + 1366.0(ctnIncomeTaxAddHighRate) + " +
+            "2061.0(ctnSavingsTaxAddHighRate) + 2458.0(ctnPensionLsumTaxDueAmt) + " +
+            "293.0(ctnDividendTaxLowRate) + 487.0(ctnDividendTaxHighRate) + " +
+            "725.0(ctnDividendTaxAddHighRate) + 64.0(nonDomChargeAmount) + " +
+            "88.0(taxExcluded) + 75.0(incomeTaxDue) + 111.0(netAnnuityPaytsTaxDue) + " +
+            "119.0(ctnChildBenefitChrgAmt) + 127.0(ctnPensionSavingChrgbleAmt) - " +
+            "100.0(ctn4TaxDueAfterAllceRlf) - 612.2(ctnDeficiencyRelief) + " +
+            "134.0(topSlicingRelief) + 532.0(ctnVctSharesReliefAmt) + " +
+            "762.0(ctnEisReliefAmt) + 159.0(ctnSeedEisReliefAmt) + " +
+            "854.0(ctnCommInvTrustRelAmt) + 137.0(atsSurplusMcaAlimonyRel) + " +
+            "99.0(ctnNotionalTaxCegs) + 87.0(ctnNotlTaxOthrSrceAmo) + " +
+            "166.0(ctnTaxCredForDivs) + 258(ctnQualDistnReliefAmt) + " +
+            "789.0(figTotalTaxCreditRelief) + 198.0(ctnNonPayableTaxCredits) + " +
+            "469.0(reliefForFinanceCosts) + 17.17(lfiRelief) + " +
+            "0(alimony) - 587.0(ctnMarriageAllceInAmt)"
+        )
+      )
     }
 
     "Calculate the Scottish Rate" in {
@@ -338,7 +361,13 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedPayload = returnValue.income_tax.get.payload.get
-      parsedPayload(ScottishIncomeTax) mustEqual Amount(130.4, "GBP")
+      parsedPayload(ScottishIncomeTax) mustEqual Amount(
+        130.4,
+        "GBP",
+        Some(
+          "0.1 * (469.0(ctnIncomeChgbleBasicRate) + 267.0(ctnIncomeChgbleHigherRate) + 568.0(ctnIncomeChgbleAddHRate))"
+        )
+      )
     }
 
     "Calculate the Welsh Income Tax" in {
@@ -350,7 +379,13 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedPayload = returnValue.income_tax.get.payload.get
-      parsedPayload(WelshIncomeTax) mustEqual Amount(186, "GBP")
+      parsedPayload(WelshIncomeTax) mustEqual Amount(
+        186,
+        "GBP",
+        Some(
+          "0.1 * (1860.00(ctnIncomeChgbleBasicRate) + 0.00(ctnIncomeChgbleHigherRate) + 0.00(ctnIncomeChgbleAddHRate))"
+        )
+      )
     }
 
     "ATS raw data transformer" must {
@@ -378,7 +413,13 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
         val parsedPayload = returnValue.capital_gains_data.get.payload.get
-        parsedPayload(TotalCgTax) mustEqual Amount(500, "GBP")
+        parsedPayload(TotalCgTax) mustEqual Amount(
+          500,
+          "GBP",
+          Some(
+            "max(0, Some(0.00(ctnLowerRateCgtRPCI) + 0.00(ctnHigherRateCgtRPCI) + 0.00(ctnCgDueEntrepreneursRate) + 0.00(ctnCgDueLowerRate) + 0.00(ctnCgDueHigherRate) + 500.00(capAdjustmentAmt)))"
+          )
+        )
       }
     }
   }

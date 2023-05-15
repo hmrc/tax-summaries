@@ -50,7 +50,12 @@ class OtherIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherIncome) must equal(Amount.empty)
+      parsedPayload(OtherIncome) must equal(
+        Amount.gbp(
+          0.0,
+          "0.00(ctnSummaryTotShareOptions) + 0.00(ctnSummaryTotalUklProperty) + 0.00(ctnSummaryTotForeignIncome) + 0.00(ctnSummaryTotTrustEstates) + 0.00(ctnSummaryTotalOtherIncome) + 0.00(ctnSummaryTotalUkInterest) + 0.00(ctnSummaryTotForeignDiv) + 0.00(ctnSummaryTotalUkIntDivs) + 0.00(ctn4SumTotLifePolicyGains)"
+        )
+      )
     }
 
     "have the correct summed other income data" in {
@@ -77,7 +82,15 @@ class OtherIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherIncome) must equal(new Amount(450.00, "GBP"))
+      parsedPayload(OtherIncome) must equal(
+        new Amount(
+          450.00,
+          "GBP",
+          Some(
+            "10.0(ctnSummaryTotShareOptions) + 20.0(ctnSummaryTotalUklProperty) + 30.0(ctnSummaryTotForeignIncome) + 40.0(ctnSummaryTotTrustEstates) + 50.0(ctnSummaryTotalOtherIncome) + 60.0(ctnSummaryTotalUkInterest) + 70.0(ctnSummaryTotForeignDiv) + 80.0(ctnSummaryTotalUkIntDivs) + 90.0(ctn4SumTotLifePolicyGains)"
+          )
+        )
+      )
     }
   }
 }

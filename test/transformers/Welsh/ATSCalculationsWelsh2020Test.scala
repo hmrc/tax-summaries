@@ -36,29 +36,35 @@ class ATSCalculationsWelsh2020Test extends BaseSpec {
 
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
-  class FakeATSCalculationWelsh2021(taxSummaryLiability: TaxSummaryLiability)
-      extends ATSCalculationsWelsh2021(taxSummaryLiability, taxRate)
+  class FakeATSCalculationWelsh2020(taxSummaryLiability: TaxSummaryLiability)
+      extends ATSCalculationsWelsh2020(taxSummaryLiability, taxRate)
 
-  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculationWelsh2021 =
-    new FakeATSCalculationWelsh2021(taxSummaryLiability)
+  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculationWelsh2020 =
+    new FakeATSCalculationWelsh2020(taxSummaryLiability)
 
   "Welsh 2020" must {
     "return empty" when {
       "scottishIncomeTax is called" in {
-        sut().scottishIncomeTax mustBe Amount.empty
+        sut().scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxWelsh2020")
       }
 
       "savingsRate is called" in {
-        sut().savingsRate mustBe Amount.empty
+        sut().savingsRate mustBe Amount.empty("savingsRateWelsh2020")
       }
 
       "savingsRateAmount is called" in {
-        sut().savingsRateAmount mustBe Amount.empty
+        sut().savingsRateAmount mustBe Amount.empty("savingsRateAmountWelsh2020")
       }
     }
 
     "return welshIncomeTax" in {
-      sut().welshIncomeTax mustBe Amount(186.845, "GBP")
+      sut().welshIncomeTax mustBe Amount(
+        186.845,
+        "GBP",
+        Some(
+          "0.1 * (1860.00(ctnIncomeChgbleBasicRate) + 5.23(ctnIncomeChgbleHigherRate) + 3.22(ctnIncomeChgbleAddHRate))"
+        )
+      )
     }
   }
 }

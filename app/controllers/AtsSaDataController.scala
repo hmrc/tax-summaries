@@ -97,7 +97,7 @@ class AtsSaDataController @Inject() (
             selfAssessmentOdsConnector
               .connectToSATaxpayerDetails(utr)
               .transform {
-                case Right(response) if response.status == 404 =>
+                case Right(response) if response.status == NOT_FOUND =>
                   Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
                 case Right(response)                           =>
                   Right(response.json.as[JsValue])

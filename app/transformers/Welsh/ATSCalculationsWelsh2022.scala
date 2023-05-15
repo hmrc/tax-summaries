@@ -25,17 +25,15 @@ class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRate
     extends ATSCalculations2022 {
   override def welshIncomeTax: Amount = {
     val welshRate = 0.1
-    Amount.gbp(
-      (
-        getWithDefaultAmount(IncomeChargeableBasicRate) +
-          get(TaxableRedundancyBr) +
-          getWithDefaultAmount(IncomeChargeableHigherRate) +
-          get(TaxableRedundancyHr) +
-          getWithDefaultAmount(IncomeChargeableAddHRate)
-          + get(TaxableRedundancyAhr)
-      ).amount * welshRate
-    )
+    (
+      getWithDefaultAmount(IncomeChargeableBasicRate) +
+        get(TaxableRedundancyBr) +
+        getWithDefaultAmount(IncomeChargeableHigherRate) +
+        get(TaxableRedundancyHr) +
+        getWithDefaultAmount(IncomeChargeableAddHRate)
+        + get(TaxableRedundancyAhr)
+    ) * welshRate
   }
 
-  override def scottishIncomeTax: Amount = Amount.empty
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxWelsh2022")
 }

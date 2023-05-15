@@ -22,7 +22,7 @@ import transformers.ATSCalculations2021
 
 class ATSCalculationsUK2021(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations2021 {
-  override def scottishIncomeTax: Amount = Amount.empty
-  override def savingsRate: Amount       = Amount.empty
-  override def savingsRateAmount: Amount = Amount.empty
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2021")
+  override def savingsRate: Amount       = Amount.empty("savingsRateUK2021")
+  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountUK2021")
 }

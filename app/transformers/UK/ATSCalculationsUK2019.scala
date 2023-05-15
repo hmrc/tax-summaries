@@ -20,9 +20,9 @@ import models._
 import services._
 import transformers.ATSCalculations
 
-sealed class ATSCalculationsUK2019(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+class ATSCalculationsUK2019(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
-  override def scottishIncomeTax: Amount = Amount.empty
-  override def savingsRate: Amount       = Amount.empty
-  override def savingsRateAmount: Amount = Amount.empty
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2019")
+  override def savingsRate: Amount       = Amount.empty("savingsRateUK2019")
+  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountUK2019")
 }

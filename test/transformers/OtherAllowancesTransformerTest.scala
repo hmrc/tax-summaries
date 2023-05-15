@@ -51,10 +51,22 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload   =
         Map(
-          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP"),
-          MarriageAllowanceTransferredAmount -> Amount(0.00, "GBP"),
-          OtherAllowancesAmount              -> Amount(300.0, "GBP"),
-          TotalTaxFreeAmount                 -> Amount(9740.0, "GBP")
+          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP", Some("9440.00(ctnPersonalAllowance)")),
+          MarriageAllowanceTransferredAmount -> Amount(0.00, "GBP", Some("0.00(ctnMarriageAllceOutAmt)")),
+          OtherAllowancesAmount              -> Amount(
+            300.0,
+            "GBP",
+            Some(
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome)"
+            )
+          ),
+          TotalTaxFreeAmount                 -> Amount(
+            9740.0,
+            "GBP",
+            Some(
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) - 0.00(ctnMarriageAllceOutAmt)"
+            )
+          )
         )
       testPayload mustEqual parsedPayload
     }
@@ -77,10 +89,22 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload   =
         Map(
-          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP"),
-          MarriageAllowanceTransferredAmount -> Amount(0.00, "GBP"),
-          OtherAllowancesAmount              -> Amount(300.0, "GBP"),
-          TotalTaxFreeAmount                 -> Amount(9740.0, "GBP")
+          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP", Some("9440.00(ctnPersonalAllowance)")),
+          MarriageAllowanceTransferredAmount -> Amount(0.00, "GBP", Some("0(ctnMarriageAllceOutAmt)")),
+          OtherAllowancesAmount              -> Amount(
+            300.0,
+            "GBP",
+            Some(
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome)"
+            )
+          ),
+          TotalTaxFreeAmount                 -> Amount(
+            9740.0,
+            "GBP",
+            Some(
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) - 0(ctnMarriageAllceOutAmt)"
+            )
+          )
         )
       testPayload mustEqual parsedPayload
     }
@@ -102,10 +126,22 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
       val parsedPayload = returnValue.allowance_data.get.payload.get
       val testPayload   =
         Map(
-          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP"),
-          MarriageAllowanceTransferredAmount -> Amount(200.00, "GBP"),
-          OtherAllowancesAmount              -> Amount(300.0, "GBP"),
-          TotalTaxFreeAmount                 -> Amount(9540.0, "GBP")
+          PersonalTaxFreeAmount              -> Amount(9440.0, "GBP", Some("9440.00(ctnPersonalAllowance)")),
+          MarriageAllowanceTransferredAmount -> Amount(200.00, "GBP", Some("200.0(ctnMarriageAllceOutAmt)")),
+          OtherAllowancesAmount              -> Amount(
+            300.0,
+            "GBP",
+            Some(
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome)"
+            )
+          ),
+          TotalTaxFreeAmount                 -> Amount(
+            9540.0,
+            "GBP",
+            Some(
+              "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome) + 9440.00(ctnPersonalAllowance) - 200.0(ctnMarriageAllceOutAmt)"
+            )
+          )
         )
       testPayload mustEqual parsedPayload
     }
@@ -129,7 +165,15 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload(OtherAllowancesAmount) must equal(new Amount(300.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) must equal(
+        new Amount(
+          300.0,
+          "GBP",
+          Some(
+            "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLoanRestricted) + 300.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(itfTradeUnionDeathBenefits) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(grossExcludedIncome)"
+          )
+        )
+      )
     }
 
     "have the correct summed other allowances data" in {
@@ -156,7 +200,15 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload(OtherAllowancesAmount) must equal(new Amount(660.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) must equal(
+        new Amount(
+          660.0,
+          "GBP",
+          Some(
+            "10.0(ctnEmploymentExpensesAmt) + 20.0(ctnSummaryTotalDedPpr) + 30.0(ctnSumTotForeignTaxRelief) + 40.0(ctnSumTotLoanRestricted) + 50.0(ctnSumTotLossRestricted) + 60.0(grossAnnuityPayts) + 70.0(itf4GiftsInvCharitiesAmo) + 80.0(itfTradeUnionDeathBenefits) + 90.0(ctnBpaAllowanceAmt) + 100.0(itfBpaAmount) + 110.0(grossExcludedIncome)"
+          )
+        )
+      )
     }
 
     "have the correct summed other allowances data (with 'other_allowances_amount' roundup)" in {
@@ -183,7 +235,15 @@ class OtherAllowancesTransformerTest extends BaseSpec with AtsJsonDataUpdate wit
 
       val parsedPayload = returnValue.allowance_data.get.payload.get
 
-      parsedPayload(OtherAllowancesAmount) must equal(new Amount(660.0, "GBP"))
+      parsedPayload(OtherAllowancesAmount) must equal(
+        new Amount(
+          660.0,
+          "GBP",
+          Some(
+            "10.0(ctnEmploymentExpensesAmt) + 20.0(ctnSummaryTotalDedPpr) + 30.0(ctnSumTotForeignTaxRelief) + 40.0(ctnSumTotLoanRestricted) + 50.0(ctnSumTotLossRestricted) + 59.01(grossAnnuityPayts) + 70.0(itf4GiftsInvCharitiesAmo) + 80.0(itfTradeUnionDeathBenefits) + 90.0(ctnBpaAllowanceAmt) + 100.0(itfBpaAmount) + 110.0(grossExcludedIncome)"
+          )
+        )
+      )
     }
   }
 }
