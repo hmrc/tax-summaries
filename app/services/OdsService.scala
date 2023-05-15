@@ -43,14 +43,14 @@ class OdsService @Inject() (
                         .transform {
                           case Right(response) if response.status == NOT_FOUND =>
                             Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                          case Right(response)                           => Right(response.json.as[JsValue])
-                          case Left(error)                               => Left(error)
+                          case Right(response)                                 => Right(response.json.as[JsValue])
+                          case Left(error)                                     => Left(error)
                         }
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(UTR, TAX_YEAR).transform {
                         case Right(response) if response.status == NOT_FOUND =>
                           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                        case Right(response)                           => Right(response.json.as[JsValue])
-                        case Left(error)                               => Left(error)
+                        case Right(response)                                 => Right(response.json.as[JsValue])
+                        case Left(error)                                     => Left(error)
                       }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
 
@@ -62,9 +62,9 @@ class OdsService @Inject() (
       .transform {
         case Right(response) if response.status == NOT_FOUND =>
           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-        case Right(response)                           =>
+        case Right(response)                                 =>
           Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(response.json.as[JsValue]))))
-        case Left(error)                               => Left(error)
+        case Left(error)                                     => Left(error)
       }
 
   def getATSList(
@@ -74,18 +74,31 @@ class OdsService @Inject() (
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessmentList(UTR).transform {
                         case Right(response) if response.status == NOT_FOUND =>
                           Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-                        case Right(response)                           => Right(response.json.as[JsValue])
-                        case Left(error)                               => Left(error)
+                        case Right(response)                                 => Right(response.json.as[JsValue])
+                        case Left(error)                                     => Left(error)
                       }
       taxpayer     <- selfAssessmentOdsConnector
                         .connectToSATaxpayerDetails(UTR)
                         .transform {
                           case Right(response) if response.status == NOT_FOUND =>
                             Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-                          case Right(response)                           =>
+                          case Right(response)                                 =>
                             Right(response.json.as[JsValue])
-                          case Left(error)                               => Left(error)
+                          case Left(error)                                     => Left(error)
                         }
     } yield jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
+
+  def connectToSATaxpayerDetails(
+    utr: String
+  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    selfAssessmentOdsConnector
+      .connectToSATaxpayerDetails(utr)
+      .transform {
+        case Right(response) if response.status == NOT_FOUND =>
+          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+        case Right(response)                                 =>
+          Right(response.json.as[JsValue])
+        case Left(error)                                     => Left(error)
+      }
 
 }

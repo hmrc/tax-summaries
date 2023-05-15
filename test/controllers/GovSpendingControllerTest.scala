@@ -40,7 +40,6 @@ class GovSpendingControllerTest extends BaseSpec {
   implicit lazy val ec: ExecutionContext                        = inject[ExecutionContext]
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val jsonHelper: TaxsJsonHelper                                = mock[TaxsJsonHelper]
-  val selfAssessmentODSConnector: SelfAssessmentODSConnector    = mock[SelfAssessmentODSConnector]
 
   val summaryJson          = "/utr_2014.json"
   val capitalGainsOnlyJson = "/test_gov_spend_capital_gains_only.json"
@@ -63,8 +62,7 @@ class GovSpendingControllerTest extends BaseSpec {
       atsErrorHandler,
       FakeAuthAction,
       cc,
-      jsonHelper,
-      selfAssessmentODSConnector
+      jsonHelper
     )
 
   }

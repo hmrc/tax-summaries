@@ -17,7 +17,7 @@
 package utils
 
 import play.api.http.Status._
-import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, NotFound}
+import play.api.mvc.Results.{BadGateway, InternalServerError, NotFound, TooManyRequests}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ATSErrorHandlerSpec extends BaseSpec {
@@ -42,8 +42,18 @@ class ATSErrorHandlerSpec extends BaseSpec {
 
         val result = sut.errorToResponse(error)
 
-        result mustBe BadRequest(error.message)
+        result mustBe InternalServerError(error.message)
       }
+    }
+  }
+
+  "return TooManyRequests response" when {
+    "an upstreamErrorResponse with status 429 is received" in {
+      val error = UpstreamErrorResponse("Too many requests", TOO_MANY_REQUESTS, TOO_MANY_REQUESTS)
+
+      val result = sut.errorToResponse(error)
+
+      result mustBe TooManyRequests
     }
   }
 
@@ -66,5 +76,4 @@ class ATSErrorHandlerSpec extends BaseSpec {
       result mustBe InternalServerError(error.message)
     }
   }
-
 }
