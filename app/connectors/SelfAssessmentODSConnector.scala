@@ -25,7 +25,7 @@ import play.api.Logging
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{Format, OFormat}
 import play.api.mvc.Request
-import repositories.SessionCacheRepository
+import repositories.TaxSummariesSessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpReads, HttpResponse, UpstreamErrorResponse}
@@ -55,13 +55,13 @@ trait SelfAssessmentODSConnector {
 
 class CachingSelfAssessmentODSConnector @Inject() (
   @Named("default") underlying: SelfAssessmentODSConnector,
-  sessionCacheRepository: SessionCacheRepository
+  sessionCacheRepository: TaxSummariesSessionCacheRepository
 )(implicit ec: ExecutionContext)
     extends SelfAssessmentODSConnector {
 
   private def cache[L, A: Format](
     key: String
-  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
+  )(f: => EitherT[Future, L, A])(implicit hc: HeaderCarrier): EitherT[Future, L, A] = {
 
     def fetchAndCache: EitherT[Future, L, A] =
       for {

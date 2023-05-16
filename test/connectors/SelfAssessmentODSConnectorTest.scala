@@ -25,14 +25,19 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, RequestId, SessionId, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, WireMockHelper}
+import play.api.inject.bind
 
 class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with WireMockHelper {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
+      .disable[config.ATSModule]
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
         "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
+      )
+      .overrides(
+        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector]
       )
       .build()
 
@@ -87,6 +92,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
           val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
           whenReady(result) { res =>
+            println(res)
             res mustBe a[Left[UpstreamErrorResponse, _]]
           }
         }

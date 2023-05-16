@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import repositories.SessionCacheRepository
+import repositories.TaxSummariesSessionCacheRepository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import utils.{BaseSpec, WireMockHelper}
@@ -32,8 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec with WireMockHelper {
 
-  val mockSelfAssessmentODSConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
-  val mockSessionCacheRepository: SessionCacheRepository         = mock[SessionCacheRepository]
+  val mockSelfAssessmentODSConnector: SelfAssessmentODSConnector     = mock[SelfAssessmentODSConnector]
+  val mockSessionCacheRepository: TaxSummariesSessionCacheRepository = mock[TaxSummariesSessionCacheRepository]
 
   override implicit val hc: HeaderCarrier         = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
@@ -43,7 +43,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
     bind(classOf[SelfAssessmentODSConnector])
       .qualifiedWith("default")
       .toInstance(mockSelfAssessmentODSConnector),
-    bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
+    bind[TaxSummariesSessionCacheRepository].toInstance(mockSessionCacheRepository)
   )
 
   override def beforeEach(): Unit = {
