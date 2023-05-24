@@ -19,15 +19,20 @@ package services
 import models.Rate
 import utils.BaseSpec
 
+import java.time.LocalDateTime
+
 class TaxRateServiceTest extends BaseSpec {
   val ratePercentages: Int => Map[String, Double] = applicationConfig.ratePercentages
+
+  val testForCurrentYear: Boolean = applicationConfig.testForCurrentYear
 
   /*
     Rates are only defined in config up to the 2021 tax year. For tax years after 2021 these tests do not pass.
     I'm not aware of the business reasons for this so i've just hard-coded the maximum year to ensure that these tests
     do not start failing at a point in the future.
    */
-  val maximumSupportedTaxYear: Int = 2021
+  val maximumSupportedTaxYear: Int = 2022
+  val currentYear: Int             = LocalDateTime.now().getYear
 
   "taxRateService" must {
 
@@ -47,6 +52,50 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
+    if (testForCurrentYear) {
+      s"return correct amounts for Dividends Ordinary Rate for $currentYear" in {
+        val taxRate = new TaxRateService(currentYear, ratePercentages)
+        val result  = taxRate.dividendsOrdinaryRate()
+        result mustBe Rate(7.5)
+      }
+
+      s"return correct amounts for Dividends Upper Rate for $currentYear" in {
+        val taxRate = new TaxRateService(currentYear, ratePercentages)
+        val result  = taxRate.dividendUpperRateRate()
+        result mustBe Rate(32.5)
+      }
+
+      s"return correct amounts for Dividends Additional Rate for $currentYear" in {
+        val taxRate = new TaxRateService(currentYear, ratePercentages)
+        val result  = taxRate.dividendAdditionalRate()
+        result mustBe Rate(38.1)
+      }
+
+      s"return correct percentage rate for Capital Gains ordinary rate for $currentYear" in {
+        val taxRate = new TaxRateService(currentYear, ratePercentages)
+        val result  = taxRate.cgOrdinaryRate()
+        result mustBe Rate(10)
+      }
+
+      s"return correct percentage rate for Capital Gains upper rate for $currentYear" in {
+        val taxRate = new TaxRateService(currentYear, ratePercentages)
+        val result  = taxRate.cgUpperRate()
+        result mustBe Rate(20)
+      }
+
+      s"property tax and carried interest lower rate for $currentYear" in {
+        val taxRate = new TaxRateService(currentYear, ratePercentages)
+        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
+        result mustBe Rate(18)
+      }
+
+      s"property tax and carried interest higher rate for $currentYear" in {
+        val taxRate = new TaxRateService(currentYear, ratePercentages)
+        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
+        result mustBe Rate(28)
+      }
+    }
+
     (2014 to maximumSupportedTaxYear).foreach { year =>
       s"return correct amounts for Dividends Upper Rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
@@ -63,7 +112,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2012, 2013, 2014, 2015, 2016).foreach { year =>
+    Seq(2012, 2013, 2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
       s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.cgOrdinaryRate()
@@ -71,7 +120,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    (2017 to maximumSupportedTaxYear).foreach { year =>
+    (2017 until maximumSupportedTaxYear).foreach { year =>
       s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.cgOrdinaryRate()
@@ -79,7 +128,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2012, 2013, 2014, 2015, 2016).foreach { year =>
+    Seq(2012, 2013, 2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
       s"return correct percentage rate for Capital Gains upper rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.cgUpperRate()
@@ -87,7 +136,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    (2017 to maximumSupportedTaxYear).foreach { year =>
+    (2017 until maximumSupportedTaxYear).foreach { year =>
       s"return correct percentage rate for Capital Gains upper rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.cgUpperRate()
@@ -95,7 +144,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    (2017 to maximumSupportedTaxYear).foreach { year =>
+    (2017 until maximumSupportedTaxYear).foreach { year =>
       s"property tax and carried interest lower rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
@@ -103,7 +152,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2014, 2015, 2016).foreach { year =>
+    Seq(2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
       s"property tax and carried interest lower rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
@@ -111,7 +160,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    (2017 to maximumSupportedTaxYear).foreach { year =>
+    (2017 until maximumSupportedTaxYear).foreach { year =>
       s"property tax and carried interest higher rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
@@ -119,7 +168,7 @@ class TaxRateServiceTest extends BaseSpec {
       }
     }
 
-    Seq(2014, 2015, 2016).foreach { year =>
+    Seq(2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
       s"property tax and carried interest higher rate for $year" in {
         val taxRate = new TaxRateService(year, ratePercentages)
         val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
