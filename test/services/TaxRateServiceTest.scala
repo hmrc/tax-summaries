@@ -26,11 +26,6 @@ class TaxRateServiceTest extends BaseSpec {
 
   val testForCurrentYear: Boolean = applicationConfig.testForCurrentYear
 
-  /*
-    Rates are only defined in config up to the 2021 tax year. For tax years after 2021 these tests do not pass.
-    I'm not aware of the business reasons for this so i've just hard-coded the maximum year to ensure that these tests
-    do not start failing at a point in the future.
-   */
   val maximumSupportedTaxYear: Int = 2022
   val currentYear: Int             = LocalDateTime.now().getYear
 
