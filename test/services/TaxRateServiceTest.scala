@@ -19,157 +19,192 @@ package services
 import models.Rate
 import utils.BaseSpec
 
-import java.time.LocalDateTime
-
 class TaxRateServiceTest extends BaseSpec {
-  val ratePercentages: Int => Map[String, Double] = applicationConfig.ratePercentages
-
-  val testForCurrentYear: Boolean = applicationConfig.testForCurrentYear
-
-  val maximumSupportedTaxYear: Int = 2022
-  val currentYear: Int             = LocalDateTime.now().getYear
-
   "taxRateService" must {
 
-    Seq(2014, 2015, 2016).foreach { year =>
-      s"return correct amounts for Dividends Ordinary Rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.dividendsOrdinaryRate()
-        result mustBe Rate(10)
-      }
+    "return a value for StartingRateForSavingsRate" in {
+      val expectedStartingRateForSavingsRate = 12.3
+
+      val taxRate                          =
+        new TaxRateService(2000, _ => Map("startingRateForSavingsRate" -> expectedStartingRateForSavingsRate))
+
+      val actualStartingRateForSavingsRate = taxRate.startingRateForSavingsRate()
+
+      //verify
+      actualStartingRateForSavingsRate mustBe Rate(expectedStartingRateForSavingsRate)
     }
 
-    (2017 to maximumSupportedTaxYear).foreach { year =>
-      s"return correct amounts for Dividends Ordinary Rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.dividendsOrdinaryRate()
-        result mustBe Rate(7.5)
-      }
+    "return a value for BasicRateIncomeTaxRate" in {
+      val expectedBasicRateIncomeTaxRate = 20
+
+      val taxRate = new TaxRateService(2000, _ => Map("basicRateIncomeTaxRate" -> expectedBasicRateIncomeTaxRate))
+
+      val actualBasicRateIncomeTaxRate = taxRate.basicRateIncomeTaxRate()
+
+      //verify
+      actualBasicRateIncomeTaxRate mustBe Rate(expectedBasicRateIncomeTaxRate)
     }
 
-    if (testForCurrentYear) {
-      s"return correct amounts for Dividends Ordinary Rate for $currentYear" in {
-        val taxRate = new TaxRateService(currentYear, ratePercentages)
-        val result  = taxRate.dividendsOrdinaryRate()
-        result mustBe Rate(7.5)
-      }
+    "return a value for HigherRateIncomeTaxRate" in {
+      val expectedHigherRateIncomeTaxRate = 21
 
-      s"return correct amounts for Dividends Upper Rate for $currentYear" in {
-        val taxRate = new TaxRateService(currentYear, ratePercentages)
-        val result  = taxRate.dividendUpperRateRate()
-        result mustBe Rate(32.5)
-      }
+      val taxRate = new TaxRateService(2000, _ => Map("higherRateIncomeTaxRate" -> expectedHigherRateIncomeTaxRate))
 
-      s"return correct amounts for Dividends Additional Rate for $currentYear" in {
-        val taxRate = new TaxRateService(currentYear, ratePercentages)
-        val result  = taxRate.dividendAdditionalRate()
-        result mustBe Rate(38.1)
-      }
+      val actualHigherRateIncomeTaxRate = taxRate.higherRateIncomeTaxRate()
 
-      s"return correct percentage rate for Capital Gains ordinary rate for $currentYear" in {
-        val taxRate = new TaxRateService(currentYear, ratePercentages)
-        val result  = taxRate.cgOrdinaryRate()
-        result mustBe Rate(10)
-      }
-
-      s"return correct percentage rate for Capital Gains upper rate for $currentYear" in {
-        val taxRate = new TaxRateService(currentYear, ratePercentages)
-        val result  = taxRate.cgUpperRate()
-        result mustBe Rate(20)
-      }
-
-      s"property tax and carried interest lower rate for $currentYear" in {
-        val taxRate = new TaxRateService(currentYear, ratePercentages)
-        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
-        result mustBe Rate(18)
-      }
-
-      s"property tax and carried interest higher rate for $currentYear" in {
-        val taxRate = new TaxRateService(currentYear, ratePercentages)
-        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
-        result mustBe Rate(28)
-      }
+      //verify
+      actualHigherRateIncomeTaxRate mustBe Rate(expectedHigherRateIncomeTaxRate)
     }
 
-    (2014 to maximumSupportedTaxYear).foreach { year =>
-      s"return correct amounts for Dividends Upper Rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.dividendUpperRateRate()
-        result mustBe Rate(32.5)
-      }
+    "return a value for AdditionalRateIncomeTaxRate" in {
+      val expectedAdditionalRateIncomeTaxRate = 22
+
+      val taxRate                           =
+        new TaxRateService(2000, _ => Map("additionalRateIncomeTaxRate" -> expectedAdditionalRateIncomeTaxRate))
+
+      val actualAdditionalRateIncomeTaxRate = taxRate.additionalRateIncomeTaxRate()
+
+      //verify
+      actualAdditionalRateIncomeTaxRate mustBe Rate(expectedAdditionalRateIncomeTaxRate)
     }
 
-    (2017 to maximumSupportedTaxYear).foreach { year =>
-      s"return correct amounts for Dividends Additional Rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.dividendAdditionalRate()
-        result mustBe Rate(38.1)
-      }
+    "return a value for dividendsOrdinaryRate" in {
+      val expectedDividendsOrdinaryRate = 26
+
+      val taxRate = new TaxRateService(2000, _ => Map("dividendsOrdinaryRate" -> expectedDividendsOrdinaryRate))
+
+      val actualDividendsOrdinaryRate = taxRate.dividendsOrdinaryRate()
+
+      //verify
+      actualDividendsOrdinaryRate mustBe Rate(expectedDividendsOrdinaryRate)
     }
 
-    Seq(2012, 2013, 2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
-      s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.cgOrdinaryRate()
-        result mustBe Rate(18)
-      }
+    "return a value for dividendUpperRateRate" in {
+      val expectedDividendUpperRateRate = 27
+
+      val taxRate = new TaxRateService(2000, _ => Map("dividendUpperRateRate" -> expectedDividendUpperRateRate))
+
+      val actualDividendUpperRateRate = taxRate.dividendUpperRateRate()
+
+      //verify
+      actualDividendUpperRateRate mustBe Rate(expectedDividendUpperRateRate)
     }
 
-    (2017 until maximumSupportedTaxYear).foreach { year =>
-      s"return correct percentage rate for Capital Gains ordinary rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.cgOrdinaryRate()
-        result mustBe Rate(10)
-      }
+    "return a value for dividendAdditionalRate" in {
+      val expectedDividendAdditionalRate = 28
+
+      val taxRate = new TaxRateService(2000, _ => Map("dividendAdditionalRate" -> expectedDividendAdditionalRate))
+
+      val actualDividendAdditionalRate = taxRate.dividendAdditionalRate()
+
+      //verify
+      actualDividendAdditionalRate mustBe Rate(expectedDividendAdditionalRate)
     }
 
-    Seq(2012, 2013, 2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
-      s"return correct percentage rate for Capital Gains upper rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.cgUpperRate()
-        result mustBe Rate(28)
-      }
+    "return a value for cgEntrepreneursRate" in {
+      val expectedCgEntrepreneursRate = 29
+
+      val taxRate = new TaxRateService(2000, _ => Map("cgEntrepreneursRate" -> expectedCgEntrepreneursRate))
+
+      val actualCgEntrepreneursRate = taxRate.cgEntrepreneursRate()
+
+      //verify
+      actualCgEntrepreneursRate mustBe Rate(expectedCgEntrepreneursRate)
     }
 
-    (2017 until maximumSupportedTaxYear).foreach { year =>
-      s"return correct percentage rate for Capital Gains upper rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.cgUpperRate()
-        result mustBe Rate(20)
-      }
+    "return a value for cgOrdinaryRate" in {
+      val expectedCgOrdinaryRate = 30
+
+      val taxRate = new TaxRateService(2000, _ => Map("cgOrdinaryRate" -> expectedCgOrdinaryRate))
+
+      val actualCgOrdinaryRate = taxRate.cgOrdinaryRate()
+
+      //verify
+      actualCgOrdinaryRate mustBe Rate(expectedCgOrdinaryRate)
     }
 
-    (2017 until maximumSupportedTaxYear).foreach { year =>
-      s"property tax and carried interest lower rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
-        result mustBe Rate(18)
-      }
+    "return a value for CgUpperRate" in {
+      val expectedCgUpperRate = 31
+
+      val taxRate = new TaxRateService(2000, _ => Map("cgUpperRate" -> expectedCgUpperRate))
+
+      val actualCgUpperRate = taxRate.cgUpperRate()
+
+      //verify
+      actualCgUpperRate mustBe Rate(expectedCgUpperRate)
     }
 
-    Seq(2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
-      s"property tax and carried interest lower rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
-        result mustBe Rate(0)
-      }
+    "return a value for individualsForResidentialPropertyAndCarriedInterestLowerRate" in {
+      val expectedIndividualsForResidentialPropertyAndCarriedInterestLowerRate = 32
+
+      val taxRate = new TaxRateService(
+        2000,
+        _ =>
+          Map(
+            "RPCILowerRate" -> expectedIndividualsForResidentialPropertyAndCarriedInterestLowerRate
+          )
+      )
+
+      val actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate =
+        taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
+
+      //verify
+      actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate mustBe Rate(
+        expectedIndividualsForResidentialPropertyAndCarriedInterestLowerRate
+      )
     }
 
-    (2017 until maximumSupportedTaxYear).foreach { year =>
-      s"property tax and carried interest higher rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
-        result mustBe Rate(28)
-      }
+    "return a value for individualsForResidentialPropertyAndCarriedInterestHigherRate" in {
+      val expectedIndividualsForResidentialPropertyAndCarriedInterestHigherRate = 33
+
+      val taxRate = new TaxRateService(
+        2000,
+        _ =>
+          Map(
+            "RPCIHigherRate" -> expectedIndividualsForResidentialPropertyAndCarriedInterestHigherRate
+          )
+      )
+
+      val actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate =
+        taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
+
+      //verify
+      actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate mustBe Rate(
+        expectedIndividualsForResidentialPropertyAndCarriedInterestHigherRate
+      )
     }
 
-    Seq(2014, 2015, 2016, maximumSupportedTaxYear).foreach { year =>
-      s"property tax and carried interest higher rate for $year" in {
-        val taxRate = new TaxRateService(year, ratePercentages)
-        val result  = taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
-        result mustBe Rate(0)
-      }
-    }
+    "return empty for all values" in {
+      val taxRate = new TaxRateService(2000, _ => Map.empty)
 
+      val actualStartingRateForSavingsRate                                    = taxRate.startingRateForSavingsRate()
+      val actualBasicRateIncomeTaxRate                                        = taxRate.basicRateIncomeTaxRate()
+      val actualHigherRateIncomeTaxRate                                       = taxRate.higherRateIncomeTaxRate()
+      val actualAdditionalRateIncomeTaxRate                                   = taxRate.additionalRateIncomeTaxRate()
+      val actualDividendsOrdinaryRate                                         = taxRate.dividendsOrdinaryRate()
+      val actualDividendUpperRateRate                                         = taxRate.dividendUpperRateRate()
+      val actualDividendAdditionalRate                                        = taxRate.dividendAdditionalRate()
+      val actualCgEntrepreneursRate                                           = taxRate.cgEntrepreneursRate()
+      val actualCgOrdinaryRate                                                = taxRate.cgOrdinaryRate()
+      val actualCgUpperRate                                                   = taxRate.cgUpperRate()
+      val actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate  =
+        taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
+      val actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate =
+        taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
+
+      actualStartingRateForSavingsRate mustBe Rate(Rate.empty)
+      actualBasicRateIncomeTaxRate mustBe Rate(Rate.empty)
+      actualHigherRateIncomeTaxRate mustBe Rate(Rate.empty)
+      actualAdditionalRateIncomeTaxRate mustBe Rate(Rate.empty)
+      actualDividendsOrdinaryRate mustBe Rate(Rate.empty)
+      actualDividendUpperRateRate mustBe Rate(Rate.empty)
+      actualDividendAdditionalRate mustBe Rate(Rate.empty)
+      actualCgEntrepreneursRate mustBe Rate(Rate.empty)
+      actualCgOrdinaryRate mustBe Rate(Rate.empty)
+      actualCgUpperRate mustBe Rate(Rate.empty)
+      actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate mustBe Rate(Rate.empty)
+      actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate mustBe Rate(Rate.empty)
+
+    }
   }
 }
