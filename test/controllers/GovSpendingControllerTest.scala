@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.ODSConnector
+import connectors.SelfAssessmentODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData
 import org.mockito.ArgumentMatchers.any
@@ -26,17 +26,20 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import utils.TestConstants._
-import utils.{ATSErrorHandler, BaseSpec, TaxsJsonHelper}
+import utils.{ATSErrorHandler, BaseSpec, OdsIndividualYearsService, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class GovSpendingControllerTest extends BaseSpec {
 
-  lazy val cc: ControllerComponents                = stubControllerComponents()
-  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  lazy val atsErrorHandler: ATSErrorHandler        = inject[ATSErrorHandler]
+  lazy val cc: ControllerComponents                             = stubControllerComponents()
+  lazy val request: FakeRequest[AnyContentAsEmpty.type]         = FakeRequest()
+  lazy val atsErrorHandler: ATSErrorHandler                     = inject[ATSErrorHandler]
+  lazy val odsIndividualYearsService: OdsIndividualYearsService = inject[OdsIndividualYearsService]
 
-  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  implicit lazy val ec: ExecutionContext                        = inject[ExecutionContext]
+  implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  val jsonHelper: TaxsJsonHelper                                = mock[TaxsJsonHelper]
 
   val summaryJson          = "/utr_2014.json"
   val capitalGainsOnlyJson = "/test_gov_spend_capital_gains_only.json"
@@ -46,14 +49,22 @@ class GovSpendingControllerTest extends BaseSpec {
 
   def makeController(inputJson: String): AtsSaDataController = {
 
-    val odsc = mock[ODSConnector]
-    when(odsc.connectToSelfAssessment(any(), any())(any()))
+    val odsc = mock[SelfAssessmentODSConnector]
+    when(odsc.connectToSelfAssessment(any(), any())(any(), any()))
       .thenReturn(MockConnections.connectToMockPayloadService(inputJson))
-    when(odsc.connectToSATaxpayerDetails(any())(any()))
+    when(odsc.connectToSATaxpayerDetails(any())(any(), any()))
       .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
 
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
-    new AtsSaDataController(odsService, atsErrorHandler, FakeAuthAction, cc)
+    new AtsSaDataController(
+      odsService,
+      odsIndividualYearsService,
+      atsErrorHandler,
+      FakeAuthAction,
+      cc,
+      jsonHelper
+    )
+
   }
 
   "Calling Government Spend with no session"                                must {

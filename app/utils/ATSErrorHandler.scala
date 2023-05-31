@@ -18,18 +18,18 @@ package utils
 
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
+import play.api.http.Status.{NOT_FOUND, TOO_MANY_REQUESTS}
 import play.api.mvc.Result
-import play.api.mvc.Results.{BadGateway, BadRequest, InternalServerError, NotFound}
+import play.api.mvc.Results.{BadGateway, InternalServerError, NotFound, TooManyRequests}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ATSErrorHandler @Inject() () extends Logging {
 
   def errorToResponse(error: UpstreamErrorResponse): Result =
     error match {
-      case error if error.statusCode == NOT_FOUND             => NotFound(error.message)
-      case error if error.statusCode == BAD_REQUEST           => BadRequest(error.message)
-      case error if error.statusCode >= INTERNAL_SERVER_ERROR => BadGateway(error.message)
-      case error                                              => InternalServerError(error.message)
+      case error if error.statusCode == NOT_FOUND         => NotFound(error.message)
+      case error if error.statusCode == TOO_MANY_REQUESTS => TooManyRequests
+      case error if error.statusCode < 498                => InternalServerError(error.message)
+      case error                                          => BadGateway(error.message)
     }
 }

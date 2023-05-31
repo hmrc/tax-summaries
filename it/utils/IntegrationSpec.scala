@@ -17,11 +17,13 @@
 package utils
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -81,6 +83,10 @@ trait IntegrationSpec
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
+      .disable[config.ATSModule]
+      .overrides(
+        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector]
+      )
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
         "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",

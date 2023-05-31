@@ -18,20 +18,25 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.auth.AuthAction
+import play.api.Logging
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.OdsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import utils.ATSErrorHandler
+import utils.{ATSErrorHandler, OdsIndividualYearsService, TaxsJsonHelper}
 
 import scala.concurrent.ExecutionContext
 
 class AtsSaDataController @Inject() (
   odsService: OdsService,
+  odsIndividualYearsService: OdsIndividualYearsService,
   atsErrorHandler: ATSErrorHandler,
   authAction: AuthAction,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  jsonHelper: TaxsJsonHelper
 )(implicit val ec: ExecutionContext)
-    extends BackendController(cc) {
+    extends BackendController(cc)
+    with Logging {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
     odsService
@@ -51,10 +56,41 @@ class AtsSaDataController @Inject() (
       )
   }
 
-  def getAtsSaList(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService
-      .getATSList(utr)
-      .fold(
+  def getAtsSaList(utr: String, endYear: Int, numberOfYears: Int): Action[AnyContent] = authAction.async {
+    implicit request =>
+      val response = for {
+        singleListForAllYears <- odsService
+                                   .getATSList(utr)
+                                   .map(json => (json \ "atsYearList").as[List[Int]])
+        individualYearsList   <- odsIndividualYearsService.getAtsList(utr: String, endYear: Int, numberOfYears: Int)
+        taxPayer              <- odsService.connectToSATaxpayerDetails(utr)
+      } yield {
+        val differentYears = singleListForAllYears.filter(_ > endYear - numberOfYears).diff(individualYearsList)
+        if (differentYears.nonEmpty) {
+          logger.warn(s"Following Years are different $differentYears")
+        }
+
+        jsonHelper.createTaxYearJson(
+          Json.obj(
+            "annualTaxSummaries" ->
+              individualYearsList.map { year =>
+                Json.obj(
+                  "taxYearEnd" -> year,
+                  "links"      -> List(
+                    Json.obj(
+                      "rel"  -> "details",
+                      "href" -> s"https://digital.ws.hmrc.gov.uk/self-assessment/individuals/$utr/annual-tax-summaries/$year"
+                    )
+                  )
+                )
+              }
+          ),
+          utr,
+          taxPayer
+        )
+      }
+
+      response.fold(
         error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)
       )

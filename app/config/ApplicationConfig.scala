@@ -64,4 +64,7 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
     .getConfString("tax-summaries-hod.authorizationToken", "local")
 
   lazy val originatorId: String = servicesConfig.getConfString("tax-summaries-hod.originatorId", "local")
+
+  val sessionCacheTtl = configuration.getOptional[Int]("feature.session-cache.ttl").getOrElse(15)
+
 }
