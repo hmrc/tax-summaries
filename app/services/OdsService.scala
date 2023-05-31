@@ -33,32 +33,32 @@ class OdsService @Inject() (
   selfAssessmentOdsConnector: SelfAssessmentODSConnector
 )(implicit ec: ExecutionContext) {
 
-  def getPayload(UTR: String, TAX_YEAR: Int)(implicit
+  def getPayload(utr: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
       taxpayer     <- selfAssessmentOdsConnector
-                        .connectToSATaxpayerDetails(UTR)
+                        .connectToSATaxpayerDetails(utr)
                         .transform {
                           case Right(response) if response.status == NOT_FOUND =>
                             Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
                           case Right(response)                                 => Right(response.json.as[JsValue])
                           case Left(error)                                     => Left(error)
                         }
-      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(UTR, TAX_YEAR).transform {
+      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
                         case Right(response) if response.status == NOT_FOUND =>
                           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
                         case Right(response)                                 => Right(response.json.as[JsValue])
                         case Left(error)                                     => Left(error)
                       }
-    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, UTR, TAX_YEAR)
+    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
 
   def getList(
-    UTR: String
+    utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     selfAssessmentOdsConnector
-      .connectToSelfAssessmentList(UTR)
+      .connectToSelfAssessmentList(utr)
       .transform {
         case Right(response) if response.status == NOT_FOUND =>
           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
@@ -68,17 +68,17 @@ class OdsService @Inject() (
       }
 
   def getATSList(
-    UTR: String
+    utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessmentList(UTR).transform {
+      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessmentList(utr).transform {
                         case Right(response) if response.status == NOT_FOUND =>
                           Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
                         case Right(response)                                 => Right(response.json.as[JsValue])
                         case Left(error)                                     => Left(error)
                       }
       taxpayer     <- selfAssessmentOdsConnector
-                        .connectToSATaxpayerDetails(UTR)
+                        .connectToSATaxpayerDetails(utr)
                         .transform {
                           case Right(response) if response.status == NOT_FOUND =>
                             Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
@@ -86,7 +86,7 @@ class OdsService @Inject() (
                             Right(response.json.as[JsValue])
                           case Left(error)                                     => Left(error)
                         }
-    } yield jsonHelper.createTaxYearJson(taxSummaries, UTR, taxpayer)
+    } yield jsonHelper.createTaxYearJson(taxSummaries, utr, taxpayer)
 
   def connectToSATaxpayerDetails(
     utr: String
