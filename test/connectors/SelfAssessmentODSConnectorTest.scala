@@ -92,7 +92,6 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
           val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
           whenReady(result) { res =>
-            println(res)
             res mustBe a[Left[UpstreamErrorResponse, _]]
           }
         }
@@ -105,6 +104,122 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
         stubGet(url, NOT_FOUND, Some(""))
 
         val result = sut.connectToSelfAssessment(testUtr, 2014).value
+
+        whenReady(result) { res =>
+          res mustBe a[Right[_, HttpResponse]]
+        }
+      }
+
+    }
+  }
+
+  "connectToSelfAssessmentList" must {
+
+    val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries"
+
+    "return json" when {
+
+      "200 is returned" in {
+
+        stubGet(url, OK, Some(json.toString()))
+
+        val result = sut.connectToSelfAssessmentList(testUtr).value
+
+        whenReady(result) {
+          _.map(_.json) mustBe Right(json)
+        }
+
+        server.verify(
+          getRequestedFor(urlEqualTo(url))
+            .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
+            .withHeader(HeaderNames.xRequestId, equalTo(requestId))
+            .withHeader(
+              "CorrelationId",
+              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+            )
+        )
+      }
+    }
+
+    "return UpstreamErrorResponse" when {
+      List(400, 401, 403, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
+        s"a response with status $status is received" in {
+
+          stubGet(url, status, Some(""))
+
+          val result = sut.connectToSelfAssessmentList(testUtr).value
+
+          whenReady(result) { res =>
+            res mustBe a[Left[UpstreamErrorResponse, _]]
+          }
+        }
+      }
+    }
+
+    "return UpstreamErrorResponse" when {
+      s"a response with status 404 is received" in {
+
+        stubGet(url, NOT_FOUND, Some(""))
+
+        val result = sut.connectToSelfAssessmentList(testUtr).value
+
+        whenReady(result) { res =>
+          res mustBe a[Right[_, HttpResponse]]
+        }
+      }
+
+    }
+  }
+
+  "connectToSATaxpayerDetails" must {
+
+    val url = s"/self-assessment/individual/$testUtr/designatory-details/taxpayer"
+
+    "return json" when {
+
+      "200 is returned" in {
+
+        stubGet(url, OK, Some(json.toString()))
+
+        val result = sut.connectToSATaxpayerDetails(testUtr).value
+
+        whenReady(result) {
+          _.map(_.json) mustBe Right(json)
+        }
+
+        server.verify(
+          getRequestedFor(urlEqualTo(url))
+            .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
+            .withHeader(HeaderNames.xRequestId, equalTo(requestId))
+            .withHeader(
+              "CorrelationId",
+              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+            )
+        )
+      }
+    }
+
+    "return UpstreamErrorResponse" when {
+      List(400, 401, 403, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
+        s"a response with status $status is received" in {
+
+          stubGet(url, status, Some(""))
+
+          val result = sut.connectToSATaxpayerDetails(testUtr).value
+
+          whenReady(result) { res =>
+            res mustBe a[Left[UpstreamErrorResponse, _]]
+          }
+        }
+      }
+    }
+
+    "return UpstreamErrorResponse" when {
+      s"a response with status 404 is received" in {
+
+        stubGet(url, NOT_FOUND, Some(""))
+
+        val result = sut.connectToSATaxpayerDetails(testUtr).value
 
         whenReady(result) { res =>
           res mustBe a[Right[_, HttpResponse]]

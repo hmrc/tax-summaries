@@ -112,12 +112,29 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
       }
     }
 
-    "return a Left UpstreamErrorResponse object" ignore {
-      stubGet(url, INTERNAL_SERVER_ERROR, None)
+    "return a Left UpstreamErrorResponse object" in {
+      when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
+        .thenReturn(Future.successful(None))
 
-      val result = connector.connectToSelfAssessment("utr", 2022).value.futureValue
-      result mustBe a[Left[_, _]]
-      result.swap.getOrElse(UpstreamErrorResponse("", OK)) mustBe an[UpstreamErrorResponse]
+      when(mockSelfAssessmentODSConnector.connectToSelfAssessment("utr", 2022))
+        .thenReturn(EitherT.leftT(UpstreamErrorResponse("Server error", 500)))
+
+      when(
+        mockSessionCacheRepository.putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+      )
+        .thenReturn(null)
+
+      val saResponse = connector.connectToSelfAssessment("utr", 2022).value.futureValue
+
+      verify(mockSessionCacheRepository, times(1))
+        .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
+
+      verify(mockSessionCacheRepository, times(0))
+        .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+
+      verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessment("utr", 2022)
+
+      saResponse mustBe a[Left[_, _]]
     }
   }
 }

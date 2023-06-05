@@ -34,7 +34,6 @@ import play.api.libs.json.Json
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 trait SelfAssessmentODSConnector {
   def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
@@ -82,9 +81,7 @@ class CachingSelfAssessmentODSConnector @Inject() (
         }
         .map(_.value)
         .flatten
-    ) recoverWith { case NonFatal(_) =>
-      fetchAndCache
-    }
+    )
   }
 
   override def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
@@ -93,6 +90,8 @@ class CachingSelfAssessmentODSConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
     cache(utr + "/" + taxYear) {
+      val ex = new RuntimeException("what??????")
+      println("LLLLLLLLLLLLL " + ex.getStackTrace.mkString("\n"))
       underlying.connectToSelfAssessment(utr, taxYear)
     }
   }

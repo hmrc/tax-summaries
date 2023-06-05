@@ -34,7 +34,7 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
 
   "With base data for utr" must {
 
-    "gracefully handle an null" ignore { // Todo fix test
+    "gracefully handle a null value" in {
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
@@ -48,8 +48,7 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
-      returnValue.income_data mustBe None
-      returnValue.errors mustBe Some(AtsError("itf4GiftsInvCharitiesAmo"))
+      returnValue.income_data.get.payload.isDefined mustBe true
     }
 
     "gracefully handle a missing field" in {

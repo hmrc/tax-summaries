@@ -49,7 +49,7 @@ class OdsIndividualYearsService @Inject() (odsService: OdsService) extends Loggi
 
     EitherT(
       Future
-        .sequence((endYear - numberOfYears to endYear).map { year =>
+        .sequence((endYear - numberOfYears + 1 to endYear).map { year =>
           individualYearResponse(utr, year).value
         })
         .flatMap { results =>
@@ -70,7 +70,7 @@ class OdsIndividualYearsService @Inject() (odsService: OdsService) extends Loggi
         }
         .map {
           case Left(error)     => Left(error.head._2)
-          case Right(response) => Right(response.collect { case (key, Some(value)) => (key, value) }.keys.toList)
+          case Right(response) => Right(response.collect { case (key, Some(value)) => (key, value) }.keys.toList.sorted)
         }
     )
   }
