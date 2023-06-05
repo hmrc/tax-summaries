@@ -90,8 +90,6 @@ class CachingSelfAssessmentODSConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
     cache(utr + "/" + taxYear) {
-      val ex = new RuntimeException("what??????")
-      println("LLLLLLLLLLLLL " + ex.getStackTrace.mkString("\n"))
       underlying.connectToSelfAssessment(utr, taxYear)
     }
   }
