@@ -30,7 +30,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualStartingRateForSavingsRate = taxRate.startingRateForSavingsRate()
 
-      //verify
       actualStartingRateForSavingsRate mustBe Rate(expectedStartingRateForSavingsRate)
     }
 
@@ -41,7 +40,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualBasicRateIncomeTaxRate = taxRate.basicRateIncomeTaxRate()
 
-      //verify
       actualBasicRateIncomeTaxRate mustBe Rate(expectedBasicRateIncomeTaxRate)
     }
 
@@ -52,7 +50,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualHigherRateIncomeTaxRate = taxRate.higherRateIncomeTaxRate()
 
-      //verify
       actualHigherRateIncomeTaxRate mustBe Rate(expectedHigherRateIncomeTaxRate)
     }
 
@@ -64,7 +61,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualAdditionalRateIncomeTaxRate = taxRate.additionalRateIncomeTaxRate()
 
-      //verify
       actualAdditionalRateIncomeTaxRate mustBe Rate(expectedAdditionalRateIncomeTaxRate)
     }
 
@@ -75,7 +71,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualDividendsOrdinaryRate = taxRate.dividendsOrdinaryRate()
 
-      //verify
       actualDividendsOrdinaryRate mustBe Rate(expectedDividendsOrdinaryRate)
     }
 
@@ -86,7 +81,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualDividendUpperRateRate = taxRate.dividendUpperRateRate()
 
-      //verify
       actualDividendUpperRateRate mustBe Rate(expectedDividendUpperRateRate)
     }
 
@@ -97,7 +91,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualDividendAdditionalRate = taxRate.dividendAdditionalRate()
 
-      //verify
       actualDividendAdditionalRate mustBe Rate(expectedDividendAdditionalRate)
     }
 
@@ -108,7 +101,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualCgEntrepreneursRate = taxRate.cgEntrepreneursRate()
 
-      //verify
       actualCgEntrepreneursRate mustBe Rate(expectedCgEntrepreneursRate)
     }
 
@@ -119,7 +111,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualCgOrdinaryRate = taxRate.cgOrdinaryRate()
 
-      //verify
       actualCgOrdinaryRate mustBe Rate(expectedCgOrdinaryRate)
     }
 
@@ -130,7 +121,6 @@ class TaxRateServiceTest extends BaseSpec {
 
       val actualCgUpperRate = taxRate.cgUpperRate()
 
-      //verify
       actualCgUpperRate mustBe Rate(expectedCgUpperRate)
     }
 
@@ -148,7 +138,6 @@ class TaxRateServiceTest extends BaseSpec {
       val actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate =
         taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate()
 
-      //verify
       actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate mustBe Rate(
         expectedIndividualsForResidentialPropertyAndCarriedInterestLowerRate
       )
@@ -168,7 +157,6 @@ class TaxRateServiceTest extends BaseSpec {
       val actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate =
         taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
 
-      //verify
       actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate mustBe Rate(
         expectedIndividualsForResidentialPropertyAndCarriedInterestHigherRate
       )
