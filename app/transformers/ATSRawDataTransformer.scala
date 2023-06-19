@@ -71,7 +71,18 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
         createTaxPayerData(rawTaxPayerJson)
       )
     } else {
-
+      auditConnector.sendEvent(
+        DataEvent(
+          auditSource = applicationConfig.appName,
+          auditType = "taxLiability",
+          detail = Map(
+            "utr"              -> UTR,
+            "taxYear"          -> taxYear.toString,
+            "liabilityAmount"  -> "No liability present",
+            "LiabilityDetails" -> "No liability present"
+          )
+        )
+      )
       logger.warn(s"There is no liability for the year $taxYear")
       AtsMiddleTierData.noAtsResult(taxYear)
     } catch {
