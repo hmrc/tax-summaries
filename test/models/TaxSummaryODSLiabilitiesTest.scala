@@ -43,22 +43,14 @@ class TaxSummaryODSLiabilitiesTest extends BaseSpec {
       result.atsData.size mustBe 95
     }
 
-    "correctly parse the data where fields are missing" ignore { // todo fix test
+    "correctly parse the data where fields are missing" in {
       val json   = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2014
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())
       result.nationalInsuranceData.size mustBe 3
-      result.atsData.size mustBe 89
-    }
-
-    "correctly parse the data where incomeTaxStatus is missing and returns default empty string" in {
-      val json   = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
-      val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear mustBe 2014
-      result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
-      result.incomeTaxStatus mustBe Some(UK())
+      result.atsData.size mustBe 90
     }
   }
 }

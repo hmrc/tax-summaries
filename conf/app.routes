@@ -3,5 +3,5 @@ GET   /:NINO/:TAX_YEAR/paye-ats-data            controllers.AtsPayeDataControlle
 GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data  controllers.AtsPayeDataController.getAtsPayeDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
 
 GET   /:UTR/has_summary_for_previous_period     controllers.AtsSaDataController.hasAts(UTR: String)
-GET   /:UTR/ats-list                            controllers.AtsSaDataController.getAtsSaList(UTR: String)
+GET   /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list    controllers.AtsSaDataController.getAtsSaList(UTR: String, ENDYEAR: Int, NUMBEROFYEARS: Int)
 GET   /government-spend/:TAX_YEAR               controllers.GovernmentSpendController.getGovernmentSpend(TAX_YEAR: Int)

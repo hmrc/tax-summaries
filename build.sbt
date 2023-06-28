@@ -24,6 +24,7 @@ import play.sbt.PlayImport.PlayKeys
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 import uk.gov.hmrc._
 import DefaultBuildSettings._
+import scoverage.ScoverageKeys
 
 val appName = "tax-summaries"
 
@@ -44,7 +45,6 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     PlayKeys.playDefaultPort := 9323,
-    publishingSettings,
     ScoverageSettings.settings,
     scalaSettings,
     defaultSettings(),

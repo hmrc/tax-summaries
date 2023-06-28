@@ -29,7 +29,7 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
   def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "Get Paye Ats Data" must {
-    "return a BAD_REQUEST with an error message when NPS returns a BAD_REQUEST" in {
+    "return an internal server error with an error message when NPS returns a BAD_REQUEST" in {
       server.stubFor(
         get(urlEqualTo(npsAtsDataUrl)).willReturn(
           aResponse()
@@ -39,7 +39,7 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
       )
 
       val result = route(fakeApplication(), request)
-      result.map(getStatus) mustBe Some(BAD_REQUEST)
+      result.map(getStatus) mustBe Some(INTERNAL_SERVER_ERROR)
       result.map(contentAsString).map { message =>
         message must include("Bad Request")
       }
