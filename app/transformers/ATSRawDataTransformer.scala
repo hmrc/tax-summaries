@@ -45,20 +45,19 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
   )(implicit ec: ExecutionContext): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
     logger.debug(s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}")
-    try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
-      auditConnector.sendEvent(
-        DataEvent(
-          auditSource = applicationConfig.appName,
-          auditType = "taxLiability",
-          detail = Map(
-            "utr"              -> UTR,
-            "taxYear"          -> taxYear.toString,
-            "liabilityAmount"  -> calculations.taxLiability.amount.toString,
-            "LiabilityDetails" -> calculations.taxLiability.calculus.getOrElse("No calculation details present")
-          )
+    auditConnector.sendEvent(
+      DataEvent(
+        auditSource = applicationConfig.appName,
+        auditType = "taxLiability",
+        detail = Map(
+          "utr"                      -> UTR,
+          "taxYear"                  -> taxYear.toString,
+          "liabilityAmount"          -> calculations.taxLiability.amount.toString,
+          "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse("No calculation details present")
         )
       )
-
+    )
+    try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
       AtsMiddleTierData.make(
         taxYear,
         UTR,
@@ -71,18 +70,6 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
         createTaxPayerData(rawTaxPayerJson)
       )
     } else {
-      auditConnector.sendEvent(
-        DataEvent(
-          auditSource = applicationConfig.appName,
-          auditType = "taxLiability",
-          detail = Map(
-            "utr"              -> UTR,
-            "taxYear"          -> taxYear.toString,
-            "liabilityAmount"  -> "No liability present",
-            "LiabilityDetails" -> "No liability present"
-          )
-        )
-      )
       logger.warn(s"There is no liability for the year $taxYear")
       AtsMiddleTierData.noAtsResult(taxYear)
     } catch {

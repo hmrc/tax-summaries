@@ -93,7 +93,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       verify(auditConnector, times(1)).sendEvent(dataEventArgumentCaptor.capture())(any(), any())
       val valueOfLiabilityAmount = dataEventArgumentCaptor.getAllValues.get(0).detail.find(_._1 == "liabilityAmount")
-      assert(valueOfLiabilityAmount.get._2.contains("No liability present"))
+      assert(valueOfLiabilityAmount.get._2.contains("0.00"))
     }
 
     "parse the income values for test case 2" in {
