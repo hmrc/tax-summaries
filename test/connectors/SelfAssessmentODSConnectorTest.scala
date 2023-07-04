@@ -18,31 +18,39 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
-import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, JsString}
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, RequestId, SessionId, UpstreamErrorResponse}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, RequestId, SessionId, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, WireMockHelper}
+import play.api.inject.bind
 
-class ODSConnectorTest extends BaseSpec with WireMockHelper {
+class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with WireMockHelper {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
+      .disable[config.ATSModule]
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
         "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
       )
+      .overrides(
+        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector]
+      )
       .build()
 
-  lazy val sut: ODSConnector = inject[ODSConnector]
+  lazy val sut: SelfAssessmentODSConnector = inject[SelfAssessmentODSConnector]
 
   val json: JsObject = JsObject(Map("foo" -> JsString("bar")))
+
+  implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(
+  override implicit val hc: HeaderCarrier = HeaderCarrier(
     sessionId = Some(SessionId(sessionId)),
     requestId = Some(RequestId(requestId))
   )
@@ -55,9 +63,7 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
 
       "200 is returned" in {
 
-        server.stubFor(
-          get(url).willReturn(ok(json.toString()))
-        )
+        stubGet(url, OK, Some(json.toString()))
 
         val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
@@ -78,23 +84,32 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
     }
 
     "return UpstreamErrorResponse" when {
-      List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
+      List(400, 401, 403, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
-          server.stubFor(
-            get(urlEqualTo(url)).willReturn(
-              aResponse()
-                .withStatus(status)
-                .withBody("")
-            )
-          )
+
+          stubGet(url, status, Some(""))
 
           val result = sut.connectToSelfAssessment(testUtr, 2014).value
 
           whenReady(result) { res =>
-            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
+            res mustBe a[Left[UpstreamErrorResponse, _]]
           }
         }
       }
+    }
+
+    "return UpstreamErrorResponse" when {
+      s"a response with status 404 is received" in {
+
+        stubGet(url, NOT_FOUND, Some(""))
+
+        val result = sut.connectToSelfAssessment(testUtr, 2014).value
+
+        whenReady(result) { res =>
+          res mustBe a[Right[_, HttpResponse]]
+        }
+      }
+
     }
   }
 
@@ -106,36 +121,53 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
 
       "200 is returned" in {
 
-        server.stubFor(
-          get(url).willReturn(ok(json.toString()))
-        )
+        stubGet(url, OK, Some(json.toString()))
 
         val result = sut.connectToSelfAssessmentList(testUtr).value
 
         whenReady(result) {
           _.map(_.json) mustBe Right(json)
         }
+
+        server.verify(
+          getRequestedFor(urlEqualTo(url))
+            .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
+            .withHeader(HeaderNames.xRequestId, equalTo(requestId))
+            .withHeader(
+              "CorrelationId",
+              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+            )
+        )
       }
     }
 
     "return UpstreamErrorResponse" when {
-      List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
+      List(400, 401, 403, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
-          server.stubFor(
-            get(urlEqualTo(url)).willReturn(
-              aResponse()
-                .withStatus(status)
-                .withBody("")
-            )
-          )
+
+          stubGet(url, status, Some(""))
 
           val result = sut.connectToSelfAssessmentList(testUtr).value
 
           whenReady(result) { res =>
-            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
+            res mustBe a[Left[UpstreamErrorResponse, _]]
           }
         }
       }
+    }
+
+    "return UpstreamErrorResponse" when {
+      s"a response with status 404 is received" in {
+
+        stubGet(url, NOT_FOUND, Some(""))
+
+        val result = sut.connectToSelfAssessmentList(testUtr).value
+
+        whenReady(result) { res =>
+          res mustBe a[Right[_, HttpResponse]]
+        }
+      }
+
     }
   }
 
@@ -147,36 +179,53 @@ class ODSConnectorTest extends BaseSpec with WireMockHelper {
 
       "200 is returned" in {
 
-        server.stubFor(
-          get(url).willReturn(ok(json.toString()))
-        )
+        stubGet(url, OK, Some(json.toString()))
 
         val result = sut.connectToSATaxpayerDetails(testUtr).value
 
         whenReady(result) {
           _.map(_.json) mustBe Right(json)
         }
+
+        server.verify(
+          getRequestedFor(urlEqualTo(url))
+            .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
+            .withHeader(HeaderNames.xRequestId, equalTo(requestId))
+            .withHeader(
+              "CorrelationId",
+              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
+            )
+        )
       }
     }
 
     "return UpstreamErrorResponse" when {
-      List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
+      List(400, 401, 403, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in {
-          server.stubFor(
-            get(urlEqualTo(url)).willReturn(
-              aResponse()
-                .withStatus(status)
-                .withBody("")
-            )
-          )
+
+          stubGet(url, status, Some(""))
 
           val result = sut.connectToSATaxpayerDetails(testUtr).value
 
           whenReady(result) { res =>
-            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe UpstreamErrorResponse(_: String, status)
+            res mustBe a[Left[UpstreamErrorResponse, _]]
           }
         }
       }
+    }
+
+    "return UpstreamErrorResponse" when {
+      s"a response with status 404 is received" in {
+
+        stubGet(url, NOT_FOUND, Some(""))
+
+        val result = sut.connectToSATaxpayerDetails(testUtr).value
+
+        whenReady(result) { res =>
+          res mustBe a[Right[_, HttpResponse]]
+        }
+      }
+
     }
   }
 }

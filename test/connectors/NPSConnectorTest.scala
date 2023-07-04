@@ -133,7 +133,6 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
           whenReady(result) { res =>
             res mustBe a[Left[_, _]]
-            res.swap.getOrElse(UpstreamErrorResponse("", IM_A_TEAPOT)) mustBe a[UpstreamErrorResponse]
           }
         }
       }

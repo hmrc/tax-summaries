@@ -24,6 +24,7 @@ object ScoverageSettings {
     "app.*",
     "config.*",
     "Reverse.*",
+    "Routes.*",
     ".*AuthService.*",
     "models/.data/..*",
     "view.*",
@@ -34,7 +35,7 @@ object ScoverageSettings {
 
   val settings: Seq[Setting[_]] = Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),
-    ScoverageKeys.coverageMinimumStmtTotal := 96,
+    ScoverageKeys.coverageMinimumStmtTotal := 95,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )

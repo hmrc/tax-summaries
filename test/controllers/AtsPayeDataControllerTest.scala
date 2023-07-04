@@ -81,7 +81,7 @@ class AtsPayeDataControllerTest extends BaseSpec {
         .thenReturn(EitherT.leftT(badRequestError))
       val result: Future[Result] = getAtsPayeData(testNino, cy)(request)
 
-      status(result) mustBe BAD_REQUEST
+      status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) mustBe badRequestError.message
     }
   }
@@ -118,7 +118,7 @@ class AtsPayeDataControllerTest extends BaseSpec {
 
         val result: Future[Result] = getAtsPayeDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe BAD_REQUEST
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
 
