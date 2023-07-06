@@ -82,7 +82,9 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
+            any[ExecutionContext]
+          )
         }
       }
 
@@ -99,7 +101,9 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector, times(0)).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
+            any[ExecutionContext]
+          )
         }
       }
 
@@ -119,7 +123,9 @@ class OdsServiceSpec extends BaseSpec {
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
             verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
-            verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+            verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
+              any[ExecutionContext]
+            )
           }
         }
       }
@@ -161,7 +167,9 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector, times(0)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
+            any[ExecutionContext]
+          )
         }
       }
 
@@ -222,7 +230,9 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector, times(0)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
+            any[ExecutionContext]
+          )
         }
       }
 
@@ -239,7 +249,9 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
+            any[ExecutionContext]
+          )
         }
       }
 
