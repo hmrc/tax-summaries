@@ -58,7 +58,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
       when(mockOdsService.getPayload(any(), any())(any(), any())).thenReturn(
         EitherT.rightT(Json.parse("{}"))
       )
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
 
       result mustBe Right(listOfYears)
       verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -73,7 +73,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
       when(mockOdsService.getPayload(any(), any())(any(), any())).thenReturn(
         EitherT.leftT(UpstreamErrorResponse("Not Found", 404))
       )
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
 
       result mustBe Right(List.empty)
       verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -91,7 +91,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
           EitherT.leftT(UpstreamErrorResponse("random client error", random))
         )
       }
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
 
       result mustBe Right(List.empty)
       verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -114,7 +114,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
         EitherT.rightT(Json.parse("{}"))
       )
 
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
 
       result mustBe Right(listOfYears)
       verify(mockOdsService, times(listOfYears.size + 1)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -139,7 +139,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
         EitherT.leftT(UpstreamErrorResponse("Server error", 500))
       )
 
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
 
       result mustBe a[Left[_, UpstreamErrorResponse]]
       verify(mockOdsService, times(listOfYears.size + 1)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -167,7 +167,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
       )
     }
 
-    val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
+    val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
 
     result mustBe a[Left[_, UpstreamErrorResponse]]
     verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
