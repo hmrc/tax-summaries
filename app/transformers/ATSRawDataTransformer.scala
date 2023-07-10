@@ -48,7 +48,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     auditConnector.sendEvent(
       DataEvent(
         auditSource = applicationConfig.appName,
-        auditType = "taxLiability",
+        auditType = "TaxLiability",
         detail = Map(
           "utr"                      -> UTR,
           "taxYear"                  -> taxYear.toString,
