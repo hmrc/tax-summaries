@@ -57,8 +57,8 @@ class CachingNpsServiceTest extends BaseSpec {
       val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
       when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
-      when(repository.set(any())).thenReturn(Future.successful(true))
       when(innerService.getPayeATSData(any(), any())(any())).thenReturn(EitherT.rightT(data))
+      when(repository.set(any())).thenReturn(Future.successful(true))
 
       whenReady(getAtsPayeDataMultipleYears(generatedNino.nino, List(2000, 2001))(HeaderCarrier()).value) { result =>
         result mustBe Right(List(data, data))
