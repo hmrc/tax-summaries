@@ -44,6 +44,7 @@ class CachingNpsServiceTest extends BaseSpec {
   override def beforeEach(): Unit = {
     Mockito.reset(repository)
     Mockito.reset(innerService)
+    Mockito.reset(config)
     super.beforeEach()
   }
 
@@ -171,7 +172,7 @@ class CachingNpsServiceTest extends BaseSpec {
 
       whenReady(getPayeATSData(generatedNino.nino, 5465)(HeaderCarrier()).value) {
         case Left(response) => response mustBe a[UpstreamErrorResponse]
-        case _              => fail("Incorrect reponse from Caching Service")
+        case _              => fail("Incorrect response from Caching Service")
       }
     }
   }
