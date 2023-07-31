@@ -20,6 +20,7 @@ import errors.AtsError
 import models.{AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.{JsNull, JsResultException, JsValue, Json}
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.{AtsJsonDataUpdate, BaseSpec}
 
 import scala.concurrent.ExecutionContext
@@ -36,6 +37,7 @@ class ValidateATSRawDataTransformerTests extends BaseSpec with AtsJsonDataUpdate
   val taxRate                                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val SUT: ATSRawDataTransformer                = inject[ATSRawDataTransformer]
   implicit val ec: ExecutionContext             = inject[ExecutionContext]
+  implicit val hc: HeaderCarrier                = HeaderCarrier()
 
   "With base data for utr" must {
 

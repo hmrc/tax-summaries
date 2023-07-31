@@ -21,6 +21,7 @@ import models.ODSLiabilities.ODSLiabilities.{CgGainsAfterLosses, CgTotGainsAfter
 import models._
 import play.api.libs.json.{JsValue, Json}
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils._
 
 import scala.concurrent.ExecutionContext
@@ -38,6 +39,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
 
   val SUT: ATSRawDataTransformer    = inject[ATSRawDataTransformer]
   implicit val ec: ExecutionContext = inject[ExecutionContext]
+  implicit val hc: HeaderCarrier    = HeaderCarrier()
 
   "The capital gains" must {
 

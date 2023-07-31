@@ -21,6 +21,7 @@ import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import play.api.libs.json.{JsValue, Json}
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils._
 
 import scala.concurrent.ExecutionContext
@@ -38,6 +39,7 @@ class SelfEmploymentTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val taxRate                            = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   val SUT: ATSRawDataTransformer         = inject[ATSRawDataTransformer]
   implicit val ec: ExecutionContext      = inject[ExecutionContext]
+  implicit val hc: HeaderCarrier         = HeaderCarrier()
 
   "With base data for utr" must {
 

@@ -53,7 +53,12 @@ class OdsServiceSpec extends BaseSpec {
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
         when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any[ExecutionContext]))
+        when(
+          jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
+            any[ExecutionContext],
+            any[HeaderCarrier]
+          )
+        )
           .thenReturn(mock[JsValue])
 
         val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier], mock[Request[_]]).value
@@ -62,7 +67,8 @@ class OdsServiceSpec extends BaseSpec {
           res.isRight mustBe true
 
           verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[HeaderCarrier]
           )
         }
       }
@@ -83,7 +89,8 @@ class OdsServiceSpec extends BaseSpec {
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
           verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[HeaderCarrier]
           )
         }
       }
@@ -102,7 +109,8 @@ class OdsServiceSpec extends BaseSpec {
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector, times(0)).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
           verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[HeaderCarrier]
           )
         }
       }
@@ -124,7 +132,8 @@ class OdsServiceSpec extends BaseSpec {
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
             verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
             verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
-              any[ExecutionContext]
+              any[ExecutionContext],
+              any[HeaderCarrier]
             )
           }
         }
@@ -168,7 +177,8 @@ class OdsServiceSpec extends BaseSpec {
           verify(odsConnector, times(0)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[HeaderCarrier]
           )
         }
       }
@@ -231,7 +241,8 @@ class OdsServiceSpec extends BaseSpec {
           verify(odsConnector, times(0)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[HeaderCarrier]
           )
         }
       }
@@ -250,7 +261,8 @@ class OdsServiceSpec extends BaseSpec {
           verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(
-            any[ExecutionContext]
+            any[ExecutionContext],
+            any[HeaderCarrier]
           )
         }
       }

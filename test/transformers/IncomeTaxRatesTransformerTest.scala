@@ -21,6 +21,7 @@ import models.{Amount, AtsMiddleTierData, LiabilityKey, TaxSummaryLiability}
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import play.api.libs.json.{JsValue, Json}
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils._
 
 import scala.concurrent.ExecutionContext
@@ -36,6 +37,7 @@ class IncomeTaxRatesTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val taxYear: Int                              = 2014
   val taxRate                                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
   implicit val ec: ExecutionContext             = inject[ExecutionContext]
+  implicit val hc: HeaderCarrier                = HeaderCarrier()
 
   val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 

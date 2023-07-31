@@ -22,13 +22,15 @@ import models.{AtsYearList, TaxSummaryLiability}
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import services.TaxRateService
 import transformers.{ATSCalculations, ATSRawDataTransformer, ATSTaxpayerDataTransformer}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 
 class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawDataTransformer: ATSRawDataTransformer) {
 
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int)(implicit
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    hc: HeaderCarrier
   ): JsValue = {
     val taxRate      = new TaxRateService(taxYear, applicationConfig.ratePercentages)
     val calculations = ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate)
