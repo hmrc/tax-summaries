@@ -277,14 +277,10 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
       forAll { (rate: Double, totalVal: Double) =>
         val total: BigDecimal = BigDecimal(totalVal)
-        print("total to remove:" + total)
         val sum               = List.fill(10)(rate).fold(0.0)(_ + _)
-        print("sum to remove:" + sum)
         val prod              = rate * 10
-        print("prod to remove:" + prod)
 
         val sut = fixture(PensionTaxRate(sum / 100), PensionLsumTaxDue -> Amount.gbp(total, PensionLsumTaxDue.apiValue))
-        print("calculation to remove:"+sut.calculation.includePensionTaxForRate(Rate(prod)))
         sut.calculation.includePensionTaxForRate(Rate(prod)).roundAmount() mustBe Amount
           .gbp(total, s"$total(ctnPensionLsumTaxDueAmt)")
           .roundAmount()
