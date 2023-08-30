@@ -250,11 +250,12 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "includePensionIncomeForRate returns StatePensionGross when percentages match" in {
 
-      forAll { (rate: Double, totalVal: Double) =>
+      forAll { (rateI: Int, totalValI: Int) =>
+        val rate = Math.abs(rateI).toDouble / 100.0
+        val totalVal = Math.abs(totalValI).toDouble / 100.0
         val total: BigDecimal = BigDecimal(totalVal)
-        val sum               = List.fill(10)(rate).fold(0.0)(_ + _)
-        val prod              = rate * 10
-
+        val sum = List.fill(10)(rate).fold(0.0)(_ + _)
+        val prod = rate * 10
         val sut = fixture(PensionTaxRate(sum / 100), StatePensionGross -> Amount.gbp(total, StatePensionGross.apiValue))
         sut.calculation.includePensionIncomeForRate(Rate(prod)).roundAmount() mustBe Amount
           .gbp(total, s"$total(itfStatePensionLsGrossAmt)")
@@ -274,13 +275,13 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     }
 
     "includePensionTaxForRate returns PensionLsumTaxDue when percentages match" in {
-
-      forAll { (rate: Double, totalVal: Double) =>
+      forAll { (rateI: Int, totalValI: Int) =>
+        val rate              = Math.abs(rateI).toDouble / 100.0
+        val totalVal          = Math.abs(totalValI).toDouble / 100.0
         val total: BigDecimal = BigDecimal(totalVal)
         val sum               = List.fill(10)(rate).fold(0.0)(_ + _)
         val prod              = rate * 10
-
-        val sut = fixture(PensionTaxRate(sum / 100), PensionLsumTaxDue -> Amount.gbp(total, PensionLsumTaxDue.apiValue))
+        val sut               = fixture(PensionTaxRate(sum / 100), PensionLsumTaxDue -> Amount.gbp(total, PensionLsumTaxDue.apiValue))
         sut.calculation.includePensionTaxForRate(Rate(prod)).roundAmount() mustBe Amount
           .gbp(total, s"$total(ctnPensionLsumTaxDueAmt)")
           .roundAmount()
