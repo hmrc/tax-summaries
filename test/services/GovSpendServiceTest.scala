@@ -63,5 +63,26 @@ class GovSpendServiceTest extends BaseSpec {
       result.get(OutstandingPaymentsToTheEU) mustBe Some(0.70)
       result.get(OverseasAid) mustBe Some(0.60)
     }
+
+    "return correct amounts for 2023" in {
+      val result: Map[GoodsAndServices, Double] =
+        new GovSpendService(applicationConfig).govSpending(2023)
+
+      result.get(Health) mustBe Some(19.80)
+      result.get(Welfare) mustBe Some(19.60)
+      result.get(NationalDebtInterest) mustBe Some(12.00)
+      result.get(StatePensions) mustBe Some(10.30)
+      result.get(Education) mustBe Some(9.90)
+      result.get(BusinessAndIndustry) mustBe Some(7.60)
+      result.get(Defence) mustBe Some(5.20)
+      result.get(PublicOrderAndSafety) mustBe Some(4.10)
+      result.get(Transport) mustBe Some(4.10)
+      result.get(GovernmentAdministration) mustBe Some(2.00)
+      result.get(HousingAndUtilities) mustBe Some(1.70)
+      result.get(Culture) mustBe Some(1.30)
+      result.get(Environment) mustBe Some(1.30)
+      result.get(OutstandingPaymentsToTheEU) mustBe Some(0.60)
+      result.get(OverseasAid) mustBe Some(0.50)
+    }
   }
 }

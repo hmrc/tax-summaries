@@ -95,10 +95,11 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
 }
 
 object Amount {
-  implicit val writes: Writes[Amount] = (o: Amount) => Json.obj(
-    "amount" -> o.amount,
-    "currency" -> o.currency
-  )
+  implicit val writes: Writes[Amount] = (o: Amount) =>
+    Json.obj(
+      "amount"   -> o.amount,
+      "currency" -> o.currency
+    )
 
   implicit val reads: Reads[Amount] =
     (
