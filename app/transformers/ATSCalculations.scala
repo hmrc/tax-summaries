@@ -35,6 +35,10 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def get(liability: ODSLiabilities): Amount = {
     val result = summaryData.atsData.getOrElse(
       liability,
+//        println("\nDATA1=" + summaryData)
+//        println("\nDATA2=" + summaryData.nationalInsuranceData)
+//        println("\nDATA2KEY=" + liability)
+      //ATA2=Map(EmployeeClass1NI -> Amount(100.00,GBP,None), EmployeeClass2NI -> Amount(100.00,GBP,None), EmployerNI -> Amount(200.00,GBP,None))
       summaryData.nationalInsuranceData.getOrElse(
         liability, {
           val ex = ATSParsingException(liability.apiValue)
