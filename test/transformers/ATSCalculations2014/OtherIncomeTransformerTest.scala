@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package transformers
+package transformers.ATSCalculations2014
 
-import models.LiabilityKey.OtherPensionIncome
+import models.LiabilityKey.OtherIncome
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.Json
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import services.TaxRateService
+import transformers.{ATSCalculations, ATSRawDataTransformer}
 import utils._
 
 import scala.io.Source
 
-class OtherPensionIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
+class OtherIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
   val taxpayerDetailsJson        = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
   val parsedTaxpayerDetailsJson  = Json.parse(taxpayerDetailsJson)
@@ -35,7 +36,7 @@ class OtherPensionIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate 
 
   "With base data for utr" must {
 
-    "have the correct other pension income data" in {
+    "have the correct other income data" in {
 
       val sampleJson = Source.fromURL(getClass.getResource("/utr_2014.json")).mkString
 
@@ -50,17 +51,29 @@ class OtherPensionIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate 
 
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherPensionIncome) must equal(
-        new Amount(0.0, "GBP", Some("0.00(atsOtherPensionAmt) + 0.00(itfStatePensionLsGrossAmt)"))
+      parsedPayload(OtherIncome) must equal(
+        Amount.gbp(
+          0.0,
+          "0.00(ctnSummaryTotShareOptions) + 0.00(ctnSummaryTotalUklProperty) + 0.00(ctnSummaryTotForeignIncome) + 0.00(ctnSummaryTotTrustEstates) + 0.00(ctnSummaryTotalOtherIncome) + 0.00(ctnSummaryTotalUkInterest) + 0.00(ctnSummaryTotForeignDiv) + 0.00(ctnSummaryTotalUkIntDivs) + 0.00(ctn4SumTotLifePolicyGains)"
+        )
       )
     }
 
-    "have the correct summed other pension income data" in {
+    "have the correct summed other income data" in {
 
       val originalJson = getClass.getResource("/utr_2014.json")
 
-      val update          =
-        Json.obj("itfStatePensionLsGrossAmt" -> Amount(100.0, "GBP"), "atsOtherPensionAmt" -> Amount(200.0, "GBP"))
+      val update = Json.obj(
+        "ctnSummaryTotShareOptions"  -> Amount(10.0, "GBP"),
+        "ctnSummaryTotalUklProperty" -> Amount(20.0, "GBP"),
+        "ctnSummaryTotForeignIncome" -> Amount(30.0, "GBP"),
+        "ctnSummaryTotTrustEstates"  -> Amount(40.0, "GBP"),
+        "ctnSummaryTotalOtherIncome" -> Amount(50.0, "GBP"),
+        "ctnSummaryTotalUkInterest"  -> Amount(60.0, "GBP"),
+        "ctnSummaryTotForeignDiv"    -> Amount(70.0, "GBP"),
+        "ctnSummaryTotalUkIntDivs"   -> Amount(80.0, "GBP"),
+        "ctn4SumTotLifePolicyGains"  -> Amount(90.0, "GBP")
+      )
 
       val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
       val calculations    = ATSCalculations.make(transformedJson.as[TaxSummaryLiability], taxRate)
@@ -68,13 +81,16 @@ class OtherPensionIncomeTransformerTest extends BaseSpec with AtsJsonDataUpdate 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
-      val parsedYear = returnValue.taxYear
-      taxYear mustEqual parsedYear
-
       val parsedPayload = returnValue.income_data.get.payload.get
 
-      parsedPayload(OtherPensionIncome) must equal(
-        new Amount(300.0, "GBP", Some("200.0(atsOtherPensionAmt) + 100.0(itfStatePensionLsGrossAmt)"))
+      parsedPayload(OtherIncome) must equal(
+        new Amount(
+          450.00,
+          "GBP",
+          Some(
+            "10.0(ctnSummaryTotShareOptions) + 20.0(ctnSummaryTotalUklProperty) + 30.0(ctnSummaryTotForeignIncome) + 40.0(ctnSummaryTotTrustEstates) + 50.0(ctnSummaryTotalOtherIncome) + 60.0(ctnSummaryTotalUkInterest) + 70.0(ctnSummaryTotForeignDiv) + 80.0(ctnSummaryTotalUkIntDivs) + 90.0(ctn4SumTotLifePolicyGains)"
+          )
+        )
       )
     }
   }

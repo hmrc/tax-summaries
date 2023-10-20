@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package transformers
+package transformers.ATSCalculations2014
 
 import errors.AtsError
 import models.{AtsMiddleTierData, TaxSummaryLiability}
 import play.api.libs.json.{JsNull, JsResultException, Json}
 import services.TaxRateService
+import transformers.{ATSCalculations, ATSRawDataTransformer}
 import utils.{AtsJsonDataUpdate, BaseSpec}
 
 import scala.io.Source

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package transformers
+package transformers.ATSCalculations2014
 
-import models.ODSLiabilities.ODSLiabilities.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models.LiabilityKey._
+import models.ODSLiabilities.ODSLiabilities.{CgGainsAfterLosses, CgTotGainsAfterLosses}
 import models._
 import play.api.libs.json.Json
 import services.TaxRateService
+import transformers.{ATSCalculations, ATSRawDataTransformer}
 import utils._
 
 import scala.io.Source

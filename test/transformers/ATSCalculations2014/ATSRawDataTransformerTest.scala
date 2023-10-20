@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package transformers
+package transformers.ATSCalculations2014
 
 import models.LiabilityKey._
 import models._
 import play.api.libs.json.Json
 import services.TaxRateService
+import transformers.{ATSCalculations, ATSRawDataTransformer}
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
 class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
