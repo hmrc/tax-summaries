@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package transformers.Welsh
+package transformers.ATS2021
 
 import models.ODSLiabilities.ODSLiabilities._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
-import transformers.ATSCalculations2021
 
 class ATSCalculationsWelsh2021(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations2021 {

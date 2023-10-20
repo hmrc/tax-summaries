@@ -19,7 +19,6 @@ package transformers.ATS2019
 import models.{Amount, PensionTaxRate, Scottish, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
-import transformers.Scottish.ATSCalculationsScottish2019
 import utils.{BaseSpec, JsonUtil}
 
 class ATSCalculationsScottish2019Test extends BaseSpec {

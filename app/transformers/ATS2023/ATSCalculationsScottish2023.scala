@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package transformers.Scottish
+package transformers.ATS2023
 
 import models.ODSLiabilities.ODSLiabilities._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
-import transformers.ATSCalculations2022
 
-class ATSCalculationsScottish2022(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations2022 {
+class ATSCalculationsScottish2023(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations2023 {
 
-  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxScottish2022")
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxScottish2023")
 
-  override def savingsRate: Amount = Amount.empty("savingsRateScottish2022")
+  override def savingsRate: Amount = Amount.empty("savingsRateScottish2023")
 
-  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountScottish2022")
+  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountScottish2023")
 
-  override def basicRateIncomeTaxAmount: Amount = Amount.empty("basicRateIncomeTaxAmountScottish2022")
+  override def basicRateIncomeTaxAmount: Amount = Amount.empty("basicRateIncomeTaxAmountScottish2023")
 
-  override def higherRateIncomeTaxAmount: Amount = Amount.empty("higherRateIncomeTaxAmountScottish2022")
+  override def higherRateIncomeTaxAmount: Amount = Amount.empty("higherRateIncomeTaxAmountScottish2023")
 
-  override def additionalRateIncomeTaxAmount: Amount = Amount.empty("additionalRateIncomeTaxAmountScottish2022")
+  override def additionalRateIncomeTaxAmount: Amount = Amount.empty("additionalRateIncomeTaxAmountScottish2023")
 
-  override def basicRateIncomeTax: Amount = Amount.empty("basicRateIncomeTaxScottish2022")
+  override def basicRateIncomeTax: Amount = Amount.empty("basicRateIncomeTaxScottish2023")
 
-  override def higherRateIncomeTax: Amount = Amount.empty("higherRateIncomeTaxScottish2022")
+  override def higherRateIncomeTax: Amount = Amount.empty("higherRateIncomeTaxScottish2023")
 
-  override def additionalRateIncomeTax: Amount = Amount.empty("additionalRateIncomeTaxScottish2022")
+  override def additionalRateIncomeTax: Amount = Amount.empty("additionalRateIncomeTaxScottish2023")
 
   override def scottishStarterRateTax: Amount =
     getWithDefaultAmount(TaxOnPayScottishStarterRate) + get(TaxOnRedundancySsr) + includePensionTaxForRate(

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package transformers
+package transformers.ATS2023
 
 import models.ODSLiabilities.ODSLiabilities._
 import models._
 import services._
+import transformers.ATSCalculations
 
-trait ATSCalculations2022 extends ATSCalculations {
+trait ATSCalculations2023 extends ATSCalculations {
+
   protected val summaryData: TaxSummaryLiability
   protected val taxRates: TaxRateService
 

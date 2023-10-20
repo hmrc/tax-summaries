@@ -19,7 +19,6 @@ package transformers.ATS2021
 import models.{Amount, TaxSummaryLiability, UK}
 import play.api.libs.json.Json
 import services.TaxRateService
-import transformers.UK.ATSCalculationsUK2021
 import utils.{BaseSpec, JsonUtil}
 
 class ATSCalculationsUK2021Test extends BaseSpec {

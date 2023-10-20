@@ -21,9 +21,10 @@ import models.ODSLiabilities.ODSLiabilities._
 import models._
 import play.api.Logging
 import services._
-import transformers.Scottish.{ATSCalculationsScottish2019, ATSCalculationsScottish2021, ATSCalculationsScottish2022}
-import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021, ATSCalculationsUK2022}
-import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021, ATSCalculationsWelsh2022}
+import transformers.ATS2019.{ATSCalculationsScottish2019, ATSCalculationsUK2019}
+import transformers.ATS2020.ATSCalculationsWelsh2020
+import transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK2021, ATSCalculationsWelsh2021}
+import transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
 import utils.DoubleUtils
 
 // scalastyle:off number.of.methods

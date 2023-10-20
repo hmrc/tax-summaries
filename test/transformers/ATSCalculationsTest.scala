@@ -22,9 +22,10 @@ import models.ODSLiabilities.ODSLiabilities._
 import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
-import transformers.Scottish.ATSCalculationsScottish2019
-import transformers.UK.{ATSCalculationsUK2019, ATSCalculationsUK2021}
-import transformers.Welsh.{ATSCalculationsWelsh2020, ATSCalculationsWelsh2021, ATSCalculationsWelsh2022}
+import transformers.ATS2019.{ATSCalculationsScottish2019, ATSCalculationsUK2019}
+import transformers.ATS2020.ATSCalculationsWelsh2020
+import transformers.ATS2021.{ATSCalculationsUK2021, ATSCalculationsWelsh2021}
+import transformers.ATS2022.ATSCalculationsWelsh2022
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random

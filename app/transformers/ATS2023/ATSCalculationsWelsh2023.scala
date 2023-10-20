@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package transformers.Welsh
+package transformers.ATS2023
 
 import models.ODSLiabilities.ODSLiabilities._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
-import transformers.ATSCalculations2022
 
-class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations2022 {
+class ATSCalculationsWelsh2023(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations2023 {
   override def welshIncomeTax: Amount = {
     val welshRate = 0.1
     (
@@ -35,5 +34,5 @@ class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRate
     ) * welshRate
   }
 
-  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxWelsh2022")
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxWelsh2023")
 }

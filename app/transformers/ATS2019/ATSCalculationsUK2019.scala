@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package transformers.UK
+package transformers.ATS2019
 
-import models.{Amount, TaxSummaryLiability}
-import services.TaxRateService
-import transformers.ATSCalculations2023
+import models._
+import services._
+import transformers.ATSCalculations
 
-class ATSCalculationsUK2023(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations2023 {
-  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2023")
+class ATSCalculationsUK2019(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations {
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2019")
+  override def savingsRate: Amount       = Amount.empty("savingsRateUK2019")
+  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountUK2019")
 }

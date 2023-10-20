@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package transformers.UK
+package transformers.ATS2022
 
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
-import transformers.ATSCalculations2022
 
 class ATSCalculationsUK2022(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations2022 {

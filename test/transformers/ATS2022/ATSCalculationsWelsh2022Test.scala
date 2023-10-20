@@ -19,7 +19,6 @@ package transformers.ATS2022
 import models.{Amount, TaxSummaryLiability, Welsh}
 import play.api.libs.json.Json
 import services.TaxRateService
-import transformers.Welsh.ATSCalculationsWelsh2022
 import utils.{BaseSpec, JsonUtil}
 
 class ATSCalculationsWelsh2022Test extends BaseSpec {

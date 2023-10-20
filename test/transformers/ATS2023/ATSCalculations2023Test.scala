@@ -20,7 +20,7 @@ import models.ODSLiabilities.ODSLiabilities.TaxOnNonExcludedIncome
 import models.{Amount, TaxSummaryLiability}
 import play.api.libs.json.Json
 import services.TaxRateService
-import transformers.{ATS2023, ATSCalculations2023}
+import transformers.ATS2023
 import utils.{BaseSpec, JsonUtil}
 
 class ATSCalculations2023Test extends BaseSpec {
