@@ -20,10 +20,16 @@ import models.ODSLiabilities.ODSLiabilities._
 import models._
 import services._
 
-trait ATSCalculations2023 extends ATSCalculations2021 {
+trait ATSCalculations2023 extends ATSCalculations {
 
-  val summaryData: TaxSummaryLiability
-  val taxRates: TaxRateService
+  protected val summaryData: TaxSummaryLiability
+  protected val taxRates: TaxRateService
+
+  override def selfEmployment: Amount =
+    get(SummaryTotalSchedule) +
+      get(SummaryTotalPartnership) +
+      get(SavingsPartnership) +
+      get(DividendsPartnership)
 
   override def otherIncome: Amount =
     get(SummaryTotShareOptions) +
@@ -38,6 +44,46 @@ trait ATSCalculations2023 extends ATSCalculations2021 {
       get(SummaryTotForeignSav) +
       get(ForeignCegDedn) +
       get(ItfCegReceivedAfterTax)
+
+  override def otherAllowances: Amount =
+    (
+      get(EmploymentExpenses) +
+        get(SummaryTotalDedPpr) +
+        get(SumTotForeignTaxRelief) +
+        get(SumTotLossRestricted) +
+        get(AnnuityPay) +
+        get(GiftsInvCharities) +
+        get(BpaAllowance) +
+        get(BPA)
+    ).roundAmountUp()
+
+  override def otherAdjustmentsIncreasing: Amount =
+    get(NonDomCharge) +
+      get(GiftAidTaxReduced) +
+      get(NetAnnuityPaytsTaxDue) +
+      get(ChildBenefitCharge) +
+      get(PensionSavingChargeable)
+
+  override def totalIncomeTaxAmount: Amount = {
+    val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
+      basicRateIncomeTaxAmount + // LS12.2
+      higherRateIncomeTaxAmount + // LS12.3
+      additionalRateIncomeTaxAmount + //LS12.4
+      get(DividendTaxLowRate) + //LS13.1
+      get(DividendTaxHighRate) + //LS13.2
+      get(DividendTaxAddHighRate) +
+      otherAdjustmentsIncreasing -
+      otherAdjustmentsReducing -
+      getWithDefaultAmount(MarriageAllceIn)
+
+    val excludedAndNonExcludedTax = get(TaxExcluded) + getWithDefaultAmount(TaxOnNonExcludedIncome)
+
+    if (excludedAndNonExcludedTax.amount > 0) {
+      List(rateDividendAdjustmentTax, excludedAndNonExcludedTax).min
+    } else {
+      rateDividendAdjustmentTax
+    }
+  }
 
   override def otherAdjustmentsReducing: Amount =
     get(DeficiencyRelief) +
@@ -59,18 +105,6 @@ trait ATSCalculations2023 extends ATSCalculations2021 {
     get(EmployeeClass1NI) +
       get(Class2NicAmt) +
       get(Class4Nic)
-
-  override def otherAllowances: Amount =
-    (
-      get(EmploymentExpenses) +
-        get(SummaryTotalDedPpr) +
-        get(SumTotForeignTaxRelief) +
-        get(SumTotLossRestricted) +
-        get(AnnuityPay) +
-        get(GiftsInvCharities) +
-        get(BpaAllowance) +
-        get(BPA)
-    ).roundAmountUp()
 
   override def basicRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +

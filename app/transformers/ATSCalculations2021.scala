@@ -22,8 +22,8 @@ import services._
 
 trait ATSCalculations2021 extends ATSCalculations {
 
-  val summaryData: TaxSummaryLiability
-  val taxRates: TaxRateService
+  protected val summaryData: TaxSummaryLiability
+  protected val taxRates: TaxRateService
 
   override def selfEmployment: Amount =
     get(SummaryTotalSchedule) +

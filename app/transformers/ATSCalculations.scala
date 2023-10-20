@@ -28,8 +28,8 @@ import utils.DoubleUtils
 
 // scalastyle:off number.of.methods
 trait ATSCalculations extends DoubleUtils with Logging {
-  val summaryData: TaxSummaryLiability
-  val taxRates: TaxRateService
+  protected val summaryData: TaxSummaryLiability
+  protected val taxRates: TaxRateService
   val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
 
   def get(liability: ODSLiabilities): Amount = {
