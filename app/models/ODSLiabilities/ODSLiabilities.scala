@@ -326,7 +326,7 @@ object ODSLiabilities {
     ApiValue.readFromList[ODSLiabilities](
       mapLiabilities.get(taxYear) match {
         case Some(liabilities) => liabilities
-        case _ =>
+        case _                 =>
           val latestTaxYearForLiabilities = mapLiabilities.keys.toSeq.max
           if (taxYear > latestTaxYearForLiabilities) {
             mapLiabilities(latestTaxYearForLiabilities)
