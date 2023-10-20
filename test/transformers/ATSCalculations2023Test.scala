@@ -38,8 +38,6 @@ class ATSCalculations2023Test extends BaseSpec {
   "Generic calculations 2023" must {
     "calculate totalAmountEmployeeNic" in {
 
-
-
       sut().totalAmountEmployeeNic mustBe Amount(
         225.66,
         "GBP",

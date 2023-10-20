@@ -16,13 +16,14 @@
 
 package models.ODSLiabilities
 
-import models.{ApiValue, Nationality}
+import models.ApiValue
 import play.api.libs.json.Reads
+
+// scalastyle:off number.of.methods
 
 sealed class ODSLiabilities(apiValue: String) extends ApiValue(apiValue)
 
 object ODSLiabilities {
-
   case object AnnuityPay extends ODSLiabilities("grossAnnuityPayts")
 
   case object BPA extends ODSLiabilities("itfBpaAmount")
@@ -309,34 +310,29 @@ object ODSLiabilities {
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced)
-  // format: on
 
-  // format: off
-  private val all2021Liabilities: List[ODSLiabilities with ApiValue] =
-    allLiabilities ++
-    List(
-      ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted, Class2NicAmt, TaxableRedundancyHr, TaxableCegHr,
-      PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr, TaxOnRedundancyAhr,
-      TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
-      TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
+  private val mapLiabilities: Map[Int, List[ODSLiabilities with ApiValue]] =
+    Map(
+      2022 -> (allLiabilities ++ List(
+        ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted, Class2NicAmt, TaxableRedundancyHr, TaxableCegHr,
+        PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr, TaxOnRedundancyAhr,
+        TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
+        TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
+      ))
     )
   // format: on
 
-  private val mapLiabilities: Map[Int, List[ODSLiabilities with ApiValue]] = Map(
-    2022 -> all2021Liabilities
-  )
-
-  def readsLiabilities(taxYear: Int): Reads[ODSLiabilities] = {
-    val liabilitiesList = mapLiabilities.get(taxYear) match {
-      case Some(liabilities) => liabilities
-      case _                 =>
-        val maxTaxYearForLiabilities = mapLiabilities.keys.toSeq.max
-        if (taxYear > maxTaxYearForLiabilities) {
-          mapLiabilities(maxTaxYearForLiabilities)
-        } else {
-          allLiabilities
-        }
-    }
-    ApiValue.readFromList[ODSLiabilities](liabilitiesList)
-  }
+  def readsLiabilities(taxYear: Int): Reads[ODSLiabilities] =
+    ApiValue.readFromList[ODSLiabilities](
+      mapLiabilities.get(taxYear) match {
+        case Some(liabilities) => liabilities
+        case _ =>
+          val latestTaxYearForLiabilities = mapLiabilities.keys.toSeq.max
+          if (taxYear > latestTaxYearForLiabilities) {
+            mapLiabilities(latestTaxYearForLiabilities)
+          } else {
+            allLiabilities
+          }
+      }
+    )
 }
