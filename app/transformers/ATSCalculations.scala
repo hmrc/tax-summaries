@@ -118,7 +118,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
         get(BpaAllowance) +
         get(BPA) +
         get(ExcludedIncome)
-    ).roundAmountUp()
+      ).roundAmountUp()
 
   def totalTaxFreeAmount: Amount =
     otherAllowances +
@@ -190,7 +190,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
         get(NetAnnuityPaytsTaxDue) +
         get(ChildBenefitCharge) +
         get(PensionSavingChargeable)
-    ) - get(TaxDueAfterAllceRlf)
+      ) - get(TaxDueAfterAllceRlf)
 
   def otherAdjustmentsReducing: Amount =
     get(DeficiencyRelief) +
@@ -270,7 +270,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
   protected def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount): Amount =
     taxable match {
       case value if value.isZero => taxable
-      case _                     => tax.divideWithPrecision(taxable, 4)
+      case _ => tax.divideWithPrecision(taxable, 4)
     }
 
   def totalNicsAndTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(nicsAndTaxPerCurrency)
@@ -290,49 +290,41 @@ trait ATSCalculations extends DoubleUtils with Logging {
 }
 
 sealed class DefaultATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations
+  extends ATSCalculations
 
 object ATSCalculations {
   private val calculationsForNationalityAndYear
-    : Map[(Nationality, Int), (TaxSummaryLiability, TaxRateService) => ATSCalculations] = {
-    val uk       = UK()
+  : Map[(Nationality, Int), (TaxSummaryLiability, TaxRateService) => ATSCalculations] = {
+    val uk = UK()
     val scotland = Scottish()
-    val wales    = Welsh()
+    val wales = Welsh()
 
-    val calc2023UK: (TaxSummaryLiability, TaxRateService) => ATSCalculations       = new ATSCalculationsUK2023(_, _)
-    val calc2023Scotland: (TaxSummaryLiability, TaxRateService) => ATSCalculations =
-      new ATSCalculationsScottish2023(_, _)
-    val calc2023Wales: (TaxSummaryLiability, TaxRateService) => ATSCalculations    = new ATSCalculationsWelsh2023(_, _)
-
-    val calc2022UK: (TaxSummaryLiability, TaxRateService) => ATSCalculations       = new ATSCalculationsUK2022(_, _)
-    val calc2022Scotland: (TaxSummaryLiability, TaxRateService) => ATSCalculations =
-      new ATSCalculationsScottish2022(_, _)
-    val calc2022Wales: (TaxSummaryLiability, TaxRateService) => ATSCalculations    = new ATSCalculationsWelsh2022(_, _)
-
-    val calc2021UK: (TaxSummaryLiability, TaxRateService) => ATSCalculations       = new ATSCalculationsUK2021(_, _)
-    val calc2021Scotland: (TaxSummaryLiability, TaxRateService) => ATSCalculations =
-      new ATSCalculationsScottish2021(_, _)
-    val calc2021Wales: (TaxSummaryLiability, TaxRateService) => ATSCalculations    = new ATSCalculationsWelsh2021(_, _)
-
-    val calc2020Wales: (TaxSummaryLiability, TaxRateService) => ATSCalculations = new ATSCalculationsWelsh2020(_, _)
-
-    val calc2019UK: (TaxSummaryLiability, TaxRateService) => ATSCalculations       = new ATSCalculationsUK2019(_, _)
-    val calc2019Scotland: (TaxSummaryLiability, TaxRateService) => ATSCalculations =
-      new ATSCalculationsScottish2019(_, _)
+    val calc2023UK = new ATSCalculationsUK2023(_, _)
+    val calc2023Scotland = new ATSCalculationsScottish2023(_, _)
+    val calc2023Wales = new ATSCalculationsWelsh2023(_, _)
+    val calc2022UK = new ATSCalculationsUK2022(_, _)
+    val calc2022Scotland = new ATSCalculationsScottish2022(_, _)
+    val calc2022Wales = new ATSCalculationsWelsh2022(_, _)
+    val calc2021UK = new ATSCalculationsUK2021(_, _)
+    val calc2021Scotland = new ATSCalculationsScottish2021(_, _)
+    val calc2021Wales = new ATSCalculationsWelsh2021(_, _)
+    val calc2020Wales = new ATSCalculationsWelsh2020(_, _)
+    val calc2019UK = new ATSCalculationsUK2019(_, _)
+    val calc2019Scotland = new ATSCalculationsScottish2019(_, _)
 
     Map(
-      (uk, 2023)       -> calc2023UK,
+      (uk, 2023) -> calc2023UK,
       (scotland, 2023) -> calc2023Scotland,
-      (wales, 2023)    -> calc2023Wales,
-      (uk, 2022)       -> calc2022UK,
+      (wales, 2023) -> calc2023Wales,
+      (uk, 2022) -> calc2022UK,
       (scotland, 2022) -> calc2022Scotland,
-      (wales, 2022)    -> calc2022Wales,
-      (uk, 2021)       -> calc2021UK,
+      (wales, 2022) -> calc2022Wales,
+      (uk, 2021) -> calc2021UK,
       (scotland, 2021) -> calc2021Scotland,
-      (wales, 2021)    -> calc2021Wales,
-      (wales, 2020)    -> calc2020Wales,
-      (uk, 2020)       -> calc2019UK,
-      (uk, 2019)       -> calc2019UK,
+      (wales, 2021) -> calc2021Wales,
+      (wales, 2020) -> calc2020Wales,
+      (uk, 2020) -> calc2019UK,
+      (uk, 2019) -> calc2019UK,
       (scotland, 2020) -> calc2019Scotland,
       (scotland, 2019) -> calc2019Scotland
     )
@@ -341,7 +333,7 @@ object ATSCalculations {
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
     (calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
       case Some(found) => found
-      case None        =>
+      case None =>
         val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
           .filter(_._1 == summaryData.nationality)
           .map(_._2)
