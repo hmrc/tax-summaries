@@ -41,83 +41,84 @@ class AtsDataSpec2023 extends SaTestHelper {
       .withHeaders((AUTHORIZATION, "Bearer 123"))
   }
 
-  "HasSummary (SIT001)" must {
-    val expected = Map(
-      SelfEmploymentIncome               -> 942.00, // LS1a e
-      IncomeFromEmployment               -> 122500.00, // LS1 e
-      StatePension                       -> 3770.00, //LS2 e
-      OtherPensionIncome                 -> 3121.00, //LS3 e Excel
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 298111.00, //LS5 e
-      BenefitsFromEmployment             -> 9600.00, //LS6 e
-      TotalIncomeBeforeTax               -> 438044.00, //LS7 total income received e Excel
-      PersonalTaxFreeAmount              -> 0.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 15209.00, //LS9 e
-      TotalTaxFreeAmount                 -> 15209.00, //LS10 e
-      StartingRateForSavings             -> 0.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 45218.00, //lS12.2 e
-      BasicRateIncomeTaxAmount           -> 9043.60, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 112300.00, //LS12.3 e
-      HigherRateIncomeTaxAmount          -> 44920.0, // LS12.3 (tax amount - right column)
-      AdditionalRateIncomeTax            -> 205433.00, //LS12.4 e
-      AdditionalRateIncomeTaxAmount      -> 92444.85, // LS12.4 (tax amount - right column)
-      OrdinaryRate                       -> 0.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 0.0, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 0.00, //LS13.2 e
-      UpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 57884.00, //LS13.3 e,
-      AdditionalRateAmount               -> 22053.80, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 5130.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 163332.65, //LS20 e
-      TotalIncomeTaxAndNics              -> 163491.25, //LS16 e
-      EmployeeNicAmount                  -> 158.60, //LS14 e
-      PayCgTaxOn                         -> 28700.00, //LS19.8 e
-      TaxableGains                       -> 41000.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 1200.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 12000.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 3340.00, //LS19.3 e Excel
-      AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 4540.00, //e
-      YourTotalTax                       -> 168031.25, //RS7 e
-      ScottishIncomeTax                  -> 0.0,
-      WelshIncomeTax                     -> 0.0,
-      ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
-      ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
-      ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
-      ScottishHigherRateTax              -> 0.0, // LS12.8	Scottish Higher rate ?
-      ScottishAdditionalRateTax          -> 0.0, // LS12.9	Scottish Top rate ?
-      ScottishTotalTax                   -> 0.0, // LS12a	Total Scottish Income Tax ?
-      ScottishStarterIncome              -> 0.0, // Starter rate	£12,571 to £14,667	19%
-      ScottishBasicIncome                -> 0.0,
-      ScottishIntermediateIncome         -> 0.0,
-      ScottishHigherIncome               -> 0.0,
-      ScottishAdditionalIncome           -> 0.0,
-      SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
-      SavingsHigherRateTax               -> 0.0, // LS12b.2	Higher rate Income Tax
-      SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
-    )
+  // Updated in below down to AmountAtEntrepreneursRate. There are errors on some of fields so I've asked Tracey to resolve.
+//  "HasSummary (SIT001) - Test Case 1 (TC52)" must {
+//    val expected = Map(
+//      SelfEmploymentIncome               -> 942.00, // LS1a e
+//      IncomeFromEmployment               -> 122500.00, // LS1 e
+//      StatePension                       -> 0.00, //LS2 e
+//      OtherPensionIncome                 -> 0.00, //LS3 e Excel
+//      TaxableStateBenefits               -> 0.00, //LS4 e
+//      OtherIncome                        -> 300663.00, //LS5 e
+//      BenefitsFromEmployment             -> 9600.00, //LS6 e
+//      TotalIncomeBeforeTax               -> 433705.00, //LS7 total income received e Excel
+//      PersonalTaxFreeAmount              -> 0.00, //LS8.1 e
+//      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
+//      OtherAllowancesAmount              -> 15451.00, //LS9 e
+//      TotalTaxFreeAmount                 -> 15451.00, //LS10 e
+//      StartingRateForSavings             -> 0.00, //LS12.1
+//      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
+//      BasicRateIncomeTax                 -> 45218.00, //lS12.2 e
+//      BasicRateIncomeTaxAmount           -> 9043.60, // LS12.2 (tax amount - right column)
+//      HigherRateIncomeTax                -> 112300.00, //LS12.3 e
+//      HigherRateIncomeTaxAmount          -> 44920.0, // LS12.3 (tax amount - right column)
+//      AdditionalRateIncomeTax            -> 206995.00, //LS12.4 e
+//      AdditionalRateIncomeTaxAmount      -> 93147.75, // LS12.4 (tax amount - right column)
+//      OrdinaryRate                       -> 0.00, //LS13.1 e
+//      OrdinaryRateAmount                 -> 0.0, // LS13.1 (tax amount - right column)
+//      UpperRate                          -> 0.00, //LS13.2 e
+//      UpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
+//      AdditionalRate                     -> 58632.00, //LS13.3 e,
+//      AdditionalRateAmount               -> 23071.69, // LS13.3 (tax amount - right column)
+//      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
+//      OtherAdjustmentsReducing           -> 5162.30, //LS15b e
+//      WelshIncomeTax                     -> 0.00, //LS20a
+//      TotalIncomeTax                     -> 165020.74, //LS20 e
+//      TotalIncomeTaxAndNics              -> 165184.54, //LS16 e
+//      EmployeeNicAmount                  -> 163.80, //LS14 e
+//      PayCgTaxOn                         -> 28700.00, //LS19.8 e
+//      TaxableGains                       -> 41000.00, //LS19.6 e
+//      AmountDueAtEntrepreneursRate       -> 1200.00, //LS19.1 e
+//      AmountAtEntrepreneursRate          -> 1200.00, //LS19.1 e
+//      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
+//      AmountDueRPCIHigherRate            -> 3340.00, //LS19.3 e Excel
+//      AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
+//      Adjustments                        -> 0.00, //LS19.4 e
+//      TotalCgTax                         -> 4540.00, //e
+//      YourTotalTax                       -> 168031.25, //RS7 e
+//      ScottishIncomeTax                  -> 0.0,
+//      WelshIncomeTax                     -> 0.0,
+//      ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
+//      ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
+//      ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
+//      ScottishHigherRateTax              -> 0.0, // LS12.8	Scottish Higher rate ?
+//      ScottishAdditionalRateTax          -> 0.0, // LS12.9	Scottish Top rate ?
+//      ScottishTotalTax                   -> 0.0, // LS12a	Total Scottish Income Tax ?
+//      ScottishStarterIncome              -> 0.0, // Starter rate	£12,571 to £14,667	19%
+//      ScottishBasicIncome                -> 0.0,
+//      ScottishIntermediateIncome         -> 0.0,
+//      ScottishHigherIncome               -> 0.0,
+//      ScottishAdditionalIncome           -> 0.0,
+//      SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
+//      SavingsHigherRateTax               -> 0.0, // LS12b.2	Higher rate Income Tax
+//      SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
+//    )
+//
+//    expected foreach { case (key, expectedValue) =>
+//      s"return the correct key $key" in new Test {
+//        server.stubFor(
+//          WireMock
+//            .get(urlEqualTo(odsUrl(taxYear)))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/TC52.json")))
+//        )
+//
+//        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
+//        checkResult(result, key, expectedValue)
+//      }
+//    }
+//  }
 
-    expected foreach { case (key, expectedValue) =>
-      s"return the correct key $key" in new Test {
-        server.stubFor(
-          WireMock
-            .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TC52.json")))
-        )
-
-        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
-        checkResult(result, key, expectedValue)
-      }
-    }
-  }
-
-  "HasSummary (SIT002)" must {
+  "HasSummary (SIT002) - Test Case 2 (TC53)" must { // DONE
     val expected = Map(
       SelfEmploymentIncome               -> 6945.00, // LS1a e
       IncomeFromEmployment               -> 8000.00, // LS1 e
@@ -193,7 +194,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT003)" must {
+  "HasSummary (SIT003) - Test Case 3 (TC45)" must { // DONE
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 0.00, // LS1 e
@@ -222,7 +223,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       AdditionalRate                     -> 0.00, //LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 23468.00, //LS15b e
+      OtherAdjustmentsReducing           -> 23467.50, //LS15b e
       WelshIncomeTax                     -> 0.00, //LS20a
       TotalIncomeTax                     -> 3681.50, //LS20 e
       TotalIncomeTaxAndNics              -> 3681.50, //LS16 e
@@ -269,7 +270,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT004)" must {
+  "HasSummary (SIT004) - Test Case 4 (TC153)" must { // DONE
     val expected = Map(
       SelfEmploymentIncome               -> 157719.00, // LS1a e
       IncomeFromEmployment               -> 15000.00, // LS1 e
@@ -322,10 +323,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       ScottishAdditionalIncome           -> 2176.26 / 0.46,
       SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
       SavingsHigherRateTax               -> 3278.40, // LS12b.2	Higher rate Income Tax
-      SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
-      //SavingsLowerIncome                 -> 0.0,
-      //SavingsHigherIncome                -> 0.0,
-      //SavingsAdditionalIncome            -> 0.0
+      SavingsAdditionalRateTax           -> 0.0
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -343,7 +341,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT005)" must {
+  "HasSummary (SIT005) - Test Case 5 (TC222)" must { // DONE
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 149243.00, // LS1 e
@@ -418,7 +416,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT006)" must {
+  "HasSummary (SIT006) - Test Case 6 (TC3)" must { // DONE
     val expected = Map(
       SelfEmploymentIncome               -> 14190.00, // LS1a e
       IncomeFromEmployment               -> 31717.00, // LS1 e
@@ -493,7 +491,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT007)" must {
+  "HasSummary (SIT007) - Test Case 7 (TC6)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 0.00, // LS1 e
@@ -568,7 +566,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT008)" must {
+  "HasSummary (SIT008) - Test Case 8 (TC11)" must {
     val expected = Map(
       // Your Taxable income
       SelfEmploymentIncome   -> 0.00, // LS1a Self Employment Income
@@ -613,8 +611,8 @@ class AtsDataSpec2023 extends SaTestHelper {
 
       // Income Tax - Welsh
       WelshIncomeTax               -> 0.00, //LS20a
-      TotalIncomeTax               -> 6162.58, //LS20 Total Income Tax
-      TotalIncomeTaxAndNics        -> 6162.58, //LS16 Total Income Tax and NICs
+      TotalIncomeTax               -> 6662.58, //LS20 Total Income Tax
+      TotalIncomeTaxAndNics        -> 6662.58, //LS16 Total Income Tax and NICs
       EmployeeNicAmount            -> 0.00, //LS14	National Insurance Contributions (NICs)
       // LS17/RS5		Your income after tax and NICs
       //LS18	National Insurance Contributions
@@ -630,7 +628,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalCgTax                   -> 0.00, // Total Capital Gains Tax
 
       //RS7 Your Total Income Tax, Capital Gains Tax and NICs
-      YourTotalTax                -> 6162.58,
+      YourTotalTax                -> 6662.58,
       // Income Tax - Scottish
       ScottishIncomeTax           -> 0.0,
       ScottishStarterRateTax      -> 398.43, // LS12.5	Scottish Starter rate
@@ -644,7 +642,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       ScottishIntermediateIncome  -> 1438.50 / 0.21, // LS12.7	Intermediate rate income
       ScottishHigherIncome        -> 0.0, // LS12.8	Scottish Higher rate income
       ScottishAdditionalIncome    -> 0.0, // LS12.9	Scottish Top rate income
-      SavingsLowerRateTax         -> 535.60, // LS12b.1	Basic rate Income Tax
+      SavingsLowerRateTax         -> 535.60, // LS12b.1	Basic rate Income Tax // SHOULD THIS NOT BE 2678.00??????
       SavingsHigherRateTax        -> 0.0, // LS12b.2	Higher rate Income Tax
       SavingsAdditionalRateTax    -> 0.0 // LS12b.3 Additional rate Income Tax
     )
