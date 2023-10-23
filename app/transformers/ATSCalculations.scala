@@ -338,21 +338,18 @@ object ATSCalculations {
     )
   }
 
-  def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations = {
-    val calculationsFound =
-      calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
-        case Some(foundExactMatch) => foundExactMatch
-        case None                  =>
-          val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
-            .filter(_._1 == summaryData.nationality)
-            .map(_._2)
-            .max
-          if (summaryData.taxYear > maxDefinedYearForCountry) {
-            calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))
-          } else {
-            new DefaultATSCalculations(_, _)
-          }
-      }
-    calculationsFound.apply(summaryData, taxRates)
-  }
+  def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
+    (calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
+      case Some(found) => found
+      case None        =>
+        val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
+          .filter(_._1 == summaryData.nationality)
+          .map(_._2)
+          .max
+        if (summaryData.taxYear > maxDefinedYearForCountry) {
+          calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))
+        } else {
+          new DefaultATSCalculations(_, _)
+        }
+    })(summaryData, taxRates)
 }
