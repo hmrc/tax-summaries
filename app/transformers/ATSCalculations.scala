@@ -25,6 +25,7 @@ import transformers.ATS2019.{ATSCalculationsScottish2019, ATSCalculationsUK2019}
 import transformers.ATS2020.ATSCalculationsWelsh2020
 import transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK2021, ATSCalculationsWelsh2021}
 import transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
+import transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
 import utils.DoubleUtils
 
 // scalastyle:off number.of.methods
@@ -200,7 +201,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(CommInvTrustRel) +
       get(SurplusMcaAlimonyRel) +
       get(NotionalTaxCegs) +
-      get(NotlTaxOtherSource) +
+      get(NotlTaxOtherSource) + // 15.16
       get(TaxCreditsForDivs) +
       get(QualDistnRelief) +
       get(TotalTaxCreditRelief) +
@@ -295,6 +296,9 @@ object ATSCalculations {
 
   def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
     (summaryData.nationality, summaryData.taxYear) match {
+      case (_: UK, year) if year > 2022       => new ATSCalculationsUK2023(summaryData, taxRates)
+      case (_: Scottish, year) if year > 2022 => new ATSCalculationsScottish2023(summaryData, taxRates)
+      case (_: Welsh, year) if year > 2022    => new ATSCalculationsWelsh2023(summaryData, taxRates)
       case (_: UK, year) if year > 2021       => new ATSCalculationsUK2022(summaryData, taxRates)
       case (_: Scottish, year) if year > 2021 => new ATSCalculationsScottish2022(summaryData, taxRates)
       case (_: Welsh, year) if year > 2021    => new ATSCalculationsWelsh2022(summaryData, taxRates)

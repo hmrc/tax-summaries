@@ -26,6 +26,7 @@ import transformers.ATS2019.{ATSCalculationsScottish2019, ATSCalculationsUK2019}
 import transformers.ATS2020.ATSCalculationsWelsh2020
 import transformers.ATS2021.{ATSCalculationsUK2021, ATSCalculationsWelsh2021}
 import transformers.ATS2022.ATSCalculationsWelsh2022
+import transformers.ATS2023.ATSCalculationsWelsh2023
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
@@ -142,8 +143,10 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
               calculation mustBe a[ATSCalculationsWelsh2020]
             } else if (taxYear == 2021) {
               calculation mustBe a[ATSCalculationsWelsh2021]
-            } else if (taxYear > 2021) {
+            } else if (taxYear == 2022) {
               calculation mustBe a[ATSCalculationsWelsh2022]
+            } else if (taxYear > 2022) {
+              calculation mustBe a[ATSCalculationsWelsh2023]
             } else {
               calculation mustBe a[DefaultATSCalculations]
             }
