@@ -100,7 +100,8 @@ trait ATSCalculations2023 extends ATSCalculations {
       get(NotlTaxOtherSource) +
       get(FtcrRestricted) +
       getWithDefaultAmount(ReliefForFinanceCosts) +
-      getWithDefaultAmount(LFIRelief)
+      getWithDefaultAmount(LFIRelief) +
+      getWithDefaultAmount(RelTaxAcctFor)
 
   override def totalAmountEmployeeNic: Amount =
     get(EmployeeClass1NI) +

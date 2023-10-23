@@ -110,6 +110,8 @@ object ODSLiabilities {
 
   case object LFIRelief extends ODSLiabilities("lfiRelief")
 
+  case object RelTaxAcctFor extends ODSLiabilities("relTaxAcctFor")
+
   case object LowerRateCgtRPCI extends ODSLiabilities("ctnLowerRateCgtRPCI")
 
   case object MarriageAllceIn extends ODSLiabilities("ctnMarriageAllceInAmt")
@@ -311,21 +313,25 @@ object ODSLiabilities {
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced)
 
-  private val mapLiabilities: Map[Int, List[ODSLiabilities with ApiValue]] =
+  private val mapLiabilities: Map[Int, List[ODSLiabilities with ApiValue]] = {
+    val allLiabilities2022 = (allLiabilities ++ List(
+      ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted, Class2NicAmt, TaxableRedundancyHr, TaxableCegHr,
+      PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr, TaxOnRedundancyAhr,
+      TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
+      TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
+    ))
     Map(
-      2022 -> (allLiabilities ++ List(
-        ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted, Class2NicAmt, TaxableRedundancyHr, TaxableCegHr,
-        PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr, TaxOnRedundancyAhr,
-        TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
-        TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
-      ))
+      2022 -> allLiabilities2022,
+      2023 -> (allLiabilities2022 :+ RelTaxAcctFor)
     )
+  }
   // format: on
 
   def readsLiabilities(taxYear: Int): Reads[ODSLiabilities] =
-    ApiValue.readFromList[ODSLiabilities](
+    ApiValue.readFromList[ODSLiabilities] {
       mapLiabilities.get(taxYear) match {
-        case Some(liabilities) => liabilities
+        case Some(liabilities) =>
+          liabilities
         case _                 =>
           val latestTaxYearForLiabilities = mapLiabilities.keys.toSeq.max
           if (taxYear > latestTaxYearForLiabilities) {
@@ -334,5 +340,5 @@ object ODSLiabilities {
             allLiabilities
           }
       }
-    )
+    }
 }
