@@ -25,70 +25,70 @@ import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
 class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
-  private val taxpayerDetailsJson = JsonUtil.load("/taxpayerData/test_individual_utr.json")
+  private val taxpayerDetailsJson       = JsonUtil.load("/taxpayerData/test_individual_utr.json")
   private val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  private val taxYear: Int = 2023
-  private val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  private val taxYear: Int              = 2023
+  private val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
-  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  private val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
   "The total income before tax" must {
     "parse the tax rates transformation (based on utr year:2023 data)" in {
       val sampleJson = JsonUtil.load("/test_case_5.json")
 
-      val parsedJson = Json.parse(sampleJson)
+      val parsedJson   = Json.parse(sampleJson)
       val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
-      val parsedYear = returnValue.taxYear
+      val parsedYear    = returnValue.taxYear
       val testYear: Int = 2023
       testYear mustEqual parsedYear
 
       val parsedPayload = returnValue.income_tax.get.payload.get
-      val testPayload =
+      val testPayload   =
         Map(
-          StartingRateForSavings -> Amount(0.00, "GBP"),
-          StartingRateForSavingsAmount -> Amount(0.00, "GBP"),
-          BasicRateIncomeTax -> Amount(1860.00, "GBP"),
-          BasicRateIncomeTaxAmount -> Amount(372.00, "GBP"),
-          HigherRateIncomeTax -> Amount(0.00, "GBP"),
-          HigherRateIncomeTaxAmount -> Amount(0.00, "GBP"),
-          AdditionalRateIncomeTax -> Amount(0.00, "GBP"),
-          AdditionalRateIncomeTaxAmount -> Amount(0.00, "GBP"),
-          OrdinaryRate -> Amount(0.00, "GBP"),
-          OrdinaryRateAmount -> Amount(0.00, "GBP"),
-          UpperRate -> Amount(0.00, "GBP"),
-          UpperRateAmount -> Amount(0.00, "GBP"),
-          AdditionalRate -> Amount(0.00, "GBP"),
-          AdditionalRateAmount -> Amount(0.00, "GBP"),
-          OtherAdjustmentsIncreasing -> Amount(0.00, "GBP"),
+          StartingRateForSavings          -> Amount(0.00, "GBP"),
+          StartingRateForSavingsAmount    -> Amount(0.00, "GBP"),
+          BasicRateIncomeTax              -> Amount(1860.00, "GBP"),
+          BasicRateIncomeTaxAmount        -> Amount(372.00, "GBP"),
+          HigherRateIncomeTax             -> Amount(0.00, "GBP"),
+          HigherRateIncomeTaxAmount       -> Amount(0.00, "GBP"),
+          AdditionalRateIncomeTax         -> Amount(0.00, "GBP"),
+          AdditionalRateIncomeTaxAmount   -> Amount(0.00, "GBP"),
+          OrdinaryRate                    -> Amount(0.00, "GBP"),
+          OrdinaryRateAmount              -> Amount(0.00, "GBP"),
+          UpperRate                       -> Amount(0.00, "GBP"),
+          UpperRateAmount                 -> Amount(0.00, "GBP"),
+          AdditionalRate                  -> Amount(0.00, "GBP"),
+          AdditionalRateAmount            -> Amount(0.00, "GBP"),
+          OtherAdjustmentsIncreasing      -> Amount(0.00, "GBP"),
           MarriageAllowanceReceivedAmount -> Amount(0.00, "GBP"),
-          OtherAdjustmentsReducing -> Amount(28.0, "GBP"),
-          ScottishIncomeTax -> Amount(186.00, "GBP"),
-          TotalIncomeTax -> Amount(344.83, "GBP")
+          OtherAdjustmentsReducing        -> Amount(28.0, "GBP"),
+          ScottishIncomeTax               -> Amount(186.00, "GBP"),
+          TotalIncomeTax                  -> Amount(344.83, "GBP")
         )
       parsedPayload.map(x => x._1 -> x._2.amount) must contain allElementsOf testPayload.map(x => x._1 -> x._2.amount)
 
-      val parsedRates = returnValue.income_tax.get.rates.get
-      val testRates =
+      val parsedRates   = returnValue.income_tax.get.rates.get
+      val testRates     =
         Map(
-          "starting_rate_for_savings_rate" -> ApiRate("0%"),
-          "basic_rate_income_tax_rate" -> ApiRate("20%"),
-          "higher_rate_income_tax_rate" -> ApiRate("40%"),
+          "starting_rate_for_savings_rate"  -> ApiRate("0%"),
+          "basic_rate_income_tax_rate"      -> ApiRate("20%"),
+          "higher_rate_income_tax_rate"     -> ApiRate("40%"),
           "additional_rate_income_tax_rate" -> ApiRate("45%"),
-          "ordinary_rate_tax_rate" -> ApiRate("8.75%"),
-          "upper_rate_rate" -> ApiRate("33.75%"),
-          "additional_rate_rate" -> ApiRate("39.35%"),
-          "scottish_starter_rate" -> ApiRate("19%"),
-          "scottish_basic_rate" -> ApiRate("20%"),
-          "scottish_intermediate_rate" -> ApiRate("21%"),
-          "scottish_higher_rate" -> ApiRate("41%"),
-          "scottish_additional_rate" -> ApiRate("46%"),
-          "savings_lower_rate" -> ApiRate("20%"),
-          "savings_higher_rate" -> ApiRate("40%"),
-          "savings_additional_rate" -> ApiRate("45%")
+          "ordinary_rate_tax_rate"          -> ApiRate("8.75%"),
+          "upper_rate_rate"                 -> ApiRate("33.75%"),
+          "additional_rate_rate"            -> ApiRate("39.35%"),
+          "scottish_starter_rate"           -> ApiRate("19%"),
+          "scottish_basic_rate"             -> ApiRate("20%"),
+          "scottish_intermediate_rate"      -> ApiRate("21%"),
+          "scottish_higher_rate"            -> ApiRate("41%"),
+          "scottish_additional_rate"        -> ApiRate("46%"),
+          "savings_lower_rate"              -> ApiRate("20%"),
+          "savings_higher_rate"             -> ApiRate("40%"),
+          "savings_additional_rate"         -> ApiRate("45%")
         )
 
       testRates mustEqual parsedRates.map { case (k, v) => (k.apiValue, v) }
