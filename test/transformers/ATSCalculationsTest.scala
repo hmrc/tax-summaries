@@ -123,23 +123,10 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
         val calculation = new Fixture(9999, UK())().calculation
         calculation mustBe a[ATSCalculationsUK2023]
       }
-//      "country is Scotland" in {
-//
-//        val atsData: Map[ODSLiabilities, Amount] = emptyValues.toMap
-//        val niData: Map[ODSLiabilities, Amount] = Map()
-//
-//
-//        lazy val taxSummaryLiability: TaxSummaryLiability = TaxSummaryLiability(
-//          9999,
-//          PensionTaxRate(0.00),
-//          None,
-//          niData,
-//          atsData
-//        )
-//
-//        val calculation = ATSCalculations.make(taxSummaryLiability)
-//        calculation mustBe a[ATSCalculationsScottish2023]
-//      }
+      "country is Scotland" in {
+        val calculation = new Fixture(9999, Scottish())().calculation
+        calculation mustBe a[ATSCalculationsScottish2023]
+      }
     }
 
     "return Post2018ScottishATSCalculations" when {
