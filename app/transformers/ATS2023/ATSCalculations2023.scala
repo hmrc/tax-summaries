@@ -86,8 +86,8 @@ trait ATSCalculations2023 extends ATSCalculations {
     }
   }
 
-  override def otherAdjustmentsReducing: Amount =
-    get(DeficiencyRelief) +
+  override def otherAdjustmentsReducing: Amount = {
+    val x = get(DeficiencyRelief) +
       get(TopSlicingRelief) +
       get(VctSharesRelief) +
       get(EisRelief) +
@@ -102,6 +102,11 @@ trait ATSCalculations2023 extends ATSCalculations {
       getWithDefaultAmount(ReliefForFinanceCosts) +
       getWithDefaultAmount(LFIRelief) +
       getWithDefaultAmount(RelTaxAcctFor)
+
+    println("\nOther adju red:" + x)
+
+    x
+  }
 
   override def totalAmountEmployeeNic: Amount =
     get(EmployeeClass1NI) +
