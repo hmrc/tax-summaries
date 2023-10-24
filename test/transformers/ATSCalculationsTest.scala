@@ -113,12 +113,12 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     CgDueEntrepreneursRate  -> Amount.empty(CgDueEntrepreneursRate.apiValue),
     CgDueLowerRate          -> Amount.empty(CgDueLowerRate.apiValue),
     CgDueHigherRate         -> Amount.empty(CgDueHigherRate.apiValue),
-    CapAdjustment           -> Amount.empty(CapAdjustment.apiValue)
+    CapAdjustment           -> Amount.empty(CapAdjustment.apiValue),
+    TaxOnCegAhr             -> Amount.empty(TaxOnCegAhr.apiValue)
   )
 
   "make" must {
-
-    "return the max calculations class when year > max" when {
+    "return the latest calculations class for nationality when year > latest" when {
       "country is UK" in {
         val calculation = new Fixture(9999, UK())().calculation
         calculation mustBe a[ATSCalculationsUK2023]
@@ -126,6 +126,10 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       "country is Scotland" in {
         val calculation = new Fixture(9999, Scottish())().calculation
         calculation mustBe a[ATSCalculationsScottish2023]
+      }
+      "country is Wales" in {
+        val calculation = new Fixture(9999, Welsh())().calculation
+        calculation mustBe a[ATSCalculationsWelsh2023]
       }
     }
 
@@ -189,7 +193,6 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
   }
 
   "DefaultATSCalculations" must {
-
     val fixture = new Fixture(2016, UK())
 
     "basicIncomeRateIncomeTax includes pension tax when pension rate matches basic rate" in {
