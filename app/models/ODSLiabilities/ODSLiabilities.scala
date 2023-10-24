@@ -110,7 +110,7 @@ object ODSLiabilities {
 
   case object LFIRelief extends ODSLiabilities("lfiRelief")
 
-  case object RelTaxAcctFor extends ODSLiabilities("relTaxAcctFor")
+  case object RelTaxAcctFor extends ODSLiabilities("ctnRelTaxAcctFor")
 
   case object LowerRateCgtRPCI extends ODSLiabilities("ctnLowerRateCgtRPCI")
 

@@ -527,7 +527,7 @@ object ATSRawDataTransformerTest {
       |      "amount": 0.00,
       |      "currency": "GBP"
       |    },
-      |    "relTaxAcctFor": {
+      |    "ctnRelTaxAcctFor": {
       |      "amount": 10.00,
       |      "currency": "GBP"
       |    },

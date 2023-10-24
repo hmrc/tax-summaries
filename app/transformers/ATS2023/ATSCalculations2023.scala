@@ -103,7 +103,7 @@ trait ATSCalculations2023 extends ATSCalculations {
       getWithDefaultAmount(LFIRelief) +
       getWithDefaultAmount(RelTaxAcctFor)
 
-    println("\nOther adju red:" + x)
+    //println("\nOther adju red:" + x)
 
     x
   }
