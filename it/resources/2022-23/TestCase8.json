@@ -244,11 +244,11 @@
       "currency": "GBP"
     },
     "ctnDividendTaxLowRate": {
-      "amount": 21568.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnDividendChgbleHighRate": {
-      "amount": 0.00,
+      "amount": 21568.00,
       "currency": "GBP"
     },
     "ctnDividendTaxHighRate": {
@@ -416,7 +416,7 @@
       "currency": "GBP"
     },
     "ctnRelTaxAcctFor": {
-      "amount": 0.00,
+      "amount": 2716.00,
       "currency": "GBP"
     },
     "ctnTaxCredForDivs": {

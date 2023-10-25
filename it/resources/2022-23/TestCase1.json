@@ -40,11 +40,11 @@
       "currency": "GBP"
     },
     "atsStatePensionAmt": {
-      "amount": 0.00,
+      "amount": 3770.00,
       "currency": "GBP"
     },
     "atsOtherPensionAmt": {
-      "amount": 0.00,
+      "amount": 3121.00,
       "currency": "GBP"
     },
     "itfStatePensionLsGrossAmt": {
@@ -388,7 +388,7 @@
       "currency": "GBP"
     },
     "atsSurplusMcaAlimonyRel": {
-      "amount": 0.00,
+      "amount": 333.70,
       "currency": "GBP"
     },
     "alimony": {
@@ -436,11 +436,11 @@
       "currency": "GBP"
     },
     "atsCgTotGainsAfterLosses": {
-      "amount": 0.00,
+      "amount": 2000.00,
       "currency": "GBP"
     },
     "atsCgGainsAfterLossesAmt": {
-      "amount": 0.00,
+      "amount": 39000.00,
       "currency": "GBP"
     },
     "cap3AssessableChgeableGain": {
@@ -448,7 +448,7 @@
       "currency": "GBP"
     },
     "atsCgAnnualExemptAmt": {
-      "amount": 0.00,
+      "amount": 12300.00,
       "currency": "GBP"
     },
     "ctnCgAtEntrepreneursRate": {
