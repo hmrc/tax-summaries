@@ -90,7 +90,7 @@ object TaxSummaryLiability extends Logging {
             logger.warn(s"id: $utr, TaxYear: $taxYear, field: $liability, value: null")
             liability -> Amount(0, "GBP")
           case (liability, Some(amount)) if amount.amount == BigDecimal(0.00) =>
-            logger.warn(s"id: $utr, TaxYear: $taxYear, field: $liability, value: zero")
+            logger.info(s"id: $utr, TaxYear: $taxYear, field: $liability, value: zero")
             liability -> amount
           case (liability, Some(amount))                                      =>
             liability -> amount
@@ -105,7 +105,7 @@ object TaxSummaryLiability extends Logging {
             logger.warn(s"id: $utr, TaxYear: $taxYear, field: $liability, value: null")
             liability -> Amount(0, "GBP")
           case (liability, Some(amount)) if amount.amount == BigDecimal(0.00) =>
-            logger.warn(s"id: $utr, TaxYear: $taxYear, field: $liability, value: zero")
+            logger.info(s"id: $utr, TaxYear: $taxYear, field: $liability, value: zero")
             liability -> amount
           case (liability, Some(amount))                                      =>
             liability -> amount
