@@ -184,7 +184,7 @@
       "currency": "GBP"
     },
     "ctnIncomeTaxBasicRate": {
-      "amount": 7540.60,
+      "amount": 7540.00,
       "currency": "GBP"
     },
     "ctnSavingsTaxLowerRate": {
@@ -216,7 +216,7 @@
       "currency": "GBP"
     },
     "ctnIncomeTaxAddHighRate": {
-      "amount": 0.95,
+      "amount": 0.0,
       "currency": "GBP"
     },
     "ctnSavingsTaxAddHighRate": {
@@ -248,11 +248,11 @@
       "currency": "GBP"
     },
     "ctnDividendChgbleHighRate": {
-      "amount": 7279.20,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnDividendTaxHighRate": {
-      "amount": 0.00,
+      "amount": 7279.20,
       "currency": "GBP"
     },
     "ctnDividendChgbleAddHRate": {
@@ -404,7 +404,7 @@
       "currency": "GBP"
     },
     "ctnFtcrRestricted": {
-      "amount": 2442.00,
+      "amount": 2716.00,
       "currency": "GBP"
     },
     "reliefForFinanceCosts": {
@@ -416,7 +416,7 @@
       "currency": "GBP"
     },
     "ctnRelTaxAcctFor": {
-      "amount": 2716.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnTaxCredForDivs": {

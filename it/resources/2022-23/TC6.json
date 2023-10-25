@@ -252,7 +252,7 @@
       "currency": "GBP"
     },
     "ctnDividendTaxHighRate": {
-      "amount": 888.87,
+      "amount": 923.06,
       "currency": "GBP"
     },
     "ctnDividendChgbleAddHRate": {
@@ -340,11 +340,11 @@
       "currency": "GBP"
     },
     "incomeTaxDue": {
-      "amount": 8328.87,
+      "amount": 8363.06,
       "currency": "GBP"
     },
     "ctn4TaxDueAfterAllceRlf": {
-      "amount": 8328.87,
+      "amount": 8363.06,
       "currency": "GBP"
     },
     "netAnnuityPaytsTaxDue": {
@@ -360,7 +360,7 @@
       "currency": "GBP"
     },
     "atsTaxCharged": {
-      "amount": 8328.87,
+      "amount": 8363.06,
       "currency": "GBP"
     },
     "ctnDeficiencyRelief": {
