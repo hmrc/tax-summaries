@@ -76,10 +76,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalIncomeTax                     -> 165020.74, //LS20 e
       TotalIncomeTaxAndNics              -> 165184.54, //LS16 e
       EmployeeNicAmount                  -> 163.80, //LS14 e
-      PayCgTaxOn                         -> 28700.00, //LS19.8 e
+      PayCgTaxOn                         -> 28700.00, //LS19.8 e // We are calculating by totalling up atsCgTotGainsAfterLosses & atsCgGainsAfterLossesAmt but value in data sheet is in cap3AssessableChgeableGain
       TaxableGains                       -> 41000.00, //LS19.6 e
       AmountDueAtEntrepreneursRate       -> 1200.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 1200.00, //LS19.1 e
+      AmountAtEntrepreneursRate          -> 12000.00, //LS19.1 e
       AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
       AmountDueRPCIHigherRate            -> 3340.00, //LS19.3 e Excel
       AmountDueRPCILowerRate             -> 0.00, //LS19.3a e

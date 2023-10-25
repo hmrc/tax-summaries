@@ -74,7 +74,8 @@ class OdsService @Inject() (
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessmentList(utr).transform {
                         case Right(response) if response.status == NOT_FOUND =>
                           Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-                        case Right(response)                                 => Right(response.json.as[JsValue])
+                        case Right(response)                                 =>
+                          Right(response.json.as[JsValue])
                         case Left(error)                                     => Left(error)
                       }
       taxpayer     <- selfAssessmentOdsConnector
