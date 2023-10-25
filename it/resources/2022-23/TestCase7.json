@@ -415,6 +415,10 @@
       "amount": 0.00,
       "currency": "GBP"
     },
+    "ctnRelTaxAcctFor": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
     "ctnTaxCredForDivs": {
       "amount": 0.00,
       "currency": "GBP"
