@@ -109,7 +109,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case1.json")))
+            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase1.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -185,7 +185,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case2.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase2.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -261,7 +261,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case3.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase3.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -331,7 +331,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case4.json")))
+            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase4.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -407,7 +407,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case5.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase5.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -482,7 +482,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case6.json")))
+            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase6.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -558,7 +558,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case7.json")))
+            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase7.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -653,7 +653,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case8.json")))
+            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase8.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -748,7 +748,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-caseWithNulls.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/TestCaseWithNulls.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -789,7 +789,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //      WireMock
 //        .get(urlEqualTo(odsUrl(taxYear)))
 //        .willReturn(
-//          ok(FileHelper.loadFile("2022-23/Test-caseGovernmentSpend.json"))
+//          ok(FileHelper.loadFile("2022-23/TestCaseGovernmentSpend.json"))
 //        ) // <<-- TODO: Only works when year in this json file is set to 2020 for some reason
 //    )
 //
