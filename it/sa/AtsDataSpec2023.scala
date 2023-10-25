@@ -109,7 +109,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TC52.json")))
+            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case1.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -185,7 +185,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/TC53.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case2.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -261,7 +261,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/TC45.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case3.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -331,7 +331,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/TC153.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case4.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -407,7 +407,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/TC222.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case5.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -482,7 +482,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/TC3.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case6.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -558,7 +558,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //      server.stubFor(
 //        WireMock
 //          .get(urlEqualTo(odsUrl(taxYear)))
-//          .willReturn(ok(FileHelper.loadFile("2022-23/TC6.json")))
+//          .willReturn(ok(FileHelper.loadFile("2022-23/Test-case7.json")))
 //      )
 //
 //      val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -653,7 +653,7 @@ class AtsDataSpec2023 extends SaTestHelper {
 //        server.stubFor(
 //          WireMock
 //            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/TC51.json")))
+//            .willReturn(ok(FileHelper.loadFile("2022-23/Test-case8.json")))
 //        )
 //
 //        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
