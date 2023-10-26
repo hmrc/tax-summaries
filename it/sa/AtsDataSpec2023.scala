@@ -463,7 +463,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 410.78, // LS12.5	Scottish Starter rate
       ScottishBasicRateTax               -> 2516.20, // LS12.6	Scottish Basic rate
-      ScottishIntermediateRateTax        -> 3774.0, // LS12.7	Intermediate rate <<< LEFT OFF HERE!!!
+      ScottishIntermediateRateTax        -> 3774.54, // LS12.7	Intermediate rate <<< LEFT OFF HERE!!!
       ScottishHigherRateTax              -> 254.20, // LS12.8	Scottish Higher rate ?
       ScottishAdditionalRateTax          -> 0.0, // LS12.9	Scottish Top rate ?
       ScottishTotalTax                   -> 6955.72, // LS12a	Total Scottish Income Tax ?
@@ -627,25 +627,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       AmountDueRPCIHigherRate      -> 0.00, //LS19.3 Upper Rate
       Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
       TotalCgTax                   -> 0.00, // Total Capital Gains Tax
-
-      //RS7 Your Total Income Tax, Capital Gains Tax and NICs
-      YourTotalTax             -> 44240.50,
-      // Income Tax - Scottish
-//      ScottishIncomeTax           -> 0.0,
-//      ScottishStarterRateTax      -> 0.00, // LS12.5	Scottish Starter rate
-//      ScottishBasicRateTax        -> 0.00, // LS12.6	Scottish Basic rate
-//      ScottishIntermediateRateTax -> 0.00, // LS12.7	Intermediate rate
-//      ScottishHigherRateTax       -> 0.0, // LS12.8	Scottish Higher rate
-//      ScottishAdditionalRateTax   -> 0.0, // LS12.9	Scottish Top rate
-//      ScottishTotalTax            -> 0.00, // LS12a	Total Scottish Income Tax
-//      ScottishStarterIncome       -> 0.00 / 0.19, // LS12.5 Starter rate income
-//      ScottishBasicIncome         -> 3483.80 / 0.2, // LS12.6	Scottish Basic rate income
-//      ScottishIntermediateIncome  -> 1438.50 / 0.21, // LS12.7	Intermediate rate income
-//      ScottishHigherIncome        -> 0.0, // LS12.8	Scottish Higher rate income
-//      ScottishAdditionalIncome    -> 0.0, // LS12.9	Scottish Top rate income
-      SavingsLowerRateTax      -> 37700.00, // LS12b.1	Basic rate Income Tax // SHOULD THIS NOT BE 2678.00??????
-      SavingsHigherRateTax     -> 69635.00, // LS12b.2	Higher rate Income Tax
-      SavingsAdditionalRateTax -> 0.0 // LS12b.3 Additional rate Income Tax
+      YourTotalTax                 -> 44240.50, //RS7 Your Total Income Tax, Capital Gains Tax and NICs
+      SavingsLowerRateTax          -> 37700.00, // LS12b.1	Basic rate Income Tax // SHOULD THIS NOT BE 2678.00??????
+      SavingsHigherRateTax         -> 69635.00, // LS12b.2	Higher rate Income Tax
+      SavingsAdditionalRateTax     -> 0.0 // LS12b.3 Additional rate Income Tax
     )
 
     expected foreach { case (key, expectedValue) =>
