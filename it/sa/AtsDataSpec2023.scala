@@ -428,7 +428,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       StartingRateForSavings             -> 0.00, //LS12.1
       StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
       BasicRateIncomeTax                 -> 178.00, //lS12.2 e
-      BasicRateIncomeTaxAmount           -> 35.60, // LS12.2 (tax amount - right column)
+      BasicRateIncomeTaxAmount           -> 0.00, // LS12.2 (tax amount - right column)
       HigherRateIncomeTax                -> 0.00, //LS12.3 e
       HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
@@ -467,7 +467,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       ScottishIntermediateIncome         -> 0.0,
       ScottishHigherIncome               -> 0.0,
       ScottishAdditionalIncome           -> 0.0,
-      SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
+      SavingsLowerRateTax                -> 35.60, // LS12b.1	Basic rate Income Tax
       SavingsHigherRateTax               -> 0.0, // LS12b.2	Higher rate Income Tax
       SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
     )
