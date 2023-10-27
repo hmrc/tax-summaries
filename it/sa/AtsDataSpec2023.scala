@@ -380,7 +380,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalCgTax                         -> 0.00, //e
       YourTotalTax                       -> 55994.35, //RS7 e
       ScottishIncomeTax                  -> 0.0,
-      WelshIncomeTax                     -> 0.0,
+      WelshIncomeTax                     -> 14924.3,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
       ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
       ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
