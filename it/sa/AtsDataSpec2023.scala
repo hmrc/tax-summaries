@@ -429,7 +429,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
       BasicRateIncomeTax                 -> 178.00, //lS12.2 e
       BasicRateIncomeTaxAmount           -> 35.60, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 620.00, //LS12.3 e
+      HigherRateIncomeTax                -> 0.00, //LS12.3 e
       HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
@@ -441,7 +441,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
       OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
+      WelshIncomeTax                     -> 14924.3, //LS20a
       TotalIncomeTax                     -> 7345.06, //LS20 e
       TotalIncomeTaxAndNics              -> 7730.89, //LS16 e
       EmployeeNicAmount                  -> 385.83, //LS14 e
@@ -517,7 +517,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
       OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
+      WelshIncomeTax                     -> 755.00, //LS20a
       TotalIncomeTax                     -> 8363.06, //LS20 e
       TotalIncomeTaxAndNics              -> 8363.06, //LS16 e
       EmployeeNicAmount                  -> 0.00, //LS14 e
@@ -597,12 +597,11 @@ class AtsDataSpec2023 extends SaTestHelper {
       UpperRate                    -> 21568.00, //LS13.2 Upper Rate (income)
       UpperRateAmount              -> 7279.20, // LS13.2 Upper Rate (tax amount - right column)
       AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
-      AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
-      // LS13a Total UK Income Tax
+//      // LS13a Total UK Income Tax
 
       // Adjustments
-      OtherAdjustmentsIncreasing   -> 0.00, //LS15a Other adjustments that increase your Income Tax
-      OtherAdjustmentsReducing     -> 5432.00, //LS15b Less other adjustments that reduce your Income Tax
+      OtherAdjustmentsIncreasing   -> 117.40, //LS15a Other adjustments that increase your Income Tax
+      OtherAdjustmentsReducing     -> 5332.00, //LS15b Less other adjustments that reduce your Income Tax
       // LS15aa	Marriage Allowance received that reduces your income tax
 
       // Income Tax - Welsh
@@ -623,8 +622,6 @@ class AtsDataSpec2023 extends SaTestHelper {
       Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
       TotalCgTax                   -> 0.00, // Total Capital Gains Tax
       YourTotalTax                 -> 44240.50, //RS7 Your Total Income Tax, Capital Gains Tax and NICs
-      SavingsLowerRateTax          -> 37700.00, // LS12b.1	Basic rate Income Tax // SHOULD THIS NOT BE 2678.00??????
-      SavingsHigherRateTax         -> 69635.00, // LS12b.2	Higher rate Income Tax
       SavingsAdditionalRateTax     -> 0.0 // LS12b.3 Additional rate Income Tax
     )
 
