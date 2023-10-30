@@ -586,21 +586,21 @@ class AtsDataSpec2023 extends SaTestHelper {
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
 
       // Dividends
-      OrdinaryRate                 -> 0.00, //LS13.1 Ordinary Rate (income)
-      OrdinaryRateAmount           -> 0.00, // LS13.1 Ordinary Rate (tax amount - right column)
-      UpperRate                    -> 21568.00, //LS13.2 Upper Rate (income)
-      UpperRateAmount              -> 7279.20, // LS13.2 Upper Rate (tax amount - right column)
-      AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
+      OrdinaryRate       -> 0.00, //LS13.1 Ordinary Rate (income)
+      OrdinaryRateAmount -> 0.00, // LS13.1 Ordinary Rate (tax amount - right column)
+      UpperRate          -> 21568.00, //LS13.2 Upper Rate (income)
+      UpperRateAmount    -> 7279.20, // LS13.2 Upper Rate (tax amount - right column)
+      AdditionalRate     -> 0.00, //LS13.3 Additional Rate (income)
 
       // Adjustments
-      OtherAdjustmentsIncreasing   -> 117.40, //LS15a Other adjustments that increase your Income Tax
-      OtherAdjustmentsReducing     -> 5332.00, //LS15b Less other adjustments that reduce your Income Tax
+      OtherAdjustmentsIncreasing -> 117.40, //LS15a Other adjustments that increase your Income Tax
+      OtherAdjustmentsReducing   -> 5332.00, //LS15b Less other adjustments that reduce your Income Tax
 
       // Income Tax - Welsh
-      WelshIncomeTax               -> 0.00, //LS20a
-      TotalIncomeTax               -> 37459.40, //LS20 Total Income Tax
-      TotalIncomeTaxAndNics        -> 41642.70, //LS16 Total Income Tax and NICs
-      EmployeeNicAmount            -> 4183.30, //LS14	National Insurance Contributions (NICs)
+      WelshIncomeTax        -> 0.00, //LS20a
+      TotalIncomeTax        -> 37459.40, //LS20 Total Income Tax
+      TotalIncomeTaxAndNics -> 41642.70, //LS16 Total Income Tax and NICs
+      EmployeeNicAmount     -> 4183.30, //LS14	National Insurance Contributions (NICs)
 
       // Capital Gains
       PayCgTaxOn                   -> 0.00, //LS19.8 You pay tax on

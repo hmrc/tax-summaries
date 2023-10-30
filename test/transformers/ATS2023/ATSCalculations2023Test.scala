@@ -164,6 +164,7 @@ class ATSCalculations2023Test extends BaseSpec {
           Some("10.10(taxExcluded) + 0.4(taxOnNonExcludedInc)")
         )
       }
+
     }
     "calculate taxLiability" in {
       sut(taxSummaryLiability).taxLiability mustBe Amount(
