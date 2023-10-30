@@ -41,8 +41,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       .withHeaders((AUTHORIZATION, "Bearer 123"))
   }
 
-  // Updated in below down to AmountAtEntrepreneursRate. There are errors on some of fields so I've asked Tracey to resolve.
-  "HasSummary (SIT001) - Test Case 1 (TC52)" must { // CHECKED ALL VALUES SOME FAILURE
+  "HasSummary (SIT001) - Test Case 1 (TC52)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 942.00, // LS1a e
       IncomeFromEmployment               -> 122500.00, // LS1 e
@@ -117,7 +116,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT002) - Test Case 2 (TC53)" must { // CHECKED - WORKS FINE + DATA CORRECT
+  "HasSummary (SIT002) - Test Case 2 (TC53)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 5570.00, // LS1a e
       IncomeFromEmployment               -> 8000.00, // LS1 e
@@ -192,7 +191,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT003) - Test Case 3 (TC45)" must { // Checked data all fine now
+  "HasSummary (SIT003) - Test Case 3 (TC45)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 0.00, // LS1 e
@@ -267,7 +266,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT004) - Test Case 4 (TC153)" must { // CHECKED SEVERAL TIMES AND SOME OF FIELDS ARE FAILING IN IT TEST - NEED TO CHECK WITH TRACEY
+  "HasSummary (SIT004) - Test Case 4 (TC153)" must {
     val expected: Map[LiabilityKey, Double] = Map(
       SelfEmploymentIncome               -> 157719.00, // LS1a e
       IncomeFromEmployment               -> 15000.00, // LS1 e
@@ -334,7 +333,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT005) - Test Case 5 (TC222)" must { // THIS ONE HAS BEEN CHECKED AND IS WORKING
+  "HasSummary (SIT005) - Test Case 5 (TC222)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 149243.00, // LS1 e
@@ -408,7 +407,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT006) - Test Case 6 (TC3)" must { // CHECKED ALL VALUES AND SEEM OK BUT SOME FAILURES
+  "HasSummary (SIT006) - Test Case 6 (TC3)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 14190.00, // LS1a e
       IncomeFromEmployment               -> 31717.00, // LS1 e
@@ -482,7 +481,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT007) - Test Case 7 (TC6)" must { // CHECKED ALL AND WORKING NOW
+  "HasSummary (SIT007) - Test Case 7 (TC6)" must {
 
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
@@ -557,7 +556,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     }
   }
 
-  "HasSummary (SIT008) - Test Case 8 (TC51)" must { //    CHECKED ALL VALUES BUT SOME FAILURES
+  "HasSummary (SIT008) - Test Case 8 (TC51)" must {
     val expected = Map(
       // Your Taxable income
       SelfEmploymentIncome   -> 64284.00, // LS1a Self Employment Income
@@ -592,20 +591,16 @@ class AtsDataSpec2023 extends SaTestHelper {
       UpperRate                    -> 21568.00, //LS13.2 Upper Rate (income)
       UpperRateAmount              -> 7279.20, // LS13.2 Upper Rate (tax amount - right column)
       AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
-      //      // LS13a Total UK Income Tax
 
       // Adjustments
       OtherAdjustmentsIncreasing   -> 117.40, //LS15a Other adjustments that increase your Income Tax
       OtherAdjustmentsReducing     -> 5332.00, //LS15b Less other adjustments that reduce your Income Tax
-      // LS15aa	Marriage Allowance received that reduces your income tax
 
       // Income Tax - Welsh
       WelshIncomeTax               -> 0.00, //LS20a
       TotalIncomeTax               -> 37459.40, //LS20 Total Income Tax
       TotalIncomeTaxAndNics        -> 41642.70, //LS16 Total Income Tax and NICs
       EmployeeNicAmount            -> 4183.30, //LS14	National Insurance Contributions (NICs)
-      // LS17/RS5		Your income after tax and NICs
-      //LS18	National Insurance Contributions
 
       // Capital Gains
       PayCgTaxOn                   -> 0.00, //LS19.8 You pay tax on
@@ -762,7 +757,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         .get(urlEqualTo(odsUrl(taxYear)))
         .willReturn(
           ok(FileHelper.loadFile("2022-23/TestCaseGovernmentSpend.json"))
-        ) // <<-- TODO: Only works when year in this json file is set to 2020 for some reason
+        )
     )
 
     val result: AtsMiddleTierData = resultToAtsData(route(app, request))
