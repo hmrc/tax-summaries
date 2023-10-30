@@ -23,6 +23,7 @@ import models._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.GoodsAndServices._
 import utils.FileHelper
 
 class AtsDataSpec2023 extends SaTestHelper {
@@ -86,7 +87,6 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalCgTax                         -> 4540.00, //e
       YourTotalTax                       -> 169724.54, //RS7 e
       ScottishIncomeTax                  -> 0.0,
-      WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
       ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
       ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
@@ -162,7 +162,6 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalCgTax                         -> 0.00, //e
       YourTotalTax                       -> 3460.56, //RS7 e
       ScottishIncomeTax                  -> 0.0,
-      WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
       ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
       ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
@@ -238,7 +237,6 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalCgTax                         -> 0.00, //e
       YourTotalTax                       -> 3676.00, //RS7 e
       ScottishIncomeTax                  -> 0.0,
-      WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
       ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
       ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
@@ -308,7 +306,6 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalCgTax                         -> 9520.00, //e
       YourTotalTax                       -> 71817.72, //RS7 e Excel
       ScottishIncomeTax                  -> 0.0,
-      WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 410.78, // LS12.5	Scottish Starter rate
       ScottishBasicRateTax               -> 2551.20, // LS12.6	Scottish Basic rate
       ScottishIntermediateRateTax        -> 3774.54, // LS12.7	Intermediate rate
@@ -427,7 +424,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalTaxFreeAmount                 -> 12570.00, //LS10 e
       StartingRateForSavings             -> 0.00, //LS12.1
       StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 178.00, //lS12.2 e
+      BasicRateIncomeTax                 -> 0.00, //lS12.2 e
       BasicRateIncomeTaxAmount           -> 0.00, // LS12.2 (tax amount - right column)
       HigherRateIncomeTax                -> 0.00, //LS12.3 e
       HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 (tax amount - right column)
@@ -441,7 +438,6 @@ class AtsDataSpec2023 extends SaTestHelper {
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
       OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 14924.3, //LS20a
       TotalIncomeTax                     -> 7345.06, //LS20 e
       TotalIncomeTaxAndNics              -> 7730.89, //LS16 e
       EmployeeNicAmount                  -> 385.83, //LS14 e
@@ -462,10 +458,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       ScottishHigherRateTax              -> 254.20, // LS12.8	Scottish Higher rate ?
       ScottishAdditionalRateTax          -> 0.0, // LS12.9	Scottish Top rate ?
       ScottishTotalTax                   -> 6955.72, // LS12a	Total Scottish Income Tax ?
-      ScottishStarterIncome              -> 0.0, // Starter rate	£12,571 to £14,667	19%
-      ScottishBasicIncome                -> 0.0,
-      ScottishIntermediateIncome         -> 0.0,
-      ScottishHigherIncome               -> 0.0,
+      ScottishStarterIncome              -> 2162.00, // Starter rate	£12,571 to £14,667	19%
+      ScottishBasicIncome                -> 12581.00,
+      ScottishIntermediateIncome         -> 17974.00,
+      ScottishHigherIncome               -> 620.0,
       ScottishAdditionalIncome           -> 0.0,
       SavingsLowerRateTax                -> 35.60, // LS12b.1	Basic rate Income Tax
       SavingsHigherRateTax               -> 0.0, // LS12b.2	Higher rate Income Tax
@@ -531,7 +527,6 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalCgTax                         -> 0.00, //e
       YourTotalTax                       -> 8363.06, //RS7 e
       ScottishIncomeTax                  -> 0.0,
-      WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
       ScottishBasicRateTax               -> 0.0, // LS12.6	Scottish Basic rate
       ScottishIntermediateRateTax        -> 0.0, // LS12.7	Intermediate rate
@@ -597,7 +592,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       UpperRate                    -> 21568.00, //LS13.2 Upper Rate (income)
       UpperRateAmount              -> 7279.20, // LS13.2 Upper Rate (tax amount - right column)
       AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
-//      // LS13a Total UK Income Tax
+      //      // LS13a Total UK Income Tax
 
       // Adjustments
       OtherAdjustmentsIncreasing   -> 117.40, //LS15a Other adjustments that increase your Income Tax
@@ -606,8 +601,8 @@ class AtsDataSpec2023 extends SaTestHelper {
 
       // Income Tax - Welsh
       WelshIncomeTax               -> 0.00, //LS20a
-      TotalIncomeTax               -> 40057.20, //LS20 Total Income Tax
-      TotalIncomeTaxAndNics        -> 44240.50, //LS16 Total Income Tax and NICs
+      TotalIncomeTax               -> 37459.40, //LS20 Total Income Tax
+      TotalIncomeTaxAndNics        -> 41642.70, //LS16 Total Income Tax and NICs
       EmployeeNicAmount            -> 4183.30, //LS14	National Insurance Contributions (NICs)
       // LS17/RS5		Your income after tax and NICs
       //LS18	National Insurance Contributions
@@ -621,7 +616,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       AmountDueRPCIHigherRate      -> 0.00, //LS19.3 Upper Rate
       Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
       TotalCgTax                   -> 0.00, // Total Capital Gains Tax
-      YourTotalTax                 -> 44240.50, //RS7 Your Total Income Tax, Capital Gains Tax and NICs
+      YourTotalTax                 -> 41642.70, //RS7 Your Total Income Tax, Capital Gains Tax and NICs
       SavingsAdditionalRateTax     -> 0.0 // LS12b.3 Additional rate Income Tax
     )
 
@@ -638,140 +633,140 @@ class AtsDataSpec2023 extends SaTestHelper {
       }
     }
   }
-//
-//  "HasSummary (TCWithNulls)" must {
-//    val expected = Map(
-//      // Your Taxable income
-//      SelfEmploymentIncome   -> 0.00, // LS1a Self Employment Income
-//      IncomeFromEmployment   -> 149243.00, // LS1 Total income from employment
-//      StatePension           -> 0.00, //LS2 State pension
-//      OtherPensionIncome     -> 0.00, //LS3 Other pension income
-//      TaxableStateBenefits   -> 0.00, //LS4 Taxable state benefits
-//      OtherIncome            -> 12000.00, //LS5 Other income
-//      BenefitsFromEmployment -> 0.00, //LS6 Benefits from employment
-//      TotalIncomeBeforeTax   -> 161243.00, //LS7 Your income before tax
-//
-//      // Tax Free Amount
-//      PersonalTaxFreeAmount              -> 0.0, //LS8.1 tax free amount
-//      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 Marriage Allowance transferred
-//      OtherAllowancesAmount              -> 0.00, //LS9 Other allowances, deducations and expenses
-//      TotalTaxFreeAmount                 -> 0.0, //LS10 Less your total tax free amount
-//      // LS11 You pay tax on
-//
-//      // Income Tax - UK
-//      StartingRateForSavings             -> 0.00, //LS12.1 Starting rate for savings (income)
-//      StartingRateForSavingsAmount       -> 0.00, //LS12.1 Starting rate for savings (tax amount - right column)
-//      BasicRateIncomeTax                 -> 20493.0, //lS12.2 Basic rate Income Tax (income)
-//      BasicRateIncomeTaxAmount           -> 4098.6, // LS12.2 Basic rate Income Tax (tax amount - right column)
-//      HigherRateIncomeTax                -> 0.00, //LS12.3 Higher rate Income Tax (income)
-//      HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 Higher rate Income Tax (tax amount - right column)
-//      AdditionalRateIncomeTax            -> 0.00, //LS12.4 Additional rate Income Tax (income)
-//      AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
-//
-//      // Dividends
-//      OrdinaryRate                 -> 10000.00, //LS13.1 Ordinary Rate (income)
-//      OrdinaryRateAmount           -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
-//      UpperRate                    -> 0.00, //LS13.2 Upper Rate (income)
-//      UpperRateAmount              -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
-//      AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
-//      AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
-//      // LS13a Total UK Income Tax
-//
-//      // Adjustments
-//      OtherAdjustmentsIncreasing   -> 0.00, //LS15a Other adjustments that increase your Income Tax
-//      OtherAdjustmentsReducing     -> 0.00, //LS15b Less other adjustments that reduce your Income Tax
-//      // LS15aa	Marriage Allowance received that reduces your income tax
-//
-//      // Income Tax - Welsh
-//      WelshIncomeTax               -> 0.00, //LS20a
-//      TotalIncomeTax               -> 4848.6, //LS20 Total Income Tax
-//      TotalIncomeTaxAndNics        -> 4848.6, //LS16 Total Income Tax and NICs
-//      EmployeeNicAmount            -> 0.00, //LS14	National Insurance Contributions (NICs)
-//      // LS17/RS5		Your income after tax and NICs
-//      //LS18	National Insurance Contributions
-//
-//      // Capital Gains
-//      PayCgTaxOn                   -> 0.00, //LS19.8 You pay tax on
-//      TaxableGains                 -> 0.00, //LS19.6 Your Taxable Gains
-//      AmountDueAtEntrepreneursRate -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
-//      AmountAtEntrepreneursRate    -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
-//      AmountDueAtOrdinaryRate      -> 0.00, //LS19.2 Ordinary Rate
-//      AmountDueRPCIHigherRate      -> 0.00, //LS19.3 Upper Rate
-//      Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
-//      TotalCgTax                   -> 0.00, // Total Capital Gains Tax
-//
-//      //RS7 Your Total Income Tax, Capital Gains Tax and NICs
-//      YourTotalTax                -> 4848.6,
-//      // Income Tax - Scottish
-//      ScottishIncomeTax           -> 0.0,
-//      ScottishStarterRateTax      -> 0.0, // LS12.5	Scottish Starter rate
-//      ScottishBasicRateTax        -> 0.0, // LS12.6	Scottish Basic rate
-//      ScottishIntermediateRateTax -> 0.0, // LS12.7	Intermediate rate
-//      ScottishHigherRateTax       -> 0.0, // LS12.8	Scottish Higher rate
-//      ScottishAdditionalRateTax   -> 0.0, // LS12.9	Scottish Top rate
-//      ScottishTotalTax            -> 0.00, // LS12a	Total Scottish Income Tax
-//      ScottishStarterIncome       -> 0.0, // LS12.5 Starter rate income
-//      ScottishBasicIncome         -> 0.0, // LS12.6	Scottish Basic rate income
-//      ScottishIntermediateIncome  -> 0.0, // LS12.7	Intermediate rate income
-//      ScottishHigherIncome        -> 0.0, // LS12.8	Scottish Higher rate income
-//      ScottishAdditionalIncome    -> 0.0, // LS12.9	Scottish Top rate income
-//      SavingsLowerRateTax         -> 0.0, // LS12b.1	Basic rate Income Tax
-//      SavingsHigherRateTax        -> 0.0, // LS12b.2	Higher rate Income Tax
-//      SavingsAdditionalRateTax    -> 0.0 // LS12b.3 Additional rate Income Tax
-//    )
-//
-//    expected foreach { case (key, expectedValue) =>
-//      s"return the correct key $key" in new Test {
-//        server.stubFor(
-//          WireMock
-//            .get(urlEqualTo(odsUrl(taxYear)))
-//            .willReturn(ok(FileHelper.loadFile("2022-23/TestCaseWithNulls.json")))
-//        )
-//
-//        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
-//        checkResult(result, key, expectedValue)
-//      }
-//    }
-//  }
-//
-//  "return correct government spending" in new Test {
-//
-//    val expectedValue: GovernmentSpendingOutputWrapper =
-//      GovernmentSpendingOutputWrapper(
-//        2023,
-//        Map(
-//          PublicOrderAndSafety       -> SpendData(Amount(261.46, "GBP", None), 4.1),
-//          BusinessAndIndustry        -> SpendData(Amount(484.65, "GBP", None), 7.6),
-//          OutstandingPaymentsToTheEU -> SpendData(Amount(38.26, "GBP", None), 0.6),
-//          NationalDebtInterest       -> SpendData(Amount(765.24, "GBP", None), 12),
-//          Defence                    -> SpendData(Amount(331.6, "GBP", None), 5.2),
-//          Health                     -> SpendData(Amount(1262.65, "GBP", None), 19.8),
-//          Culture                    -> SpendData(Amount(82.9, "GBP", None), 1.3),
-//          HousingAndUtilities        -> SpendData(Amount(108.41, "GBP", None), 1.7),
-//          GovernmentAdministration   -> SpendData(Amount(127.54, "GBP", None), 2),
-//          Environment                -> SpendData(Amount(82.9, "GBP", None), 1.3),
-//          OverseasAid                -> SpendData(Amount(31.89, "GBP", None), 0.5),
-//          Transport                  -> SpendData(Amount(261.46, "GBP", None), 4.1),
-//          Welfare                    -> SpendData(Amount(1249.89, "GBP", None), 19.6),
-//          Education                  -> SpendData(Amount(631.32, "GBP", None), 9.9),
-//          StatePensions              -> SpendData(Amount(656.83, "GBP", None), 10.3)
-//        ),
-//        Amount(6377, "GBP", None),
-//        None
-//      )
-//
-//    override val taxYear = 2023
-//
-//    server.stubFor(
-//      WireMock
-//        .get(urlEqualTo(odsUrl(taxYear)))
-//        .willReturn(
-//          ok(FileHelper.loadFile("2022-23/TestCaseGovernmentSpend.json"))
-//        ) // <<-- TODO: Only works when year in this json file is set to 2020 for some reason
-//    )
-//
-//    val result: AtsMiddleTierData = resultToAtsData(route(app, request))
-//    result.gov_spending.get mustBe expectedValue
-//  }
+
+  "HasSummary (TCWithNulls)" must {
+    val expected = Map(
+      // Your Taxable income
+      SelfEmploymentIncome   -> 0.00, // LS1a Self Employment Income
+      IncomeFromEmployment   -> 149243.00, // LS1 Total income from employment
+      StatePension           -> 0.00, //LS2 State pension
+      OtherPensionIncome     -> 0.00, //LS3 Other pension income
+      TaxableStateBenefits   -> 0.00, //LS4 Taxable state benefits
+      OtherIncome            -> 12000.00, //LS5 Other income
+      BenefitsFromEmployment -> 0.00, //LS6 Benefits from employment
+      TotalIncomeBeforeTax   -> 161243.00, //LS7 Your income before tax
+
+      // Tax Free Amount
+      PersonalTaxFreeAmount              -> 0.0, //LS8.1 tax free amount
+      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 Marriage Allowance transferred
+      OtherAllowancesAmount              -> 0.00, //LS9 Other allowances, deducations and expenses
+      TotalTaxFreeAmount                 -> 0.0, //LS10 Less your total tax free amount
+      // LS11 You pay tax on
+
+      // Income Tax - UK
+      StartingRateForSavings             -> 0.00, //LS12.1 Starting rate for savings (income)
+      StartingRateForSavingsAmount       -> 0.00, //LS12.1 Starting rate for savings (tax amount - right column)
+      BasicRateIncomeTax                 -> 20493.0, //lS12.2 Basic rate Income Tax (income)
+      BasicRateIncomeTaxAmount           -> 4098.6, // LS12.2 Basic rate Income Tax (tax amount - right column)
+      HigherRateIncomeTax                -> 0.00, //LS12.3 Higher rate Income Tax (income)
+      HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 Higher rate Income Tax (tax amount - right column)
+      AdditionalRateIncomeTax            -> 0.00, //LS12.4 Additional rate Income Tax (income)
+      AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
+
+      // Dividends
+      OrdinaryRate                 -> 10000.00, //LS13.1 Ordinary Rate (income)
+      OrdinaryRateAmount           -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
+      UpperRate                    -> 0.00, //LS13.2 Upper Rate (income)
+      UpperRateAmount              -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
+      AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
+      AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
+      // LS13a Total UK Income Tax
+
+      // Adjustments
+      OtherAdjustmentsIncreasing   -> 0.00, //LS15a Other adjustments that increase your Income Tax
+      OtherAdjustmentsReducing     -> 0.00, //LS15b Less other adjustments that reduce your Income Tax
+      // LS15aa	Marriage Allowance received that reduces your income tax
+
+      // Income Tax - Welsh
+      WelshIncomeTax               -> 0.00, //LS20a
+      TotalIncomeTax               -> 4848.6, //LS20 Total Income Tax
+      TotalIncomeTaxAndNics        -> 4848.6, //LS16 Total Income Tax and NICs
+      EmployeeNicAmount            -> 0.00, //LS14	National Insurance Contributions (NICs)
+      // LS17/RS5		Your income after tax and NICs
+      //LS18	National Insurance Contributions
+
+      // Capital Gains
+      PayCgTaxOn                   -> 0.00, //LS19.8 You pay tax on
+      TaxableGains                 -> 0.00, //LS19.6 Your Taxable Gains
+      AmountDueAtEntrepreneursRate -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
+      AmountAtEntrepreneursRate    -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
+      AmountDueAtOrdinaryRate      -> 0.00, //LS19.2 Ordinary Rate
+      AmountDueRPCIHigherRate      -> 0.00, //LS19.3 Upper Rate
+      Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
+      TotalCgTax                   -> 0.00, // Total Capital Gains Tax
+
+      //RS7 Your Total Income Tax, Capital Gains Tax and NICs
+      YourTotalTax                -> 4848.6,
+      // Income Tax - Scottish
+      ScottishIncomeTax           -> 0.0,
+      ScottishStarterRateTax      -> 0.0, // LS12.5	Scottish Starter rate
+      ScottishBasicRateTax        -> 0.0, // LS12.6	Scottish Basic rate
+      ScottishIntermediateRateTax -> 0.0, // LS12.7	Intermediate rate
+      ScottishHigherRateTax       -> 0.0, // LS12.8	Scottish Higher rate
+      ScottishAdditionalRateTax   -> 0.0, // LS12.9	Scottish Top rate
+      ScottishTotalTax            -> 0.00, // LS12a	Total Scottish Income Tax
+      ScottishStarterIncome       -> 0.0, // LS12.5 Starter rate income
+      ScottishBasicIncome         -> 0.0, // LS12.6	Scottish Basic rate income
+      ScottishIntermediateIncome  -> 0.0, // LS12.7	Intermediate rate income
+      ScottishHigherIncome        -> 0.0, // LS12.8	Scottish Higher rate income
+      ScottishAdditionalIncome    -> 0.0, // LS12.9	Scottish Top rate income
+      SavingsLowerRateTax         -> 0.0, // LS12b.1	Basic rate Income Tax
+      SavingsHigherRateTax        -> 0.0, // LS12b.2	Higher rate Income Tax
+      SavingsAdditionalRateTax    -> 0.0 // LS12b.3 Additional rate Income Tax
+    )
+
+    expected foreach { case (key, expectedValue) =>
+      s"return the correct key $key" in new Test {
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(odsUrl(taxYear)))
+            .willReturn(ok(FileHelper.loadFile("2022-23/TestCaseWithNulls.json")))
+        )
+
+        val result: AtsMiddleTierData = resultToAtsData(route(app, request))
+        checkResult(result, key, expectedValue)
+      }
+    }
+  }
+
+  "return correct government spending" in new Test {
+
+    val expectedValue: GovernmentSpendingOutputWrapper =
+      GovernmentSpendingOutputWrapper(
+        2023,
+        Map(
+          PublicOrderAndSafety       -> SpendData(Amount(261.46, "GBP", None), 4.1),
+          BusinessAndIndustry        -> SpendData(Amount(484.65, "GBP", None), 7.6),
+          OutstandingPaymentsToTheEU -> SpendData(Amount(38.26, "GBP", None), 0.6),
+          NationalDebtInterest       -> SpendData(Amount(765.24, "GBP", None), 12),
+          Defence                    -> SpendData(Amount(331.6, "GBP", None), 5.2),
+          Health                     -> SpendData(Amount(1262.65, "GBP", None), 19.8),
+          Culture                    -> SpendData(Amount(82.9, "GBP", None), 1.3),
+          HousingAndUtilities        -> SpendData(Amount(108.41, "GBP", None), 1.7),
+          GovernmentAdministration   -> SpendData(Amount(127.54, "GBP", None), 2),
+          Environment                -> SpendData(Amount(82.9, "GBP", None), 1.3),
+          OverseasAid                -> SpendData(Amount(31.89, "GBP", None), 0.5),
+          Transport                  -> SpendData(Amount(261.46, "GBP", None), 4.1),
+          Welfare                    -> SpendData(Amount(1249.89, "GBP", None), 19.6),
+          Education                  -> SpendData(Amount(631.32, "GBP", None), 9.9),
+          StatePensions              -> SpendData(Amount(656.83, "GBP", None), 10.3)
+        ),
+        Amount(6377, "GBP", None),
+        None
+      )
+
+    override val taxYear = 2023
+
+    server.stubFor(
+      WireMock
+        .get(urlEqualTo(odsUrl(taxYear)))
+        .willReturn(
+          ok(FileHelper.loadFile("2022-23/TestCaseGovernmentSpend.json"))
+        ) // <<-- TODO: Only works when year in this json file is set to 2020 for some reason
+    )
+
+    val result: AtsMiddleTierData = resultToAtsData(route(app, request))
+    result.gov_spending.get mustBe expectedValue
+  }
 
 }

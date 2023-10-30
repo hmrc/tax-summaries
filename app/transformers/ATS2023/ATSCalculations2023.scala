@@ -79,9 +79,6 @@ trait ATSCalculations2023 extends ATSCalculations {
 
     val excludedAndNonExcludedTax = get(TaxExcluded) + getWithDefaultAmount(TaxOnNonExcludedIncome)
 
-//    println("\n>>>>1:" + rateDividendAdjustmentTax)
-//    println("\n>>>>2:" + excludedAndNonExcludedTax)
-
     if (excludedAndNonExcludedTax.amount > 0) {
 
       List(rateDividendAdjustmentTax, excludedAndNonExcludedTax).min
@@ -90,21 +87,8 @@ trait ATSCalculations2023 extends ATSCalculations {
     }
   }
 
-  /* Should be
-  Amount(5332.00,GBP,Some(0.00(ctnDeficiencyRelief) + 0.00(topSlicingRelief) + 0.00(ctnVctSharesReliefAmt) + 0.00(ctnEisReliefAmt) +
-  0.00(ctnSeedEisReliefAmt) + 0.00(ctnCommInvTrustRelAmt) + 0.00(ctnSocialInvTaxRelAmt) + 0.00(atsSurplusMcaAlimonyRel) + 0.00(alimony) +
-  0.00(ctnNotionalTaxCegs) + 0.00(ctnNotlTaxOthrSrceAmo) + 2442.00(ctnFtcrRestricted) + 174.00(reliefForFinanceCosts) + 0.00(lfiRelief) + 2716.00(ctnRelTaxAcctFor)))
-
-
-
-  >>>Amount(5332.00,GBP,Some(0.00(ctnDeficiencyRelief) + 0.00(topSlicingRelief) + 0.00(ctnVctSharesReliefAmt) + 0.00(ctnEisReliefAmt) +
-  0.00(ctnSeedEisReliefAmt) + 0.00(ctnCommInvTrustRelAmt) + 0.00(ctnSocialInvTaxRelAmt) + 0.00(atsSurplusMcaAlimonyRel) + 0.00(alimony) +
-  0.00(ctnNotionalTaxCegs) + 0.00(ctnNotlTaxOthrSrceAmo) + 2442.00(ctnFtcrRestricted) + 174.00(reliefForFinanceCosts) + 0.00(lfiRelief) + 2716.00(ctnRelTaxAcctFor)))
-
-   */
-
-  override def otherAdjustmentsReducing: Amount = {
-    val x = get(DeficiencyRelief) +
+  override def otherAdjustmentsReducing: Amount =
+    get(DeficiencyRelief) +
       get(TopSlicingRelief) +
       get(VctSharesRelief) +
       get(EisRelief) +
@@ -119,9 +103,6 @@ trait ATSCalculations2023 extends ATSCalculations {
       getWithDefaultAmount(ReliefForFinanceCosts) +
       getWithDefaultAmount(LFIRelief) +
       getWithDefaultAmount(RelTaxAcctFor)
-    //  println("\n>>>" + x)
-    x
-  }
 
   override def totalAmountEmployeeNic: Amount =
     get(EmployeeClass1NI) +
