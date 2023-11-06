@@ -16,21 +16,21 @@
 
 package controllers
 
-import controllers.auth.AuthAction
-
-import javax.inject.Inject
+import controllers.auth.AuthJourney
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.{GoodsAndServices, GovSpendService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import javax.inject.Inject
+
 class GovernmentSpendController @Inject() (
   govSpendService: GovSpendService,
-  authAction: AuthAction,
+  authJourney: AuthJourney,
   cc: ControllerComponents
 ) extends BackendController(cc) {
 
-  def getGovernmentSpend(taxYear: Int): Action[AnyContent] = authAction {
+  def getGovernmentSpend(taxYear: Int): Action[AnyContent] = authJourney.authWithUserDetails {
     Ok(Json.toJson(govSpendService.govSpending(taxYear))(GoodsAndServices.mapFormat))
   }
 

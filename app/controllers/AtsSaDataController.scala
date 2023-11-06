@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.auth.AuthAction
+import controllers.auth.AuthJourney
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
@@ -31,14 +31,14 @@ class AtsSaDataController @Inject() (
   odsService: OdsService,
   odsIndividualYearsService: OdsIndividualYearsService,
   atsErrorHandler: ATSErrorHandler,
-  authAction: AuthAction,
+  authJourney: AuthJourney,
   cc: ControllerComponents,
   jsonHelper: TaxsJsonHelper
 )(implicit val ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
-  def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
+  def hasAts(utr: String): Action[AnyContent] = authJourney.authWithUserDetails.async { implicit request =>
     odsService
       .getList(utr)
       .fold(
@@ -47,17 +47,18 @@ class AtsSaDataController @Inject() (
       )
   }
 
-  def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
-    odsService
-      .getPayload(utr, tax_year)
-      .fold(
-        error => atsErrorHandler.errorToResponse(error),
-        result => Ok(result)
-      )
+  def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = authJourney.authWithUserDetails.async {
+    implicit request =>
+      odsService
+        .getPayload(utr, tax_year)
+        .fold(
+          error => atsErrorHandler.errorToResponse(error),
+          result => Ok(result)
+        )
   }
 
-  def getAtsSaList(utr: String, endYear: Int, numberOfYears: Int): Action[AnyContent] = authAction.async {
-    implicit request =>
+  def getAtsSaList(utr: String, endYear: Int, numberOfYears: Int): Action[AnyContent] =
+    authJourney.authWithUserDetails.async { implicit request =>
       val response = for {
         singleListForAllYears <- odsService
                                    .getATSList(utr)
@@ -94,5 +95,5 @@ class AtsSaDataController @Inject() (
         error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)
       )
-  }
+    }
 }

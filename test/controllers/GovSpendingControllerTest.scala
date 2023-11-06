@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.SelfAssessmentODSConnector
-import controllers.auth.FakeAuthAction
+import controllers.auth.FakeAuthJourney
 import models.SpendData
 import org.mockito.ArgumentMatchers.any
 import play.api.libs.json.Json
@@ -60,7 +60,7 @@ class GovSpendingControllerTest extends BaseSpec {
       odsService,
       odsIndividualYearsService,
       atsErrorHandler,
-      FakeAuthAction,
+      FakeAuthJourney,
       cc,
       jsonHelper
     )

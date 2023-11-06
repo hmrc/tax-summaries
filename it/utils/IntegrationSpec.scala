@@ -23,6 +23,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
@@ -46,6 +47,8 @@ trait IntegrationSpec
     with IntegrationWireMockHelper
     with ScalaFutures
     with IntegrationPatience {
+
+  lazy val fakeAsyncCacheApi = new FakeAsyncCacheApi()
   override def beforeEach(): Unit = {
     super.beforeEach()
 
@@ -85,7 +88,8 @@ trait IntegrationSpec
     new GuiceApplicationBuilder()
       .disable[config.ATSModule]
       .overrides(
-        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector]
+        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector],
+        bind[AsyncCacheApi].toInstance(fakeAsyncCacheApi)
       )
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),

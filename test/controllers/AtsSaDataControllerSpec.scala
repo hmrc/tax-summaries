@@ -17,7 +17,7 @@
 package controllers
 
 import cats.data.EitherT
-import controllers.auth.FakeAuthAction
+import controllers.auth.FakeAuthJourney
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status._
@@ -54,7 +54,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
     odsService,
     odsIndividualYearsService,
     atsErrorHandler,
-    FakeAuthAction,
+    FakeAuthJourney,
     cc,
     jsonHelper
   )

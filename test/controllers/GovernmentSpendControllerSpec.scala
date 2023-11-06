@@ -17,7 +17,7 @@
 package controllers
 
 import akka.stream.Materializer
-import controllers.auth.FakeAuthAction
+import controllers.auth.FakeAuthJourney
 import org.mockito.ArgumentMatchers.{eq => meq}
 import play.api.http.Status.OK
 import play.api.test.FakeRequest
@@ -39,7 +39,7 @@ class GovernmentSpendControllerSpec extends BaseSpec {
   "GovernmentSpendController" must {
     def sut: GovernmentSpendController = new GovernmentSpendController(
       mockGovSpendService,
-      FakeAuthAction,
+      FakeAuthJourney,
       stubControllerComponents()
     )
 
