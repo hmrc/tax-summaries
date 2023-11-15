@@ -23,6 +23,7 @@ import play.api.libs.json._
 case class Amount(amount: BigDecimal, currency: String, calculus: Option[String] = None)
     extends Ordered[Amount]
     with Logging {
+  require(this.currency equals "GBP")
 
   def isZero: Boolean =
     amount.equals(BigDecimal(0))

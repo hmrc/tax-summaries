@@ -16,14 +16,14 @@
 
 package models.ODSLiabilities
 
-import models.ODSLiabilities.ODS2021Liabilities.all2021Liabilities
-import models.{ApiValue, Nationality}
+import models.ApiValue
 import play.api.libs.json.Reads
+
+// scalastyle:off number.of.methods
 
 sealed class ODSLiabilities(apiValue: String) extends ApiValue(apiValue)
 
 object ODSLiabilities {
-
   case object AnnuityPay extends ODSLiabilities("grossAnnuityPayts")
 
   case object BPA extends ODSLiabilities("itfBpaAmount")
@@ -109,6 +109,8 @@ object ODSLiabilities {
   case object JobSeekersAllowance extends ODSLiabilities("atsJobSeekersAllowanceAmt")
 
   case object LFIRelief extends ODSLiabilities("lfiRelief")
+
+  case object RelTaxAcctFor extends ODSLiabilities("ctnRelTaxAcctFor")
 
   case object LowerRateCgtRPCI extends ODSLiabilities("ctnLowerRateCgtRPCI")
 
@@ -289,7 +291,7 @@ object ODSLiabilities {
   case object TaxableRedundancySir extends ODSLiabilities("ctnTaxableRedundancySir")
 
   // format: off
-  val allLiabilities: List[ODSLiabilities with ApiValue] =
+  private val allLiabilities: List[ODSLiabilities with ApiValue] =
     List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
       CgAnnualExempt, CgAtEntrepreneursRate, CgAtHigherRate, CgAtLowerRate, CgDueEntrepreneursRate, CgDueHigherRate,
       CgDueLowerRate, CgGainsAfterLosses, CgTotGainsAfterLosses, ChildBenefitCharge, Class4Nic, CommInvTrustRel,
@@ -310,14 +312,33 @@ object ODSLiabilities {
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced)
+
+  private val mapLiabilities: Map[Int, List[ODSLiabilities with ApiValue]] = {
+    val allLiabilities2022 = (allLiabilities ++ List(
+      ForeignCegDedn, ItfCegReceivedAfterTax, FtcrRestricted, Class2NicAmt, TaxableRedundancyHr, TaxableCegHr,
+      PensionLumpSumTaxRate, TaxOnRedundancyHr, TaxOnCegHr, TaxOnRedundancyBr, TaxOnCegBr, TaxOnRedundancyAhr,
+      TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
+      TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
+    ))
+    Map(
+      2022 -> allLiabilities2022,
+      2023 -> (allLiabilities2022 :+ RelTaxAcctFor)
+    )
+  }
   // format: on
 
-  def readsLiabilities(taxYear: Int, nationality: Nationality): Reads[ODSLiabilities] =
-    (taxYear, nationality) match {
-      case (2022, _) =>
-        ApiValue.readFromList[ODSLiabilities](all2021Liabilities)
-      case _         =>
-        ApiValue.readFromList[ODSLiabilities](allLiabilities)
+  def readsLiabilities(taxYear: Int): Reads[ODSLiabilities] =
+    ApiValue.readFromList[ODSLiabilities] {
+      mapLiabilities.get(taxYear) match {
+        case Some(liabilities) =>
+          liabilities
+        case _                 =>
+          val latestTaxYearForLiabilities = mapLiabilities.keys.toSeq.max
+          if (taxYear > latestTaxYearForLiabilities) {
+            mapLiabilities(latestTaxYearForLiabilities)
+          } else {
+            allLiabilities
+          }
+      }
     }
-
 }

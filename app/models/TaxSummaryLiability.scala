@@ -34,7 +34,7 @@ final case class TaxSummaryLiability(
 
 object TaxSummaryLiability extends Logging {
 
-  def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, Option[V]]] =
+  private def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, Option[V]]] =
     Reads[Map[K, Option[V]]] {
       case JsObject(m) =>
         m.foldLeft(JsSuccess(Map.empty[K, Option[V]]): JsResult[Map[K, Option[V]]]) {
@@ -83,7 +83,7 @@ object TaxSummaryLiability extends Logging {
 
       val nationalInsuranceData = saPayeNicDetails
         .as[Map[ODSLiabilities, Option[Amount]]](
-          alwaysSuccessfulMapReads[ODSLiabilities, Amount](readsLiabilities(taxYear, nationality), implicitly)
+          alwaysSuccessfulMapReads[ODSLiabilities, Amount](readsLiabilities(taxYear), implicitly)
         )
         .map {
           case (liability, None)                                              =>
@@ -98,7 +98,7 @@ object TaxSummaryLiability extends Logging {
 
       val atsData = tliSlpAtsData
         .as[Map[ODSLiabilities, Option[Amount]]](
-          alwaysSuccessfulMapReads[ODSLiabilities, Amount](readsLiabilities(taxYear, nationality), implicitly)
+          alwaysSuccessfulMapReads[ODSLiabilities, Amount](readsLiabilities(taxYear), implicitly)
         )
         .map {
           case (liability, None)                                              =>

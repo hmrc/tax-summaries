@@ -54,6 +54,12 @@ class AmountTest extends BaseSpec {
       Amount(1.0, "GBP").divideWithPrecision(Amount(3.0, "GBP"), 4) must be(Amount(0.3333, "GBP"))
     }
 
+    "throw IllegalArgumentException when currency is not GBP, e.g. EUR" in {
+      an[IllegalArgumentException] must be thrownBy {
+        Amount.apply(1.0, "EUR")
+      }
+    }
+
     "throw IllegalArgumentException when summing different currencies (£1 + €1)" in {
       an[IllegalArgumentException] must be thrownBy {
         Amount(1.0, "GBP") + Amount(1.0, "EUR")
