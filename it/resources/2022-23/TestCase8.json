@@ -261,7 +261,7 @@
       "currency": "GBP"
     },
     "ctnDividendTaxAddHighRate": {
-      "amount": 0.80,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnTaxableRedundancySSR": {
