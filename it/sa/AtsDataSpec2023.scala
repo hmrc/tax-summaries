@@ -598,8 +598,8 @@ class AtsDataSpec2023 extends SaTestHelper {
 
       // Income Tax - Welsh
       WelshIncomeTax        -> 0.00, //LS20a
-      TotalIncomeTax        -> 37459.40, //LS20 Total Income Tax
-      TotalIncomeTaxAndNics -> 41642.70, //LS16 Total Income Tax and NICs
+      TotalIncomeTax        -> 37458.60, //LS20 Total Income Tax
+      TotalIncomeTaxAndNics -> 41641.90, //LS16 Total Income Tax and NICs
       EmployeeNicAmount     -> 4183.30, //LS14	National Insurance Contributions (NICs)
 
       // Capital Gains
@@ -611,7 +611,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       AmountDueRPCIHigherRate      -> 0.00, //LS19.3 Upper Rate
       Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
       TotalCgTax                   -> 0.00, // Total Capital Gains Tax
-      YourTotalTax                 -> 41642.70, //RS7 Your Total Income Tax, Capital Gains Tax and NICs
+      YourTotalTax                 -> 41641.90, //RS7 Your Total Income Tax, Capital Gains Tax and NICs
       SavingsAdditionalRateTax     -> 0.0 // LS12b.3 Additional rate Income Tax
     )
 
