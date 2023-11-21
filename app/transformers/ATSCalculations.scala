@@ -32,7 +32,7 @@ import utils.DoubleUtils
 trait ATSCalculations extends DoubleUtils with Logging {
   protected val summaryData: TaxSummaryLiability
   protected val taxRates: TaxRateService
-  val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
+  lazy val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
 
   def get(liability: ODSLiabilities): Amount = {
     val result = summaryData.atsData.getOrElse(
