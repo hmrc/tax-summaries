@@ -40,11 +40,6 @@ trait SelfAssessmentODSConnector {
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 
-//  def connectToSelfAssessmentList(utr: String)(implicit
-//    hc: HeaderCarrier,
-//    request: Request[_]
-//  ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
-
   def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -93,16 +88,6 @@ class CachingSelfAssessmentODSConnector @Inject() (
     }
   }
 
-//  override def connectToSelfAssessmentList(utr: String)(implicit
-//    hc: HeaderCarrier,
-//    request: Request[_]
-//  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-//    implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
-//    cache(utr) {
-//      underlying.connectToSelfAssessmentList(utr)
-//    }
-//  }
-
   override def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -149,18 +134,6 @@ class DefaultSelfAssessmentODSConnector @Inject() (
         headers = header
       )(readEitherOfWithNotFound, implicitly, implicitly)
     )
-
-//  def connectToSelfAssessmentList(utr: String)(implicit
-//    hc: HeaderCarrier,
-//    request: Request[_]
-//  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-//    httpClientResponse.read(
-//      httpClient
-//        .GET[Either[UpstreamErrorResponse, HttpResponse]](
-//          url = url("/self-assessment/individuals/" + utr + "/annual-tax-summaries"),
-//          headers = header
-//        )(readEitherOfWithNotFound, implicitly, implicitly)
-//    )
 
   def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
