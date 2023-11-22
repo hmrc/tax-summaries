@@ -27,7 +27,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.time.TaxYear
 import utils.TaxsJsonHelper
 
-import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
 class OdsService @Inject() (
@@ -55,37 +54,6 @@ class OdsService @Inject() (
                         case Left(error)                                     => Left(error)
                       }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
-
-  private val tempStubbedListData = Json.parse("""{
-      |    "annualTaxSummaries":
-      |      [
-      |        {
-      |          "taxYearEnd":2015,
-      |          "links":
-      |            [
-      |              {"rel":"details", "href":"/self-assessment/individuals/1130492359/annual-tax-summaries/2015"}
-      |            ]
-      |        },
-      |        {
-      |          "taxYearEnd":2020,
-      |          "links":
-      |          [
-      |            {"rel":"details", "href":"/self-assessment/individuals/1130492359/annual-tax-summaries/2020"}
-      |          ]
-      |        },
-      |        {
-      |          "taxYearEnd":2023,
-      |          "links":
-      |          [
-      |            {"rel":"details", "href":"/self-assessment/individuals/1130492359/annual-tax-summaries/2023"}
-      |          ]
-      |        }
-      |      ],
-      |    "links":
-      |      [
-      |        {"rel":"self", "href":"/self-assessment/individuals/1130492359/annual-tax-summaries"}
-      |      ]
-      |  }""".stripMargin)
 
   def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
     hc: HeaderCarrier,
@@ -118,25 +86,13 @@ class OdsService @Inject() (
           }
       }
     )
-  //    for {
-//      taxSummaries <- createSAListFromSADetail(utr, startYear, endYear)
-//    } yield jsonHelper.createTaxYearJsonNew(taxSummaries, utr, taxpayer)
 
-  //  s"""{"utr":"$testUtr","taxPayer":{"taxpayer_name":{"title":"Mr","forename":"forename","surname":"surname"}},"atsYearList":[2014,2015]}"""
-
-  def getList(
+  def hasATS(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
-    //    selfAssessmentOdsConnector
-    //      .connectToSelfAssessmentList(utr)
-    //      .transform {
-    //        case Right(response) if response.status == NOT_FOUND =>
-    //          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-    //        case Right(response)                                 =>
-    EitherT.rightT(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(tempStubbedListData))))
-
-  //        case Left(error)                                     => Left(error)
-  //      }
+    getATSList(utr, TaxYear.current.startYear - 4, TaxYear.current.startYear).map { taxYears =>
+      Json.obj("has_ats" -> taxYears.nonEmpty)
+    }
 
   def connectToSATaxpayerDetails(
     utr: String

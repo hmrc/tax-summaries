@@ -36,21 +36,10 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
     ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate)
   }
 
-  def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
-    val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]
-    annualTaxSummaries.flatMap(item => (item \ "taxYearEnd").asOpt[JsNumber]).nonEmpty
-  }
-
   def createTaxYearJson(rawJson: JsValue, utr: String, rawTaxpayerJson: JsValue): JsValue = {
     val annualTaxSummariesList: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]
     val atsYearList                           = annualTaxSummariesList.map(item => (item \ "taxYearEnd").as[JsNumber])
     val taxPayer                              = ATSTaxpayerDataTransformer(rawTaxpayerJson).atsTaxpayerDataDTO
-    Json.toJson(AtsYearList(utr, Some(taxPayer), Some(atsYearList)))
-  }
-
-  def createTaxYearJsonNew(years: Seq[Int], utr: String, rawTaxpayerJson: JsValue): JsValue = {
-    val atsYearList = years.toList.map(JsNumber(_))
-    val taxPayer    = ATSTaxpayerDataTransformer(rawTaxpayerJson).atsTaxpayerDataDTO
     Json.toJson(AtsYearList(utr, Some(taxPayer), Some(atsYearList)))
   }
 }
