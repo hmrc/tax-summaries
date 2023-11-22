@@ -146,7 +146,7 @@ class OdsServiceSpec extends BaseSpec {
   }
 
   private def whenClausesForSA(endTaxYear: Int, responseStatusesToMockForSA: Seq[Int]): Unit =
-    responseStatusesToMockForSA.zipWithIndex.foreach { case (a, i) =>
+    responseStatusesToMockForSA.reverse.zipWithIndex.foreach { case (a, i) =>
       val response = a match {
         case OK           => Right(HttpResponse(OK, saResponse(endTaxYear - i), Map.empty))
         case responseCode => Left(UpstreamErrorResponse("", responseCode))
@@ -157,7 +157,7 @@ class OdsServiceSpec extends BaseSpec {
     }
 
   private def verifySA(endTaxYear: Int, expectedNumberOfCalls: Seq[Int]): Unit =
-    expectedNumberOfCalls.zipWithIndex.foreach { case (a, i) =>
+    expectedNumberOfCalls.reverse.zipWithIndex.foreach { case (a, i) =>
       verify(odsConnector, times(a))
         .connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any())
     }
@@ -179,6 +179,7 @@ class OdsServiceSpec extends BaseSpec {
         endTaxYear = currentTaxYear,
         responseStatusesToMockForSA = Seq(OK, OK, NOT_FOUND, OK, OK)
       )
+
       whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0), BigDecimal(1)))
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
 
@@ -201,7 +202,7 @@ class OdsServiceSpec extends BaseSpec {
     "return upstream error exception if any call to HOD fails + not subsequently try any further HOD calls" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear - 2,
-        responseStatusesToMockForSA = Seq(INTERNAL_SERVER_ERROR, OK, OK)
+        responseStatusesToMockForSA = Seq(OK, OK, INTERNAL_SERVER_ERROR)
       )
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
 
@@ -212,7 +213,7 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 0, 0)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
@@ -250,7 +251,7 @@ class OdsServiceSpec extends BaseSpec {
     "return json with false value where all years have no tax data (+ must not do tax liability calculation) or no tax liability found" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(NOT_FOUND, OK, NOT_FOUND, NOT_FOUND, OK)
+        responseStatusesToMockForSA = Seq(OK, NOT_FOUND, NOT_FOUND, OK, NOT_FOUND)
       )
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 1, values = Seq(BigDecimal(0)))
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 4, values = Seq(BigDecimal(0)))
@@ -274,7 +275,7 @@ class OdsServiceSpec extends BaseSpec {
     "return upstream error exception if any call to HOD fails + not subsequently try any further HOD calls" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear - 2,
-        responseStatusesToMockForSA = Seq(INTERNAL_SERVER_ERROR, OK, OK)
+        responseStatusesToMockForSA = Seq(OK, OK, INTERNAL_SERVER_ERROR)
       )
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
 
@@ -285,7 +286,7 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 0, 0)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
