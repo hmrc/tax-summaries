@@ -39,7 +39,7 @@ class OdsServiceSpec extends BaseSpec {
   implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   val odsConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
-  val jsonHelper: TaxsJsonHelper = mock[TaxsJsonHelper]
+  val jsonHelper: TaxsJsonHelper               = mock[TaxsJsonHelper]
 
   val service = new OdsService(jsonHelper, odsConnector)
 
@@ -201,7 +201,7 @@ class OdsServiceSpec extends BaseSpec {
         Map.empty,
         Map.empty
       )
-      override protected val taxRates: TaxRateService = mockTaxRateService
+      override protected val taxRates: TaxRateService         = mockTaxRateService
 
       override def taxLiability: Amount = Amount(amount, "GBP")
     }
@@ -212,7 +212,7 @@ class OdsServiceSpec extends BaseSpec {
         .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
 
       val taxYearJson = Json.obj("test" -> "test")
-      when(jsonHelper.createTaxYearJson(any[JsValue], eqTo(testUtr), any[JsValue]))
+      when(jsonHelper.createTaxYearJsonNew(any, eqTo(testUtr), any[JsValue]))
         .thenReturn(taxYearJson)
 
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear))(any[HeaderCarrier], any()))
@@ -240,7 +240,7 @@ class OdsServiceSpec extends BaseSpec {
       whenReady(result) { result =>
         result mustBe Right(taxYearJson)
         verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
-        val expectedSeqYears = Seq(currentTaxYear, currentTaxYear - 3, currentTaxYear - 4)
+        val expectedSeqYears = Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear)
         verify(jsonHelper, times(1)).createTaxYearJsonNew(eqTo(expectedSeqYears), eqTo(testUtr), any[JsValue])
       }
     }
