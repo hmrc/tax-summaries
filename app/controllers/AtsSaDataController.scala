@@ -23,13 +23,12 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.OdsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import utils.{ATSErrorHandler, OdsIndividualYearsService, TaxsJsonHelper}
+import utils.{ATSErrorHandler, TaxsJsonHelper}
 
 import scala.concurrent.ExecutionContext
 
 class AtsSaDataController @Inject() (
   odsService: OdsService,
-  odsIndividualYearsService: OdsIndividualYearsService,
   atsErrorHandler: ATSErrorHandler,
   authAction: AuthAction,
   cc: ControllerComponents,

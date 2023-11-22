@@ -33,6 +33,56 @@ class OdsService @Inject() (
   selfAssessmentOdsConnector: SelfAssessmentODSConnector
 )(implicit ec: ExecutionContext) {
 
+  /* Copy of getAtsList from removed OdsIndividualYearsService:-
+  Use this to add the retry code into below
+  
+  def getAtsList(utr: String, endYear: Int, numberOfYears: Int)(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, List[Int]] = {
+    def individualYearResponse(
+      utr: String,
+      taxYear: Int
+    ): EitherT[Future, Map[Int, UpstreamErrorResponse], Map[Int, Option[JsValue]]] =
+      odsService.getPayload(utr, taxYear).transform {
+        case Right(value)                                            => Right(Map(taxYear -> Some(value)))
+        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _))         => Right(Map(taxYear -> None))
+        case Left(error) if error.statusCode < INTERNAL_SERVER_ERROR =>
+          logger.error(error.getMessage(), error)
+          Right(Map(taxYear -> None))
+        case Left(error)                                             => Left(Map(taxYear -> UpstreamErrorResponse("", error.statusCode)))
+      }
+
+    EitherT(
+      Future
+        .sequence((endYear - numberOfYears to endYear).map { year =>
+          individualYearResponse(utr, year).value
+        })
+        .flatMap { results =>
+          val lefts: Map[Int, UpstreamErrorResponse] = results.collect { case Left(x) => x }.flatten.toMap
+          val rights: Map[Int, Option[JsValue]]      = results.collect { case Right(x) => x }.flatten.toMap
+          (lefts.size match {
+            case 0 =>
+              EitherT.rightT[Future, Map[Int, UpstreamErrorResponse]](rights)
+            case 1 =>
+              val failedYear = lefts.head._1
+              individualYearResponse(utr: String, failedYear: Int).map { newItem =>
+                newItem ++ rights
+              }
+            case _ =>
+              EitherT
+                .leftT[Future, Map[Int, Option[JsValue]]](Map(0 -> UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+          }).value
+        }
+        .map {
+          case Left(error)     => Left(error.head._2)
+          case Right(response) => Right(response.collect { case (key, Some(value)) => (key, value) }.keys.toList.sorted)
+        }
+    )
+  }
+   */
+
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]

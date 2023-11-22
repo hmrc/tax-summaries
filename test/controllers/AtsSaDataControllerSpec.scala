@@ -21,14 +21,14 @@ import controllers.auth.FakeAuthAction
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import org.scalatest.time.{Millis, Seconds, Span}
 import play.api.http.Status._
-import play.api.libs.json.{JsDefined, JsString, Json}
+import play.api.libs.json.{JsString, Json}
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.TestConstants._
-import utils.{ATSErrorHandler, BaseSpec, OdsIndividualYearsService, TaxsJsonHelper}
+import utils.{ATSErrorHandler, BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.ExecutionContext
 import scala.io.Source
@@ -46,13 +46,11 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  val odsService: OdsService                               = mock[OdsService]
-  val odsIndividualYearsService: OdsIndividualYearsService = mock[OdsIndividualYearsService]
-  val jsonHelper: TaxsJsonHelper                           = inject[TaxsJsonHelper]
+  val odsService: OdsService     = mock[OdsService]
+  val jsonHelper: TaxsJsonHelper = inject[TaxsJsonHelper]
 
   val controller = new AtsSaDataController(
     odsService,
-    odsIndividualYearsService,
     atsErrorHandler,
     FakeAuthAction,
     cc,
@@ -264,9 +262,6 @@ class AtsSaDataControllerSpec extends BaseSpec {
         when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))
           .thenReturn(EitherT.leftT(upstreamError))
 
-        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
-          .thenReturn(EitherT.leftT(upstreamError))
-
         val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
         status(result) mustBe NOT_FOUND
@@ -279,9 +274,6 @@ class AtsSaDataControllerSpec extends BaseSpec {
       "connector returns a left with BadRequestError" in {
 
         val upstreamError = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
-
-        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
-          .thenReturn(EitherT.leftT(upstreamError))
 
         when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))
           .thenReturn(EitherT.leftT(upstreamError))
@@ -296,11 +288,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
     "return 500" when {
       List(401, 403, 409, 412).foreach { statusCode =>
         s"connector returns a status $statusCode" in {
-
           val upstreamError = UpstreamErrorResponse("Error", statusCode, INTERNAL_SERVER_ERROR)
-
-          when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
-            .thenReturn(EitherT.leftT(upstreamError))
 
           when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))
             .thenReturn(EitherT.leftT(upstreamError))
