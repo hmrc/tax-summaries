@@ -35,7 +35,7 @@ class OdsService @Inject() (
 
   /* Copy of getAtsList from removed OdsIndividualYearsService:-
   Use this to add the retry code into below
-  
+
   def getAtsList(utr: String, endYear: Int, numberOfYears: Int)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
