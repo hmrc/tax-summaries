@@ -224,7 +224,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
     }
   }
 
-  "getATSList" must {
+  "getATSSAList" must {
 
     "return 200" when {
 
@@ -246,10 +246,10 @@ class AtsSaDataControllerSpec extends BaseSpec {
         when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(JsDefined(Json.parse(singleAtsList)).value))
 
-        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
-          .thenReturn(
-            EitherT.rightT(List(2018))
-          )
+//        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
+//          .thenReturn(
+//            EitherT.rightT(List(2018))
+//          )
 
         val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 

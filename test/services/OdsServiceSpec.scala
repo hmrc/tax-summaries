@@ -207,7 +207,7 @@ class OdsServiceSpec extends BaseSpec {
     }
 
   "getATSList" must {
-    "work" in {
+    "return years list minus any years where no tax data or tax liability found" in {
       when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
         .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
 

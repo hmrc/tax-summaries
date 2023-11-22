@@ -86,7 +86,7 @@ class OdsService @Inject() (
       |      ]
       |  }""".stripMargin)
 
-  private def createSAListFromDetail(utr: String, startYear: Int, endYear: Int)(implicit
+  private def createSAListFromSADetail(utr: String, startYear: Int, endYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] =
@@ -101,9 +101,8 @@ class OdsService @Inject() (
                   case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => Right(Nil)
                   case Left(errorResponse)                             => Left(errorResponse)
                   case Right(response)                                 =>
-                    val atsCalculations = jsonHelper.getATSCalculations(taxYear, response.json)
                     Right(
-                      if (atsCalculations.hasLiability) {
+                      if (jsonHelper.getATSCalculations(taxYear, response.json).hasLiability) {
                         Seq(taxYear)
                       } else {
                         Nil
@@ -124,7 +123,7 @@ class OdsService @Inject() (
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxSummaries <- createSAListFromDetail(utr, startYear, endYear)
+      taxSummaries <- createSAListFromSADetail(utr, startYear, endYear)
       taxpayer     <- selfAssessmentOdsConnector
                         .connectToSATaxpayerDetails(utr)
                         .transform {
