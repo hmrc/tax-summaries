@@ -28,10 +28,10 @@ import utils.TaxsJsonHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsService @Inject() (
-  jsonHelper: TaxsJsonHelper,
-  selfAssessmentOdsConnector: SelfAssessmentODSConnector
-)(implicit ec: ExecutionContext) {
+class OdsService @Inject()(
+                            jsonHelper: TaxsJsonHelper,
+                            selfAssessmentOdsConnector: SelfAssessmentODSConnector
+                          )(implicit ec: ExecutionContext) {
 
   /* Copy of getAtsList from removed OdsIndividualYearsService:-
   Use this to add the retry code into below
@@ -84,76 +84,95 @@ class OdsService @Inject() (
    */
 
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
+                                             hc: HeaderCarrier,
+                                             request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxpayer     <- selfAssessmentOdsConnector
-                        .connectToSATaxpayerDetails(utr)
-                        .transform {
-                          case Right(response) if response.status == NOT_FOUND =>
-                            Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                          case Right(response)                                 => Right(response.json.as[JsValue])
-                          case Left(error)                                     => Left(error)
-                        }
+      taxpayer <- selfAssessmentOdsConnector
+        .connectToSATaxpayerDetails(utr)
+        .transform {
+          case Right(response) if response.status == NOT_FOUND =>
+            Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+          case Right(response) => Right(response.json.as[JsValue])
+          case Left(error) => Left(error)
+        }
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
-                        case Right(response) if response.status == NOT_FOUND =>
-                          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                        case Right(response)                                 => Right(response.json.as[JsValue])
-                        case Left(error)                                     => Left(error)
-                      }
+        case Right(response) if response.status == NOT_FOUND =>
+          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+        case Right(response) => Right(response.json.as[JsValue])
+        case Left(error) => Left(error)
+      }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
 
-  def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] =
-    EitherT(
-      (startYear to endYear).foldLeft[Future[Either[UpstreamErrorResponse, Seq[Int]]]](Future(Right(Nil))) {
-        (futureAcc, taxYear) =>
-          futureAcc.flatMap {
-            case a @ Left(_)             => Future.successful(a)
-            case Right(previousTaxYears) =>
-              val futureResponseForTaxYear =
-                selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
-                  case Right(HttpResponse(NOT_FOUND, _, _)) => Right(Nil)
-                  case Left(errorResponse)                  => Left(errorResponse)
-                  case Right(response)                      =>
-                    Right(
-                      if (jsonHelper.getATSCalculations(taxYear, response.json).hasLiability) {
-                        Seq(taxYear)
-                      } else {
-                        Nil
-                      }
-                    )
-                }
-              futureResponseForTaxYear.map {
-                case errorResponse @ Left(_) =>
-                  errorResponse
-                case Right(currentTaxYear)   => Right(previousTaxYears ++ currentTaxYear)
-              }
+  // TODO: Retry ONCE ONLY if hod call fails. Could either just call below once more and rely on Mongo cache for successful calls
+  // or avoid the extra Mongo traffic by caching responses in memory.
+
+  private case class Results(processedYears: Seq[Int], optionUpstreamErrorResponse: Option[UpstreamErrorResponse])
+
+  private def retrieveSAYears(utr: String, startYear: Int, endYear: Int)(implicit
+                                                                         hc: HeaderCarrier,
+                                                                         request: Request[_]
+  ): Future[Results] =
+    (startYear to endYear).foldLeft[Future[Results]](Future(Results(Nil, None))) { (futureAcc, taxYear) =>
+      futureAcc.flatMap {
+        case a@Results(_, Some(_)) => Future.successful(a)
+        case Results(previousTaxYears, None) =>
+          val futureResponseForTaxYear = selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
+            case Right(HttpResponse(NOT_FOUND, _, _)) => Results(Nil, None)
+            case Left(errorResponse) => Results(previousTaxYears, Some(errorResponse))
+            case Right(response) =>
+              Results(
+                if (jsonHelper.getATSCalculations(taxYear, response.json).hasLiability) {
+                  Seq(taxYear)
+                } else {
+                  Nil
+                },
+                None
+              )
+          }
+          futureResponseForTaxYear.map {
+            case errorResponse@Results(_, Some(_)) => errorResponse
+            case Results(currentTaxYear, None) => Results(previousTaxYears ++ currentTaxYear, None)
           }
       }
+    }
+
+  def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
+                                                            hc: HeaderCarrier,
+                                                            request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
+    val futureResults = retrieveSAYears(utr, startYear, endYear).flatMap {
+      case Results(a, Some(_)) =>
+        retrieveSAYears(utr, a.max + 1, endYear)
+      // Need to prepend a if successful - but first need failing unit test
+      case a@Results(_, None) => Future.successful(a)
+    }
+    EitherT(
+      futureResults.map {
+        case Results(_, Some(e)) => Left(e)
+        case Results(a, None) => Right(a)
+      }
     )
+  }
 
   def hasATS(
-    utr: String
-  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+              utr: String
+            )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     getATSList(utr, TaxYear.current.startYear - 4, TaxYear.current.startYear).map { taxYears =>
       Json.obj("has_ats" -> taxYears.nonEmpty)
     }
 
   def connectToSATaxpayerDetails(
-    utr: String
-  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+                                  utr: String
+                                )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     selfAssessmentOdsConnector
       .connectToSATaxpayerDetails(utr)
       .transform {
         case Right(response) if response.status == NOT_FOUND =>
           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-        case Right(response)                                 =>
+        case Right(response) =>
           Right(response.json.as[JsValue])
-        case Left(error)                                     => Left(error)
+        case Left(error) => Left(error)
       }
 
 }
