@@ -19,11 +19,10 @@ package services
 import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.SelfAssessmentODSConnector
-import models._
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.time.TaxYear
 import utils.TaxsJsonHelper
 
@@ -67,9 +66,9 @@ class OdsService @Inject() (
             case Right(previousTaxYears) =>
               val futureResponseForTaxYear =
                 selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
-                  case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => Right(Nil)
-                  case Left(errorResponse)                             => Left(errorResponse)
-                  case Right(response)                                 =>
+                  case Right(HttpResponse(NOT_FOUND, _, _)) => Right(Nil)
+                  case Left(errorResponse)                  => Left(errorResponse)
+                  case Right(response)                      =>
                     Right(
                       if (jsonHelper.getATSCalculations(taxYear, response.json).hasLiability) {
                         Seq(taxYear)

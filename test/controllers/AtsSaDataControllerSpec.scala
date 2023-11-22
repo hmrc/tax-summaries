@@ -246,11 +246,6 @@ class AtsSaDataControllerSpec extends BaseSpec {
         when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(Seq(2018)))
 
-//        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
-//          .thenReturn(
-//            EitherT.rightT(List(2018))
-//          )
-
         val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
         status(result) mustBe OK

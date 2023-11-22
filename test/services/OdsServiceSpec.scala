@@ -60,6 +60,35 @@ class OdsServiceSpec extends BaseSpec {
       override def taxLiability: Amount = Amount(amount, "GBP")
     }
 
+  private def whenClausesForSA(endTaxYear: Int, responseStatusesToMockForSA: Seq[Int]): Unit =
+    responseStatusesToMockForSA.reverse.zipWithIndex.foreach { case (a, i) =>
+      val response = a match {
+        case OK           => Right(HttpResponse(OK, saResponse(endTaxYear - i), Map.empty))
+        case NOT_FOUND    => Right(HttpResponse(NOT_FOUND, saResponse(endTaxYear - i), Map.empty))
+        case responseCode => Left(UpstreamErrorResponse("", responseCode))
+      }
+
+      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any()))
+        .thenReturn(EitherT.fromEither(response))
+    }
+
+  private def verifySA(endTaxYear: Int, expectedNumberOfCalls: Seq[Int]): Unit =
+    expectedNumberOfCalls.reverse.zipWithIndex.foreach { case (a, i) =>
+      verify(odsConnector, times(a))
+        .connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any())
+    }
+
+  private def whenClausesForATSCalculations(endTaxYear: Int, values: Seq[BigDecimal]): Unit =
+    ((endTaxYear - (values.size - 1)) to endTaxYear).zipWithIndex.foreach { case (year, i) =>
+      when(jsonHelper.getATSCalculations(eqTo(year), eqTo(saResponse(year))))
+        .thenReturn(atsCalculations(year, values(i)))
+    }
+
+  private def verifyATSCalculations(endTaxYear: Int, expectedNumberOfCalls: Seq[Int]): Unit =
+    ((endTaxYear - (expectedNumberOfCalls.size - 1)) to endTaxYear).zipWithIndex.foreach { case (year, i) =>
+      verify(jsonHelper, times(expectedNumberOfCalls(i))).getATSCalculations(eqTo(year), eqTo(saResponse(year)))
+    }
+
   override def beforeEach(): Unit = {
     reset(odsConnector, jsonHelper)
     super.beforeEach()
@@ -144,34 +173,6 @@ class OdsServiceSpec extends BaseSpec {
       }
     }
   }
-
-  private def whenClausesForSA(endTaxYear: Int, responseStatusesToMockForSA: Seq[Int]): Unit =
-    responseStatusesToMockForSA.reverse.zipWithIndex.foreach { case (a, i) =>
-      val response = a match {
-        case OK           => Right(HttpResponse(OK, saResponse(endTaxYear - i), Map.empty))
-        case responseCode => Left(UpstreamErrorResponse("", responseCode))
-      }
-
-      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any()))
-        .thenReturn(EitherT.fromEither(response))
-    }
-
-  private def verifySA(endTaxYear: Int, expectedNumberOfCalls: Seq[Int]): Unit =
-    expectedNumberOfCalls.reverse.zipWithIndex.foreach { case (a, i) =>
-      verify(odsConnector, times(a))
-        .connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any())
-    }
-
-  private def whenClausesForATSCalculations(endTaxYear: Int, values: Seq[BigDecimal]): Unit =
-    ((endTaxYear - (values.size - 1)) to endTaxYear).zipWithIndex.foreach { case (year, i) =>
-      when(jsonHelper.getATSCalculations(eqTo(year), eqTo(saResponse(year))))
-        .thenReturn(atsCalculations(year, values(i)))
-    }
-
-  private def verifyATSCalculations(endTaxYear: Int, expectedNumberOfCalls: Seq[Int]): Unit =
-    ((endTaxYear - (expectedNumberOfCalls.size - 1)) to endTaxYear).zipWithIndex.foreach { case (year, i) =>
-      verify(jsonHelper, times(expectedNumberOfCalls(i))).getATSCalculations(eqTo(year), eqTo(saResponse(year)))
-    }
 
   "getATSList" must {
     "return years list minus any years where no tax data found (+ must not do tax liability calculation) or no tax liability found" in {
