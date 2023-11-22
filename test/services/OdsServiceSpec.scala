@@ -273,7 +273,7 @@ class OdsServiceSpec extends BaseSpec {
       }
     }
 
-    "return upstream error exception if any call to HOD fails + not subsequently try any further HOD calls" in {
+    "return upstream error exception if 1 call to HOD fails + retry that call ONCE ONLY (fails again) + don't continue calls to HOD" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear - 2,
         responseStatusesToMockForSA = Seq(OK, OK, INTERNAL_SERVER_ERROR)
@@ -287,7 +287,7 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 0, 0)
+          expectedNumberOfCalls = Seq(1, 1, 2, 0, 0)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
