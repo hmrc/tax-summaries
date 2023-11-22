@@ -235,7 +235,8 @@ class OdsServiceSpec extends BaseSpec {
       when(jsonHelper.getATSCalculations(eqTo(currentTaxYear - 4), eqTo(saResponse(currentTaxYear - 4))))
         .thenReturn(atsCalculations(currentTaxYear, 40))
 
-      val result = service.getATSList(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+      val result =
+        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
       whenReady(result) { result =>
         result mustBe Right(taxYearJson)
