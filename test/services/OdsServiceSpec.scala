@@ -35,13 +35,32 @@ import java.time.LocalDate
 import scala.concurrent.ExecutionContext
 
 class OdsServiceSpec extends BaseSpec {
+  private implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
-  implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  private val odsConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
+  private val jsonHelper: TaxsJsonHelper               = mock[TaxsJsonHelper]
 
-  val odsConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
-  val jsonHelper: TaxsJsonHelper               = mock[TaxsJsonHelper]
+  private val service = new OdsService(jsonHelper, odsConnector)
 
-  val service = new OdsService(jsonHelper, odsConnector)
+  private val currentTaxYear = TaxYear.current.currentYear
+
+  private def saResponse(taxYear: Int): JsValue = Json.obj("taxYear" -> taxYear)
+
+  private val mockTaxRateService = mock[TaxRateService]
+
+  private def atsCalculations(taxYear: Int, amount: BigDecimal) =
+    new ATSCalculations {
+      override protected val summaryData: TaxSummaryLiability = TaxSummaryLiability(
+        taxYear,
+        PensionTaxRate(0),
+        None,
+        Map.empty,
+        Map.empty
+      )
+      override protected val taxRates: TaxRateService         = mockTaxRateService
+
+      override def taxLiability: Amount = Amount(amount, "GBP")
+    }
 
   override def beforeEach(): Unit = {
     reset(odsConnector, jsonHelper)
@@ -186,26 +205,6 @@ class OdsServiceSpec extends BaseSpec {
   //    }
   //  }
 
-  private val currentTaxYear = TaxYear.current.currentYear
-
-  private def saResponse(taxYear: Int): JsValue = Json.obj("taxYear" -> taxYear)
-
-  private val mockTaxRateService = mock[TaxRateService]
-
-  private def atsCalculations(taxYear: Int, amount: BigDecimal) =
-    new ATSCalculations {
-      override protected val summaryData: TaxSummaryLiability = TaxSummaryLiability(
-        taxYear,
-        PensionTaxRate(0),
-        None,
-        Map.empty,
-        Map.empty
-      )
-      override protected val taxRates: TaxRateService         = mockTaxRateService
-
-      override def taxLiability: Amount = Amount(amount, "GBP")
-    }
-
   "getATSList" must {
     "return years list minus any years where no tax data or tax liability found" in {
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear))(any[HeaderCarrier], any()))
@@ -246,6 +245,42 @@ class OdsServiceSpec extends BaseSpec {
           .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 4))(any[HeaderCarrier], any())
         verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear), eqTo(saResponse(currentTaxYear)))
         verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 1), eqTo(saResponse(currentTaxYear - 1)))
+        verify(jsonHelper, times(0)).getATSCalculations(eqTo(currentTaxYear - 2), eqTo(saResponse(currentTaxYear - 2)))
+        verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 3), eqTo(saResponse(currentTaxYear - 3)))
+        verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 4), eqTo(saResponse(currentTaxYear - 4)))
+      }
+    }
+
+    "return exception if one call to HOD fails + must not subsequently try any further HOD calls" in {
+      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 2))(any[HeaderCarrier], any()))
+        .thenReturn(EitherT.leftT(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR)))
+      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 3))(any[HeaderCarrier], any()))
+        .thenReturn(EitherT.rightT(HttpResponse(OK, saResponse(currentTaxYear - 3), Map.empty)))
+      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 4))(any[HeaderCarrier], any()))
+        .thenReturn(EitherT.rightT(HttpResponse(OK, saResponse(currentTaxYear - 4), Map.empty)))
+
+      when(jsonHelper.getATSCalculations(eqTo(currentTaxYear - 3), eqTo(saResponse(currentTaxYear - 3))))
+        .thenReturn(atsCalculations(currentTaxYear, 60))
+      when(jsonHelper.getATSCalculations(eqTo(currentTaxYear - 4), eqTo(saResponse(currentTaxYear - 4))))
+        .thenReturn(atsCalculations(currentTaxYear, 40))
+
+      val result =
+        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+
+      whenReady(result) { result =>
+        result mustBe Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+        verify(odsConnector, times(0))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear))(any[HeaderCarrier], any())
+        verify(odsConnector, times(0))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 1))(any[HeaderCarrier], any())
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 2))(any[HeaderCarrier], any())
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 3))(any[HeaderCarrier], any())
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 4))(any[HeaderCarrier], any())
+        verify(jsonHelper, times(0)).getATSCalculations(eqTo(currentTaxYear), eqTo(saResponse(currentTaxYear)))
+        verify(jsonHelper, times(0)).getATSCalculations(eqTo(currentTaxYear - 1), eqTo(saResponse(currentTaxYear - 1)))
         verify(jsonHelper, times(0)).getATSCalculations(eqTo(currentTaxYear - 2), eqTo(saResponse(currentTaxYear - 2)))
         verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 3), eqTo(saResponse(currentTaxYear - 3)))
         verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 4), eqTo(saResponse(currentTaxYear - 4)))
