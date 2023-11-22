@@ -61,7 +61,6 @@ class AtsSaDataController @Inject() (
       val response = for {
         singleListForAllYears <- odsService
                                    .getATSList(utr, endYear - numberOfYears, endYear)
-                                   .map(json => (json \ "atsYearList").as[List[Int]])
         taxPayer              <- odsService.connectToSATaxpayerDetails(utr)
       } yield jsonHelper.createTaxYearJson(
         Json.obj(

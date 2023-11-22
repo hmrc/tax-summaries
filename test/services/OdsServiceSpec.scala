@@ -208,13 +208,6 @@ class OdsServiceSpec extends BaseSpec {
 
   "getATSList" must {
     "return years list minus any years where no tax data or tax liability found" in {
-      when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
-        .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-
-      val taxYearJson = Json.obj("test" -> "test")
-      when(jsonHelper.createTaxYearJsonNew(any, eqTo(testUtr), any[JsValue]))
-        .thenReturn(taxYearJson)
-
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear))(any[HeaderCarrier], any()))
         .thenReturn(EitherT.rightT(HttpResponse(OK, saResponse(currentTaxYear), Map.empty)))
       when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 1))(any[HeaderCarrier], any()))
@@ -238,11 +231,24 @@ class OdsServiceSpec extends BaseSpec {
       val result =
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
+      val expectedSeqYears = Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear)
       whenReady(result) { result =>
-        result mustBe Right(taxYearJson)
-        verify(odsConnector, times(1)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
-        val expectedSeqYears = Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear)
-        verify(jsonHelper, times(1)).createTaxYearJsonNew(eqTo(expectedSeqYears), eqTo(testUtr), any[JsValue])
+        result mustBe Right(expectedSeqYears)
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear))(any[HeaderCarrier], any())
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 1))(any[HeaderCarrier], any())
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 2))(any[HeaderCarrier], any())
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 3))(any[HeaderCarrier], any())
+        verify(odsConnector, times(1))
+          .connectToSelfAssessment(eqTo(testUtr), eqTo(currentTaxYear - 4))(any[HeaderCarrier], any())
+        verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear), eqTo(saResponse(currentTaxYear)))
+        verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 1), eqTo(saResponse(currentTaxYear - 1)))
+        verify(jsonHelper, times(0)).getATSCalculations(eqTo(currentTaxYear - 2), eqTo(saResponse(currentTaxYear - 2)))
+        verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 3), eqTo(saResponse(currentTaxYear - 3)))
+        verify(jsonHelper, times(1)).getATSCalculations(eqTo(currentTaxYear - 4), eqTo(saResponse(currentTaxYear - 4)))
       }
     }
   }

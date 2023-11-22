@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.time.TaxYear
 import utils.TaxsJsonHelper
 
+import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
 class OdsService @Inject() (
@@ -86,7 +87,7 @@ class OdsService @Inject() (
       |      ]
       |  }""".stripMargin)
 
-  private def createSAListFromSADetail(utr: String, startYear: Int, endYear: Int)(implicit
+  def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] =
@@ -117,23 +118,9 @@ class OdsService @Inject() (
           }
       }
     )
-
-  def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, JsValue] =
-    for {
-      taxSummaries <- createSAListFromSADetail(utr, startYear, endYear)
-      taxpayer     <- selfAssessmentOdsConnector
-                        .connectToSATaxpayerDetails(utr)
-                        .transform {
-                          case Right(response) if response.status == NOT_FOUND =>
-                            Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-                          case Right(response)                                 =>
-                            Right(response.json.as[JsValue])
-                          case Left(error)                                     => Left(error)
-                        }
-    } yield jsonHelper.createTaxYearJsonNew(taxSummaries, utr, taxpayer)
+  //    for {
+//      taxSummaries <- createSAListFromSADetail(utr, startYear, endYear)
+//    } yield jsonHelper.createTaxYearJsonNew(taxSummaries, utr, taxpayer)
 
   //  s"""{"utr":"$testUtr","taxPayer":{"taxpayer_name":{"title":"Mr","forename":"forename","surname":"surname"}},"atsYearList":[2014,2015]}"""
 

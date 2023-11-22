@@ -244,7 +244,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
         when(odsService.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(Json.parse(taxPayer)))
         when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))
-          .thenReturn(EitherT.rightT(JsDefined(Json.parse(singleAtsList)).value))
+          .thenReturn(EitherT.rightT(Seq(2018)))
 
 //        when(odsIndividualYearsService.getAtsList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any(), any()))
 //          .thenReturn(
