@@ -31,6 +31,7 @@ import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.ExecutionContext
+import scala.language.implicitConversions
 
 class OdsServiceSpec extends BaseSpec {
   private implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
@@ -60,21 +61,30 @@ class OdsServiceSpec extends BaseSpec {
       override def taxLiability: Amount = Amount(amount, "GBP")
     }
 
-  private def whenClausesForSA(endTaxYear: Int, responseStatusesToMockForSA: Seq[Int]): Unit =
-    responseStatusesToMockForSA.reverse.zipWithIndex.foreach { case (a, i) =>
-      val response = a match {
+  private implicit def convertIntToSeqInt(i: Int): Seq[Int] = Seq(i)
+
+  private def whenClausesForSA(endTaxYear: Int, responseStatusesToMockForSA: Seq[Seq[Int]]): Unit =
+    responseStatusesToMockForSA.reverse.zipWithIndex.foreach { case (seqInt, i) =>
+      val seqEither = seqInt.map {
         case OK           => Right(HttpResponse(OK, saResponse(endTaxYear - i), Map.empty))
         case NOT_FOUND    => Right(HttpResponse(NOT_FOUND, saResponse(endTaxYear - i), Map.empty))
         case responseCode => Left(UpstreamErrorResponse("", responseCode))
       }
 
-      when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any()))
-        .thenReturn(EitherT.fromEither(response))
+      val seqEitherT = seqEither.map(EitherT.fromEither(_)(catsStdInstancesForFuture(ec)))
+
+      if (seqEitherT.size > 1) {
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any()))
+          .thenReturn(seqEitherT.head, seqEitherT.tail: _*)
+      } else {
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any()))
+          .thenReturn(seqEitherT.head)
+      }
     }
 
   private def verifySA(endTaxYear: Int, expectedNumberOfCalls: Seq[Int]): Unit =
-    expectedNumberOfCalls.reverse.zipWithIndex.foreach { case (a, i) =>
-      verify(odsConnector, times(a))
+    expectedNumberOfCalls.reverse.zipWithIndex.foreach { case (expNumberOfCalls, i) =>
+      verify(odsConnector, times(expNumberOfCalls))
         .connectToSelfAssessment(eqTo(testUtr), eqTo(endTaxYear - i))(any[HeaderCarrier], any())
     }
 
@@ -223,7 +233,66 @@ class OdsServiceSpec extends BaseSpec {
       }
     }
 
-    // TODO: Need new test like above but where succeed on second attempt
+    "return all years when one HOD call fails but retry succeeds" in {
+      whenClausesForSA(
+        endTaxYear = currentTaxYear,
+        responseStatusesToMockForSA = Seq(OK, OK, Seq(INTERNAL_SERVER_ERROR, OK), OK, OK)
+      )
+
+      whenClausesForATSCalculations(
+        endTaxYear = currentTaxYear,
+        values = Seq(BigDecimal(1), BigDecimal(1), BigDecimal(1), BigDecimal(1), BigDecimal(1))
+      )
+
+      whenReady(
+        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+      ) { result =>
+        result mustBe
+          Right(Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear - 2, currentTaxYear - 1, currentTaxYear))
+
+        verifySA(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+        )
+        verifyATSCalculations(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+        )
+      }
+    }
+
+    "return upstream error exception when one HOD call fails and retry fails + don't process subsequent years" in {
+      whenClausesForSA(
+        endTaxYear = currentTaxYear,
+        responseStatusesToMockForSA = Seq(OK, OK, INTERNAL_SERVER_ERROR, OK, OK)
+      )
+
+      whenClausesForATSCalculations(
+        endTaxYear = currentTaxYear,
+        values = Seq(BigDecimal(1), BigDecimal(1))
+      )
+
+      whenClausesForATSCalculations(
+        endTaxYear = currentTaxYear - 3,
+        values = Seq(BigDecimal(1), BigDecimal(1))
+      )
+
+      whenReady(
+        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+      ) { result =>
+        result mustBe
+          Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+
+        verifySA(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 2, 0, 0)
+        )
+        verifyATSCalculations(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 0, 0, 0)
+        )
+      }
+    }
   }
 
   "hasATS" must {
@@ -294,6 +363,33 @@ class OdsServiceSpec extends BaseSpec {
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
           expectedNumberOfCalls = Seq(1, 1, 0, 0, 0)
+        )
+      }
+    }
+
+    "return json with true value when one HOD call fails but retry succeeds" in {
+      whenClausesForSA(
+        endTaxYear = currentTaxYear,
+        responseStatusesToMockForSA = Seq(OK, OK, Seq(INTERNAL_SERVER_ERROR, OK), OK, OK)
+      )
+
+      whenClausesForATSCalculations(
+        endTaxYear = currentTaxYear,
+        values = Seq(BigDecimal(1), BigDecimal(1), BigDecimal(1), BigDecimal(1), BigDecimal(1))
+      )
+
+      whenReady(
+        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+      ) { result =>
+        result mustBe Right(Json.obj("has_ats" -> true))
+
+        verifySA(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+        )
+        verifyATSCalculations(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
         )
       }
     }
