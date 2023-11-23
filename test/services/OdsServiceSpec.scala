@@ -238,10 +238,10 @@ class OdsServiceSpec extends BaseSpec {
 
     "return upstream error exception if 1 call to HOD fails + retry that call ONCE ONLY (fails again) + don't continue calls to HOD" in {
       whenClausesForSA(
-        endTaxYear = currentTaxYear - 2,
-        responseStatusesToMockForSA = Seq(OK, OK, INTERNAL_SERVER_ERROR)
+        endTaxYear = currentTaxYear,
+        responseStatusesToMockForSA = Seq(INTERNAL_SERVER_ERROR, OK, OK)
       )
-      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
+      whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(1), BigDecimal(2)))
 
       whenReady(
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
@@ -250,11 +250,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 2, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 2, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0, 1, 1)
         )
       }
     }
@@ -298,10 +298,10 @@ class OdsServiceSpec extends BaseSpec {
         values = Seq(BigDecimal(1), BigDecimal(1))
       )
 
-      whenClausesForATSCalculations(
-        endTaxYear = currentTaxYear - 3,
-        values = Seq(BigDecimal(1), BigDecimal(1))
-      )
+//      whenClausesForATSCalculations(
+//        endTaxYear = currentTaxYear - 3,
+//        values = Seq(BigDecimal(1), BigDecimal(1))
+//      )
 
       whenReady(
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
@@ -311,11 +311,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 2, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 2, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0, 1, 1)
         )
       }
     }

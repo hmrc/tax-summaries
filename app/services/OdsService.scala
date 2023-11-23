@@ -28,32 +28,32 @@ import utils.TaxsJsonHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsService @Inject() (
-  jsonHelper: TaxsJsonHelper,
-  selfAssessmentOdsConnector: SelfAssessmentODSConnector
-)(implicit ec: ExecutionContext) {
+class OdsService @Inject()(
+                            jsonHelper: TaxsJsonHelper,
+                            selfAssessmentOdsConnector: SelfAssessmentODSConnector
+                          )(implicit ec: ExecutionContext) {
 
   import OdsService._
 
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
+                                             hc: HeaderCarrier,
+                                             request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxpayer     <- selfAssessmentOdsConnector
-                        .connectToSATaxpayerDetails(utr)
-                        .transform {
-                          case Right(response) if response.status == NOT_FOUND =>
-                            Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                          case Right(response)                                 => Right(response.json.as[JsValue])
-                          case Left(error)                                     => Left(error)
-                        }
+      taxpayer <- selfAssessmentOdsConnector
+        .connectToSATaxpayerDetails(utr)
+        .transform {
+          case Right(response) if response.status == NOT_FOUND =>
+            Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+          case Right(response) => Right(response.json.as[JsValue])
+          case Left(error) => Left(error)
+        }
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
-                        case Right(response) if response.status == NOT_FOUND =>
-                          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                        case Right(response)                                 => Right(response.json.as[JsValue])
-                        case Left(error)                                     => Left(error)
-                      }
+        case Right(response) if response.status == NOT_FOUND =>
+          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+        case Right(response) => Right(response.json.as[JsValue])
+        case Left(error) => Left(error)
+      }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
 
   private def getTaxYearIfLiable(taxYear: Int, json: JsValue): Seq[Int] =
@@ -64,49 +64,49 @@ class OdsService @Inject() (
     }
 
   private def processTaxYear(utr: String, taxYear: Int, stopWhenFound: Boolean)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
+                                                                                hc: HeaderCarrier,
+                                                                                request: Request[_]
   ): PartialFunction[InterimResult, Future[InterimResult]] = {
-    case ir @ InterimResult(_, Some(_))                    =>
+    case ir@InterimResult(_, Some(_)) =>
       Future.successful(ir)
-    case ir @ InterimResult(Seq(_), None) if stopWhenFound => Future.successful(ir)
-    case InterimResult(previousTaxYears, None)             =>
+    case ir@InterimResult(Seq(_), None) if stopWhenFound => Future.successful(ir)
+    case InterimResult(previousTaxYears, None) =>
       val futureResponseForTaxYear = selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
         case Right(HttpResponse(NOT_FOUND, _, _)) => EmptyInterimResult
-        case Left(errorResponse)                  => InterimResult(previousTaxYears, Some(FailureInfo(errorResponse, taxYear)))
-        case Right(response)                      =>
+        case Left(errorResponse) => InterimResult(previousTaxYears, Some(FailureInfo(errorResponse, taxYear)))
+        case Right(response) =>
           InterimResult(processedYears = getTaxYearIfLiable(taxYear, response.json), failureInfo = None)
       }
       futureResponseForTaxYear.map {
-        case errorResponse @ InterimResult(_, Some(_)) => errorResponse
-        case InterimResult(currentTaxYear, None)       => InterimResult(previousTaxYears ++ currentTaxYear, None)
+        case errorResponse@InterimResult(_, Some(_)) => errorResponse
+        case InterimResult(currentTaxYear, None) => InterimResult(previousTaxYears ++ currentTaxYear, None)
       }
   }
 
   private def findYearsWithTaxSummaryData(utr: String, startYear: Int, endYear: Int, stopWhenFound: Boolean)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
+                                                                                                             hc: HeaderCarrier,
+                                                                                                             request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
-    def retrieveSAYears(
-      yearToStartFrom: Int
-    ): Future[InterimResult] = {
-      val taxYearRange = if (stopWhenFound) (yearToStartFrom to startYear by -1) else (yearToStartFrom to endYear)
-      taxYearRange.foldLeft[Future[InterimResult]](Future(EmptyInterimResult)) { (futureAcc, taxYear) =>
-        futureAcc.flatMap(processTaxYear(utr, taxYear, stopWhenFound))
-      }
-    }
 
-    val futureResult = retrieveSAYears(yearToStartFrom = if (stopWhenFound) endYear else startYear).flatMap {
+    def retrieveSAYears(
+                         yearToStartFrom: Int
+                       ): Future[InterimResult] =
+      (yearToStartFrom to startYear by -1)
+        .foldLeft[Future[InterimResult]](Future(EmptyInterimResult)) { (futureAcc, taxYear) =>
+          futureAcc.flatMap(processTaxYear(utr, taxYear, stopWhenFound))
+        }
+
+    val futureResult = retrieveSAYears(yearToStartFrom = endYear).flatMap {
       case InterimResult(processedYears, Some(failureInfo)) =>
         retrieveSAYears(yearToStartFrom = failureInfo.failedYear).map {
-          case ir @ InterimResult(_, Some(_))               => ir
+          case ir@InterimResult(_, Some(_)) => ir
           case InterimResult(processedYearsSecondTry, None) =>
             InterimResult(
               processedYears = processedYears ++ processedYearsSecondTry,
               failureInfo = None
             )
         }
-      case ir @ InterimResult(_, None)                      => Future.successful(ir)
+      case ir@InterimResult(_, None) => Future.successful(ir)
     }
     EitherT(
       futureResult.map {
@@ -117,14 +117,16 @@ class OdsService @Inject() (
   }
 
   def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
-    hc: HeaderCarrier,
-    request: Request[_]
+                                                            hc: HeaderCarrier,
+                                                            request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] =
-    findYearsWithTaxSummaryData(utr = utr, startYear = startYear, endYear = endYear, stopWhenFound = false)
+    findYearsWithTaxSummaryData(utr = utr, startYear = startYear, endYear = endYear, stopWhenFound = false).map(
+      _.sorted
+    )
 
   def hasATS(
-    utr: String
-  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+              utr: String
+            )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     findYearsWithTaxSummaryData(
       utr = utr,
       startYear = TaxYear.current.startYear - 4,
@@ -135,16 +137,16 @@ class OdsService @Inject() (
     }
 
   def connectToSATaxpayerDetails(
-    utr: String
-  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+                                  utr: String
+                                )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     selfAssessmentOdsConnector
       .connectToSATaxpayerDetails(utr)
       .transform {
         case Right(response) if response.status == NOT_FOUND =>
           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-        case Right(response)                                 =>
+        case Right(response) =>
           Right(response.json.as[JsValue])
-        case Left(error)                                     => Left(error)
+        case Left(error) => Left(error)
       }
 }
 

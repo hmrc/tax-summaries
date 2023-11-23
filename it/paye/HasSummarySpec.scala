@@ -29,7 +29,7 @@ class HasSummarySpec extends IntegrationSpec {
 
   private def odsUrl(taxYear: Int) = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
 
-  private val apiUrl = s"/taxs/$utr/has_summary_for_previous_period"
+  private val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
   private val request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
