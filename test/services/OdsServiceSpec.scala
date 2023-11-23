@@ -185,6 +185,32 @@ class OdsServiceSpec extends BaseSpec {
   }
 
   "getATSList" must {
+
+    "return no years if no liability at all" in {
+      whenClausesForSA(
+        endTaxYear = currentTaxYear,
+        responseStatusesToMockForSA = Seq(OK, OK, NOT_FOUND, OK, OK)
+      )
+
+      whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0), BigDecimal(0)))
+      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(0), BigDecimal(0)))
+
+      whenReady(
+        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+      ) { result =>
+        result mustBe Right(Nil)
+
+        verifySA(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+        )
+        verifyATSCalculations(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
+        )
+      }
+    }
+
     "return years minus any where no tax liability or no tax data (when it must do no tax liability calc)" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
