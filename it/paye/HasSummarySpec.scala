@@ -26,7 +26,8 @@ import utils.{FileHelper, IntegrationSpec}
 
 class HasSummarySpec extends IntegrationSpec {
 
-  val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+  //val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+  val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
   val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
