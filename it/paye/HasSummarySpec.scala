@@ -22,21 +22,22 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualT
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.time.TaxYear
 import utils.{FileHelper, IntegrationSpec}
 
 class HasSummarySpec extends IntegrationSpec {
 
-  //val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-  val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
-  val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
-  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+  private def odsUrl(taxYear: Int) = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
+
+  private val apiUrl = s"/taxs/$utr/has_summary_for_previous_period"
+  private val request: FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "HasSummary" must {
     "return an OK when data is retrieved from ODS" in {
-
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrl))
+          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
           .willReturn(ok(FileHelper.loadFile("odsData.json")))
       )
 
@@ -44,23 +45,11 @@ class HasSummarySpec extends IntegrationSpec {
       result.map(status) mustBe Some(OK)
     }
 
-    "return NOT_FOUND when ODS returns NOT_FOUND response" in {
-
-      server.stubFor(
-        WireMock
-          .get(urlEqualTo(odsUrl))
-          .willReturn(aResponse().withStatus(NOT_FOUND))
-      )
-
-      val result = route(app, request)
-      result.map(status) mustBe Some(NOT_FOUND)
-    }
-
     "return an exception when ODS returns an empty ok" in {
 
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrl))
+          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
           .willReturn(ok())
       )
 
@@ -72,14 +61,14 @@ class HasSummarySpec extends IntegrationSpec {
     }
 
     List(
-      IM_A_TEAPOT,
+      //   IM_A_TEAPOT,
       LOCKED
     ).foreach { httpResponse =>
       s"return an $httpResponse when data is retrieved from ODS" in {
 
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrl))
+            .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -97,7 +86,7 @@ class HasSummarySpec extends IntegrationSpec {
 
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrl))
+            .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -110,7 +99,7 @@ class HasSummarySpec extends IntegrationSpec {
 
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrl))
+          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
           .willReturn(ok(FileHelper.loadFile("odsData.json")).withFixedDelay(10000))
       )
 

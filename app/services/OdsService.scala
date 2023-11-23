@@ -67,7 +67,8 @@ class OdsService @Inject() (
     hc: HeaderCarrier,
     request: Request[_]
   ): PartialFunction[InterimResult, Future[InterimResult]] = {
-    case ir @ InterimResult(_, Some(_))                    => Future.successful(ir)
+    case ir @ InterimResult(_, Some(_))                    =>
+      Future.successful(ir)
     case ir @ InterimResult(Seq(_), None) if stopWhenFound => Future.successful(ir)
     case InterimResult(previousTaxYears, None)             =>
       val futureResponseForTaxYear = selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
@@ -88,16 +89,16 @@ class OdsService @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
     def retrieveSAYears(
       yearToStartFrom: Int
-    )(implicit hc: HeaderCarrier, request: Request[_]): Future[InterimResult] = {
+    ): Future[InterimResult] = {
       val taxYearRange = if (stopWhenFound) (yearToStartFrom to startYear by -1) else (yearToStartFrom to endYear)
       taxYearRange.foldLeft[Future[InterimResult]](Future(EmptyInterimResult)) { (futureAcc, taxYear) =>
         futureAcc.flatMap(processTaxYear(utr, taxYear, stopWhenFound))
       }
     }
 
-    val futureResults = retrieveSAYears(yearToStartFrom = if (stopWhenFound) endYear else startYear).flatMap {
-      case InterimResult(processedYears, Some(fi)) =>
-        retrieveSAYears(yearToStartFrom = fi.failedYear).map {
+    val futureResult = retrieveSAYears(yearToStartFrom = if (stopWhenFound) endYear else startYear).flatMap {
+      case InterimResult(processedYears, Some(failureInfo)) =>
+        retrieveSAYears(yearToStartFrom = failureInfo.failedYear).map {
           case ir @ InterimResult(_, Some(_))               => ir
           case InterimResult(processedYearsSecondTry, None) =>
             InterimResult(
@@ -105,12 +106,11 @@ class OdsService @Inject() (
               failureInfo = None
             )
         }
-      case ir @ InterimResult(_, None)             => Future.successful(ir)
+      case ir @ InterimResult(_, None)                      => Future.successful(ir)
     }
     EitherT(
-      futureResults.map {
-        case InterimResult(_, Some(failureInfo)) =>
-          Left(failureInfo.upstreamErrorResponse)
+      futureResult.map {
+        case InterimResult(_, Some(failureInfo)) => Left(failureInfo.upstreamErrorResponse)
         case InterimResult(processedYears, None) => Right(processedYears)
       }
     )
@@ -150,6 +150,7 @@ class OdsService @Inject() (
 
 object OdsService {
   case class FailureInfo(upstreamErrorResponse: UpstreamErrorResponse, failedYear: Int)
+
   case class InterimResult(processedYears: Seq[Int], failureInfo: Option[FailureInfo])
 
   private final val EmptyInterimResult = InterimResult(Nil, None)
