@@ -63,15 +63,11 @@ class OdsService @Inject()(
       Nil
     }
 
-  def retrieveSATaxYears(
-                          utr: String,
-                          yearToStartFrom: Int,
-                          yearToEndAt: Int,
-                          stopWhenFound: Boolean
-                        )(implicit
-                          hc: HeaderCarrier,
-                          request: Request[_]
-                        ): Future[InterimResult] = {
+  def retrieveSATaxYears(utr: String,
+                         yearToStartFrom: Int,
+                         yearToEndAt: Int,
+                         stopWhenFound: Boolean
+                        )(implicit hc: HeaderCarrier, request: Request[_]): Future[InterimResult] = {
     def retrieveSATaxYear(taxYear: Int): PartialFunction[InterimResult, Future[InterimResult]] = {
       case InterimResult(previousTaxYears, Nil) =>
         val futureResponseForTaxYear = selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
