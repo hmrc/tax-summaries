@@ -135,21 +135,10 @@ class OdsService @Inject() (
         case ir => Future.successful(ir)
       }
     }
-    val totalTaxYears = endYear - startYear
     EitherT(
-      futureResult.map {
-        case InterimResult(_, seqFailureInfo, _) if seqFailureInfo.nonEmpty =>
-          Left(seqFailureInfo.head.upstreamErrorResponse)
-        case InterimResult(_, _, notFoundCount) if notFoundCount > totalTaxYears =>
-          Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-        case InterimResult(processedYears, _, _) => Right(processedYears)
-      }
+      futureResult.map(toEither(endYear - startYear))
     )
   }
-
-  // TODO: If there are no liabilities in ANY of the years then return Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-  // This should fix the one remaining failing journey test (due to UTR being displayed in info section on page) + 
-  // the failing unit test
 
   def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
                                                             hc: HeaderCarrier,
@@ -187,9 +176,17 @@ class OdsService @Inject() (
 }
 
 object OdsService {
-  case class FailureInfo(upstreamErrorResponse: UpstreamErrorResponse, failedYear: Int)
+  private case class FailureInfo(upstreamErrorResponse: UpstreamErrorResponse, failedYear: Int)
 
-  case class InterimResult(processedYears: Seq[Int], failureInfo: Seq[FailureInfo], notFoundCount: Int = 0)
+  private case class InterimResult(processedYears: Seq[Int], failureInfo: Seq[FailureInfo], notFoundCount: Int = 0)
+
+  private def toEither(totalYears: Int): PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
+    case InterimResult(_, seqFailureInfo, _) if seqFailureInfo.nonEmpty   =>
+      Left(seqFailureInfo.head.upstreamErrorResponse)
+    case InterimResult(_, _, notFoundCount) if notFoundCount > totalYears =>
+      Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
+    case InterimResult(processedYears, _, _)                              => Right(processedYears)
+  }
 
   private final val EmptyInterimResult    = InterimResult(Nil, Nil)
   private final val NotFoundInterimResult = InterimResult(Nil, Nil, 1)
