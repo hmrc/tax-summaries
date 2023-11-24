@@ -29,7 +29,7 @@ class HasSummarySpec extends IntegrationSpec {
 
   private def odsUrl(taxYear: Int) = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
 
-  private val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
+  private val apiUrl = s"/taxs/$utr/has_summary_for_previous_period"
   private val request: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
@@ -61,11 +61,10 @@ class HasSummarySpec extends IntegrationSpec {
     }
 
     List(
-      //   IM_A_TEAPOT,
+      IM_A_TEAPOT,
       LOCKED
     ).foreach { httpResponse =>
       s"return an $httpResponse when data is retrieved from ODS" in {
-
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
