@@ -63,44 +63,41 @@ class OdsService @Inject()(
       Nil
     }
 
-  private def processTaxYear(utr: String, taxYear: Int)(implicit
-                                                        hc: HeaderCarrier,
-                                                        request: Request[_]
-  ): PartialFunction[InterimResult, Future[InterimResult]] = {
-    case InterimResult(previousTaxYears, Nil) =>
-      val futureResponseForTaxYear = selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
-        case Right(HttpResponse(NOT_FOUND, _, _)) => EmptyInterimResult
-        case Left(errorResponse) => InterimResult(previousTaxYears, Seq(FailureInfo(errorResponse, taxYear)))
-        case Right(response) =>
-          InterimResult(processedYears = getTaxYearIfLiable(taxYear, response.json), failureInfo = Nil)
-      }
-      futureResponseForTaxYear.map {
-        case errorResponse@InterimResult(_, Seq(_)) => errorResponse
-        case InterimResult(currentTaxYear, Nil) => InterimResult(previousTaxYears ++ currentTaxYear, Nil)
-      }
-    case ir => Future.successful(ir)
-  }
+  def retrieveSATaxYears(
+                          utr: String,
+                          yearToStartFrom: Int,
+                          yearToEndAt: Int,
+                          stopWhenFound: Boolean
+                        )(implicit
+                          hc: HeaderCarrier,
+                          request: Request[_]
+                        ): Future[InterimResult] = {
+    def retrieveSATaxYear(taxYear: Int): PartialFunction[InterimResult, Future[InterimResult]] = {
+      case InterimResult(previousTaxYears, Nil) =>
+        val futureResponseForTaxYear = selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
+          case Right(HttpResponse(NOT_FOUND, _, _)) => EmptyInterimResult
+          case Left(errorResponse) => InterimResult(previousTaxYears, Seq(FailureInfo(errorResponse, taxYear)))
+          case Right(response) =>
+            InterimResult(processedYears = getTaxYearIfLiable(taxYear, response.json), failureInfo = Nil)
+        }
+        futureResponseForTaxYear.map {
+          case errorResponse@InterimResult(_, Seq(_)) => errorResponse
+          case InterimResult(currentTaxYear, Nil) => InterimResult(previousTaxYears ++ currentTaxYear, Nil)
+        }
+      case ir => Future.successful(ir)
+    }
 
-  def retrieveSAYears(
-                       utr: String,
-                       yearToStartFrom: Int,
-                       yearToEndAt: Int,
-                       stopWhenFound: Boolean
-                     )(implicit
-                       hc: HeaderCarrier,
-                       request: Request[_]
-                     ): Future[InterimResult] = {
     val taxYearRange = yearToStartFrom to yearToEndAt by -1
     if (stopWhenFound) {
       taxYearRange.foldLeft[Future[InterimResult]](Future(EmptyInterimResult)) { (futureAcc, taxYear) =>
         futureAcc.flatMap {
           case ir@InterimResult(Seq(_), Nil) => Future.successful(ir)
-          case ir => processTaxYear(utr, taxYear).apply(ir)
+          case ir => retrieveSATaxYear(taxYear)(ir)
         }
       }
     } else {
       Future
-        .sequence(taxYearRange.map(taxYear => processTaxYear(utr, taxYear).apply(EmptyInterimResult)))
+        .sequence(taxYearRange.map(taxYear => retrieveSATaxYear(taxYear)(EmptyInterimResult)))
         .map { seqInterimResult =>
           seqInterimResult.count(_.failureInfo.nonEmpty) match {
             case 0 => InterimResult(seqInterimResult.flatMap(_.processedYears), Nil)
@@ -115,14 +112,14 @@ class OdsService @Inject()(
                                                                                                              request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
     val futureResult =
-      retrieveSAYears(
+      retrieveSATaxYears(
         utr = utr,
         yearToStartFrom = endYear,
         yearToEndAt = startYear,
         stopWhenFound = stopWhenFound
       ).flatMap {
         case InterimResult(processedYears, Seq(failureInfo)) =>
-          retrieveSAYears(
+          retrieveSATaxYears(
             utr = utr,
             yearToStartFrom = failureInfo.failedYear,
             yearToEndAt = if (stopWhenFound) startYear else failureInfo.failedYear,
