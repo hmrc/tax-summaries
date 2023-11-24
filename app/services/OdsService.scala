@@ -22,6 +22,7 @@ import connectors.SelfAssessmentODSConnector
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
+import services.OdsService._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.time.TaxYear
 import utils.TaxsJsonHelper
@@ -32,9 +33,6 @@ class OdsService @Inject()(
                             jsonHelper: TaxsJsonHelper,
                             selfAssessmentOdsConnector: SelfAssessmentODSConnector
                           )(implicit ec: ExecutionContext) {
-
-  import OdsService._
-
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
                                              hc: HeaderCarrier,
                                              request: Request[_]
@@ -63,11 +61,10 @@ class OdsService @Inject()(
       Nil
     }
 
-  def retrieveSATaxYears(utr: String,
-                         yearToStartFrom: Int,
-                         yearToEndAt: Int,
-                         stopWhenFound: Boolean
-                        )(implicit hc: HeaderCarrier, request: Request[_]): Future[InterimResult] = {
+  private def retrieveSATaxYears(utr: String, yearToStartFrom: Int, yearToEndAt: Int, stopWhenFound: Boolean)(implicit
+                                                                                                              hc: HeaderCarrier,
+                                                                                                              request: Request[_]
+  ): Future[InterimResult] = {
     def retrieveSATaxYear(taxYear: Int): PartialFunction[InterimResult, Future[InterimResult]] = {
       case InterimResult(previousTaxYears, Nil) =>
         val futureResponseForTaxYear = selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
@@ -77,8 +74,8 @@ class OdsService @Inject()(
             InterimResult(processedYears = getTaxYearIfLiable(taxYear, response.json), failureInfo = Nil)
         }
         futureResponseForTaxYear.map {
-          case errorResponse@InterimResult(_, Seq(_)) => errorResponse
-          case InterimResult(currentTaxYear, Nil) => InterimResult(previousTaxYears ++ currentTaxYear, Nil)
+          case errorResponse@InterimResult(_, failureInfo) if failureInfo.nonEmpty => errorResponse
+          case InterimResult(currentTaxYear, _) => InterimResult(previousTaxYears ++ currentTaxYear, Nil)
         }
       case ir => Future.successful(ir)
     }
@@ -131,7 +128,7 @@ class OdsService @Inject()(
       futureResult.map {
         case InterimResult(_, seqFailureInfo) if seqFailureInfo.nonEmpty =>
           Left(seqFailureInfo.head.upstreamErrorResponse)
-        case InterimResult(processedYears, Nil) => Right(processedYears)
+        case InterimResult(processedYears, _) => Right(processedYears)
       }
     )
   }
