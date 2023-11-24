@@ -378,9 +378,9 @@ class OdsServiceSpec extends BaseSpec {
   }
 
   "hasATS" must {
-    
+
     // TODO: Extra test for if all responses are NOT_FOUND????
-    
+
     "return true where some years have no tax data or no tax liability found + stop once found" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
