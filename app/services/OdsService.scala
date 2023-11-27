@@ -101,7 +101,7 @@ class OdsService @Inject()(
 
     val futureResult = findAllYears(endYear to startYear by -1, connectToSA).flatMap {
       case InterimResult(processedYears, Seq(failureInfo), notFoundCount) =>
-        findAllYears(failureInfo.failedYear to failureInfo.failedYear by -1, connectToSA)
+        findAllYears(failureInfo.failedYear to failureInfo.failedYear, connectToSA)
           .map(ir =>
             ir.copy(
               processedYears = processedYears ++ ir.processedYears,
