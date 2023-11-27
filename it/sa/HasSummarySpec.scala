@@ -19,6 +19,7 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -48,14 +49,16 @@ class HasSummarySpec extends IntegrationSpec {
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
-    "return an OK when data is retrieved from ODS" in {
+    "return an OK with true json when data is retrieved from ODS with liability" in {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
-          .willReturn(ok(FileHelper.loadFile("odsData.json")))
+          .willReturn(ok(FileHelper.loadFile("odsSADetailData.json")))
       )
 
-      val result = route(app, request)
+      val result  = route(app, request)
+      val jsValue = contentAsJson(result.get)
+      jsValue mustBe Json.obj("has_ats" -> true)
       result.map(status) mustBe Some(OK)
     }
 
@@ -113,7 +116,7 @@ class HasSummarySpec extends IntegrationSpec {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
-          .willReturn(ok(FileHelper.loadFile("odsData.json")).withFixedDelay(10000))
+          .willReturn(ok(FileHelper.loadFile("odsSADetailData.json")).withFixedDelay(10000))
       )
 
       val result = route(app, request)
