@@ -30,31 +30,31 @@ import utils.TaxsJsonHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsService @Inject()(
-                            jsonHelper: TaxsJsonHelper,
-                            selfAssessmentOdsConnector: SelfAssessmentODSConnector
-                          )(implicit ec: ExecutionContext) {
+class OdsService @Inject() (
+  jsonHelper: TaxsJsonHelper,
+  selfAssessmentOdsConnector: SelfAssessmentODSConnector
+)(implicit ec: ExecutionContext) {
   private val logger = Logger(getClass.getName)
 
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
-                                             hc: HeaderCarrier,
-                                             request: Request[_]
+    hc: HeaderCarrier,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxpayer <- selfAssessmentOdsConnector
-        .connectToSATaxpayerDetails(utr)
-        .transform {
-          case Right(response) if response.status == NOT_FOUND =>
-            Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-          case Right(response) => Right(response.json.as[JsValue])
-          case Left(error) => Left(error)
-        }
+      taxpayer     <- selfAssessmentOdsConnector
+                        .connectToSATaxpayerDetails(utr)
+                        .transform {
+                          case Right(response) if response.status == NOT_FOUND =>
+                            Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+                          case Right(response)                                 => Right(response.json.as[JsValue])
+                          case Left(error)                                     => Left(error)
+                        }
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
-        case Right(response) if response.status == NOT_FOUND =>
-          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-        case Right(response) => Right(response.json.as[JsValue])
-        case Left(error) => Left(error)
-      }
+                        case Right(response) if response.status == NOT_FOUND =>
+                          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+                        case Right(response)                                 => Right(response.json.as[JsValue])
+                        case Left(error)                                     => Left(error)
+                      }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
 
   private def getTaxYearIfLiable(taxYear: Int, json: JsValue): Seq[Int] =
@@ -64,7 +64,7 @@ class OdsService @Inject()(
       Nil
     }
 
-  private val findAllYears: (Range, Int => Future[InterimResult]) => Future[InterimResult] = (range, connectToSA) =>
+  private def findAllYears(range: Range, connectToSA: Int => Future[InterimResult]): Future[InterimResult] =
     Future.sequence(range.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
       InterimResult(
         processedYears = seqInterimResult.flatMap(_.processedYears),
@@ -74,25 +74,25 @@ class OdsService @Inject()(
     }
 
   private def findYearsWithTaxLiabilityInclRetryOnce(
-                                                      utr: String,
-                                                      startYear: Int,
-                                                      endYear: Int
-                                                    )(implicit
-                                                      hc: HeaderCarrier,
-                                                      request: Request[_]
-                                                    ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
+    utr: String,
+    startYear: Int,
+    endYear: Int
+  )(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
     val connectToSA: Int => Future[InterimResult] = taxYear =>
       selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
-        case Right(HttpResponse(NOT_FOUND, _, _)) => NotFoundInterimResult
+        case Right(HttpResponse(NOT_FOUND, _, _))                    => NotFoundInterimResult
         case Left(error) if error.statusCode < INTERNAL_SERVER_ERROR =>
           logger.error(error.getMessage(), error)
           EmptyInterimResult
-        case Left(errorResponse) =>
+        case Left(errorResponse)                                     =>
           InterimResult(
             processedYears = Nil,
             failureInfo = Seq(FailureInfo(errorResponse, taxYear))
           )
-        case Right(response) =>
+        case Right(response)                                         =>
           InterimResult(
             processedYears = getTaxYearIfLiable(taxYear, response.json),
             failureInfo = Nil
@@ -109,7 +109,7 @@ class OdsService @Inject()(
               notFoundCount = notFoundCount + ir.notFoundCount
             )
           )
-      case ir => Future.successful(ir)
+      case ir                                                             => Future.successful(ir)
     }
 
     EitherT(
@@ -118,8 +118,8 @@ class OdsService @Inject()(
   }
 
   def getATSList(utr: String, startYear: Int, endYear: Int)(implicit
-                                                            hc: HeaderCarrier,
-                                                            request: Request[_]
+    hc: HeaderCarrier,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] =
     findYearsWithTaxLiabilityInclRetryOnce(
       utr = utr,
@@ -128,8 +128,8 @@ class OdsService @Inject()(
     ).map(_.sorted)
 
   def hasATS(
-              utr: String
-            )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    utr: String
+  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     findYearsWithTaxLiabilityInclRetryOnce(
       utr = utr,
       startYear = TaxYear.current.startYear - 4,
@@ -137,16 +137,16 @@ class OdsService @Inject()(
     ).map(taxYears => Json.obj("has_ats" -> taxYears.nonEmpty))
 
   def connectToSATaxpayerDetails(
-                                  utr: String
-                                )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    utr: String
+  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
     selfAssessmentOdsConnector
       .connectToSATaxpayerDetails(utr)
       .transform {
         case Right(response) if response.status == NOT_FOUND =>
           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-        case Right(response) =>
+        case Right(response)                                 =>
           Right(response.json.as[JsValue])
-        case Left(error) => Left(error)
+        case Left(error)                                     => Left(error)
       }
 }
 
@@ -158,18 +158,18 @@ object OdsService {
   private def toEither(years: Int): PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
     case InterimResult(_, seqFailureInfo, _) if seqFailureInfo.nonEmpty =>
       Left(seqFailureInfo.head.upstreamErrorResponse)
-    case InterimResult(_, _, notFoundCount) if notFoundCount > years =>
+    case InterimResult(_, _, notFoundCount) if notFoundCount > years    =>
       Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-    case InterimResult(processedYears, _, _) => Right(processedYears)
+    case InterimResult(processedYears, _, _)                            => Right(processedYears)
   }
 
   private def handleSecondFailure(failureInfo: Seq[FailureInfo]): Seq[FailureInfo] =
     failureInfo.headOption match {
       case Some(fi) =>
         Seq(fi.copy(upstreamErrorResponse = UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR)))
-      case _ => failureInfo
+      case _        => failureInfo
     }
 
-  private final val EmptyInterimResult = InterimResult(Nil, Nil)
+  private final val EmptyInterimResult    = InterimResult(Nil, Nil)
   private final val NotFoundInterimResult = InterimResult(Nil, Nil, 1)
 }
