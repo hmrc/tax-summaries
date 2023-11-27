@@ -441,11 +441,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 1, 0, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
         )
       }
     }
@@ -480,30 +480,7 @@ class OdsServiceSpec extends BaseSpec {
         responseStatusesToMockForSA = Seq(OK, OK, INTERNAL_SERVER_ERROR, NOT_FOUND, OK)
       )
       whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0)))
-
-      whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
-      ) { result =>
-        result mustBe Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))
-
-        verifySA(
-          endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 2, 1, 1)
-        )
-        verifyATSCalculations(
-          endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 0, 0, 1)
-        )
-      }
-    }
-
-    "return upstream error exception if 1 call to HOD fails + retry that call ONCE ONLY (succeeds but another call fails later)" in {
-      whenClausesForSA(
-        endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(INTERNAL_SERVER_ERROR, OK, Seq(INTERNAL_SERVER_ERROR, OK), NOT_FOUND, OK)
-      )
-      whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0)))
-      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 2, values = Seq(BigDecimal(0), BigDecimal(0)))
+      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(0), BigDecimal(0)))
 
       whenReady(
         service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
@@ -516,7 +493,7 @@ class OdsServiceSpec extends BaseSpec {
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 1, 1, 0, 1)
+          expectedNumberOfCalls = Seq(1, 1, 0, 0, 1)
         )
       }
     }
@@ -529,7 +506,7 @@ class OdsServiceSpec extends BaseSpec {
 
       whenClausesForATSCalculations(
         endTaxYear = currentTaxYear - 2,
-        values = Seq(BigDecimal(1))
+        values = Seq(BigDecimal(1), BigDecimal(1), BigDecimal(1))
       )
 
       whenReady(
@@ -539,11 +516,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 2, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 1, 0, 0)
+          expectedNumberOfCalls = Seq(1, 1, 1, 0, 0)
         )
       }
     }

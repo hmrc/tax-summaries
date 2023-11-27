@@ -73,33 +73,10 @@ class OdsService @Inject()(
       )
     }
 
-  private val findYearThenStop: (Range, Int => Future[InterimResult]) => Future[InterimResult] = (range, connectToSA) =>
-    range.foldLeft[Future[InterimResult]](Future(EmptyInterimResult)) { (futureAcc, taxYear) =>
-      futureAcc.flatMap {
-        case ir@InterimResult(Seq(_), Nil, _) => Future.successful(ir)
-        case ir =>
-          ir match {
-            case InterimResult(previousTaxYears, Nil, previousNotFoundCount) =>
-              connectToSA(taxYear).map {
-                case errorResponse@InterimResult(_, failureInfo, _) if failureInfo.nonEmpty => errorResponse
-                case InterimResult(currentTaxYear, _, notFoundCount) =>
-                  InterimResult(
-                    processedYears = previousTaxYears ++ currentTaxYear,
-                    failureInfo = Nil,
-                    notFoundCount = previousNotFoundCount + notFoundCount
-                  )
-              }
-            case ir => Future.successful(ir)
-          }
-      }
-    }
-
   private def findYearsWithTaxLiabilityInclRetryOnce(
                                                       utr: String,
                                                       startYear: Int,
-                                                      endYear: Int,
-                                                      findYears: (Range, Int => Future[InterimResult]) => Future[InterimResult],
-                                                      resumeUntil: (Int, Int) => Int
+                                                      endYear: Int
                                                     )(implicit
                                                       hc: HeaderCarrier,
                                                       request: Request[_]
@@ -122,9 +99,9 @@ class OdsService @Inject()(
           )
       }
 
-    val futureResult = findYears(endYear to startYear by -1, connectToSA).flatMap {
+    val futureResult = findAllYears(endYear to startYear by -1, connectToSA).flatMap {
       case InterimResult(processedYears, Seq(failureInfo), notFoundCount) =>
-        findYears(failureInfo.failedYear to resumeUntil(failureInfo.failedYear, startYear) by -1, connectToSA)
+        findAllYears(failureInfo.failedYear to failureInfo.failedYear by -1, connectToSA)
           .map(ir =>
             ir.copy(
               processedYears = processedYears ++ ir.processedYears,
@@ -147,9 +124,7 @@ class OdsService @Inject()(
     findYearsWithTaxLiabilityInclRetryOnce(
       utr = utr,
       startYear = startYear,
-      endYear = endYear,
-      findYears = findAllYears,
-      resumeUntil = (failedYear, _) => failedYear
+      endYear = endYear
     ).map(_.sorted)
 
   def hasATS(
@@ -158,9 +133,7 @@ class OdsService @Inject()(
     findYearsWithTaxLiabilityInclRetryOnce(
       utr = utr,
       startYear = TaxYear.current.startYear - 4,
-      endYear = TaxYear.current.startYear,
-      findYears = findYearThenStop,
-      resumeUntil = (_, startYear) => startYear
+      endYear = TaxYear.current.startYear
     ).map(taxYears => Json.obj("has_ats" -> taxYears.nonEmpty))
 
   def connectToSATaxpayerDetails(
