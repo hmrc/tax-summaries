@@ -257,22 +257,23 @@ class OdsServiceSpec extends BaseSpec {
       }
     }
 
-    "return upstream error exception if 1 call to HOD fails + retry that call ONCE ONLY (fails again) + don't continue calls to HOD" in {
+    "return years minus any where 4xx other than not found response" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(OK, OK, INTERNAL_SERVER_ERROR, OK, OK)
+        responseStatusesToMockForSA = Seq(OK, OK, BAD_REQUEST, OK, OK)
       )
-      whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(1), BigDecimal(2)))
+
+      whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0), BigDecimal(1)))
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
 
       whenReady(
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
-        result mustBe Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+        result mustBe Right(Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear))
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
@@ -281,7 +282,32 @@ class OdsServiceSpec extends BaseSpec {
       }
     }
 
-    "return all years when one HOD call fails but retry succeeds" in {
+    "return upstream error exception with multiple failures message if 1 call to HOD fails with 5xx + retry that " +
+      "call ONCE ONLY (fails again) + don't continue calls to HOD" in {
+        whenClausesForSA(
+          endTaxYear = currentTaxYear,
+          responseStatusesToMockForSA = Seq(OK, OK, BAD_GATEWAY, OK, OK)
+        )
+        whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(1), BigDecimal(2)))
+        whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
+
+        whenReady(
+          service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        ) { result =>
+          result mustBe Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))
+
+          verifySA(
+            endTaxYear = currentTaxYear,
+            expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+          )
+          verifyATSCalculations(
+            endTaxYear = currentTaxYear,
+            expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
+          )
+        }
+      }
+
+    "return all years when one HOD call fails with 5xx but retry succeeds" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
         responseStatusesToMockForSA = Seq(OK, OK, Seq(INTERNAL_SERVER_ERROR, OK), OK, OK)
@@ -329,7 +355,7 @@ class OdsServiceSpec extends BaseSpec {
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe
-          Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+          Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))
 
         verifySA(
           endTaxYear = currentTaxYear,
@@ -458,7 +484,7 @@ class OdsServiceSpec extends BaseSpec {
       whenReady(
         service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
-        result mustBe Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+        result mustBe Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))
 
         verifySA(
           endTaxYear = currentTaxYear,

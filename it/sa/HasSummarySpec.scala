@@ -81,7 +81,7 @@ class HasSummarySpec extends IntegrationSpec {
       IM_A_TEAPOT,
       LOCKED
     ).foreach { httpResponse =>
-      s"return an $httpResponse when data is retrieved from ODS" in {
+      s"return OK when a $httpResponse is returned from ODS" in {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
@@ -89,7 +89,7 @@ class HasSummarySpec extends IntegrationSpec {
         )
 
         val result = route(app, request)
-        result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
+        result.map(status) mustBe Some(OK)
       }
     }
 
