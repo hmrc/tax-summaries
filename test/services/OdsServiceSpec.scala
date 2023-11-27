@@ -379,7 +379,26 @@ class OdsServiceSpec extends BaseSpec {
 
   "hasATS" must {
 
-    // TODO: Extra test for if all responses are NOT_FOUND????
+    "return NOT_FOUND upstream error response if ALL tax years return not found" in {
+      whenClausesForSA(
+        endTaxYear = currentTaxYear,
+        responseStatusesToMockForSA = Seq(NOT_FOUND, NOT_FOUND, NOT_FOUND, NOT_FOUND, NOT_FOUND)
+      )
+
+      whenReady(
+        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+      ) { result =>
+        result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
+        verifySA(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+        )
+        verifyATSCalculations(
+          endTaxYear = currentTaxYear,
+          expectedNumberOfCalls = Seq(0, 0, 0, 0, 0)
+        )
+      }
+    }
 
     "return true where some years have no tax data or no tax liability found + stop once found" in {
       whenClausesForSA(
