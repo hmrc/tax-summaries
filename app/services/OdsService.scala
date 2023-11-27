@@ -36,7 +36,6 @@ class OdsService @Inject()(
                           )(implicit ec: ExecutionContext) {
   private val logger = Logger(getClass.getName)
 
-  //formatter: off
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
                                              hc: HeaderCarrier,
                                              request: Request[_]
@@ -176,11 +175,9 @@ class OdsService @Inject()(
           Right(response.json.as[JsValue])
         case Left(error) => Left(error)
       }
-  //formatter: on
 }
 
 object OdsService {
-  //formatter: off
   private case class FailureInfo(upstreamErrorResponse: UpstreamErrorResponse, failedYear: Int)
 
   private case class InterimResult(processedYears: Seq[Int], failureInfo: Seq[FailureInfo], notFoundCount: Int = 0)
@@ -202,5 +199,4 @@ object OdsService {
 
   private final val EmptyInterimResult = InterimResult(Nil, Nil)
   private final val NotFoundInterimResult = InterimResult(Nil, Nil, 1)
-  //formatter: on
 }
