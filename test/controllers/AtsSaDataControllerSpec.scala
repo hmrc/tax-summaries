@@ -232,8 +232,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
         val individualAtsListSource = Source.fromURL(getClass.getResource("/ats-List-IndividualService.json"))
         val taxPayerSource          = Source.fromURL(getClass.getResource("/taxPayerResponse.json"))
 
-        val singleAtsList = singleAtsListSource.mkString
-        val taxPayer      = taxPayerSource.mkString
+        val taxPayer = taxPayerSource.mkString
 
         singleAtsListSource.close()
         individualAtsListSource.close()

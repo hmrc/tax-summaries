@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package paye
+package sa
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -29,9 +29,10 @@ class HasSummarySpec extends IntegrationSpec {
 
   private def odsUrl(taxYear: Int) = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
 
-  private val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
-  private val request: FakeRequest[AnyContentAsEmpty.type] =
+  private val request: FakeRequest[AnyContentAsEmpty.type] = {
+    val apiUrl = s"/taxs/$utr/has_summary_for_previous_period"
     FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+  }
 
   "HasSummary" must {
 
