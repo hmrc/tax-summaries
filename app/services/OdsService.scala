@@ -159,19 +159,6 @@ class OdsService @Inject() (
       resumeUntil = (_, startYear) => startYear
     ).map(taxYears => Json.obj("has_ats" -> taxYears.nonEmpty))
 
-//  def getList(
-//               utr: String
-//             )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
-//    selfAssessmentOdsConnector
-//      .connectToSelfAssessmentList(utr)
-//      .transform {
-//        case Right(response) if response.status == NOT_FOUND =>
-//          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-//        case Right(response) =>
-//          Right(Json.toJson(AtsCheck(jsonHelper.hasAtsForPreviousPeriod(response.json.as[JsValue]))))
-//        case Left(error) => Left(error)
-//      }
-
   def connectToSATaxpayerDetails(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =

@@ -34,6 +34,19 @@ class HasSummarySpec extends IntegrationSpec {
     FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "HasSummary" must {
+
+    "return NOT_FOUND when ODS returns NOT_FOUND response" in {
+
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      val result = route(app, request)
+      result.map(status) mustBe Some(NOT_FOUND)
+    }
+
     "return an OK when data is retrieved from ODS" in {
       server.stubFor(
         WireMock
