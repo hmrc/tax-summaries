@@ -128,7 +128,7 @@ class OdsService @Inject()(
           .map(ir =>
             ir.copy(
               processedYears = processedYears ++ ir.processedYears,
-              failureInfo = handleMultipleErrors(ir.failureInfo),
+              failureInfo = handleSecondFailure(ir.failureInfo),
               notFoundCount = notFoundCount + ir.notFoundCount
             )
           )
@@ -190,7 +190,7 @@ object OdsService {
     case InterimResult(processedYears, _, _) => Right(processedYears)
   }
 
-  private def handleMultipleErrors(failureInfo: Seq[FailureInfo]): Seq[FailureInfo] =
+  private def handleSecondFailure(failureInfo: Seq[FailureInfo]): Seq[FailureInfo] =
     failureInfo.headOption match {
       case Some(fi) =>
         Seq(fi.copy(upstreamErrorResponse = UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR)))
