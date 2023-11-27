@@ -39,6 +39,7 @@ class AtsSaDataController @Inject() (
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
     odsService
+//      .getList(utr)
       .hasATS(utr)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
