@@ -64,24 +64,11 @@ class OdsService @Inject()(
       Nil
     }
 
-  private def findAllYears(range: Range, connectToSA: Int => Future[InterimResult]): Future[InterimResult] =
-    Future.sequence(range.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
-      InterimResult(
-        processedYears = seqInterimResult.flatMap(_.processedYears),
-        failureInfo = seqInterimResult.flatMap(_.failureInfo),
-        notFoundCount = seqInterimResult.map(_.notFoundCount).sum
-      )
-    }
-
-  private def findYearsWithTaxLiabilityInclRetryOnce(
-                                                      utr: String,
-                                                      startYear: Int,
-                                                      endYear: Int
-                                                    )(implicit
+  private def findAllYears(utr: String, range: Range)(implicit
                                                       hc: HeaderCarrier,
                                                       request: Request[_]
-                                                    ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
-    val connectToSA: Int => Future[InterimResult] = taxYear =>
+  ): Future[InterimResult] = {
+    def connectToSA(taxYear: Int): Future[InterimResult] =
       selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
         case Right(HttpResponse(NOT_FOUND, _, _)) => NotFoundInterimResult
         case Left(error) if error.statusCode < INTERNAL_SERVER_ERROR =>
@@ -99,9 +86,26 @@ class OdsService @Inject()(
           )
       }
 
-    val futureResult = findAllYears(endYear to startYear by -1, connectToSA).flatMap {
+    Future.sequence(range.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
+      InterimResult(
+        processedYears = seqInterimResult.flatMap(_.processedYears),
+        failureInfo = seqInterimResult.flatMap(_.failureInfo),
+        notFoundCount = seqInterimResult.map(_.notFoundCount).sum
+      )
+    }
+  }
+
+  private def findYearsWithTaxLiabilityInclRetryOnce(
+                                                      utr: String,
+                                                      startYear: Int,
+                                                      endYear: Int
+                                                    )(implicit
+                                                      hc: HeaderCarrier,
+                                                      request: Request[_]
+                                                    ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
+    val futureResult = findAllYears(utr, endYear to startYear by -1).flatMap {
       case InterimResult(processedYears, Seq(failureInfo), notFoundCount) =>
-        findAllYears(failureInfo.failedYear to failureInfo.failedYear, connectToSA)
+        findAllYears(utr, failureInfo.failedYear to failureInfo.failedYear)
           .map(ir =>
             ir.copy(
               processedYears = processedYears ++ ir.processedYears,
