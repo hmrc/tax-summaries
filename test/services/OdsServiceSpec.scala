@@ -368,7 +368,7 @@ class OdsServiceSpec extends BaseSpec {
       }
     }
 
-    "return upstream error exceptions when more than one exception + don't retry" in {
+    "return multiple upstream error exception when more than one exception + don't retry" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
         responseStatusesToMockForSA = Seq(OK, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR, OK, OK)
@@ -388,7 +388,7 @@ class OdsServiceSpec extends BaseSpec {
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe
-          Left(UpstreamErrorResponse("", INTERNAL_SERVER_ERROR))
+          Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))
 
         verifySA(
           endTaxYear = currentTaxYear,
