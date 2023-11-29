@@ -131,10 +131,10 @@ class OdsService @Inject()(
   def hasATS(
               utr: String
             )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] = {
-    val startYear = TaxYear.current.startYear - 4
-    val endYear = TaxYear.current.startYear
+    val startTaxYear = TaxYear.current.startYear - 4
+    val currentTaxYear = TaxYear.current.startYear
 
-    val futureResult = findAllYears(utr, endYear to startYear by -1).flatMap {
+    val futureResult = findAllYears(utr, currentTaxYear to startTaxYear by -1).flatMap {
       case InterimResult(Nil, Seq(failureInfo), notFoundCount) =>
         retry(utr, failureInfo.failedYear, Nil, notFoundCount)
       case ir@InterimResult(processedYears, _, _) if processedYears.nonEmpty =>
@@ -149,7 +149,7 @@ class OdsService @Inject()(
 
     EitherT(
       futureResult.map {
-        toEither.orElse(OdsService.toEither(endYear - startYear))
+        toEither.orElse(OdsService.toEither(currentTaxYear - startTaxYear))
       }
     ).map(taxYears => Json.obj("has_ats" -> taxYears.nonEmpty))
   }
