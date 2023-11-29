@@ -135,14 +135,8 @@ class OdsService @Inject()(
       case ir => Future.successful(ir)
     }
 
-    val toEither: PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
-      case InterimResult(processedYears, _, _) if processedYears.nonEmpty => Right(processedYears)
-    }
-
     EitherT(
-      futureResult.map {
-        toEither.orElse(OdsService.toEither(currentTaxYear - startTaxYear))
-      }
+      futureResult.map(toRightIfAnyYearsFound orElse toEither(currentTaxYear - startTaxYear))
     ).map(taxYears => Json.obj("has_ats" -> taxYears.nonEmpty))
   }
 
@@ -172,5 +166,9 @@ object OdsService {
     case InterimResult(_, _, notFoundCount) if notFoundCount > years =>
       Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
     case InterimResult(processedYears, _, _) => Right(processedYears)
+  }
+
+  private val toRightIfAnyYearsFound: PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
+    case InterimResult(processedYears, _, _) if processedYears.nonEmpty => Right(processedYears)
   }
 }
