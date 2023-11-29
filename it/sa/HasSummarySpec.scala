@@ -17,8 +17,8 @@
 package sa
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, notFound, ok, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
 import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -28,33 +28,37 @@ import utils.{FileHelper, IntegrationSpec}
 
 class HasSummarySpec extends IntegrationSpec {
 
-  private def odsUrl(taxYear: Int) = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
+  private def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/$utr/annual-tax-summaries/" + taxYear
 
   private val request: FakeRequest[AnyContentAsEmpty.type] = {
     val apiUrl = s"/taxs/$utr/has_summary_for_previous_period"
     FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
   }
 
+  private def stubForEachYear(block: Int => MappingBuilder): Unit =
+    ((TaxYear.current.currentYear - 4) to TaxYear.current.currentYear).foreach { taxYear =>
+      server.stubFor(block(taxYear))
+    }
+
   "HasSummary" must {
 
     "return NOT_FOUND when ODS returns NOT_FOUND response" in {
-
-      server.stubFor(
+      stubForEachYear { taxYear =>
         WireMock
-          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
-          .willReturn(aResponse().withStatus(NOT_FOUND))
-      )
+          .get(urlEqualTo(odsUrl(taxYear)))
+          .willReturn(notFound())
+      }
 
       val result = route(app, request)
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
     "return an OK with true json when data is retrieved from ODS with liability" in {
-      server.stubFor(
+      stubForEachYear { taxYear =>
         WireMock
-          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
+          .get(urlEqualTo(odsUrl(taxYear)))
           .willReturn(ok(FileHelper.loadFile("odsSADetailData.json")))
-      )
+      }
 
       val result  = route(app, request)
       val jsValue = contentAsJson(result.get)
@@ -63,12 +67,11 @@ class HasSummarySpec extends IntegrationSpec {
     }
 
     "return an exception when ODS returns an empty ok" in {
-
-      server.stubFor(
+      stubForEachYear { taxYear =>
         WireMock
-          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
+          .get(urlEqualTo(odsUrl(taxYear)))
           .willReturn(ok())
-      )
+      }
 
       val result = route(app, request)
 
@@ -82,11 +85,11 @@ class HasSummarySpec extends IntegrationSpec {
       LOCKED
     ).foreach { httpResponse =>
       s"return OK when a $httpResponse is returned from ODS" in {
-        server.stubFor(
+        stubForEachYear { taxYear =>
           WireMock
-            .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
+            .get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(aResponse().withStatus(httpResponse))
-        )
+        }
 
         val result = route(app, request)
         result.map(status) mustBe Some(OK)
@@ -100,11 +103,11 @@ class HasSummarySpec extends IntegrationSpec {
     ).foreach { httpResponse =>
       s"return an 502 when $httpResponse status is received from ODS" in {
 
-        server.stubFor(
+        stubForEachYear { taxYear =>
           WireMock
-            .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
+            .get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(aResponse().withStatus(httpResponse))
-        )
+        }
 
         val result = route(app, request)
         result.map(status) mustBe Some(BAD_GATEWAY)
@@ -113,11 +116,11 @@ class HasSummarySpec extends IntegrationSpec {
 
     s"return an 502 when ODS is timing out" in {
 
-      server.stubFor(
+      stubForEachYear { taxYear =>
         WireMock
-          .get(urlEqualTo(odsUrl(TaxYear.current.currentYear)))
+          .get(urlEqualTo(odsUrl(taxYear)))
           .willReturn(ok(FileHelper.loadFile("odsSADetailData.json")).withFixedDelay(10000))
-      )
+      }
 
       val result = route(app, request)
       result.map(status) mustBe Some(BAD_GATEWAY)
