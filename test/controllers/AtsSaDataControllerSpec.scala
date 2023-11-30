@@ -149,7 +149,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
       "the service returns a right" in {
 
-        when(odsService.hasATS(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.rightT(json))
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.rightT(json))
 
         val result = controller.hasAts(testUtr)(request)
 
@@ -164,7 +164,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val upstreamError = UpstreamErrorResponse("Record not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
 
-        when(odsService.hasATS(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
 
         val result = controller.hasAts(testUtr)(request)
 
@@ -179,7 +179,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val upstreamError = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
 
-        when(odsService.hasATS(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
+        when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
 
         val result = controller.hasAts(testUtr)(request)
 
@@ -194,7 +194,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.hasATS(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
+          when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
 
           val result = controller.hasAts(testUtr)(request)
 
@@ -211,7 +211,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.hasATS(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
+          when(odsService.getList(eqTo(testUtr))(any[HeaderCarrier], any())).thenReturn(EitherT.leftT(upstreamError))
 
           val result = controller.hasAts(testUtr)(request)
 

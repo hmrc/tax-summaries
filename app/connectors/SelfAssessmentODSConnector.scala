@@ -23,19 +23,25 @@ import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
-import play.api.libs.json.{Format, Json, OFormat}
+import play.api.libs.json.{Format, OFormat}
 import play.api.mvc.Request
 import repositories.TaxSummariesSessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
+import play.api.libs.json.Json
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SelfAssessmentODSConnector {
   def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+
+  def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
@@ -88,6 +94,16 @@ class CachingSelfAssessmentODSConnector @Inject() (
     }
   }
 
+  override def connectToSelfAssessmentList(utr: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
+    cache(utr) {
+      underlying.connectToSelfAssessmentList(utr)
+    }
+  }
+
   override def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -133,6 +149,18 @@ class DefaultSelfAssessmentODSConnector @Inject() (
         url = url("/self-assessment/individuals/" + utr + "/annual-tax-summaries/" + taxYear),
         headers = header
       )(readEitherOfWithNotFound, implicitly, implicitly)
+    )
+
+  def connectToSelfAssessmentList(utr: String)(implicit
+    hc: HeaderCarrier,
+    request: Request[_]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    httpClientResponse.read(
+      httpClient
+        .GET[Either[UpstreamErrorResponse, HttpResponse]](
+          url = url("/self-assessment/individuals/" + utr + "/annual-tax-summaries"),
+          headers = header
+        )(readEitherOfWithNotFound, implicitly, implicitly)
     )
 
   def connectToSATaxpayerDetails(utr: String)(implicit

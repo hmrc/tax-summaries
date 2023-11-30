@@ -26,6 +26,54 @@ class TaxsJsonHelperTest extends BaseSpec {
 
   class SetUp extends TaxsJsonHelper(applicationConfig, aTSRawDataTransformer)
 
+  "hasAtsForPreviousPeriod" must {
+
+    "return true when json response has non empty annual tax summaries data" in new SetUp {
+
+      val rawJson = Json.parse("""
+                                 | {
+                                 |   "annualTaxSummaries" : [
+                                 |   { "taxYearEnd" : 2014 },
+                                 |   { "taxYearEnd" : 2015 }
+                                 |   ]
+                                 | }
+        """.stripMargin)
+
+      val result = hasAtsForPreviousPeriod(rawJson)
+
+      result mustBe true
+    }
+
+    "return false when json response has no annual tax summaries data" in new SetUp {
+
+      val rawJson = Json.parse("""
+                                 | {
+                                 |   "annualTaxSummaries" : []
+                                 | }
+        """.stripMargin)
+
+      val result = hasAtsForPreviousPeriod(rawJson)
+
+      result mustBe false
+    }
+
+    "return false for badly formed json" in new SetUp {
+
+      val rawJson = Json.parse("""
+                                 | {
+                                 |   "annualTaxSummaries" : [
+                                 |   { "userName" : "" }
+                                 |   ],
+                                 |   "taxYearEnd" : 2014
+                                 | }
+        """.stripMargin)
+
+      val result = hasAtsForPreviousPeriod(rawJson)
+
+      result mustBe false
+    }
+  }
+
   "createTaxYearJson" must {
 
     "return a jsvalue with correct data when passed correct format" in new SetUp {

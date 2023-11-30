@@ -124,6 +124,20 @@ class OdsService @Inject() (
     ).map(_.sorted)
   }
 
+  def getList(
+    utr: String
+  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
+    selfAssessmentOdsConnector
+      .connectToSelfAssessmentList(utr)
+      .transform {
+        case Right(response) if response.status == NOT_FOUND =>
+          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+        case Right(response)                                 =>
+          Right(Json.obj("has_ats" -> jsonHelper.hasAtsForPreviousPeriod(response.json.as[JsValue])))
+        case Left(error)                                     => Left(error)
+      }
+
+  // TODO: Below method and associated tests not called at present but may be called instead of getList in future by BTA
   def hasATS(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] = {
