@@ -173,7 +173,7 @@ object OdsService {
   private case class InterimResult(processedYears: Seq[Int], failureInfo: Seq[FailureInfo], notFoundCount: Int)
 
   private def toEither(years: Int): PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
-    case InterimResult(_, Seq(fi), _)                                => Left(fi.upstreamErrorResponse) // TODO: Add unit test
+    case InterimResult(_, Seq(fi), _)                                => Left(fi.upstreamErrorResponse)
     case InterimResult(_, Seq(_, _*), _)                             =>
       Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))
     case InterimResult(_, _, notFoundCount) if notFoundCount > years =>
