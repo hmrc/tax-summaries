@@ -57,13 +57,6 @@ class OdsService @Inject() (
                       }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
 
-  private def getTaxYearIfLiable(taxYear: Int, json: JsValue): Seq[Int] =
-    if (jsonHelper.getATSCalculations(taxYear, json).hasLiability) {
-      Seq(taxYear)
-    } else {
-      Nil
-    }
-
   private def findAllYears(utr: String, range: Range)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -75,7 +68,13 @@ class OdsService @Inject() (
           logger.error(error.getMessage(), error)
           InterimResult(Nil, Nil, 0)
         case Left(errorResponse)                                     => InterimResult(Nil, Seq(FailureInfo(errorResponse, taxYear)), 0)
-        case Right(response)                                         => InterimResult(getTaxYearIfLiable(taxYear, response.json), Nil, 0)
+        case Right(response)                                         =>
+          InterimResult(
+            processedYears =
+              if (jsonHelper.getATSCalculations(taxYear, response.json).hasLiability) Seq(taxYear) else Nil,
+            failureInfo = Nil,
+            notFoundCount = 0
+          )
       }
 
     Future.sequence(range.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
