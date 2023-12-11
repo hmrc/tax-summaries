@@ -449,8 +449,8 @@ class OdsServiceSpec extends BaseSpec {
 
   }
 
+  // TODO: Below tests are for hasATS method which is not called at present but it may be called in future by BTA. See comments on DDCNL-7999 for more info
   "hasATS" must {
-
     "return NOT_FOUND upstream error response if ALL tax years return not found" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,

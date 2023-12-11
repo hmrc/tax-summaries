@@ -136,7 +136,7 @@ class OdsService @Inject() (
         case Left(error)                                     => Left(error)
       }
 
-  // TODO: Below method and associated tests not called at present but may be called instead of getList in future by BTA
+  // TODO: Below method not called at present but may be called instead of getList in future by BTA. See comments on DDCNL-7999 for more info
   def hasATS(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] = {
