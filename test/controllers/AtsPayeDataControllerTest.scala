@@ -19,7 +19,7 @@ package controllers
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import cats.data.EitherT
-import controllers.auth.{FakeAuthAction, PayeAuthAction}
+import controllers.auth.{AuthJourney, FakeAuthAction, FakeAuthJourney, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
@@ -45,8 +45,9 @@ class AtsPayeDataControllerTest extends BaseSpec {
   val npsService: NpsService                = mock[NpsService]
   val payeAuthAction: PayeAuthAction        = FakeAuthAction
   lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
+  val mockAuthJourney: AuthJourney = FakeAuthJourney
 
-  class TestController extends AtsPayeDataController(npsService, payeAuthAction, atsErrorHandler, cc)
+  class TestController extends AtsPayeDataController(npsService, mockAuthJourney, atsErrorHandler, cc)
 
   val cy      = 2018
   val cyPlus1 = 2019
