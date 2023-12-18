@@ -25,6 +25,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
 import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 class BaseSpec
     extends AnyWordSpec
@@ -38,5 +39,7 @@ class BaseSpec
   lazy val applicationConfig = inject[ApplicationConfig]
 
   val generatedNino = new Generator().nextNino
+
+  implicit lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
 }
