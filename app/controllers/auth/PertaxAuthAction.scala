@@ -29,32 +29,32 @@ import utils.NinoHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PertaxAuthActionImpl @Inject()(
-                                      cc: ControllerComponents,
-                                      pertaxConnector: PertaxConnector,
-                                      featureFlagService: FeatureFlagService,
-                                      ninoRegexHelper: NinoHelper
-                                    ) extends PertaxAuthAction {
+class PertaxAuthActionImpl @Inject() (
+  cc: ControllerComponents,
+  pertaxConnector: PertaxConnector,
+  featureFlagService: FeatureFlagService,
+  ninoRegexHelper: NinoHelper
+) extends PertaxAuthAction {
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val nino = ninoRegexHelper.findNinoIn(request.uri)
+    val nino                       = ninoRegexHelper.findNinoIn(request.uri)
     featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
-        pertaxConnector
-          .pertaxAuth(nino.getOrElse(""))
-          .value
-          .flatMap {
-            case Right(PertaxApiResponse("ACCESS_GRANTED", _, _, _)) =>
-              Future.successful(None)
-            case Right(PertaxApiResponse("INVALID_AFFINITY", _, _, _)) =>
-              Future.successful(None)
-            case Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", _, _, _)) =>
-              Future.successful(Some(Unauthorized))
-            case _ =>
-              Future.successful(Some(InternalServerError))
-          }
-
+        nino match {
+          case Some(ninoVal) =>
+            pertaxConnector.pertaxAuth(ninoVal).value.flatMap {
+              case Right(PertaxApiResponse("ACCESS_GRANTED", _, _, _))       =>
+                Future.successful(None)
+              case Right(PertaxApiResponse("INVALID_AFFINITY", _, _, _))     =>
+                Future.successful(None)
+              case Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", _, _, _)) =>
+                Future.successful(Some(Unauthorized))
+              case _                                                         =>
+                Future.successful(Some(InternalServerError))
+            }
+          case None          => Future.successful(None)
+        }
       } else {
         Future.successful(None)
       }
@@ -62,7 +62,7 @@ class PertaxAuthActionImpl @Inject()(
   }
 
   override implicit val executionContext: ExecutionContext = cc.executionContext
-  override val parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override val parser: BodyParser[AnyContent]              = cc.parsers.defaultBodyParser
 }
 
 @ImplementedBy(classOf[PertaxAuthActionImpl])
