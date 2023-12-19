@@ -18,8 +18,12 @@ package models.admin
 
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
+object AllFeatureFlags {
+  val list: List[FeatureFlagName] = List(PertaxBackendToggle)
+}
+
 case object PertaxBackendToggle extends FeatureFlagName {
-  override val name: String = "pertax-backend-toggle"
+  override val name: String                = "pertax-backend-toggle"
   override val description: Option[String] = Some(
     "Enable/disable pertax backend during auth"
   )

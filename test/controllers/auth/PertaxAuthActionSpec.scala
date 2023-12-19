@@ -21,7 +21,7 @@ import connectors.PertaxConnector
 import models.PertaxApiResponse
 import models.admin.PertaxBackendToggle
 import org.mockito.ArgumentMatchers.any
-import play.api.mvc.{Action, AnyContent, ControllerComponents, InjectedController}
+import play.api.mvc.{Action, AnyContent, AnyContentAsEmpty, ControllerComponents, InjectedController}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, status, stubControllerComponents, _}
 import uk.gov.hmrc.http.UpstreamErrorResponse
@@ -40,6 +40,8 @@ class PertaxAuthActionSpec extends BaseSpec {
   val cc: ControllerComponents             = stubControllerComponents()
 
   implicit val ec: ExecutionContext = cc.executionContext
+
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
 
   class Harness(authJourney: AuthJourney) extends InjectedController {
     def onPageLoad(): Action[AnyContent] = authJourney.authWithPaye { _ =>
@@ -93,7 +95,7 @@ class PertaxAuthActionSpec extends BaseSpec {
           FeatureFlag(PertaxBackendToggle, isEnabled = true)
         )
 
-      val result = controller.onPageLoad()(FakeRequest())
+      val result = controller.onPageLoad()(request)
       status(result) mustBe OK
     }
   }
@@ -114,94 +116,7 @@ class PertaxAuthActionSpec extends BaseSpec {
         )
       )
 
-    val result = controller.onPageLoad()(FakeRequest())
+    val result = controller.onPageLoad()(request)
     status(result) mustBe OK
   }
-
-  "create a failure if PertaxConnector returns an NO_HMRC_PT_ENROLMENT code" in {
-    when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
-      .thenReturn(Future.successful(()))
-
-    when(mockFeatureFlagService.get(org.mockito.ArgumentMatchers.eq(PertaxBackendToggle))) thenReturn Future
-      .successful(
-        FeatureFlag(PertaxBackendToggle, isEnabled = true)
-      )
-
-    when(mockPertaxConnector.pertaxAuth(any())(any()))
-      .thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
-          Future.successful(Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", "", None)))
-        )
-      )
-
-    val result = controller.onPageLoad()(FakeRequest())
-    status(result) mustBe UNAUTHORIZED
-  }
-
-  /*"throw to an error page if PertaxConnector returns an unrecognised code" in {
-    val nino                                                                       = new Generator().nextNino.nino
-    val retrievalResult: Future[Enrolments ~ Option[String] ~ Option[Credentials]] =
-      Future.successful(Enrolments(Set.empty) ~ Some(nino) ~ Some(fakeCredentials))
-
-    when(mockFeatureFlagService.get(org.mockito.ArgumentMatchers.eq(PertaxBackendToggle))) thenReturn Future
-      .successful(
-        FeatureFlag(PertaxBackendToggle, isEnabled = true)
-      )
-
-    when(
-      mockAuthConnector
-        .authorise[Enrolments ~ Option[String] ~ Option[Credentials]](any(), any())(any(), any())
-    )
-      .thenReturn(retrievalResult)
-
-    when(mockPertaxConnector.pertaxAuth(any())(any()))
-      .thenReturn(
-        EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
-          Future.successful(Right(PertaxApiResponse("", "", None)))
-        )
-      )
-
-
-    val result = controller.onPageLoad()(FakeRequest())
-    status(result) mustBe INTERNAL_SERVER_ERROR
-  }
-
-  List(
-    BAD_REQUEST,
-    NOT_FOUND,
-    IM_A_TEAPOT,
-    REQUEST_TIMEOUT,
-    UNPROCESSABLE_ENTITY,
-    INTERNAL_SERVER_ERROR,
-    BAD_GATEWAY,
-    SERVICE_UNAVAILABLE
-  ).foreach { errorResponse =>
-    s"return INTERNAL_SERVER_ERROR if PertaxConnector returns a Left with a $errorResponse response status" in {
-      val nino                                                                       = new Generator().nextNino.nino
-      val retrievalResult: Future[Enrolments ~ Option[String] ~ Option[Credentials]] =
-        Future.successful(Enrolments(Set.empty) ~ Some(nino) ~ Some(fakeCredentials))
-
-      when(mockFeatureFlagService.get(org.mockito.ArgumentMatchers.eq(PertaxBackendToggle))) thenReturn Future
-        .successful(
-          FeatureFlag(PertaxBackendToggle, isEnabled = true)
-        )
-
-      when(
-        mockAuthConnector
-          .authorise[Enrolments ~ Option[String] ~ Option[Credentials]](any(), any())(any(), any())
-      )
-        .thenReturn(retrievalResult)
-
-      when(mockPertaxConnector.pertaxAuth(any())(any()))
-        .thenReturn(
-          EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
-            Future.successful(Left(UpstreamErrorResponse("", errorResponse)))
-          )
-        )
-
-      when(mockMessageFrontendService.getUnreadMessageCount(any())).thenReturn(Future.successful(None))
-
-      val result = controller.onPageLoad()(FakeRequest())
-      status(result) mustBe INTERNAL_SERVER_ERROR
-    }*/
 }

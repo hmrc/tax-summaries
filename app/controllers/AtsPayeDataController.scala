@@ -26,12 +26,12 @@ import utils.ATSErrorHandler
 
 import scala.concurrent.ExecutionContext
 
-class AtsPayeDataController @Inject()(
-                                       npsService: NpsService,
-                                       authJourney: AuthJourney,
-                                       atsErrorHandler: ATSErrorHandler,
-                                       cc: ControllerComponents
-                                     )(implicit ec: ExecutionContext)
+class AtsPayeDataController @Inject() (
+  npsService: NpsService,
+  authJourney: AuthJourney,
+  atsErrorHandler: ATSErrorHandler,
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
     extends BackendController(cc) {
 
   def getAtsPayeData(nino: String, taxYear: Int): Action[AnyContent] = authJourney.authWithPaye.async {

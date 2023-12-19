@@ -16,17 +16,15 @@
 
 package controllers.auth
 
-import com.google.inject.ImplementedBy
+import com.google.inject.{ImplementedBy, Inject}
 import play.api.mvc.{ActionBuilder, AnyContent, Request}
-
-import javax.inject.Inject
 
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {
   val authWithPaye: ActionBuilder[Request, AnyContent]
 }
 
-class AuthJourneyImpl @Inject()(payeAuthAction: PayeAuthAction, pertaxAuthAction: PertaxAuthAction)
-  extends AuthJourney {
+class AuthJourneyImpl @Inject() (payeAuthAction: PayeAuthAction, pertaxAuthAction: PertaxAuthAction)
+    extends AuthJourney {
   override val authWithPaye: ActionBuilder[Request, AnyContent] = payeAuthAction andThen pertaxAuthAction
 }

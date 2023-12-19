@@ -16,9 +16,24 @@
 
 package controllers.auth
 
-import play.api.mvc._
-import utils.BaseSpec
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParser, Request, Result}
+import play.api.test.Helpers
 
-object FakeAuthJourney extends BaseSpec with AuthJourney {
-  override val authWithPaye: ActionBuilder[Request, AnyContent] = FakeAuthAction andThen FakePertaxAuthAction
+import scala.concurrent.{ExecutionContext, Future}
+
+object FakeAuthJourney extends AuthJourney {
+  private val actionBuilderFixture = new ActionBuilderFixture {
+    override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+      block(request)
+  }
+
+  override val authWithPaye: ActionBuilderFixture = actionBuilderFixture
+}
+
+trait ActionBuilderFixture extends ActionBuilder[Request, AnyContent] {
+  override def invokeBlock[A](a: Request[A], block: Request[A] => Future[Result]): Future[Result]
+
+  override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser()
+
+  override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 }

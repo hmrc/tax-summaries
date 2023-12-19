@@ -17,33 +17,34 @@
 package connectors
 
 import cats.data.EitherT
+import com.google.inject.Inject
 import config.ApplicationConfig
 import models.PertaxApiResponse
 import play.api.Logging
 import play.api.http.HeaderNames
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PertaxConnector @Inject()(
-                                 httpClient: HttpClient,
-                                 httpClientResponse: HttpClientResponse,
-                                 applicationConfig: ApplicationConfig
-                               )(implicit
-                                 ec: ExecutionContext
-                               ) extends Logging {
+class PertaxConnector @Inject() (
+  httpClient: HttpClientV2,
+  httpClientResponse: HttpClientResponse,
+  applicationConfig: ApplicationConfig
+)(implicit
+  ec: ExecutionContext
+) extends Logging {
 
   private val baseUrl = applicationConfig.pertaxHost
 
   def pertaxAuth(nino: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, PertaxApiResponse] =
     httpClientResponse
       .read(
-        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-          s"$baseUrl/pertax/$nino/check-single-account",
-          headers = Seq((HeaderNames.ACCEPT, s"application/vnd.hmrc.2.0+json"))
-        )
+        httpClient
+          .get(url"$baseUrl/pertax/$nino/check-single-account")
+          .setHeader(HeaderNames.ACCEPT -> "application/vnd.hmrc.2.0+json")
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map(response => response.json.as[PertaxApiResponse])
 }

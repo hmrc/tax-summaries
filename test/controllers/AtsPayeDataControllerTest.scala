@@ -45,7 +45,7 @@ class AtsPayeDataControllerTest extends BaseSpec {
   val npsService: NpsService                = mock[NpsService]
   val payeAuthAction: PayeAuthAction        = FakeAuthAction
   lazy val atsErrorHandler: ATSErrorHandler = inject[ATSErrorHandler]
-  val mockAuthJourney: AuthJourney = FakeAuthJourney
+  val mockAuthJourney: AuthJourney          = FakeAuthJourney
 
   class TestController extends AtsPayeDataController(npsService, mockAuthJourney, atsErrorHandler, cc)
 
