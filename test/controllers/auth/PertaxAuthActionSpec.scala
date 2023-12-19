@@ -41,7 +41,7 @@ class PertaxAuthActionSpec extends BaseSpec {
 
   implicit val ec: ExecutionContext = cc.executionContext
 
-  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/$testNino/2018/paye-ats-data")
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"$testNino")
 
   class Harness(authJourney: AuthJourney) extends InjectedController {
     def onPageLoad(): Action[AnyContent] = authJourney.authWithPaye { _ =>
@@ -118,5 +118,25 @@ class PertaxAuthActionSpec extends BaseSpec {
 
     val result = controller.onPageLoad()(request)
     status(result) mustBe OK
+  }
+
+  "create a failure if PertaxConnector returns an NO_HMRC_PT_ENROLMENT code" in {
+    when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
+      .thenReturn(Future.successful(()))
+
+    when(mockFeatureFlagService.get(org.mockito.ArgumentMatchers.eq(PertaxBackendToggle))) thenReturn Future
+      .successful(
+        FeatureFlag(PertaxBackendToggle, isEnabled = true)
+      )
+
+    when(mockPertaxConnector.pertaxAuth(any())(any()))
+      .thenReturn(
+        EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
+          Future.successful(Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", "", None)))
+        )
+      )
+
+    val result = controller.onPageLoad()(request)
+    status(result) mustBe UNAUTHORIZED
   }
 }
