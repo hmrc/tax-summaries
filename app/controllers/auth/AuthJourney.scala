@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package config
+package controllers.auth
 
-import connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import com.google.inject.{ImplementedBy, Inject}
+import play.api.mvc.{ActionBuilder, AnyContent, Request}
 
-class ATSModule extends Module {
+@ImplementedBy(classOf[AuthJourneyImpl])
+trait AuthJourney {
+  val authWithPaye: ActionBuilder[Request, AnyContent]
+}
 
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
-    Seq(
-      bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
-      bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
-      bind[ApplicationStartUp].toSelf.eagerly()
-    )
-
+class AuthJourneyImpl @Inject() (payeAuthAction: PayeAuthAction, pertaxAuthAction: PertaxAuthAction)
+    extends AuthJourney {
+  override val authWithPaye: ActionBuilder[Request, AnyContent] = payeAuthAction andThen pertaxAuthAction
 }

@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package config
+package models
 
-import connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import play.api.libs.json.{Json, OFormat}
 
-class ATSModule extends Module {
+case class ErrorView(url: String, statusCode: Int)
 
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
-    Seq(
-      bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
-      bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
-      bind[ApplicationStartUp].toSelf.eagerly()
-    )
-
+object ErrorView {
+  implicit val format: OFormat[ErrorView] = Json.format[ErrorView]
 }
