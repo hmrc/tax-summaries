@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import play.core.PlayVersion
 import play.sbt.PlayImport._
 import sbt._
 
 object AppDependencies {
 
   private val playVersion                = "play-28"
-  private val hmrcMongoVersion           = "1.1.0"
+  private val hmrcMongoVersion           = "1.6.0"
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val bootstrapVersion           = "7.15.0"
 
@@ -34,7 +33,8 @@ object AppDependencies {
     "com.github.fge"     % "json-schema-validator"           % jsonSchemaValidatorVersion,
     "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"        % hmrcMongoVersion,
     "org.typelevel"     %% "cats-core"                       % "2.9.0",
-    "uk.gov.hmrc"                %% "tax-year"                   % "3.2.0"
+    "uk.gov.hmrc"       %% "tax-year"                   % "3.2.0",
+    "uk.gov.hmrc"       %% "mongo-feature-toggles-client"    % "0.5.0"
   )
 
   val test: Seq[ModuleID] = Seq(

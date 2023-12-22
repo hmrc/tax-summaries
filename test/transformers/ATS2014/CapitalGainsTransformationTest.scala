@@ -52,7 +52,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
         Map(
           "cg_entrepreneurs_rate"          -> ApiRate("10%"),
           "cg_ordinary_rate"               -> ApiRate("18%"),
-          "cg_upper_rate"                  -> ApiRate("28%"),
+          "cg_upper_rate"                  -> ApiRate("20%"),
           "total_cg_tax_rate"              -> ApiRate("45.34%"),
           "prop_interest_rate_lower_rate"  -> ApiRate("0%"),
           "prop_interest_rate_higher_rate" -> ApiRate("0%")
@@ -98,7 +98,7 @@ class CapitalGainsTransformationTest extends BaseSpec with AtsJsonDataUpdate {
         Map(
           "cg_entrepreneurs_rate"          -> ApiRate("10%"),
           "cg_ordinary_rate"               -> ApiRate("18%"),
-          "cg_upper_rate"                  -> ApiRate("28%"),
+          "cg_upper_rate"                  -> ApiRate("20%"),
           "total_cg_tax_rate"              -> ApiRate("45.34%"),
           "prop_interest_rate_lower_rate"  -> ApiRate("0%"),
           "prop_interest_rate_higher_rate" -> ApiRate("0%")

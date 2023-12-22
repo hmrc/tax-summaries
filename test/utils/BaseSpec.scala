@@ -24,7 +24,8 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 class BaseSpec
     extends AnyWordSpec
@@ -35,8 +36,10 @@ class BaseSpec
     with ScalaFutures
     with IntegrationPatience
     with BeforeAndAfterEach {
-  lazy val applicationConfig = inject[ApplicationConfig]
+  lazy val applicationConfig: ApplicationConfig = inject[ApplicationConfig]
 
-  val generatedNino = new Generator().nextNino
+  val generatedNino: Nino = new Generator().nextNino
+
+  implicit lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
 }

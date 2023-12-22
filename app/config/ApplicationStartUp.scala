@@ -16,17 +16,9 @@
 
 package config
 
-import connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import models.admin.AllFeatureFlags
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagNamesLibrary
 
-class ATSModule extends Module {
-
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
-    Seq(
-      bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
-      bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
-      bind[ApplicationStartUp].toSelf.eagerly()
-    )
-
+class ApplicationStartUp {
+  FeatureFlagNamesLibrary.addFlags(AllFeatureFlags.list)
 }

@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.auth.PayeAuthAction
+import controllers.auth.AuthJourney
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.NpsService
@@ -28,28 +28,29 @@ import scala.concurrent.ExecutionContext
 
 class AtsPayeDataController @Inject() (
   npsService: NpsService,
-  payeAuthAction: PayeAuthAction,
+  authJourney: AuthJourney,
   atsErrorHandler: ATSErrorHandler,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc) {
 
-  def getAtsPayeData(nino: String, taxYear: Int): Action[AnyContent] = payeAuthAction.async { implicit request =>
-    npsService
-      .getPayeATSData(nino, taxYear)
-      .fold(
-        error => atsErrorHandler.errorToResponse(error),
-        result => Ok(Json.toJson(result))
-      )
+  def getAtsPayeData(nino: String, taxYear: Int): Action[AnyContent] = authJourney.authWithPaye.async {
+    implicit request =>
+      npsService
+        .getPayeATSData(nino, taxYear)
+        .fold(
+          error => atsErrorHandler.errorToResponse(error),
+          result => Ok(Json.toJson(result))
+        )
   }
 
-  def getAtsPayeDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] = payeAuthAction.async {
-    implicit request =>
+  def getAtsPayeDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] =
+    authJourney.authWithPaye.async { implicit request =>
       npsService
         .getAtsPayeDataMultipleYears(nino, (yearFrom to yearTo).toList)
         .fold(
           error => atsErrorHandler.errorToResponse(error),
           result => if (result.isEmpty) NotFound("") else Ok(Json.toJson(result))
         )
-  }
+    }
 }

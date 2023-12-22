@@ -65,6 +65,8 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
 
   lazy val originatorId: String = servicesConfig.getConfString("tax-summaries-hod.originatorId", "local")
 
-  val sessionCacheTtl = configuration.getOptional[Int]("feature.session-cache.ttl").getOrElse(15)
+  val sessionCacheTtl: Int = configuration.getOptional[Int]("feature.session-cache.ttl").getOrElse(15)
+
+  lazy val pertaxHost: String = servicesConfig.baseUrl("pertax")
 
 }

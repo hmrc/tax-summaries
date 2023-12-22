@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package config
+package models.admin
 
-import connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
-import play.api.inject.{Binding, Module}
-import play.api.{Configuration, Environment}
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
-class ATSModule extends Module {
+object AllFeatureFlags {
+  val list: List[FeatureFlagName] = List(PertaxBackendToggle)
+}
 
-  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
-    Seq(
-      bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
-      bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
-      bind[ApplicationStartUp].toSelf.eagerly()
-    )
-
+case object PertaxBackendToggle extends FeatureFlagName {
+  override val name: String                = "pertax-backend-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable pertax backend during auth"
+  )
 }

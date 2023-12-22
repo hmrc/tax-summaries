@@ -16,6 +16,7 @@
 
 package utils
 
+import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -23,11 +24,15 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.reflect.ClassTag
 import scala.util.Random
 
 /**
@@ -46,6 +51,20 @@ trait IntegrationSpec
     with IntegrationWireMockHelper
     with ScalaFutures
     with IntegrationPatience {
+
+  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
+    override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
+
+    override def remove(key: String): Future[Done] = Future.successful(Done)
+
+    override def getOrElseUpdate[A](key: String, expiration: Duration)(orElse: => Future[A])(implicit
+      evidence$1: ClassTag[A]
+    ): Future[A] = orElse
+
+    override def get[T](key: String)(implicit evidence$2: ClassTag[T]): Future[Option[T]] = Future.successful(None)
+
+    override def removeAll(): Future[Done] = Future.successful(Done)
+  }
   override def beforeEach(): Unit = {
     super.beforeEach()
 
@@ -85,7 +104,8 @@ trait IntegrationSpec
     new GuiceApplicationBuilder()
       .disable[config.ATSModule]
       .overrides(
-        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector]
+        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector],
+        bind[AsyncCacheApi].toInstance(mockCacheApi)
       )
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
