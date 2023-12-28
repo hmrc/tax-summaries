@@ -1,3 +1,3 @@
 ->  /taxs   app.Routes
-->  /admin/featureFlags  mongoFeatureTogglesAdmin.Routes
 ->  /   health.Routes
+->  /admin  admin.Routes
