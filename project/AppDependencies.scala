@@ -22,7 +22,7 @@ object AppDependencies {
   private val playVersion                = "play-28"
   private val hmrcMongoVersion           = "1.6.0"
   private val jsonSchemaValidatorVersion = "2.2.14"
-  private val bootstrapVersion           = "7.15.0"
+  private val bootstrapVersion           = "8.3.0"
 
   val compile: Seq[ModuleID] = Seq(
     filters,

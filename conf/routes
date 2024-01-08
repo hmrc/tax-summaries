@@ -1,4 +1,3 @@
-->          /taxs                       app.Routes
-->          /                           health.Routes
-GET        /admin/metrics               @com.kenshoo.play.metrics.MetricsController.metrics
-->         /admin/featureFlags          mongoFeatureTogglesAdmin.Routes
+->  /taxs   app.Routes
+->  /admin  admin.Routes
+->  /   health.Routes
