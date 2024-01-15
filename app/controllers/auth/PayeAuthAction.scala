@@ -54,14 +54,10 @@ class PayeAuthActionImpl @Inject() (
     featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
         ninoOpt match {
-          case None       =>
-            println("\n\n** NO NINO FOUND IN AUTH CLIENT")
-            Future.successful(Some(Unauthorized))
+          case None       => Future.successful(None)
           case Some(nino) =>
-            println("\nNINO FOUND IN AUTH CLIENT:" + nino)
             pertaxConnector.pertaxAuth(nino).value.flatMap {
               case Right(PertaxApiResponse("ACCESS_GRANTED", _, _, _))       =>
-                println("\nGRANTED")
                 Future.successful(None)
               case Right(PertaxApiResponse("INVALID_AFFINITY", _, _, _))     =>
                 Future.successful(None)
