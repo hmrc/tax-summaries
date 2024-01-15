@@ -20,10 +20,9 @@ import com.google.inject.{ImplementedBy, Inject}
 import connectors.PertaxConnector
 import models.PertaxApiResponse
 import models.admin.PertaxBackendToggle
+import play.api.Logger
 import play.api.mvc.Results._
 import play.api.mvc._
-import play.api.{Logger, mvc}
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
@@ -42,42 +41,26 @@ class PayeAuthActionImpl @Inject() (
 
   private val logger = Logger(getClass.getName)
 
-  private def retrieveNinoFromAuthClient(implicit hc: HeaderCarrier): Future[Option[String]] =
-    authorised(ConfidenceLevel.L50).retrieve(Retrievals.nino) {
-      case None        => Future.successful(None)
-      case n @ Some(_) => Future.successful(n)
-    }
-
-  private def authenticateViaPertax(
-    ninoOpt: Option[String]
-  )(implicit hc: HeaderCarrier): Future[Option[mvc.Results.Status]] =
-    featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
-      if (toggle.isEnabled) {
-        ninoOpt match {
-          case None       => Future.successful(None)
-          case Some(nino) =>
-            pertaxConnector.pertaxAuth(nino).value.flatMap {
-              case Right(PertaxApiResponse("ACCESS_GRANTED", _, _, _))       =>
-                Future.successful(None)
-              case Right(PertaxApiResponse("INVALID_AFFINITY", _, _, _))     =>
-                Future.successful(None)
-              case Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", _, _, _)) =>
-                Future.successful(Some(Unauthorized))
-              case _                                                         =>
-                Future.successful(Some(InternalServerError))
-            }
-        }
-      } else {
-        Future.successful(None)
-      }
-    }
-
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-    for {
-      optNino   <- retrieveNinoFromAuthClient
-      optStatus <- authenticateViaPertax(optNino)
-    } yield optStatus
+    authorised(ConfidenceLevel.L50) {
+      featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
+        if (toggle.isEnabled) {
+          pertaxConnector.pertaxAuth.value.flatMap {
+            case Right(PertaxApiResponse("ACCESS_GRANTED", _, _, _))       =>
+              Future.successful(None)
+            case Right(PertaxApiResponse("INVALID_AFFINITY", _, _, _))     =>
+              Future.successful(None)
+            case Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", _, _, _)) =>
+              Future.successful(Some(Unauthorized))
+            case _                                                         =>
+              Future.successful(Some(InternalServerError))
+          }
+        } else {
+          Future.successful(None)
+        }
+      }
+    }
   }.recover {
     case ae: AuthorisationException =>
       logger.error(s"Authorisation exception", ae)
