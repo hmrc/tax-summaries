@@ -63,7 +63,7 @@ class PayeAuthActionImpl @Inject() (
                 Future.successful(None)
               case Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", _, _, _)) =>
                 Future.successful(Some(Unauthorized))
-              case e                                                         =>
+              case _                                                         =>
                 Future.successful(Some(InternalServerError))
             }
         }
