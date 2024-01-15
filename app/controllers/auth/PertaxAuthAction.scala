@@ -38,7 +38,8 @@ class PertaxAuthActionImpl @Inject() (
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val nino                       = ninoRegexHelper.findNinoIn(request.uri) // TODO: 8397 Get this nino from auth as will not always be in request uri
+    val nino                       =
+      ninoRegexHelper.findNinoIn(request.uri) // TODO: 8397 Get this nino from auth as will not always be in request uri
     featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
       if (toggle.isEnabled) {
         nino match {
