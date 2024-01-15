@@ -73,76 +73,75 @@ class PayeAuthActionSpec extends BaseSpec {
 
   "AuthAction (feature toggle OFF)" must {
     "allow a request when authorised is successful" in {
-      val retrievalResult: Future[Option[String]] = Future.successful(Some(testNino))
       pertaxBackendToggleOff
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
+        .thenReturn(Future.successful((): Unit))
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe OK
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
     "return UNAUTHORIZED when the user is not logged in" in {
       pertaxBackendToggleOff
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(Future.failed(new MissingBearerToken))
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
     "return UNAUTHORIZED when confidence level is insufficient" in {
       pertaxBackendToggleOff
-      val retrievalResult: Future[Option[String]] = Future.failed(new InsufficientConfidenceLevel)
+      val retrievalResult: Future[Unit] = Future.failed(new InsufficientConfidenceLevel)
 
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
     "return UNAUTHORIZED when NINO is missing or doesn't match URL parameter" in {
       pertaxBackendToggleOff
-      val retrievalResult: Future[Option[String]] = Future.failed(InternalError("IncorrectNino"))
+      val retrievalResult: Future[Unit] = Future.failed(InternalError("IncorrectNino"))
 
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
     "return INTERNAL_SERVER_ERROR when auth call fails for unexpected reason" in {
       pertaxBackendToggleOff
-      val retrievalResult: Future[Option[String]] = Future.failed(new RuntimeException())
+      val retrievalResult: Future[Unit] = Future.failed(new RuntimeException())
 
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
   }
 
   "AuthAction (feature toggle ON)" must {
     "allow a request when authorised is successful" in {
-      val retrievalResult: Future[Option[String]] = Future.successful(Some(testNino))
+      val retrievalResult: Future[Unit] = Future.successful(Some(testNino))
       pertaxBackendToggleOn
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
-      when(mockPertaxConnector.pertaxAuth(any())(any()))
+      when(mockPertaxConnector.pertaxAuth(any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
             Future.successful(Right(PertaxApiResponse("ACCESS_GRANTED", "", None)))
@@ -152,15 +151,15 @@ class PayeAuthActionSpec extends BaseSpec {
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe OK
-      verify(mockPertaxConnector, times(1)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(1)).pertaxAuth(any())
     }
 
     "allow a request when authorised is successful invalid affinity" in {
-      val retrievalResult: Future[Option[String]] = Future.successful(Some(testNino))
+      val retrievalResult: Future[Unit] = Future.successful(Some(testNino))
       pertaxBackendToggleOn
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
-      when(mockPertaxConnector.pertaxAuth(any())(any()))
+      when(mockPertaxConnector.pertaxAuth(any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
             Future.successful(Right(PertaxApiResponse("INVALID_AFFINITY", "", None)))
@@ -170,15 +169,15 @@ class PayeAuthActionSpec extends BaseSpec {
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe OK
-      verify(mockPertaxConnector, times(1)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(1)).pertaxAuth(any())
     }
 
     "return UNAUTHORISED when no PT enrolment" in {
-      val retrievalResult: Future[Option[String]] = Future.successful(Some(testNino))
+      val retrievalResult: Future[Unit] = Future.successful(Some(testNino))
       pertaxBackendToggleOn
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
-      when(mockPertaxConnector.pertaxAuth(any())(any()))
+      when(mockPertaxConnector.pertaxAuth(any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
             Future.successful(Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", "", None)))
@@ -188,15 +187,15 @@ class PayeAuthActionSpec extends BaseSpec {
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
-      verify(mockPertaxConnector, times(1)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(1)).pertaxAuth(any())
     }
 
     "return INTERNAL_SERVER_ERROR when the pertax auth call fails for unexpected reason" in {
-      val retrievalResult: Future[Option[String]] = Future.successful(Some(testNino))
+      val retrievalResult: Future[Unit] = Future.successful(Some(testNino))
       pertaxBackendToggleOn
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
-      when(mockPertaxConnector.pertaxAuth(any())(any()))
+      when(mockPertaxConnector.pertaxAuth(any()))
         .thenReturn(
           EitherT[Future, UpstreamErrorResponse, PertaxApiResponse](
             Future.successful(Left(UpstreamErrorResponse.apply("", 500)))
@@ -206,57 +205,57 @@ class PayeAuthActionSpec extends BaseSpec {
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockPertaxConnector, times(1)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(1)).pertaxAuth(any())
     }
 
     "return UNAUTHORIZED when the user is not logged in" in {
       pertaxBackendToggleOn
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(Future.failed(new MissingBearerToken))
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
     "return UNAUTHORIZED when confidence level is insufficient" in {
       pertaxBackendToggleOn
-      val retrievalResult: Future[Option[String]] = Future.failed(new InsufficientConfidenceLevel)
+      val retrievalResult: Future[Unit] = Future.failed(new InsufficientConfidenceLevel)
 
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
     "return UNAUTHORIZED when NINO is missing or doesn't match URL parameter" in {
       pertaxBackendToggleOn
-      val retrievalResult: Future[Option[String]] = Future.failed(InternalError("IncorrectNino"))
+      val retrievalResult: Future[Unit] = Future.failed(InternalError("IncorrectNino"))
 
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe UNAUTHORIZED
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
     "return INTERNAL_SERVER_ERROR when auth call fails for unexpected reason" in {
       pertaxBackendToggleOn
-      val retrievalResult: Future[Option[String]] = Future.failed(new RuntimeException())
+      val retrievalResult: Future[Unit] = Future.failed(new RuntimeException())
 
-      when(mockAuthConnector.authorise[Option[String]](any(), any())(any(), any()))
+      when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val result = harness.onPageLoad()(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockPertaxConnector, times(0)).pertaxAuth(any())(any())
+      verify(mockPertaxConnector, times(0)).pertaxAuth(any())
     }
 
   }
