@@ -26,16 +26,15 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
 import utils.TestConstants._
-import utils.{ATSErrorHandler, BaseSpec, OdsIndividualYearsService, TaxsJsonHelper}
+import utils.{ATSErrorHandler, BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class GovSpendingControllerTest extends BaseSpec {
 
-  lazy val cc: ControllerComponents                             = stubControllerComponents()
-  lazy val request: FakeRequest[AnyContentAsEmpty.type]         = FakeRequest()
-  lazy val atsErrorHandler: ATSErrorHandler                     = inject[ATSErrorHandler]
-  lazy val odsIndividualYearsService: OdsIndividualYearsService = inject[OdsIndividualYearsService]
+  lazy val cc: ControllerComponents                     = stubControllerComponents()
+  lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  lazy val atsErrorHandler: ATSErrorHandler             = inject[ATSErrorHandler]
 
   implicit lazy val ec: ExecutionContext                        = inject[ExecutionContext]
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -58,7 +57,6 @@ class GovSpendingControllerTest extends BaseSpec {
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
     new AtsSaDataController(
       odsService,
-      odsIndividualYearsService,
       atsErrorHandler,
       FakeAuthAction,
       cc,
