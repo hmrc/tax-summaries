@@ -57,7 +57,7 @@ class PayeAuthActionImpl @Inject() (
               logger.warn("auth action received response: " + r)
               Future.successful(Some(InternalServerError))
             case Left(ex)                                                         =>
-              logger.warn("", ex)
+              logger.warn("Error received from auth", ex)
               Future.successful(Some(InternalServerError))
           }
         } else {
