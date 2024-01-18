@@ -24,7 +24,6 @@ trait AuthJourney {
   val authWithPaye: ActionBuilder[Request, AnyContent]
 }
 
-class AuthJourneyImpl @Inject() (payeAuthAction: PayeAuthAction, pertaxAuthAction: PertaxAuthAction)
-    extends AuthJourney {
-  override val authWithPaye: ActionBuilder[Request, AnyContent] = payeAuthAction andThen pertaxAuthAction
+class AuthJourneyImpl @Inject() (payeAuthAction: PayeAuthAction) extends AuthJourney {
+  override val authWithPaye: ActionBuilder[Request, AnyContent] = payeAuthAction
 }

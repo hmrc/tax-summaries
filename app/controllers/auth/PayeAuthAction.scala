@@ -17,20 +17,24 @@
 package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
+import connectors.PertaxConnector
+import models.PertaxApiResponse
+import models.admin.PertaxBackendToggle
 import play.api.Logger
 import play.api.mvc.Results._
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, ConfidenceLevel, Nino => AuthNino}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.NinoHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PayeAuthActionImpl @Inject() (
   val authConnector: AuthConnector,
-  ninoRegexHelper: NinoHelper,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  featureFlagService: FeatureFlagService,
+  pertaxConnector: PertaxConnector
 )(implicit ec: ExecutionContext)
     extends PayeAuthAction
     with AuthorisedFunctions {
@@ -38,13 +42,24 @@ class PayeAuthActionImpl @Inject() (
   private val logger = Logger(getClass.getName)
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
-
-    val nino = ninoRegexHelper.findNinoIn(request.uri)
-
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-
-    authorised(ConfidenceLevel.L50 and AuthNino(hasNino = true, nino = nino)) {
-      Future.successful(None)
+    authorised(ConfidenceLevel.L50) {
+      featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
+        if (toggle.isEnabled) {
+          pertaxConnector.pertaxAuth.value.flatMap {
+            case Right(PertaxApiResponse("ACCESS_GRANTED", _, _, _))       =>
+              Future.successful(None)
+            case Right(PertaxApiResponse("INVALID_AFFINITY", _, _, _))     =>
+              Future.successful(None)
+            case Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", _, _, _)) =>
+              Future.successful(Some(Unauthorized))
+            case _                                                         =>
+              Future.successful(Some(InternalServerError))
+          }
+        } else {
+          Future.successful(None)
+        }
+      }
     }
   }.recover {
     case ae: AuthorisationException =>

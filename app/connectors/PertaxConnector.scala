@@ -38,13 +38,14 @@ class PertaxConnector @Inject() (
 
   private val baseUrl = applicationConfig.pertaxHost
 
-  def pertaxAuth(nino: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, PertaxApiResponse] =
+  def pertaxAuth(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, PertaxApiResponse] =
     httpClientResponse
       .read(
         httpClient
-          .get(url"$baseUrl/pertax/$nino/check-single-account")
+          .post(url"$baseUrl/pertax/authorise")
           .setHeader(HeaderNames.ACCEPT -> "application/vnd.hmrc.2.0+json")
           .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
       .map(response => response.json.as[PertaxApiResponse])
+
 }
