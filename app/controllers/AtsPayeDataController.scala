@@ -47,7 +47,7 @@ class AtsPayeDataController @Inject() (
   def getAtsPayeDataMultipleYears(nino: String, yearFrom: Int, yearTo: Int): Action[AnyContent] =
     authJourney.authWithPaye.async { implicit request =>
       npsService
-        .getAtsPayeDataMultipleYears(nino, (yearFrom to yearTo).toList)
+        .getAtsPayeDataMultipleYears(nino, Range(yearTo, yearFrom, -1).toList)
         .fold(
           error => atsErrorHandler.errorToResponse(error),
           result => if (result.isEmpty) NotFound("") else Ok(Json.toJson(result))

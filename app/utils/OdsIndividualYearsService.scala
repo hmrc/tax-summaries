@@ -49,7 +49,8 @@ class OdsIndividualYearsService @Inject() (odsService: OdsService) extends Loggi
 
     EitherT(
       Future
-        .sequence((endYear - numberOfYears to endYear).map { year =>
+        .sequence(Range(endYear, endYear - numberOfYears, -1).map { year =>
+          println("aaaaa OdsIndividualYears getAtsList Year: " + year)
           individualYearResponse(utr, year).value
         })
         .flatMap { results =>

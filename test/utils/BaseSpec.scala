@@ -42,4 +42,6 @@ class BaseSpec
 
   implicit lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
+  val fakeTaxYear = 2023
+
 }

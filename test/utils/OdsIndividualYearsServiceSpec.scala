@@ -52,13 +52,13 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
 
   "getAtsList build list of years from individual years" when {
     "all calls are successful" in {
-      val listOfYears = (2016 to 2020).toList
+      val listOfYears = (2020 to 2023).toList
       val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
 
       when(mockOdsService.getPayload(any(), any())(any(), any())).thenReturn(
         EitherT.rightT(Json.parse("{}"))
       )
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
 
       result mustBe Right(listOfYears)
       verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -67,13 +67,13 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
     }
 
     "with not found responses excluded" in {
-      val listOfYears = (2016 to 2020).toList
+      val listOfYears = (fakeTaxYear - 3 to fakeTaxYear).toList
       val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
 
       when(mockOdsService.getPayload(any(), any())(any(), any())).thenReturn(
         EitherT.leftT(UpstreamErrorResponse("Not Found", 404))
       )
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
 
       result mustBe Right(List.empty)
       verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -82,7 +82,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
     }
 
     "with any 4XX responses ignored" in {
-      val listOfYears = (2016 to 2020).toList
+      val listOfYears = (fakeTaxYear - 3 to fakeTaxYear).toList
       val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
 
       listOfYears.foreach { year =>
@@ -91,7 +91,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
           EitherT.leftT(UpstreamErrorResponse("random client error", random))
         )
       }
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
 
       result mustBe Right(List.empty)
       verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -100,7 +100,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
     }
 
     "one call is retried successfully" in {
-      val listOfYears = (2016 to 2020).toList
+      val listOfYears = (fakeTaxYear - 3 to fakeTaxYear).toList
       val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
 
       listOfYears.tail.foreach { year =>
@@ -114,7 +114,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
         EitherT.rightT(Json.parse("{}"))
       )
 
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
 
       result mustBe Right(listOfYears)
       verify(mockOdsService, times(listOfYears.size + 1)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -126,7 +126,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
 
   "getAtsList returns an error" when {
     "retry is not successful" in {
-      val listOfYears = (2016 to 2020).toList
+      val listOfYears = (fakeTaxYear - 3 to fakeTaxYear).toList
       val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
 
       listOfYears.tail.foreach { year =>
@@ -139,7 +139,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
         EitherT.leftT(UpstreamErrorResponse("Server error", 500))
       )
 
-      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
+      val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
 
       result mustBe a[Left[_, UpstreamErrorResponse]]
       verify(mockOdsService, times(listOfYears.size + 1)).getPayload(any(), eventCaptor.capture())(any(), any())
@@ -149,7 +149,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
   }
 
   "two or more calls are failing" in {
-    val listOfYears = (2016 to 2020).toList
+    val listOfYears = (fakeTaxYear - 3 to fakeTaxYear).toList
     val eventCaptor = ArgumentCaptor.forClass(classOf[Int])
 
     val failures  = listOfYears.take(2)
@@ -167,7 +167,7 @@ class OdsIndividualYearsServiceSpec extends BaseSpec {
       )
     }
 
-    val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size - 1).value.futureValue
+    val result = sut.getAtsList(testUtr, listOfYears.reverse.head, listOfYears.size).value.futureValue
 
     result mustBe a[Left[_, UpstreamErrorResponse]]
     verify(mockOdsService, times(listOfYears.size)).getPayload(any(), eventCaptor.capture())(any(), any())
