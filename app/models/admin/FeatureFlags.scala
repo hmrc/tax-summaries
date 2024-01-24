@@ -28,3 +28,10 @@ case object PertaxBackendToggle extends FeatureFlagName {
     "Enable/disable pertax backend during auth"
   )
 }
+
+case object SelfAssessmentDetailsFromIfToggle extends FeatureFlagName {
+  override val name: String                = "selfAssessment-details-from-if-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable calls to IF for API 1535 `/self-assessment/individuals/<utr>>/annual-tax-summaries/<taxYear>`"
+  )
+}

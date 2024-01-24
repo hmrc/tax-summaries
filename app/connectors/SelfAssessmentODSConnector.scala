@@ -21,6 +21,7 @@ import cats.implicits._
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
+import models.admin.SelfAssessmentDetailsFromIfToggle
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.{Format, OFormat}
@@ -31,6 +32,7 @@ import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import play.api.libs.json.Json
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -119,20 +121,34 @@ class CachingSelfAssessmentODSConnector @Inject() (
 class DefaultSelfAssessmentODSConnector @Inject() (
   val httpClient: HttpClient,
   applicationConfig: ApplicationConfig,
-  httpClientResponse: HttpClientResponse
+  httpClientResponse: HttpClientResponse,
+  featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext)
     extends SelfAssessmentODSConnector
     with Logging {
 
   val serviceUrl: String = applicationConfig.npsServiceUrl
 
-  def url(path: String): String = s"$serviceUrl$path"
+  def desUrl(path: String): String = s"$serviceUrl$path"
 
-  private def header(implicit hc: HeaderCarrier): Seq[(String, String)] = Seq(
-    HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
-    HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
-    "CorrelationId"        -> UUID.randomUUID().toString
-  )
+  def ifUrl(path: String): String = s"${applicationConfig.ifBaseURL}$path"
+
+  private def createHeader(ifToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
+    if (ifToggle)
+      Seq(
+        "Environment"          -> applicationConfig.ifEnvironment,
+        "Authorization"        -> applicationConfig.ifAuthorization,
+        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"        -> UUID.randomUUID().toString,
+        "OriginatorId"         -> applicationConfig.ifOriginatorId
+      )
+    else
+      Seq(
+        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"        -> UUID.randomUUID().toString
+      )
 
   def readEitherOfWithNotFound[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
     HttpReads.ask.flatMap {
@@ -144,12 +160,19 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
-      httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
-        url = url("/self-assessment/individuals/" + utr + "/annual-tax-summaries/" + taxYear),
-        headers = header
-      )(readEitherOfWithNotFound, implicitly, implicitly)
-    )
+    featureFlagService.getAsEitherT(SelfAssessmentDetailsFromIfToggle).flatMap { toggle =>
+      val path = "/self-assessment/individuals/" + utr + "/annual-tax-summaries/" + taxYear
+      val url  =
+        if (toggle.isEnabled) ifUrl(path)
+        else desUrl(path)
+
+      httpClientResponse.read(
+        httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
+          url = url,
+          headers = createHeader(toggle.isEnabled)
+        )(readEitherOfWithNotFound, implicitly, implicitly)
+      )
+    }
 
   def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
@@ -158,8 +181,8 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     httpClientResponse.read(
       httpClient
         .GET[Either[UpstreamErrorResponse, HttpResponse]](
-          url = url("/self-assessment/individuals/" + utr + "/annual-tax-summaries"),
-          headers = header
+          url = desUrl("/self-assessment/individuals/" + utr + "/annual-tax-summaries"),
+          headers = createHeader(false)
         )(readEitherOfWithNotFound, implicitly, implicitly)
     )
 
@@ -170,8 +193,8 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     httpClientResponse.read(
       httpClient
         .GET[Either[UpstreamErrorResponse, HttpResponse]](
-          url("/self-assessment/individual/" + utr + "/designatory-details/taxpayer"),
-          headers = header
+          desUrl("/self-assessment/individual/" + utr + "/designatory-details/taxpayer"),
+          headers = createHeader(false)
         )(readEitherOfWithNotFound, implicitly, implicitly)
     )
 }
