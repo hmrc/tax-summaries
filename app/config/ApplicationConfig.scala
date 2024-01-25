@@ -69,4 +69,9 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
 
   lazy val pertaxHost: String = servicesConfig.baseUrl("pertax")
 
+  lazy val ifBaseURL: String       = servicesConfig.baseUrl("if-hod")
+  lazy val ifEnvironment: String   = servicesConfig.getConfString("if-hod.env", "local")
+  lazy val ifAuthorization: String = "Bearer " + servicesConfig.getConfString("if-hod.authorizationToken", "local")
+  lazy val ifOriginatorId: String  = servicesConfig.getConfString("if-hod.originatorId", "")
+
 }
