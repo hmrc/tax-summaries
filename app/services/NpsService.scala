@@ -37,7 +37,6 @@ class NpsService @Inject() (repository: Repository, innerService: DirectNpsServi
   ): EitherT[Future, UpstreamErrorResponse, List[PayeAtsMiddleTier]] =
     taxYears
       .map { year =>
-        println("NpsService getAtsPayeDataMultipleYears year: " + year)
         getPayeATSData(nino, year).transform {
           case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => Right(None)
           case Right(data)                                     => Right(Some(data))

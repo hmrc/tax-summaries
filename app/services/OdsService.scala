@@ -113,7 +113,7 @@ class OdsService @Inject() (
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, Seq[Int]] = {
-    val futureResult = findAllYears(utr, endYear to startYear by -1).flatMap {
+    val futureResult = findAllYears(utr, Range(endYear, startYear, -1)).flatMap {
       case ir @ InterimResult(_, Seq(_), _) => retry(utr, ir)
       case ir                               => Future.successful(ir)
     }
