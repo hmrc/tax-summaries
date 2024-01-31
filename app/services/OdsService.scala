@@ -173,12 +173,12 @@ object OdsService {
   private case class InterimResult(processedYears: Seq[Int], failureInfo: Seq[FailureInfo], notFoundCount: Int)
 
   private def toEither(years: Int): PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
-    case InterimResult(_, Seq(fi), _)                                => Left(fi.upstreamErrorResponse)
-    case InterimResult(_, Seq(_, _*), _)                             =>
+    case InterimResult(_, Seq(fi), _)                                 => Left(fi.upstreamErrorResponse)
+    case InterimResult(_, Seq(_, _*), _)                              =>
       Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))
-    case InterimResult(_, _, notFoundCount) if notFoundCount > years =>
+    case InterimResult(_, _, notFoundCount) if notFoundCount >= years =>
       Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
-    case InterimResult(processedYears, _, _)                         => Right(processedYears)
+    case InterimResult(processedYears, _, _)                          => Right(processedYears)
   }
 
   private val toRightIfAnyYearsFound: PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
