@@ -30,17 +30,14 @@ import utils.{BaseSpec, JsonUtil, WireMockHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class NPSConnectorTest extends BaseSpec with WireMockHelper {
+class NPSConnectorDesTest extends BaseSpec with WireMockHelper {
   implicit lazy val ec: ExecutionContext      =
     scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
-        "microservice.services.if-hod.port"               -> server.port(),
-        "microservice.services.if-hod.env"                -> "if-env",
-        "microservice.services.if-hod.originatorId"       -> "if-origin",
-        "microservice.services.if-hod.authorizationToken" -> "if-bearer",
-        "microservice.services.tax-summaries-hod.host"    -> "127.0.0.1"
+        "microservice.services.tax-summaries-hod.port" -> server.port(),
+        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
       )
       .build()
 
@@ -73,11 +70,10 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
     super.beforeEach()
     server.resetAll()
     reset(mockFeatureFlagService)
-
     when(
       mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromIfToggle))
     ) thenReturn EitherT.rightT(
-      FeatureFlag(PayeDetailsFromIfToggle, isEnabled = true)
+      FeatureFlag(PayeDetailsFromIfToggle, isEnabled = false)
     )
   }
 
@@ -104,11 +100,10 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
       server.verify(
         getRequestedFor(urlEqualTo(url))
-          .withHeader("Environment", equalTo("if-env"))
-          .withHeader(HeaderNames.authorisation, equalTo("Bearer if-bearer"))
+          .withHeader("Environment", equalTo("local"))
+          .withHeader(HeaderNames.authorisation, equalTo("Bearer local"))
           .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
           .withHeader(HeaderNames.xRequestId, equalTo(requestId))
-          .withHeader("OriginatorId", equalTo("if-origin"))
           .withHeader(
             "CorrelationId",
             matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")

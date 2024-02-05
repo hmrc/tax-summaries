@@ -35,3 +35,10 @@ case object SelfAssessmentDetailsFromIfToggle extends FeatureFlagName {
     "Enable/disable calls to IF for API 1535 `/self-assessment/individuals/<utr>>/annual-tax-summaries/<taxYear>`"
   )
 }
+
+case object PayeDetailsFromIfToggle extends FeatureFlagName {
+  override val name: String                = "paye-details-from-if-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable calls to IF for API 1535 `/individuals/annual-tax-summary/<nino>>/<taxYear>`"
+  )
+}
