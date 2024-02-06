@@ -19,7 +19,8 @@ package models.admin
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
 object AllFeatureFlags {
-  val list: List[FeatureFlagName] = List(PertaxBackendToggle, SelfAssessmentDetailsFromIfToggle)
+  val list: List[FeatureFlagName] =
+    List(PertaxBackendToggle, SelfAssessmentDetailsFromIfToggle, PayeDetailsFromIfToggle)
 }
 
 case object PertaxBackendToggle extends FeatureFlagName {
