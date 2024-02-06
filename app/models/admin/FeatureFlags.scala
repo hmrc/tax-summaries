@@ -19,7 +19,8 @@ package models.admin
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
 object AllFeatureFlags {
-  val list: List[FeatureFlagName] = List(PertaxBackendToggle, SelfAssessmentDetailsFromIfToggle)
+  val list: List[FeatureFlagName] =
+    List(PertaxBackendToggle, SelfAssessmentDetailsFromIfToggle, PayeDetailsFromIfToggle)
 }
 
 case object PertaxBackendToggle extends FeatureFlagName {
@@ -33,5 +34,12 @@ case object SelfAssessmentDetailsFromIfToggle extends FeatureFlagName {
   override val name: String                = "selfAssessment-details-from-if-toggle"
   override val description: Option[String] = Some(
     "Enable/disable calls to IF for API 1535 `/self-assessment/individuals/<utr>>/annual-tax-summaries/<taxYear>`"
+  )
+}
+
+case object PayeDetailsFromIfToggle extends FeatureFlagName {
+  override val name: String                = "paye-details-from-if-toggle"
+  override val description: Option[String] = Some(
+    "Enable/disable calls to IF for API 1535 `/individuals/annual-tax-summary/<nino>>/<taxYear>`"
   )
 }
