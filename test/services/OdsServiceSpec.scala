@@ -26,7 +26,6 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
 import transformers.ATSCalculations
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.time.TaxYear
 import utils.TestConstants._
 import utils.{BaseSpec, TaxsJsonHelper}
 
@@ -41,7 +40,7 @@ class OdsServiceSpec extends BaseSpec {
 
   private val service = new OdsService(jsonHelper, odsConnector)
 
-  private val currentTaxYear = TaxYear.current.currentYear
+  private val currentTaxYear = fakeTaxYear
 
   private def saResponse(taxYear: Int): JsValue = Json.obj("taxYear" -> taxYear)
 
@@ -247,7 +246,7 @@ class OdsServiceSpec extends BaseSpec {
     "return no years if no liability at all but not ALL tax years return not found" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(OK, OK, NOT_FOUND, OK, OK)
+        responseStatusesToMockForSA = Seq(OK, NOT_FOUND, OK, OK)
       )
 
       whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0), BigDecimal(0)))
@@ -260,11 +259,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
+          expectedNumberOfCalls = Seq(1, 0, 1, 1)
         )
       }
     }
@@ -272,7 +271,7 @@ class OdsServiceSpec extends BaseSpec {
     "return NOT_FOUND upstream error response if ALL tax years return not found" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(NOT_FOUND, NOT_FOUND, NOT_FOUND, NOT_FOUND, NOT_FOUND)
+        responseStatusesToMockForSA = Seq(NOT_FOUND, NOT_FOUND, NOT_FOUND, NOT_FOUND)
       )
 
       whenReady(
@@ -281,11 +280,11 @@ class OdsServiceSpec extends BaseSpec {
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0, 0)
         )
       }
     }
@@ -293,8 +292,7 @@ class OdsServiceSpec extends BaseSpec {
     "return NOT_FOUND upstream error response if ALL tax years return not found after retrying after one 5xx error" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA =
-          Seq(NOT_FOUND, Seq(INTERNAL_SERVER_ERROR, NOT_FOUND), NOT_FOUND, NOT_FOUND, NOT_FOUND)
+        responseStatusesToMockForSA = Seq(Seq(INTERNAL_SERVER_ERROR, NOT_FOUND), NOT_FOUND, NOT_FOUND, NOT_FOUND)
       )
 
       whenReady(
@@ -303,11 +301,11 @@ class OdsServiceSpec extends BaseSpec {
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 2, 1, 1, 1)
+          expectedNumberOfCalls = Seq(2, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0, 0)
         )
       }
     }
@@ -324,15 +322,15 @@ class OdsServiceSpec extends BaseSpec {
       whenReady(
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
-        result mustBe Right(Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear))
+        result mustBe Right(Seq(currentTaxYear - 3, currentTaxYear))
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
+          expectedNumberOfCalls = Seq(1, 0, 1, 1)
         )
       }
     }
@@ -340,7 +338,7 @@ class OdsServiceSpec extends BaseSpec {
     "return years minus any where 4xx other than not found response" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(OK, OK, BAD_REQUEST, OK, OK)
+        responseStatusesToMockForSA = Seq(OK, BAD_REQUEST, OK, OK)
       )
 
       whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0), BigDecimal(1)))
@@ -349,15 +347,15 @@ class OdsServiceSpec extends BaseSpec {
       whenReady(
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
-        result mustBe Right(Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear))
+        result mustBe Right(Seq(currentTaxYear - 3, currentTaxYear))
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
+          expectedNumberOfCalls = Seq(1, 0, 1, 1)
         )
       }
     }
@@ -377,11 +375,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+          expectedNumberOfCalls = Seq(1, 2, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
+          expectedNumberOfCalls = Seq(1, 0, 1, 1)
         )
       }
     }
@@ -389,27 +387,27 @@ class OdsServiceSpec extends BaseSpec {
     "return all years when 1 HOD call fails with 5xx but retry succeeds" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(OK, OK, Seq(INTERNAL_SERVER_ERROR, OK), OK, OK)
+        responseStatusesToMockForSA = Seq(OK, Seq(INTERNAL_SERVER_ERROR, OK), OK, OK)
       )
 
       whenClausesForATSCalculations(
         endTaxYear = currentTaxYear,
-        values = Seq(BigDecimal(1), BigDecimal(1), BigDecimal(1), BigDecimal(1), BigDecimal(1))
+        values = Seq(BigDecimal(1), BigDecimal(1), BigDecimal(1), BigDecimal(1))
       )
 
       whenReady(
         service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe
-          Right(Seq(currentTaxYear - 4, currentTaxYear - 3, currentTaxYear - 2, currentTaxYear - 1, currentTaxYear))
+          Right(Seq(currentTaxYear - 3, currentTaxYear - 2, currentTaxYear - 1, currentTaxYear))
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+          expectedNumberOfCalls = Seq(1, 2, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
       }
     }
@@ -438,11 +436,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 0, 0, 1, 1)
+          expectedNumberOfCalls = Seq(0, 0, 1, 1)
         )
       }
     }
@@ -463,11 +461,11 @@ class OdsServiceSpec extends BaseSpec {
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0, 0)
         )
       }
     }
@@ -485,11 +483,11 @@ class OdsServiceSpec extends BaseSpec {
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+          expectedNumberOfCalls = Seq(1, 2, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0, 0)
         )
       }
     }
@@ -509,11 +507,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 1, 1)
+          expectedNumberOfCalls = Seq(1, 0, 1, 1)
         )
       }
     }
@@ -533,11 +531,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 0, 0, 1, 0)
+          expectedNumberOfCalls = Seq(0, 0, 1, 0)
         )
       }
     }
@@ -557,11 +555,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+          expectedNumberOfCalls = Seq(1, 2, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 0, 1)
+          expectedNumberOfCalls = Seq(1, 0, 0, 1)
         )
       }
     }
@@ -584,11 +582,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 0, 0, 0)
+          expectedNumberOfCalls = Seq(1, 0, 0, 0)
         )
       }
     }
@@ -611,11 +609,11 @@ class OdsServiceSpec extends BaseSpec {
 
         verifySA(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 1, 1, 1, 1)
+          expectedNumberOfCalls = Seq(1, 1, 1, 1)
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(1, 0, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0, 0)
         )
       }
     }
@@ -639,11 +637,11 @@ class OdsServiceSpec extends BaseSpec {
 
           verifySA(
             endTaxYear = currentTaxYear,
-            expectedNumberOfCalls = Seq(1, 1, 2, 1, 1)
+            expectedNumberOfCalls = Seq(1, 2, 1, 1)
           )
           verifyATSCalculations(
             endTaxYear = currentTaxYear,
-            expectedNumberOfCalls = Seq(1, 1, 1, 0, 0)
+            expectedNumberOfCalls = Seq(1, 1, 0, 0)
           )
         }
       }
