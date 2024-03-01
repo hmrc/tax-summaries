@@ -25,11 +25,17 @@ import models._
 import play.api.{Logger, Logging}
 import play.api.libs.json._
 import services.TaxRateService
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.DataEvent
+
+import scala.concurrent.ExecutionContext
 
 case class ATSParsingException(s: String) extends Exception(s)
 
 @Singleton
-class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) extends Logging {
+class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, auditConnector: AuditConnector)(implicit
+  ec: ExecutionContext
+) extends Logging {
 
   def atsDataDTO(
     taxRate: TaxRateService,
@@ -40,6 +46,18 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) ext
   ): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
     logger.debug(s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}")
+    auditConnector.sendEvent(
+      DataEvent(
+        auditSource = applicationConfig.appName,
+        auditType = "TaxLiability",
+        detail = Map(
+          "utr"                      -> UTR,
+          "taxYear"                  -> taxYear.toString,
+          "liabilityAmount"          -> calculations.taxLiability.amount.toString,
+          "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse("No calculation details present")
+        )
+      )
+    )
     try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
       AtsMiddleTierData.make(
         taxYear,
@@ -58,7 +76,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig) ext
     } catch {
       case ATSParsingException(message) =>
         AtsMiddleTierData.error(taxYear, message)
-      case otherError: Throwable        =>
+      case otherError: Throwable =>
         logger.error("Unexpected error has occurred", otherError)
         AtsMiddleTierData.error(taxYear, "Other Error")
     }
