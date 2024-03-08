@@ -27,6 +27,8 @@ import scala.jdk.CollectionConverters._
 
 class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration: Configuration) {
 
+  case class Item(name: String, value: Double)
+
   private def defaultRatePercentages: Map[String, Double] =
     configuration
       .getOptional[ConfigObject]("taxRates.default.percentages")
@@ -41,16 +43,24 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
       .getOrElse(Map())
       .toMap
 
-  private def governmentSpendByYear(year: Int): Map[String, Double] =
-    configuration
-      .getOptional[ConfigObject](s"governmentSpend.$year.percentages")
-      .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
-      .getOrElse(Map())
-      .toMap
+  private def governmentSpendByYear(year: Int): Seq[Item] =
+    configuration.underlying
+      .getObject(s"governmentSpend.$year.percentages")
+      .asScala
+      .map { case (index, _) =>
+        val map = configuration
+          .getOptional[ConfigObject](s"governmentSpend.$year.percentages.$index")
+          .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
+          .getOrElse(Map())
+        index.toInt -> Item(map.keys.head, map.values.head)
+      }
+      .toSeq
+      .sortBy(_._1)
+      .map(_._2)
 
   def ratePercentages(year: Int): Map[String, Double] = defaultRatePercentages ++ ratePercentagesByYear(year)
 
-  def governmentSpend(year: Int): Map[String, Double] = governmentSpendByYear(year)
+  def governmentSpend(year: Int): Seq[Item] = governmentSpendByYear(year)
 
   def npsServiceUrl: String = servicesConfig.baseUrl("tax-summaries-hod")
 

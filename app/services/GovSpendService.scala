@@ -21,6 +21,8 @@ import config.ApplicationConfig
 import models.ApiValue
 import play.api.libs.json.{Format, JsString, Writes}
 
+import scala.collection.immutable.ListMap
+
 sealed trait GoodsAndServices extends ApiValue
 
 object GoodsAndServices {
@@ -77,15 +79,16 @@ class GovSpendService @Inject() (applicationConfig: ApplicationConfig) {
 
   import GoodsAndServices._
 
-  def govSpending(taxYear: Int): Map[GoodsAndServices, Double] =
-    applicationConfig
+  def govSpending(taxYear: Int): Map[GoodsAndServices, Double] = {
+    val govList = applicationConfig
       .governmentSpend(taxYear)
-      .toList
-      .map { case (k, v) =>
-        allItems.find(_.apiValue == k).map(k => (k, v))
-      }
+
+    val governmentSpend = govList
+      .map(item => allItems.find(_.apiValue == item.name).map(k => (k, item.value)))
       .collect { case Some(v) =>
         v
       }
-      .toMap
+    val listMap         = ListMap(governmentSpend: _*)
+    listMap
+  }
 }

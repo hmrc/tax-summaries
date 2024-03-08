@@ -24,9 +24,9 @@ import play.api.test.Helpers.{status => getStatus, _}
 import utils.{FileHelper, IntegrationSpec}
 
 class GetPayeAtsDataSpec extends IntegrationSpec {
-  val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"
+  val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/2021"
 
-  val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
+  val apiUrl                                       = s"/taxs/$nino/2022/paye-ats-data"
   def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   "Get Paye Ats Data" must {
