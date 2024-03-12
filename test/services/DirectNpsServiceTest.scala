@@ -22,15 +22,13 @@ import models.paye.{PayeAtsData, PayeAtsMiddleTier}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import play.api.http.Status.BAD_GATEWAY
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import utils.TestConstants._
 import utils.{BaseSpec, JsonUtil, PayeAtsDataUtil}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DirectNpsServiceTest extends BaseSpec with JsonUtil {
-
-  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val expectedNpsResponse: JsValue            = Json.parse(load("/paye_annual_tax_summary.json"))
   val atsData: PayeAtsData                    = PayeAtsDataUtil.atsData

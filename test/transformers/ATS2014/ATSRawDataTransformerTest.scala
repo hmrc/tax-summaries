@@ -23,7 +23,6 @@ import org.mockito.{ArgumentCaptor, Mockito}
 import play.api.libs.json.Json
 import services.TaxRateService
 import transformers.{ATSCalculations, ATSRawDataTransformer}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
@@ -39,7 +38,6 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
   val auditConnector: AuditConnector = mock[AuditConnector]
   implicit val ec: ExecutionContext  = inject[ExecutionContext]
-  implicit val hc: HeaderCarrier     = HeaderCarrier()
 
   val SUT: ATSRawDataTransformer = new ATSRawDataTransformer(applicationConfig, auditConnector)
 

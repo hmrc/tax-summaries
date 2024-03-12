@@ -18,7 +18,7 @@ package transformers.ATS2014
 
 import errors.AtsError
 import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import services.TaxRateService
 import transformers.{ATSCalculations, ATSRawDataTransformer}
@@ -28,11 +28,12 @@ import scala.io.Source
 
 class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
-  val taxpayerDetailsJson        = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson  = Json.parse(taxpayerDetailsJson)
-  val taxYear                    = 2014
-  val taxRate                    = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  val taxpayerDetailsJson: String        =
+    Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
+  val parsedTaxpayerDetailsJson: JsValue = Json.parse(taxpayerDetailsJson)
+  val taxYear                            = 2014
+  val taxRate                            = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val SUT: ATSRawDataTransformer         = inject[ATSRawDataTransformer]
 
   "With base data for utr" must {
 

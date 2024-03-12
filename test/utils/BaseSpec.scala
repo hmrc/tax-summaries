@@ -25,6 +25,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
 import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 class BaseSpec
@@ -41,6 +42,7 @@ class BaseSpec
   val generatedNino: Nino = new Generator().nextNino
 
   implicit lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
+  implicit lazy val hc: HeaderCarrier                          = HeaderCarrier()
 
   val fakeTaxYear = 2023
 

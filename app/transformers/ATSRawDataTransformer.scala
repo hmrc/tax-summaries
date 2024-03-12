@@ -25,6 +25,7 @@ import models._
 import play.api.{Logger, Logging}
 import play.api.libs.json._
 import services.TaxRateService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
 
@@ -43,7 +44,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     rawTaxPayerJson: JsValue,
     UTR: String,
     taxYear: Int
-  ): AtsMiddleTierData = {
+  )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
     logger.debug(s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}")
     auditConnector.sendEvent(
