@@ -43,20 +43,27 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
       .getOrElse(Map())
       .toMap
 
-  private def governmentSpendByYear(year: Int): Seq[Item] =
-    configuration.underlying
-      .getObject(s"governmentSpend.$year.percentages")
-      .asScala
-      .map { case (index, _) =>
-        val map = configuration
-          .getOptional[ConfigObject](s"governmentSpend.$year.percentages.$index")
-          .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
-          .getOrElse(Map())
-        index.toInt -> Item(map.keys.head, map.values.head)
-      }
-      .toSeq
-      .sortBy(_._1)
-      .map(_._2)
+  private def governmentSpendByYear(year: Int): Seq[Item] = {
+    val governmentSpendConfig = configuration
+      .getOptional[ConfigObject](s"governmentSpend.$year.percentages")
+    if (governmentSpendConfig.isDefined) {
+      configuration.underlying
+        .getObject(s"governmentSpend.$year.percentages")
+        .asScala
+        .map { case (index, _) =>
+          val map = configuration
+            .getOptional[ConfigObject](s"governmentSpend.$year.percentages.$index")
+            .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
+            .getOrElse(Map())
+          index.toInt -> Item(map.keys.head, map.values.head)
+        }
+        .toSeq
+        .sortBy(_._1)
+        .map(_._2)
+    } else {
+      Seq.empty
+    }
+  }
 
   def ratePercentages(year: Int): Map[String, Double] = defaultRatePercentages ++ ratePercentagesByYear(year)
 
