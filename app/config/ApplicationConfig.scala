@@ -18,6 +18,7 @@ package config
 
 import com.google.inject.Inject
 import com.typesafe.config.ConfigObject
+import models.Item
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -26,8 +27,6 @@ import java.time.{Instant, LocalDateTime}
 import scala.jdk.CollectionConverters._
 
 class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration: Configuration) {
-
-  case class Item(name: String, value: Double)
 
   private def defaultRatePercentages: Map[String, Double] =
     configuration
