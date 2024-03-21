@@ -37,7 +37,7 @@
       "currency": "GBP"
     },
     "ctnSummaryTotalEmployment": {
-      "amount": 5000.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "atsStatePensionAmt": {
@@ -113,7 +113,7 @@
       "currency": "GBP"
     },
     "ctnPersonalAllowance": {
-      "amount": 9940.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnEmploymentExpensesAmt": {
@@ -437,7 +437,7 @@
       "currency": "GBP"
     },
     "atsCgTotGainsAfterLosses": {
-      "amount": 11600.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "atsCgGainsAfterLossesAmt": {
@@ -449,7 +449,7 @@
       "currency": "GBP"
     },
     "atsCgAnnualExemptAmt": {
-      "amount": 10600.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnCgAtEntrepreneursRate": {
@@ -461,11 +461,11 @@
       "currency": "GBP"
     },
     "ctnCgAtLowerRate": {
-      "amount": 1000.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnCgDueLowerRate": {
-      "amount": 180.00,
+      "amount": 0.00,
       "currency": "GBP"
     },
     "ctnCgAtHigherRate": {
