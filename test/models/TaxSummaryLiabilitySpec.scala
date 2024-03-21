@@ -28,9 +28,9 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe 2023
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
-      result.incomeTaxStatus mustBe Some(Scottish())
+      result.incomeTaxStatus mustBe Some(UK())
       result.nationalInsuranceData.size mustBe 3
-      result.atsData.size mustBe 95
+      result.atsData.size mustBe 126
     }
 
     "correctly parse the data where incomeTaxStatus is Null" in {
