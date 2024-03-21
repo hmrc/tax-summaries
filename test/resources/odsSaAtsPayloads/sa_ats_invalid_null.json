@@ -1,5 +1,5 @@
 {
-  "taxYear":2014,
+  "taxYear":2023,
   "saPayeNicDetails":
     {
       "employeeClass1Nic":{"amount":100.00,"currency":"GBP"},
@@ -82,16 +82,16 @@
       "ctnQualDistnReliefAmt":{"amount":0.00,"currency":"GBP"},
       "figTotalTaxCreditRelief":{"amount":0.00,"currency":"GBP"},
       "ctnNonPayableTaxCredits":{"amount":0.00,"currency":"GBP"},
-      "atsCgTotGainsAfterLosses":{"amount":5250.00, "currency":"GBP"},
-      "atsCgGainsAfterLossesAmt":{"amount":7000.00, "currency":"GBP"},
-      "atsCgAnnualExemptAmt":{"amount":10600.00, "currency":"GBP"},
-      "ctnCgAtEntrepreneursRate":{"amount":1111.00, "currency":"GBP"},
-      "ctnCgDueEntrepreneursRate":{"amount":2222.00, "currency":"GBP"},
-      "ctnCgAtLowerRate":{"amount":3333.00, "currency":"GBP"},
-      "ctnCgDueLowerRate":{"amount":4444.00, "currency":"GBP"},
-      "ctnCgAtHigherRate":{"amount":5555.00, "currency":"GBP"},
-      "ctnCgDueHigherRate":{"amount":6666.00, "currency":"GBP"},
-      "capAdjustmentAmt":{"amount":-7777.00, "currency":"GBP"},
+      "atsCgTotGainsAfterLosses":{"amount":0.00, "currency":"GBP"},
+      "atsCgGainsAfterLossesAmt":{"amount":0.00, "currency":"GBP"},
+      "atsCgAnnualExemptAmt":{"amount":0.00, "currency":"GBP"},
+      "ctnCgAtEntrepreneursRate":{"amount":0.00, "currency":"GBP"},
+      "ctnCgDueEntrepreneursRate":{"amount":0.00, "currency":"GBP"},
+      "ctnCgAtLowerRate":{"amount":0.00, "currency":"GBP"},
+      "ctnCgDueLowerRate":{"amount":0.00, "currency":"GBP"},
+      "ctnCgAtHigherRate":{"amount":0.00, "currency":"GBP"},
+      "ctnCgDueHigherRate":{"amount":0.00, "currency":"GBP"},
+      "capAdjustmentAmt":{"amount":0.00, "currency":"GBP"},
       "ctnPensionLsumTaxDueAmt":{"amount":0.00, "currency":"GBP"},
       "ctnMarriageAllceInAmt":{"amount":0.00, "currency":"GBP"},
       "ctnMarriageAllceOutAmt":{"amount":0.00, "currency":"GBP"},
@@ -103,9 +103,9 @@
       "ctnLowerRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
       "ctnCGAtHigherRateRPCI":{"amount":0.00, "currency":"GBP"},
       "ctnHigherRateCgtRPCI":{"amount":0.00, "currency":"GBP"},
-      "reliefForFinanceCosts":{"amount":10.00, "currency":"GBP"},
+      "reliefForFinanceCosts":{"amount":0.00, "currency":"GBP"},
       "lfiRelief": { "amount": 17.17, "currency": "GBP" },
-      "incomeTaxStatus":"0002"
+      "incomeTaxStatus":null
     }
 }
 

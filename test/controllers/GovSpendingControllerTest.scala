@@ -42,9 +42,9 @@ class GovSpendingControllerTest extends BaseSpec {
 
   val summaryJson          = "/utr_2014.json"
   val capitalGainsOnlyJson = "/test_gov_spend_capital_gains_only.json"
-  val allTaxJson           = "/test_gov_spend_all_tax.json"
+  val allTaxJson           = "/odsSaAtsPayloads/test_gov_spend_all_tax.json"
   val govSpendPath         = "/test_gov_spend_ref_data_year_2014.json"
-  val taxPayerDataPath     = "/taxpayerData/test_individual_utr.json"
+  val taxPayerDataPath     = "/odsSaTaxpayerPayloads/sa_taxpayer-valid.json"
 
   def makeController(inputJson: String): AtsSaDataController = {
 

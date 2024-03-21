@@ -227,17 +227,9 @@ class AtsSaDataControllerSpec extends BaseSpec {
     "return 200" when {
 
       "connector returns a right" in {
-
-        val singleAtsListSource     = Source.fromURL(getClass.getResource("/ats-List-SingleService.json"))
-        val individualAtsListSource = Source.fromURL(getClass.getResource("/ats-List-IndividualService.json"))
-        val taxPayerSource          = Source.fromURL(getClass.getResource("/taxPayerResponse.json"))
-
-        val taxPayer = taxPayerSource.mkString
-
-        singleAtsListSource.close()
-        individualAtsListSource.close()
+        val taxPayerSource = Source.fromURL(getClass.getResource("/odsSaTaxpayerPayloads/sa_taxpayer-valid.json"))
+        val taxPayer       = taxPayerSource.mkString
         taxPayerSource.close()
-
         when(odsService.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(Json.parse(taxPayer)))
         when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))

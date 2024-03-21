@@ -28,14 +28,15 @@ class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
     "be parsed form the income values for utr" in {
 
-      val sampleJson = Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
+      val sampleJson =
+        Source.fromURL(getClass.getResource("/odsSaTaxpayerPayloads/sa_taxpayer-valid.json")).mkString
       val parsedJson = Json.parse(sampleJson)
 
       val returnValue: AtsMiddleTierTaxpayerData = ATSTaxpayerDataTransformer(parsedJson).atsTaxpayerDataDTO
 
       val parsedPayload = returnValue.taxpayer_name.get
       val testPayload   =
-        Map("title" -> "Mr", "forename" -> "forename", "surname" -> "surname")
+        Map("title" -> "Miss", "forename" -> "Jane", "surname" -> "Fisher")
       testPayload mustEqual parsedPayload
     }
   }

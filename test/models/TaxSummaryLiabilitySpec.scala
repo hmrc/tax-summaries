@@ -19,14 +19,14 @@ package models
 import play.api.libs.json.Json
 import utils.{BaseSpec, JsonUtil}
 
-class TaxSummaryODSLiabilitiesTest extends BaseSpec {
+class TaxSummaryLiabilitySpec extends BaseSpec {
 
   "TaxSummaryLiability Reads" must {
     "correctly parse the data" in {
-      val json = JsonUtil.load("/test_case_5.json")
+      val json = JsonUtil.load("/odsSaAtsPayloads/sa_ats_valid.json")
 
       val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear mustBe 2014
+      result.taxYear mustBe 2023
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(Scottish())
       result.nationalInsuranceData.size mustBe 3
@@ -34,9 +34,9 @@ class TaxSummaryODSLiabilitiesTest extends BaseSpec {
     }
 
     "correctly parse the data where incomeTaxStatus is Null" in {
-      val json   = JsonUtil.load("/test_case_4.json")
+      val json   = JsonUtil.load("/odsSaAtsPayloads/sa_ats_invalid_null.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear mustBe 2014
+      result.taxYear mustBe 2023
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())
       result.nationalInsuranceData.size mustBe 3
@@ -44,9 +44,9 @@ class TaxSummaryODSLiabilitiesTest extends BaseSpec {
     }
 
     "correctly parse the data where fields are missing" in {
-      val json   = JsonUtil.load("/utr_2014_income_status_and_fields_missing.json")
+      val json   = JsonUtil.load("/odsSaAtsPayloads/sa_ats_income_status_and_fields_missing.json")
       val result = Json.parse(json).as[TaxSummaryLiability]
-      result.taxYear mustBe 2014
+      result.taxYear mustBe 2023
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())
       result.nationalInsuranceData.size mustBe 3
