@@ -22,9 +22,7 @@ import models.ODSLiabilities.ODSLiabilities._
 import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
-import transformers.ATS2020.{ATSCalculationsScottish2020, ATSCalculationsUK2020, ATSCalculationsWelsh2020}
-import transformers.ATS2021.{ATSCalculationsUK2021, ATSCalculationsWelsh2021}
-import transformers.ATS2022.ATSCalculationsWelsh2022
+import transformers.ATS2021.ATSCalculationsUK2021
 import transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
 import utils.{BaseSpec, DoubleUtils}
 
@@ -132,42 +130,17 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       }
     }
 
-    "return Post2019UKATSCalculations" when {
-      "return WelshATSCalculations" when {
-        "tax year is > 2019" in {
-          forAll { (taxYear: Int) =>
-            val calculation = new Fixture(taxYear, Welsh())().calculation
-            if (taxYear == 2020) {
-              calculation mustBe a[ATSCalculationsWelsh2020]
-            } else if (taxYear == 2021) {
-              calculation mustBe a[ATSCalculationsWelsh2021]
-            } else if (taxYear == 2022) {
-              calculation mustBe a[ATSCalculationsWelsh2022]
-            } else if (taxYear > 2022) {
-              calculation mustBe a[ATSCalculationsWelsh2023]
-            } else {
-              calculation mustBe a[DefaultATSCalculations]
-            }
-
-          }
-        }
-      }
-    }
-
-    "return DefaultATSCalculations" when {
+    "throw exception" when {
       "tax year is < 2020 and type is scottish" in {
-        val calculation = new Fixture(2019, Scottish())().calculation
-        calculation mustBe a[DefaultATSCalculations]
+        a[RuntimeException] mustBe thrownBy(new Fixture(2019, Scottish())().calculation)
       }
 
       "tax year is < 2020 and type is welsh" in {
-        val calculation = new Fixture(2019, Welsh())().calculation
-        calculation mustBe a[DefaultATSCalculations]
+        a[RuntimeException] mustBe thrownBy(new Fixture(2019, Welsh())().calculation)
       }
 
       "tax year is < 2020 and type is UK" in {
-        val calculation = new Fixture(2019, UK())().calculation
-        calculation mustBe a[DefaultATSCalculations]
+        a[RuntimeException] mustBe thrownBy(new Fixture(2019, UK())().calculation)
       }
     }
 

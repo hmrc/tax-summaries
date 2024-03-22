@@ -288,9 +288,6 @@ trait ATSCalculations extends DoubleUtils with Logging {
     Rate.rateFromPerUnitAmount(amountPerUnit)
 }
 
-sealed class DefaultATSCalculations(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations
-
 object ATSCalculations {
   private val calculationsForNationalityAndYear
     : Map[(Nationality, Int), (TaxSummaryLiability, TaxRateService) => ATSCalculations] = {
@@ -338,7 +335,7 @@ object ATSCalculations {
         if (summaryData.taxYear > maxDefinedYearForCountry) {
           calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))
         } else {
-          new DefaultATSCalculations(_, _)
+          throw new RuntimeException(s"No calculations present for year ${summaryData.taxYear}")
         }
     })(summaryData, taxRates)
 }
