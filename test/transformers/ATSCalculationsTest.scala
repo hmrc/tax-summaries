@@ -159,17 +159,17 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "return an empty amount for scottishIncomeTax" in {
 
-      calculation.scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxUK2019")
+      calculation.scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxUK2020")
     }
 
     "return empty for savingsRate" in {
 
-      calculation.savingsRate mustBe Amount.empty("savingsRateUK2019")
+      calculation.savingsRate mustBe Amount.empty("savingsRateUK2020")
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountUK2019")
+      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountUK2020")
     }
 
     "return empty for welshIncomeTax" in {
@@ -187,37 +187,37 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     }
 
     "return an empty amount for basicRateIncomeTaxAmount" in {
-      calculation.basicRateIncomeTaxAmount mustBe Amount.empty("basicRateIncomeTaxAmountScottish2019")
+      calculation.basicRateIncomeTaxAmount mustBe Amount.empty("basicRateIncomeTaxAmountScottish2020")
     }
 
     "return an empty amount for higherRateIncomeTaxAmount" in {
-      calculation.higherRateIncomeTaxAmount mustBe Amount.empty("higherRateIncomeTaxAmountScottish2019")
+      calculation.higherRateIncomeTaxAmount mustBe Amount.empty("higherRateIncomeTaxAmountScottish2020")
     }
 
     "return an empty amount for additionalRateIncomeTaxAmount" in {
-      calculation.additionalRateIncomeTaxAmount mustBe Amount.empty("additionalRateIncomeTaxAmountScottish2019")
+      calculation.additionalRateIncomeTaxAmount mustBe Amount.empty("additionalRateIncomeTaxAmountScottish2020")
     }
 
     "return an empty amount for basicRateIncomeTax" in {
-      calculation.basicRateIncomeTax mustBe Amount.empty("basicRateIncomeTaxScottish2019")
+      calculation.basicRateIncomeTax mustBe Amount.empty("basicRateIncomeTaxScottish2020")
     }
 
     "return an empty amount for higherRateIncomeTax" in {
-      calculation.higherRateIncomeTax mustBe Amount.empty("higherRateIncomeTaxScottish2019")
+      calculation.higherRateIncomeTax mustBe Amount.empty("higherRateIncomeTaxScottish2020")
     }
 
     "return an empty amount for additionalRateIncomeTax" in {
-      calculation.additionalRateIncomeTax mustBe Amount.empty("additionalRateIncomeTaxScottish2019")
+      calculation.additionalRateIncomeTax mustBe Amount.empty("additionalRateIncomeTaxScottish2020")
     }
 
     "return empty for savingsRate" in {
 
-      calculation.savingsRate mustBe Amount.empty("savingsRateScottish2019")
+      calculation.savingsRate mustBe Amount.empty("savingsRateScottish2020")
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountScottish2019")
+      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountScottish2020")
     }
 
     "return empty for welshIncomeTax" in {

@@ -45,7 +45,7 @@ class PayeAtsDataTest extends BaseSpec {
 
   val atsData: PayeAtsData = PayeAtsDataUtil.atsData
   val nino: String         = TestConstants.testNino
-  val taxYear              = "2019"
+  val taxYear              = "2020"
   lazy val servicesConfig  = app.injector.instanceOf[ServicesConfig]
   lazy val configuration   = app.injector.instanceOf[Configuration]
 
@@ -159,23 +159,22 @@ class PayeAtsDataTest extends BaseSpec {
     "create gov spend data" must {
 
       "gov spend data contains correct amount with percentages" in {
-
         val expectedValues: Map[GoodsAndServices, SpendData] = Map(
           PublicOrderAndSafety     -> SpendData(Amount(180.60, "GBP"), 4.3),
           Environment              -> SpendData(Amount(63.00, "GBP"), 1.5),
-          OverseasAid              -> SpendData(Amount(50.40, "GBP"), 1.2),
-          BusinessAndIndustry      -> SpendData(Amount(151.20, "GBP"), 3.6),
-          NationalDebtInterest     -> SpendData(Amount(214.20, "GBP"), 5.1),
+          OverseasAid              -> SpendData(Amount(46.20, "GBP"), 1.1),
+          BusinessAndIndustry      -> SpendData(Amount(159.60, "GBP"), 3.8),
+          NationalDebtInterest     -> SpendData(Amount(289.80, "GBP"), 6.9),
           Defence                  -> SpendData(Amount(222.60, "GBP"), 5.3),
-          Health                   -> SpendData(Amount(848.40, "GBP"), 20.2),
+          Health                   -> SpendData(Amount(861.00, "GBP"), 20.5),
           Culture                  -> SpendData(Amount(63.00, "GBP"), 1.5),
-          UkContributionToEuBudget -> SpendData(Amount(42.00, "GBP"), 1.0),
-          HousingAndUtilities      -> SpendData(Amount(67.20, "GBP"), 1.6),
+          UkContributionToEuBudget -> SpendData(Amount(33.60, "GBP"), 0.8),
+          HousingAndUtilities      -> SpendData(Amount(75.60, "GBP"), 1.8),
           Transport                -> SpendData(Amount(180.60, "GBP"), 4.3),
-          Welfare                  -> SpendData(Amount(987.00, "GBP"), 23.5),
+          Welfare                  -> SpendData(Amount(928.20, "GBP"), 22.1),
           GovernmentAdministration -> SpendData(Amount(88.20, "GBP"), 2.1),
-          Education                -> SpendData(Amount(495.60, "GBP"), 11.8),
-          StatePensions            -> SpendData(Amount(537.60, "GBP"), 12.8)
+          Education                -> SpendData(Amount(487.20, "GBP"), 11.6),
+          StatePensions            -> SpendData(Amount(520.80, "GBP"), 12.4)
         )
         val spendData                                        = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
         spendData.govSpendAmountData.map(x => x._1 -> x._2.amount.amount) mustBe expectedValues.map(x =>
