@@ -29,7 +29,7 @@ import utils.FileHelper
 import java.time.LocalDate
 
 class Ddcnl5893 extends SaTestHelper {
-  val taxPayerFile     = "taxPayerDetails.json"
+  val taxPayerFile     = "sa/taxPayerDetails.json"
   val currentYear: Int = LocalDate.now().getYear
 
   trait Test {

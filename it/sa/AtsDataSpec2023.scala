@@ -28,7 +28,7 @@ import utils.FileHelper
 
 class AtsDataSpec2023 extends SaTestHelper {
 
-  val taxPayerFile = "taxPayerDetails.json"
+  val taxPayerFile = "sa/taxPayerDetails.json"
 
   trait Test {
     val taxYear = 2023

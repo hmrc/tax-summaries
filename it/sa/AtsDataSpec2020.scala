@@ -31,7 +31,7 @@ import scala.concurrent.Future
 
 class AtsDataSpec2020 extends SaTestHelper {
 
-  val taxPayerFile = "taxPayerDetailsWelsh.json"
+  val taxPayerFile = "sa/taxPayerDetailsWelsh.json"
 
   trait Test {
     val taxYear: Int
