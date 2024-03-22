@@ -33,6 +33,8 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with WireMockHelper {
 
+  private val taxYear = 2023
+
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .disable[config.ATSModule]
@@ -76,7 +78,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
 
   "connectToSelfAssessment" must {
 
-    val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries/2014"
+    val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries/$taxYear"
 
     "use IF" when {
 
@@ -89,7 +91,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
 
         stubGet(url, OK, Some(json.toString()))
 
-        val result = sut.connectToSelfAssessment(testUtr, 2014).value
+        val result = sut.connectToSelfAssessment(testUtr, taxYear).value
 
         whenReady(result) {
           _.map(_.json) mustBe Right(json)
@@ -114,7 +116,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
 
         stubGet(url, OK, Some(json.toString()))
 
-        val result = sut.connectToSelfAssessment(testUtr, 2014).value
+        val result = sut.connectToSelfAssessment(testUtr, taxYear).value
 
         whenReady(result) {
           _.map(_.json) mustBe Right(json)
@@ -138,7 +140,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
 
           stubGet(url, status, Some(""))
 
-          val result = sut.connectToSelfAssessment(testUtr, 2014).value
+          val result = sut.connectToSelfAssessment(testUtr, taxYear).value
 
           whenReady(result) { res =>
             res mustBe a[Left[UpstreamErrorResponse, _]]
@@ -152,7 +154,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
 
         stubGet(url, NOT_FOUND, Some(""))
 
-        val result = sut.connectToSelfAssessment(testUtr, 2014).value
+        val result = sut.connectToSelfAssessment(testUtr, taxYear).value
 
         whenReady(result) { res =>
           res mustBe a[Right[_, HttpResponse]]

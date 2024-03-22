@@ -8,7 +8,7 @@
   },
   "tliSlpAtsData":
   {
-    "tliLastUpdated": "2014-08-12",
+    "tliLastUpdated": "<taxYear>-08-12",
     "ctnPensionLumpSumTaxRate": 0.0,
     "ctnEmploymentBenefitsAmt":{"amount":0.00,"currency":"GBP"},
     "ctnSummaryTotalScheduleD":{"amount":1100.00,"currency":"GBP"},
