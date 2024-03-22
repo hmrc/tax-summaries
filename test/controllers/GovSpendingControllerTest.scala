@@ -41,9 +41,8 @@ class GovSpendingControllerTest extends BaseSpec {
   val jsonHelper: TaxsJsonHelper                                = mock[TaxsJsonHelper]
 
   val summaryJson          = "/odsSaAtsPayloads/sa_ats_valid.json"
-  val capitalGainsOnlyJson = "/odsSaAtsPayloads/gov_spend_capital_gains_only.json"
-  val allTaxJson           = "/odsSaAtsPayloads/sa_ats_valid_copy_for_all_tax.json"
-  //val allTaxJson           = "/odsSaAtsPayloads/gov_spend_all_tax.json"
+  val capitalGainsOnlyJson = "/odsSaAtsPayloads/sa_ats_gov_spend_capital_gains_only.json"
+  val allTaxJson           = "/odsSaAtsPayloads/sa_ats_gov_spend_all_tax.json"
   val taxPayerDataPath     = "/odsSaTaxpayerPayloads/sa_taxpayer-valid.json"
 
   def makeController(inputJson: String): AtsSaDataController = {
