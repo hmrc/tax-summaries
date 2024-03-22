@@ -42,7 +42,8 @@ class GovSpendingControllerTest extends BaseSpec {
 
   val summaryJson          = "/odsSaAtsPayloads/sa_ats_valid.json"
   val capitalGainsOnlyJson = "/odsSaAtsPayloads/gov_spend_capital_gains_only.json"
-  val allTaxJson           = "/odsSaAtsPayloads/gov_spend_all_tax.json"
+  val allTaxJson           = "/odsSaAtsPayloads/sa_ats_valid_copy_for_all_tax.json"
+  //val allTaxJson           = "/odsSaAtsPayloads/gov_spend_all_tax.json"
   val taxPayerDataPath     = "/odsSaTaxpayerPayloads/sa_taxpayer-valid.json"
 
   def makeController(inputJson: String): AtsSaDataController = {
@@ -63,7 +64,7 @@ class GovSpendingControllerTest extends BaseSpec {
     )
   }
 
-  "Calling Government Spend with no session"                    must {
+  "Calling Government Spend with no session"                                must {
     "return a 200 response" in {
       val controllerUnderTest = makeController(summaryJson)
       val result2022          = Future.successful(controllerUnderTest.getAtsSaData("user", 2022)(request))
@@ -122,7 +123,7 @@ class GovSpendingControllerTest extends BaseSpec {
 
     }
   }
-  "Calling Government Spend with only capital gains tax to pay" must {
+  "Calling Government Spend with only capital gains tax to pay"             must {
     "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(capitalGainsOnlyJson)
@@ -170,52 +171,52 @@ class GovSpendingControllerTest extends BaseSpec {
         .percentage mustBe BigDecimal("0.5")
     }
   }
-//  "Calling Government Spend with income, NICs and Capital Gains tax to pay" must {
-//    "show the correct figures in the government spend screen" in {
-//
-//      val controllerUnderTest = makeController(allTaxJson)
-//      val result2022          = Future.successful(controllerUnderTest.getAtsSaData("user", 2022)(request))
-//      val result2023          = Future.successful(controllerUnderTest.getAtsSaData("user", 2023)(request))
-//
-//      val rawJsonString2022 = contentAsString(result2022.futureValue)
-//      val rawJson2022       = Json.parse(rawJsonString2022)
-//
-//      val rawJsonString2023 = contentAsString(result2023.futureValue)
-//      val rawJson2023       = Json.parse(rawJsonString2023)
-//
-//      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
-//        "104.16"
-//      )
-//      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
-//        .as[SpendData]
-//        .amount
-//        .amount mustBe BigDecimal("15.12")
-//      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
-//        "13.15"
-//      )
-//      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
-//        "9.33"
-//      )
-//      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
-//        .as[SpendData]
-//        .percentage mustBe BigDecimal("1.15")
-//
-//      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
-//        "109.85"
-//      )
-//      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
-//        .as[SpendData]
-//        .amount
-//        .amount mustBe BigDecimal("14.9")
-//      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
-//        "12.5"
-//      )
-//      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
-//        "9.94"
-//      )
-//      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
-//        .as[SpendData]
-//        .percentage mustBe BigDecimal("1.3")
-//    }
-//  }
+  "Calling Government Spend with income, NICs and Capital Gains tax to pay" must {
+    "show the correct figures in the government spend screen" in {
+
+      val controllerUnderTest = makeController(allTaxJson)
+      val result2022          = Future.successful(controllerUnderTest.getAtsSaData("user", 2022)(request))
+      val result2023          = Future.successful(controllerUnderTest.getAtsSaData("user", 2023)(request))
+
+      val rawJsonString2022 = contentAsString(result2022.futureValue)
+      val rawJson2022       = Json.parse(rawJsonString2022)
+
+      val rawJsonString2023 = contentAsString(result2023.futureValue)
+      val rawJson2023       = Json.parse(rawJsonString2023)
+
+      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
+        "86.98"
+      )
+      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal("20.6")
+      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
+        "10.5"
+      )
+      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
+        "4.96"
+      )
+      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
+        .as[SpendData]
+        .percentage mustBe BigDecimal("0.6")
+
+      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
+        "75.54"
+      )
+      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal("28.99")
+      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
+        "9.9"
+      )
+      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
+        "4.96"
+      )
+      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
+        .as[SpendData]
+        .percentage mustBe BigDecimal("0.5")
+    }
+  }
 }
