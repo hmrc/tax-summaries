@@ -5,7 +5,7 @@
       "rel": "self"
     }
   ],
-  "taxYear": 2023,
+  "taxYear": <taxYear>,
   "saPayeNicDetails": {
     "employeeClass1Nic": {
       "amount": 0.00,

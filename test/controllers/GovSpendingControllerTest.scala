@@ -16,17 +16,20 @@
 
 package controllers
 
+import cats.data.EitherT
 import connectors.SelfAssessmentODSConnector
 import controllers.auth.FakeAuthAction
 import models.SpendData
 import org.mockito.ArgumentMatchers.any
+import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}
 import services.OdsService
+import uk.gov.hmrc.http.HttpResponse
 import utils.TestConstants._
-import utils.{ATSErrorHandler, BaseSpec, TaxsJsonHelper}
+import utils.{ATSErrorHandler, BaseSpec, JsonUtil, TaxsJsonHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,19 +42,20 @@ class GovSpendingControllerTest extends BaseSpec {
   implicit lazy val ec: ExecutionContext                        = inject[ExecutionContext]
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val jsonHelper: TaxsJsonHelper                                = mock[TaxsJsonHelper]
-
-  val summaryJson          = "/odsSaAtsPayloads/sa_ats_valid.json"
-  val capitalGainsOnlyJson = "/odsSaAtsPayloads/sa_ats_gov_spend_capital_gains_only.json"
-  val allTaxJson           = "/odsSaAtsPayloads/sa_ats_gov_spend_all_tax.json"
-  val taxPayerDataPath     = "/odsSaTaxpayerPayloads/sa_taxpayer-valid.json"
+  private val taxYear                                           = 2023
+  private val summaryJson                                       = JsonUtil.load("/odsSaAtsPayloads/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
+  private val capitalGainsOnlyJson                              =
+    JsonUtil.load("/odsSaAtsPayloads/sa_ats_gov_spend_capital_gains_only.json", Map("<taxYear>" -> taxYear.toString))
+  private val allTaxJson                                        =
+    JsonUtil.load("/odsSaAtsPayloads/sa_ats_gov_spend_all_tax.json", Map("<taxYear>" -> taxYear.toString))
+  private val taxPayerDataPath                                  = JsonUtil.load("/odsSaTaxpayerPayloads/sa_taxpayer-valid.json")
 
   def makeController(inputJson: String): AtsSaDataController = {
-
     val odsc = mock[SelfAssessmentODSConnector]
     when(odsc.connectToSelfAssessment(any(), any())(any(), any()))
-      .thenReturn(MockConnections.connectToMockPayloadService(inputJson))
+      .thenReturn(EitherT.rightT(HttpResponse(OK, inputJson)))
     when(odsc.connectToSATaxpayerDetails(any())(any(), any()))
-      .thenReturn(MockConnections.connectToMockPayloadService(taxPayerDataPath))
+      .thenReturn(EitherT.rightT(HttpResponse(OK, taxPayerDataPath)))
 
     val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
     new AtsSaDataController(
