@@ -233,14 +233,14 @@ class AtsSaDataControllerSpec extends BaseSpec {
         when(odsService.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(Json.parse(taxPayer)))
         when(odsService.getATSList(eqTo(testUtr), any(), any())(any[HeaderCarrier], any()))
-          .thenReturn(EitherT.rightT(Seq(2018)))
+          .thenReturn(EitherT.rightT(Seq(2020)))
 
         val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
         status(result) mustBe OK
         contentAsString(
           result
-        ) mustBe s"""{"utr":"$testUtr","taxPayer":{"taxpayer_name":{"title":"Miss","forename":"Jane","surname":"Fisher"}},"atsYearList":[2018]}"""
+        ) mustBe s"""{"utr":"$testUtr","taxPayer":{"taxpayer_name":{"title":"Miss","forename":"Jane","surname":"Fisher"}},"atsYearList":[2020]}"""
       }
     }
 
