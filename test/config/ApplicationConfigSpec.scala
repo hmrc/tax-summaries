@@ -29,7 +29,7 @@ class ApplicationConfigSpec extends BaseSpec {
 
     val percentageRates                                      = Map(
       "taxRates.default.percentages" -> Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30),
-      "taxRates.2017.percentages"    -> Map("percentageRate2" -> 60)
+      "taxRates.2022.percentages"    -> Map("percentageRate2" -> 60)
     )
 
     val governmentSpend =
@@ -60,12 +60,12 @@ class ApplicationConfigSpec extends BaseSpec {
   "calling ratePercentages" must {
     "return default percentage rates when no overriding year" in {
       applicationConfig
-        .ratePercentages(2016) mustBe Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30)
+        .ratePercentages(2021) mustBe Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30)
     }
 
     "return default percentage but override where later year uprates" in {
       applicationConfig
-        .ratePercentages(2017) mustBe Map("percentageRate1" -> 10, "percentageRate2" -> 60, "percentageRate3" -> 30)
+        .ratePercentages(2022) mustBe Map("percentageRate1" -> 10, "percentageRate2" -> 60, "percentageRate3" -> 30)
     }
   }
 
