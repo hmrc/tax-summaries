@@ -90,7 +90,7 @@ class AtsDataSpec2020 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2019-20/TC4.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2019-20/TC4.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -145,7 +145,7 @@ class AtsDataSpec2020 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2019-20/utr_1097172561.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2019-20/utr_1097172561.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -182,7 +182,7 @@ class AtsDataSpec2020 extends SaTestHelper {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrl(taxYear)))
-          .willReturn(ok(FileHelper.loadFile("2019-20/utr_1097172561.json")))
+          .willReturn(ok(FileHelper.loadFile("sa/2019-20/utr_1097172561.json")))
       )
 
       val result: AtsMiddleTierData = resultToAtsData(route(app, request))
