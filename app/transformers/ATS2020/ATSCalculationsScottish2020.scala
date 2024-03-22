@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package transformers.ATS2019
+package transformers.ATS2020
 
 import models.ODSLiabilities.ODSLiabilities._
 import models.{Amount, TaxSummaryLiability}
 import services.TaxRateService
 import transformers.ATSCalculations
 
-class ATSCalculationsScottish2019(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+class ATSCalculationsScottish2020(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations {
 
   override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxScottish1019")

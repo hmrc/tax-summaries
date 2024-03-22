@@ -22,8 +22,7 @@ import models.ODSLiabilities.ODSLiabilities._
 import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
-import transformers.ATS2019.{ATSCalculationsScottish2019, ATSCalculationsUK2019}
-import transformers.ATS2020.ATSCalculationsWelsh2020
+import transformers.ATS2020.{ATSCalculationsScottish2020, ATSCalculationsUK2020, ATSCalculationsWelsh2020}
 import transformers.ATS2021.{ATSCalculationsUK2021, ATSCalculationsWelsh2021}
 import transformers.ATS2022.ATSCalculationsWelsh2022
 import transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}

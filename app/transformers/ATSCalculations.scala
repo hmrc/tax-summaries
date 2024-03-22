@@ -21,8 +21,7 @@ import models.ODSLiabilities.ODSLiabilities._
 import models._
 import play.api.Logging
 import services._
-import transformers.ATS2019.{ATSCalculationsScottish2019, ATSCalculationsUK2019}
-import transformers.ATS2020.ATSCalculationsWelsh2020
+import transformers.ATS2020.{ATSCalculationsScottish2020, ATSCalculationsUK2020, ATSCalculationsWelsh2020}
 import transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK2021, ATSCalculationsWelsh2021}
 import transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
 import transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
@@ -309,8 +308,8 @@ object ATSCalculations {
     val calc2021Scotland = new ATSCalculationsScottish2021(_, _)
     val calc2021Wales    = new ATSCalculationsWelsh2021(_, _)
     val calc2020Wales    = new ATSCalculationsWelsh2020(_, _)
-    val calc2019UK       = new ATSCalculationsUK2019(_, _)
-    val calc2019Scotland = new ATSCalculationsScottish2019(_, _)
+    val calc2020UK       = new ATSCalculationsUK2020(_, _)
+    val calc2020Scotland = new ATSCalculationsScottish2020(_, _)
 
     Map(
       (uk, 2023)       -> calc2023UK,
@@ -323,8 +322,8 @@ object ATSCalculations {
       (scotland, 2021) -> calc2021Scotland,
       (wales, 2021)    -> calc2021Wales,
       (wales, 2020)    -> calc2020Wales,
-      (uk, 2020)       -> calc2019UK,
-      (scotland, 2020) -> calc2019Scotland
+      (uk, 2020)       -> calc2020UK,
+      (scotland, 2020) -> calc2020Scotland
     )
   }
 
