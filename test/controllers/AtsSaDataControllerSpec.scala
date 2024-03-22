@@ -227,7 +227,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
     "return 200" when {
 
       "connector returns a right" in {
-        val taxPayerSource = Source.fromURL(getClass.getResource("/odsSaTaxpayerPayloads/sa_taxpayer-valid.json"))
+        val taxPayerSource = Source.fromURL(getClass.getResource("/taxpayer/sa_taxpayer-valid.json"))
         val taxPayer       = taxPayerSource.mkString
         taxPayerSource.close()
         when(odsService.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))

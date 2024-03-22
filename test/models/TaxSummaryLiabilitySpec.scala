@@ -25,7 +25,7 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
 
   "TaxSummaryLiability Reads" must {
     "correctly parse the data" in {
-      val json = JsonUtil.load("/odsSaAtsPayloads/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
+      val json = JsonUtil.load("/sa/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
 
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe taxYear
@@ -36,7 +36,7 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
     }
 
     "correctly parse the data where incomeTaxStatus is Null" in {
-      val json   = JsonUtil.load("/odsSaAtsPayloads/sa_ats_invalid_null.json", Map("<taxYear>" -> taxYear.toString))
+      val json   = JsonUtil.load("/sa/sa_ats_invalid_null.json", Map("<taxYear>" -> taxYear.toString))
       val result = Json.parse(json).as[TaxSummaryLiability]
       result.taxYear mustBe taxYear
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
@@ -47,7 +47,7 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
 
     "correctly parse the data where fields are missing" in {
       val json   = JsonUtil.load(
-        "/odsSaAtsPayloads/sa_ats_income_status_and_fields_missing.json",
+        "/sa/sa_ats_income_status_and_fields_missing.json",
         Map("<taxYear>" -> taxYear.toString)
       )
       val result = Json.parse(json).as[TaxSummaryLiability]

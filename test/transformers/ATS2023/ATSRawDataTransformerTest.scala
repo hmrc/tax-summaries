@@ -25,7 +25,7 @@ import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
 class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   import ATSRawDataTransformerTest._
-  private val taxpayerDetailsJson       = JsonUtil.load("/odsSaTaxpayerPayloads/sa_taxpayer-valid.json")
+  private val taxpayerDetailsJson       = JsonUtil.load("/taxpayer/sa_taxpayer-valid.json")
   private val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
   private val taxYear: Int              = 2023
   private val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)

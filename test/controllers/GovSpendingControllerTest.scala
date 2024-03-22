@@ -43,12 +43,12 @@ class GovSpendingControllerTest extends BaseSpec {
   implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val jsonHelper: TaxsJsonHelper                                = mock[TaxsJsonHelper]
   private val taxYear                                           = 2023
-  private val summaryJson                                       = JsonUtil.load("/odsSaAtsPayloads/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
+  private val summaryJson                                       = JsonUtil.load("/sa/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
   private val capitalGainsOnlyJson                              =
-    JsonUtil.load("/odsSaAtsPayloads/sa_ats_gov_spend_capital_gains_only.json", Map("<taxYear>" -> taxYear.toString))
+    JsonUtil.load("/sa/sa_ats_gov_spend_capital_gains_only.json", Map("<taxYear>" -> taxYear.toString))
   private val allTaxJson                                        =
-    JsonUtil.load("/odsSaAtsPayloads/sa_ats_gov_spend_all_tax.json", Map("<taxYear>" -> taxYear.toString))
-  private val taxPayerDataPath                                  = JsonUtil.load("/odsSaTaxpayerPayloads/sa_taxpayer-valid.json")
+    JsonUtil.load("/sa/sa_ats_gov_spend_all_tax.json", Map("<taxYear>" -> taxYear.toString))
+  private val taxPayerDataPath                                  = JsonUtil.load("/taxpayer/sa_taxpayer-valid.json")
 
   def makeController(inputJson: String): AtsSaDataController = {
     val odsc = mock[SelfAssessmentODSConnector]
