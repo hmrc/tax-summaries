@@ -324,9 +324,7 @@ object ATSCalculations {
       (wales, 2021)    -> calc2021Wales,
       (wales, 2020)    -> calc2020Wales,
       (uk, 2020)       -> calc2019UK,
-      (uk, 2019)       -> calc2019UK,
-      (scotland, 2020) -> calc2019Scotland,
-      (scotland, 2019) -> calc2019Scotland
+      (scotland, 2020) -> calc2019Scotland
     )
   }
 
