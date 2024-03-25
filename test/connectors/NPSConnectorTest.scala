@@ -49,7 +49,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(
+  override implicit lazy val hc: HeaderCarrier = HeaderCarrier(
     sessionId = Some(SessionId(sessionId)),
     requestId = Some(RequestId(requestId))
   )

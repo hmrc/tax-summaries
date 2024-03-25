@@ -18,10 +18,16 @@ package transformers.ATS2014
 
 import models.LiabilityKey._
 import models._
+import org.mockito.ArgumentMatchers.any
+import org.mockito.{ArgumentCaptor, Mockito}
 import play.api.libs.json.Json
 import services.TaxRateService
 import transformers.{ATSCalculations, ATSRawDataTransformer}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.DataEvent
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
+
+import scala.concurrent.ExecutionContext
 
 class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
@@ -30,7 +36,15 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   val taxYear: Int              = 2014
   val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
-  val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  val auditConnector: AuditConnector = mock[AuditConnector]
+  implicit val ec: ExecutionContext  = inject[ExecutionContext]
+
+  val SUT: ATSRawDataTransformer = new ATSRawDataTransformer(applicationConfig, auditConnector)
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(auditConnector)
+    super.beforeEach()
+  }
 
   "The income before tax" must {
 
@@ -44,12 +58,13 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
 
-      val parsedYear    = returnValue.taxYear
-      val testYear: Int = 2014
+      val parsedYear                                         = returnValue.taxYear
+      val testYear: Int                                      = 2014
       testYear mustEqual parsedYear
+      val dataEventArgumentCaptor: ArgumentCaptor[DataEvent] = ArgumentCaptor.forClass(classOf[DataEvent])
 
-      val parsedPayload = returnValue.income_data.get.payload.get
-      val testPayload   =
+      val parsedPayload          = returnValue.income_data.get.payload.get
+      val testPayload            =
         Map(
           SelfEmploymentIncome   -> Amount(1100.0, "GBP"),
           IncomeFromEmployment   -> Amount(10500.0, "GBP"),
@@ -61,6 +76,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           TotalIncomeBeforeTax   -> Amount(11600.00, "GBP")
         )
       testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
+
+      verify(auditConnector, times(1)).sendEvent(dataEventArgumentCaptor.capture())(any(), any())
+      val valueOfLiabilityAmount = dataEventArgumentCaptor.getAllValues.get(0).detail.find(_._1 == "liabilityAmount")
+      assert(valueOfLiabilityAmount.get._2.contains("172.00"))
     }
 
     "parse the income values for test case 2" in {
@@ -89,6 +108,22 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           TotalIncomeBeforeTax   -> Amount(524287.00, "GBP")
         )
       testPayload.map(x => x._1 -> x._2.amount) mustEqual parsedPayload.map(x => x._1 -> x._2.amount)
+    }
+
+    "auditing event for no liability for the year 2014" in {
+
+      val sampleJson = JsonUtil.load("/utr_2014_no_liability.json")
+
+      val parsedJson   = Json.parse(sampleJson).as[TaxSummaryLiability]
+      val calculations = ATSCalculations.make(parsedJson, taxRate)
+
+      SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+
+      val dataEventArgumentCaptor: ArgumentCaptor[DataEvent] = ArgumentCaptor.forClass(classOf[DataEvent])
+
+      verify(auditConnector, times(1)).sendEvent(dataEventArgumentCaptor.capture())(any(), any())
+      val valueOfLiabilityAmount = dataEventArgumentCaptor.getAllValues.get(0).detail.find(_._1 == "liabilityAmount")
+      assert(valueOfLiabilityAmount.get._2.contains("0.00"))
     }
   }
 

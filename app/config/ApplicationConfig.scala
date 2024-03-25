@@ -90,4 +90,5 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
   lazy val ifAuthorization: String = "Bearer " + servicesConfig.getConfString("if-hod.authorizationToken", "local")
   lazy val ifOriginatorId: String  = servicesConfig.getConfString("if-hod.originatorId", "")
 
+  lazy val appName: String = servicesConfig.getString("appName")
 }

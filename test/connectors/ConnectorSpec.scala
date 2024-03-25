@@ -28,7 +28,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.{HeaderNames, MimeTypes, Status}
 import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 
@@ -42,7 +41,6 @@ trait ConnectorSpec
     with ScalaFutures
     with IntegrationPatience {
 
-  implicit val hc: HeaderCarrier         = HeaderCarrier()
   implicit lazy val ec: ExecutionContext =
     scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
 
