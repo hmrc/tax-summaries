@@ -71,7 +71,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
 
-  override implicit val hc: HeaderCarrier = HeaderCarrier(
+  override implicit lazy val hc: HeaderCarrier = HeaderCarrier(
     sessionId = Some(SessionId(sessionId)),
     requestId = Some(RequestId(requestId))
   )
