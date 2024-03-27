@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,45 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package transformers.ATS2014
-
-import errors.AtsError
-import models.{Amount, AtsMiddleTierData, TaxSummaryLiability}
-import play.api.libs.json.{JsValue, Json}
-import play.api.libs.json.Json.toJsFieldJsValueWrapper
-import services.TaxRateService
-import transformers.{ATSCalculations, ATSRawDataTransformer}
-import utils._
-
-import scala.io.Source
-
-class NoAtsErrorTransformerTest extends BaseSpec with AtsJsonDataUpdate {
-
-  val taxpayerDetailsJson: String        =
-    Source.fromURL(getClass.getResource("/taxpayerData/test_individual_utr.json")).mkString
-  val parsedTaxpayerDetailsJson: JsValue = Json.parse(taxpayerDetailsJson)
-  val taxYear                            = 2014
-  val taxRate                            = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-  val SUT: ATSRawDataTransformer         = inject[ATSRawDataTransformer]
-
-  "With base data for utr" must {
-
-    "have have an no ets error when " in {
-
-      val originalJson = getClass.getResource("/test_case_2.json")
-
-      val update = Json.obj(
-        "ctnIncomeTaxBasicRate" -> Amount.gbp(0.0, "ctnIncomeTaxBasicRate")
-      )
-
-      val transformedJson = transformation(sourceJson = originalJson, tliSlpAtsUpdate = update)
-      val calculations    = ATSCalculations.make(transformedJson.as[TaxSummaryLiability], taxRate)
-
-      val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
-
-      returnValue.errors mustBe Some(AtsError("NoAtsError"))
-    }
-  }
-}

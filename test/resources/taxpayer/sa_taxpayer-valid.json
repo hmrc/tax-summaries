@@ -1,0 +1,31 @@
+{
+  "name": {
+    "title": "Miss",
+    "forename": "Jane",
+    "secondForename": null,
+    "surname": "Fisher",
+    "honours": null
+  },
+  "address": {
+    "addressLine1": "123 Fake Street",
+    "addressLine2": "Aberdeen",
+    "addressLine3": "Aberdeenshire",
+    "addressLine4": null,
+    "addressLine5": null,
+    "postcode": "XX99 9XX",
+    "foreignCountry": null,
+    "returnedLetter": false,
+    "additionalDeliveryInformation": null
+  },
+  "contact": {
+    "telephone": {
+      "daytime": "01111111111",
+      "fax": null,
+      "evening": "01111111111",
+      "mobile": "07777777777"
+    },
+    "email": {
+      "primary": "example@example.com"
+    }
+  }
+}

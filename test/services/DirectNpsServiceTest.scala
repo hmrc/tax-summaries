@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
-  val expectedNpsResponse: JsValue            = Json.parse(load("/paye_annual_tax_summary.json"))
+  val expectedNpsResponse: JsValue            = Json.parse(load("/paye/paye_annual_tax_summary.json"))
   val atsData: PayeAtsData                    = PayeAtsDataUtil.atsData
   lazy val transformedData: PayeAtsMiddleTier =
     atsData.transformToPayeMiddleTier(applicationConfig, testNino, currentYear)
@@ -39,7 +39,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
   class TestService extends DirectNpsService(applicationConfig, npsConnector)
 
-  private val currentYear = 2019
+  private val currentYear = 2020
 
   "getPayeATSData" must {
 

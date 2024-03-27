@@ -22,10 +22,7 @@ import models.ODSLiabilities.ODSLiabilities._
 import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
-import transformers.ATS2019.{ATSCalculationsScottish2019, ATSCalculationsUK2019}
-import transformers.ATS2020.ATSCalculationsWelsh2020
-import transformers.ATS2021.{ATSCalculationsUK2021, ATSCalculationsWelsh2021}
-import transformers.ATS2022.ATSCalculationsWelsh2022
+import transformers.ATS2021.ATSCalculationsUK2021
 import transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
 import utils.{BaseSpec, DoubleUtils}
 
@@ -133,54 +130,17 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       }
     }
 
-    "return Post2018ScottishATSCalculations" when {
-      "tax years is > 2018 and type is scottish" in {
-        val calculation = new Fixture(2019, Scottish())().calculation
-        calculation mustBe a[ATSCalculationsScottish2019]
-      }
-    }
-
-    "return Post2018rUKATSCalculations" when {
-      "tax year is > 2018" in {
-        val calculation = new Fixture(2019, UK())().calculation
-        calculation mustBe a[ATSCalculationsUK2019]
-      }
-
-      "return WelshATSCalculations" when {
-        "tax year is > 2019" in {
-          forAll { (taxYear: Int) =>
-            val calculation = new Fixture(taxYear, Welsh())().calculation
-            if (taxYear == 2020) {
-              calculation mustBe a[ATSCalculationsWelsh2020]
-            } else if (taxYear == 2021) {
-              calculation mustBe a[ATSCalculationsWelsh2021]
-            } else if (taxYear == 2022) {
-              calculation mustBe a[ATSCalculationsWelsh2022]
-            } else if (taxYear > 2022) {
-              calculation mustBe a[ATSCalculationsWelsh2023]
-            } else {
-              calculation mustBe a[DefaultATSCalculations]
-            }
-
-          }
-        }
-      }
-    }
-
-    "return DefaultATSCalculations" when {
-      "tax year is < 2019 and type is scottish" in {
-        val calculation = new Fixture(2018, Scottish())().calculation
-        calculation mustBe a[DefaultATSCalculations]
+    "throw exception" when {
+      "tax year is < 2020 and type is scottish" in {
+        a[RuntimeException] mustBe thrownBy(new Fixture(2019, Scottish())().calculation)
       }
 
       "tax year is < 2020 and type is welsh" in {
-        val calculation = new Fixture(2018, Welsh())().calculation
-        calculation mustBe a[DefaultATSCalculations]
+        a[RuntimeException] mustBe thrownBy(new Fixture(2019, Welsh())().calculation)
       }
 
-      "tax year is < 2019 and type is UK" in {
-        val calculation = new Fixture(2018, UK())().calculation
-        calculation mustBe a[DefaultATSCalculations]
+      "tax year is < 2020 and type is UK" in {
+        a[RuntimeException] mustBe thrownBy(new Fixture(2019, UK())().calculation)
       }
     }
 
@@ -192,168 +152,24 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     }
   }
 
-  "DefaultATSCalculations" must {
-    val fixture = new Fixture(2016, UK())
+  "2020UKATSCalculations" must {
 
-    "basicIncomeRateIncomeTax includes pension tax when pension rate matches basic rate" in {
-
-      forAll { (incomeVal: Double, pensionVal: Double, savingsVal: Double) =>
-        val (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =
-          (BigDecimal(incomeVal), BigDecimal(pensionVal), BigDecimal(savingsVal))
-
-        val sut = fixture(
-          PensionTaxRate(0.20),
-          IncomeChargeableBasicRate  -> Amount.gbp(income, IncomeChargeableBasicRate.apiValue),
-          StatePensionGross          -> Amount.gbp(pension, StatePensionGross.apiValue),
-          SavingsChargeableLowerRate -> Amount.gbp(savings, SavingsChargeableLowerRate.apiValue)
-        )
-
-        sut.calculation.basicRateIncomeTax.roundAmount() mustBe Amount
-          .gbp(
-            income + pension + savings,
-            s"$income(ctnIncomeChgbleBasicRate) + $savings(ctnSavingsChgbleLowerRate) + $pension(itfStatePensionLsGrossAmt)"
-          )
-          .roundAmount()
-      }
-    }
-
-    "higherRateIncomeTaxAmount includes pension tax when pension rate matches basic rate" in {
-
-      forAll { (incomeVal: Double, pensionVal: Double, savingsVal: Double) =>
-        val (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =
-          (BigDecimal(incomeVal), BigDecimal(pensionVal), BigDecimal(savingsVal))
-
-        val sut = fixture(
-          PensionTaxRate(0.40),
-          IncomeChargeableHigherRate  -> Amount.gbp(income, IncomeChargeableHigherRate.apiValue),
-          StatePensionGross           -> Amount.gbp(pension, StatePensionGross.apiValue),
-          SavingsChargeableHigherRate -> Amount.gbp(savings, SavingsChargeableHigherRate.apiValue)
-        )
-
-        sut.calculation.higherRateIncomeTax
-          .roundAmount() mustBe Amount
-          .gbp(
-            income + pension + savings,
-            s"$income(ctnIncomeChgbleHigherRate) + $savings(ctnSavingsChgbleHigherRate) + $pension(itfStatePensionLsGrossAmt)"
-          )
-          .roundAmount()
-      }
-    }
-
-    "additionalRateIncomeTaxAmount includes pension tax when pension rate matches basic rate" in {
-
-      forAll { (incomeVal: Double, pensionVal: Double, savingsVal: Double) =>
-        val (income: BigDecimal, pension: BigDecimal, savings: BigDecimal) =
-          (BigDecimal(incomeVal), BigDecimal(pensionVal), BigDecimal(savingsVal))
-
-        val sut = fixture(
-          PensionTaxRate(0.45),
-          IncomeChargeableAddHRate  -> Amount.gbp(income, IncomeChargeableAddHRate.apiValue),
-          StatePensionGross         -> Amount.gbp(pension, StatePensionGross.apiValue),
-          SavingsChargeableAddHRate -> Amount.gbp(savings, SavingsChargeableAddHRate.apiValue)
-        )
-
-        sut.calculation.additionalRateIncomeTax
-          .roundAmount() mustBe Amount
-          .gbp(
-            income + pension + savings,
-            s"$income(ctnIncomeChgbleAddHRate) + $savings(ctnSavingsChgbleAddHRate) + $pension(itfStatePensionLsGrossAmt)"
-          )
-          .roundAmount()
-      }
-    }
-
-    "includePensionIncomeForRate returns StatePensionGross when percentages match" in {
-
-      forAll { (rateI: Int, totalValI: Int) =>
-        val rate              = Math.abs(rateI).toDouble / 100.0
-        val totalVal          = Math.abs(totalValI).toDouble / 100.0
-        val total: BigDecimal = BigDecimal(totalVal)
-        val sum               = List.fill(10)(rate).fold(0.0)(_ + _)
-        val prod              = rate * 10
-        val sut               = fixture(PensionTaxRate(sum / 100), StatePensionGross -> Amount.gbp(total, StatePensionGross.apiValue))
-        sut.calculation.includePensionIncomeForRate(Rate(prod)).roundAmount() mustBe Amount
-          .gbp(total, s"$total(itfStatePensionLsGrossAmt)")
-          .roundAmount()
-      }
-    }
-
-    "includePensionIncomeForRate returns 0 when rates don't match" in {
-
-      forAll { (rate1: Double, rate2: Double) =>
-        whenever(rate1 !== rate2) {
-          val sut = fixture(PensionTaxRate(rate1 / 100))
-          sut.calculation
-            .includePensionIncomeForRate(Rate(rate2)) mustBe Amount.empty("itfStatePensionLsGrossAmt")
-        }
-      }
-    }
-
-    "includePensionTaxForRate returns PensionLsumTaxDue when percentages match" in {
-      forAll { (rateI: Int, totalValI: Int) =>
-        val rate              = Math.abs(rateI).toDouble / 100.0
-        val totalVal          = Math.abs(totalValI).toDouble / 100.0
-        val total: BigDecimal = BigDecimal(totalVal)
-        val sum               = List.fill(10)(rate).fold(0.0)(_ + _)
-        val prod              = rate * 10
-        val sut               = fixture(PensionTaxRate(sum / 100), PensionLsumTaxDue -> Amount.gbp(total, PensionLsumTaxDue.apiValue))
-        sut.calculation.includePensionTaxForRate(Rate(prod)).roundAmount() mustBe Amount
-          .gbp(total, s"$total(ctnPensionLsumTaxDueAmt)")
-          .roundAmount()
-      }
-    }
-
-    "includePensionTaxForRate returns 0 when rates don't match" in {
-
-      forAll { (rate1: Double, rate2: Double) =>
-        whenever(rate1 !== rate2) {
-          val sut = fixture(PensionTaxRate(rate1 / 100))
-          sut.calculation.includePensionTaxForRate(Rate(rate2)) mustBe Amount.empty("ctnPensionLsumTaxDueAmt")
-        }
-      }
-    }
-
-    "totalCapitalGainsTax returns correct calculation" in {
-
-      forAll { (lowerVal: Double, higherVal: Double) =>
-        val (lower: BigDecimal, higher: BigDecimal) = (BigDecimal(lowerVal), BigDecimal(higherVal))
-        val sut                                     = fixture(
-          LowerRateCgtRPCI  -> Amount.gbp(lower, LowerRateCgtRPCI.apiValue),
-          HigherRateCgtRPCI -> Amount.gbp(higher, HigherRateCgtRPCI.apiValue)
-        )
-
-        sut.calculation.totalCapitalGainsTax.roundAmount() mustBe Amount
-          .gbp(
-            (lower + higher).max(0),
-            s"max(0, Some($lower(ctnLowerRateCgtRPCI) + $higher(ctnHigherRateCgtRPCI) + 0(ctnCgDueEntrepreneursRate) + 0(ctnCgDueLowerRate) + 0(ctnCgDueHigherRate) + 0(capAdjustmentAmt)))"
-          )
-          .roundAmount()
-      }
-    }
-
-    "return empty for welshIncomeTax" in {
-      fixture().calculation.welshIncomeTax mustBe Amount.empty("welshIncomeTax")
-    }
-  }
-
-  "Post2018rUKATSCalculations" must {
-
-    val fixture     = new Fixture(2019, UK())()
+    val fixture     = new Fixture(2020, UK())()
     val calculation = fixture.calculation
 
     "return an empty amount for scottishIncomeTax" in {
 
-      calculation.scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxUK2019")
+      calculation.scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxUK2020")
     }
 
     "return empty for savingsRate" in {
 
-      calculation.savingsRate mustBe Amount.empty("savingsRateUK2019")
+      calculation.savingsRate mustBe Amount.empty("savingsRateUK2020")
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountUK2019")
+      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountUK2020")
     }
 
     "return empty for welshIncomeTax" in {
@@ -361,9 +177,9 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     }
   }
 
-  "Post2018ScottishATSCalculations" must {
+  "2020ScottishATSCalculations" must {
 
-    val scottishFixture = new Fixture(taxYear = 2019, Scottish())
+    val scottishFixture = new Fixture(taxYear = 2020, Scottish())
     val calculation     = scottishFixture().calculation
 
     "return an empty amount for scottishIncomeTax" in {
@@ -371,37 +187,37 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     }
 
     "return an empty amount for basicRateIncomeTaxAmount" in {
-      calculation.basicRateIncomeTaxAmount mustBe Amount.empty("basicRateIncomeTaxAmountScottish2019")
+      calculation.basicRateIncomeTaxAmount mustBe Amount.empty("basicRateIncomeTaxAmountScottish2020")
     }
 
     "return an empty amount for higherRateIncomeTaxAmount" in {
-      calculation.higherRateIncomeTaxAmount mustBe Amount.empty("higherRateIncomeTaxAmountScottish2019")
+      calculation.higherRateIncomeTaxAmount mustBe Amount.empty("higherRateIncomeTaxAmountScottish2020")
     }
 
     "return an empty amount for additionalRateIncomeTaxAmount" in {
-      calculation.additionalRateIncomeTaxAmount mustBe Amount.empty("additionalRateIncomeTaxAmountScottish2019")
+      calculation.additionalRateIncomeTaxAmount mustBe Amount.empty("additionalRateIncomeTaxAmountScottish2020")
     }
 
     "return an empty amount for basicRateIncomeTax" in {
-      calculation.basicRateIncomeTax mustBe Amount.empty("basicRateIncomeTaxScottish2019")
+      calculation.basicRateIncomeTax mustBe Amount.empty("basicRateIncomeTaxScottish2020")
     }
 
     "return an empty amount for higherRateIncomeTax" in {
-      calculation.higherRateIncomeTax mustBe Amount.empty("higherRateIncomeTaxScottish2019")
+      calculation.higherRateIncomeTax mustBe Amount.empty("higherRateIncomeTaxScottish2020")
     }
 
     "return an empty amount for additionalRateIncomeTax" in {
-      calculation.additionalRateIncomeTax mustBe Amount.empty("additionalRateIncomeTaxScottish2019")
+      calculation.additionalRateIncomeTax mustBe Amount.empty("additionalRateIncomeTaxScottish2020")
     }
 
     "return empty for savingsRate" in {
 
-      calculation.savingsRate mustBe Amount.empty("savingsRateScottish2019")
+      calculation.savingsRate mustBe Amount.empty("savingsRateScottish2020")
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountScottish2019")
+      calculation.savingsRateAmount mustBe Amount.empty("savingsRateAmountScottish2020")
     }
 
     "return empty for welshIncomeTax" in {

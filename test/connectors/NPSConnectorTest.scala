@@ -44,7 +44,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       )
       .build()
 
-  private val currentYear = 2018
+  private val currentYear = 2020
 
   val sessionId = "testSessionId"
   val requestId = "testRequestId"
@@ -85,7 +85,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
     "return successful response when provided suffix" in new NPSConnectorSetUp {
 
-      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
+      val expectedNpsResponse: String = load("/paye/paye_annual_tax_summary.json")
       val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
@@ -118,7 +118,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
     "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
 
-      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
+      val expectedNpsResponse: String = load("/paye/paye_annual_tax_summary.json")
       val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
@@ -166,7 +166,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
     "return INTERNAL_SERVER_ERROR response in case of a timeout exception from http verbs" in new NPSConnectorSetUp {
 
       val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
-      val expectedNpsResponse: String = load("/paye_annual_tax_summary.json")
+      val expectedNpsResponse: String = load("/paye/paye_annual_tax_summary.json")
 
       server.stubFor(
         get(urlEqualTo(url)).willReturn(

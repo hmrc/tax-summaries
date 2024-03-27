@@ -21,6 +21,8 @@ import transformers.{ATSParsingException, ATSRawDataTransformer}
 import utils.TestConstants._
 
 class TaxsJsonHelperTest extends BaseSpec {
+  private val prevTaxYear = 2022
+  private val taxYear     = 2023
 
   val aTSRawDataTransformer = inject[ATSRawDataTransformer]
 
@@ -30,11 +32,11 @@ class TaxsJsonHelperTest extends BaseSpec {
 
     "return true when json response has non empty annual tax summaries data" in new SetUp {
 
-      val rawJson = Json.parse("""
+      val rawJson = Json.parse(s"""
                                  | {
                                  |   "annualTaxSummaries" : [
-                                 |   { "taxYearEnd" : 2014 },
-                                 |   { "taxYearEnd" : 2015 }
+                                 |   { "taxYearEnd" : $prevTaxYear },
+                                 |   { "taxYearEnd" : $taxYear }
                                  |   ]
                                  | }
         """.stripMargin)
@@ -59,12 +61,12 @@ class TaxsJsonHelperTest extends BaseSpec {
 
     "return false for badly formed json" in new SetUp {
 
-      val rawJson = Json.parse("""
+      val rawJson = Json.parse(s"""
                                  | {
                                  |   "annualTaxSummaries" : [
                                  |   { "userName" : "" }
                                  |   ],
-                                 |   "taxYearEnd" : 2014
+                                 |   "taxYearEnd" : $prevTaxYear
                                  | }
         """.stripMargin)
 
@@ -78,11 +80,11 @@ class TaxsJsonHelperTest extends BaseSpec {
 
     "return a jsvalue with correct data when passed correct format" in new SetUp {
 
-      val rawJson = Json.parse("""
+      val rawJson = Json.parse(s"""
                                  | {
                                  |   "annualTaxSummaries" : [
-                                 |   { "taxYearEnd" : 2014 },
-                                 |   { "taxYearEnd" : 2015 }
+                                 |   { "taxYearEnd" : $prevTaxYear },
+                                 |   { "taxYearEnd" : $taxYear }
                                  |   ]
                                  | }
         """.stripMargin)
@@ -103,15 +105,15 @@ class TaxsJsonHelperTest extends BaseSpec {
       result \ "taxPayer" mustBe JsDefined(
         Json.parse("""{"taxpayer_name":{"title":"Mr","forename":"forename","surname":"surname"}}""")
       )
-      result \ "atsYearList" mustBe JsDefined(Json.parse("[2014, 2015]"))
+      result \ "atsYearList" mustBe JsDefined(Json.parse(s"[$prevTaxYear, $taxYear]"))
     }
 
     "return an exception when passed badly formed json" in new SetUp {
 
-      val rawJson = Json.parse("""
+      val rawJson = Json.parse(s"""
                                  | {
                                  |   "annualTaxSummaries" : [
-                                 |   { "taxYearEnd" : 2015 }
+                                 |   { "taxYearEnd" : $taxYear }
                                  |   ]
                                  | }
         """.stripMargin)

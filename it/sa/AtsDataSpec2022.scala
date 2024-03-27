@@ -28,7 +28,7 @@ import utils.FileHelper
 
 class AtsDataSpec2022 extends SaTestHelper {
 
-  val taxPayerFile = "taxPayerDetails.json"
+  val taxPayerFile = "sa/taxPayerDetails.json"
 
   trait Test {
     val taxYear = 2022
@@ -108,7 +108,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC52.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC52.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -184,7 +184,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC53.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC53.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -260,7 +260,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC45.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC45.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -333,7 +333,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC153.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC153.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -409,7 +409,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC222.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC222.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -484,7 +484,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC3.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC3.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -559,7 +559,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC6.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC6.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -654,7 +654,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TC11.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TC11.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -749,7 +749,7 @@ class AtsDataSpec2022 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2021-22/TCwithNulls.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2021-22/TCwithNulls.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -788,7 +788,7 @@ class AtsDataSpec2022 extends SaTestHelper {
     server.stubFor(
       WireMock
         .get(urlEqualTo(odsUrl(taxYear)))
-        .willReturn(ok(FileHelper.loadFile("2019-20/utr_1097172561.json")))
+        .willReturn(ok(FileHelper.loadFile("sa/2019-20/utr_1097172561.json")))
     )
 
     val result: AtsMiddleTierData = resultToAtsData(route(app, request))

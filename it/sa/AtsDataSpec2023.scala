@@ -28,7 +28,7 @@ import utils.FileHelper
 
 class AtsDataSpec2023 extends SaTestHelper {
 
-  val taxPayerFile = "taxPayerDetails.json"
+  val taxPayerFile = "sa/taxPayerDetails.json"
 
   trait Test {
     val taxYear = 2023
@@ -107,7 +107,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase1.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase1.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -182,7 +182,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase2.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase2.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -257,7 +257,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase3.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase3.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -323,7 +323,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase4.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase4.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -398,7 +398,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase5.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase5.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -472,7 +472,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase6.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase6.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -547,7 +547,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase7.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase7.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -620,7 +620,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCase8.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCase8.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -715,7 +715,7 @@ class AtsDataSpec2023 extends SaTestHelper {
         server.stubFor(
           WireMock
             .get(urlEqualTo(odsUrl(taxYear)))
-            .willReturn(ok(FileHelper.loadFile("2022-23/TestCaseWithNulls.json")))
+            .willReturn(ok(FileHelper.loadFile("sa/2022-23/TestCaseWithNulls.json")))
         )
 
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
@@ -756,7 +756,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       WireMock
         .get(urlEqualTo(odsUrl(taxYear)))
         .willReturn(
-          ok(FileHelper.loadFile("2022-23/TestCaseGovernmentSpend.json"))
+          ok(FileHelper.loadFile("sa/2022-23/TestCaseGovernmentSpend.json"))
         )
     )
 

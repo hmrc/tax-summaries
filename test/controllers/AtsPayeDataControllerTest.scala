@@ -49,8 +49,8 @@ class AtsPayeDataControllerTest extends BaseSpec {
 
   class TestController extends AtsPayeDataController(npsService, mockAuthJourney, atsErrorHandler, cc)
 
-  val cy      = 2018
-  val cyPlus1 = 2019
+  val cy      = 2022
+  val cyPlus1 = 2023
 
   val expectedResponseCY: PayeAtsMiddleTier      = PayeAtsMiddleTier(cy, testNino, None, None, None, None, None)
   val expectedResponseCYPlus1: PayeAtsMiddleTier = PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None)

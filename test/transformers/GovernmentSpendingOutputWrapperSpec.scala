@@ -16,337 +16,162 @@
 
 package transformers
 
-import models.{Amount, GovernmentSpendingOutputWrapper}
+import config.ApplicationConfig
+import models.{Amount, GovernmentSpendingOutputWrapper, Item}
+import org.mockito.ArgumentMatchers
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
+import services.GoodsAndServices
 import services.GoodsAndServices._
 import utils._
 
 class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdate with ScalaCheckPropertyChecks {
+  private val taxYear                                                              = 2023
+  private val previousTaxYear                                                      = 2022
+  private val mockAppConfig                                                        = mock[ApplicationConfig]
+  private val randomPercentagesForTaxYear: Seq[(GoodsAndServices, Double)]         =
+    Seq[(GoodsAndServices, Double)](
+      Welfare                    -> 3.15,
+      Health                     -> 5.12,
+      Education                  -> 8.47,
+      StatePensions              -> 3.54,
+      NationalDebtInterest       -> 6.12,
+      Defence                    -> 0.39,
+      CriminalJustice            -> 8.22,
+      Transport                  -> 10.04,
+      BusinessAndIndustry        -> 2.3,
+      GovernmentAdministration   -> 5.4,
+      Culture                    -> 6.7,
+      HousingAndUtilities        -> 0.45,
+      OverseasAid                -> 4.55,
+      UkContributionToEuBudget   -> 6.66,
+      OutstandingPaymentsToTheEU -> 7.12,
+      PublicOrderAndSafety       -> 10.33,
+      Environment                -> 11.44
+    )
+  private val randomPercentagesForPreviousTaxYear: Seq[(GoodsAndServices, Double)] =
+    Seq[(GoodsAndServices, Double)](
+      Welfare                    -> 3.15,
+      Health                     -> 5.12,
+      Education                  -> 8.47,
+      StatePensions              -> 0.05,
+      NationalDebtInterest       -> 3.37,
+      Defence                    -> 0.39,
+      CriminalJustice            -> 6.45,
+      Transport                  -> 12.32,
+      BusinessAndIndustry        -> 2.3,
+      GovernmentAdministration   -> 9.22,
+      Culture                    -> 2.33,
+      HousingAndUtilities        -> 8.18,
+      OverseasAid                -> 3.09,
+      UkContributionToEuBudget   -> 6.66,
+      OutstandingPaymentsToTheEU -> 7.13,
+      PublicOrderAndSafety       -> 10.33,
+      Environment                -> 11.44
+    )
+
+  private val appConfigItemsForTaxYear: Seq[Item] = randomPercentagesForTaxYear.map { g =>
+    Item(g._1.apiValue, g._2)
+  }
+
+  private val appConfigItemsForPreviousTaxYear: Seq[Item] = randomPercentagesForPreviousTaxYear.map { g =>
+    Item(g._1.apiValue, g._2)
+  }
+
+  private def expectedTotalForTaxYear(amount: Int): BigDecimal =
+    BigDecimal(randomPercentagesForTaxYear.map(v => amount * v._2 / 100).sum)
+      .setScale(2, BigDecimal.RoundingMode.HALF_UP)
+
+  private def expectedTotalForPreviousTaxYear(amount: Int): BigDecimal =
+    BigDecimal(randomPercentagesForPreviousTaxYear.map(v => amount * v._2 / 100).sum)
+      .setScale(2, BigDecimal.RoundingMode.HALF_UP)
+
+  private val testAmountUser1: Int = 1400
+  private val testAmountUser2: Int = 2900
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockAppConfig)
+    when(mockAppConfig.governmentSpend(ArgumentMatchers.eq(previousTaxYear)))
+      .thenReturn(appConfigItemsForPreviousTaxYear)
+    when(mockAppConfig.governmentSpend(ArgumentMatchers.eq(taxYear))).thenReturn(appConfigItemsForTaxYear)
+  }
+
+  private def governmentSpend(
+    testAmount: Int,
+    testYear: Int,
+    pc: Seq[(GoodsAndServices, Double)],
+    expTotal: BigDecimal
+  ): Unit = {
+    pc.foreach { item =>
+      s"display correct amount for ${item._1.apiValue} with percentage value of ${item._2} for a user with total amount of $testAmount" in {
+        val returnValue: GovernmentSpendingOutputWrapper =
+          GovernmentSpendingOutputWrapper(mockAppConfig, new Amount(testAmount, "GBP"), testYear)
+
+        val parsedYear = returnValue.taxYear
+
+        testYear mustEqual parsedYear
+
+        val govSpendData = returnValue.govSpendAmountData
+
+        govSpendData(item._1).amount.amount must equal(
+          BigDecimal(testAmount * item._2 / 100).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+        )
+      }
+    }
+
+    s"total up correctly to $expTotal for a user with total amount of $testAmount" in {
+      val returnValue: GovernmentSpendingOutputWrapper =
+        GovernmentSpendingOutputWrapper(mockAppConfig, new Amount(testAmount, "GBP"), testYear)
+
+      val parsedYear = returnValue.taxYear
+
+      testYear mustEqual parsedYear
+
+      val govSpendData = returnValue.govSpendAmountData
+
+      val actualTotal: BigDecimal = govSpendData.values.foldLeft(BigDecimal(0.0)) {
+        _ + _.amount.amount
+      }
+      actualTotal mustBe expTotal
+    }
+  }
 
   "GovernmentSpendingOutputWrapper must round trip through Json " in {
     forAll(Generators.genGovernmentSpending) { data =>
       val json = Json.toJson(data)
       val obj  = json.as[GovernmentSpendingOutputWrapper]
-
       obj mustBe data
     }
   }
 
-  "The Gov spending data" must {
-    "display correct amounts for a given user in 2014" in {
+  s"The Gov spending data for $taxYear"         must {
+    behave like governmentSpend(
+      testAmountUser1,
+      taxYear,
+      randomPercentagesForTaxYear,
+      expectedTotalForTaxYear(testAmountUser1)
+    )
+    behave like governmentSpend(
+      testAmountUser2,
+      taxYear,
+      randomPercentagesForTaxYear,
+      expectedTotalForTaxYear(testAmountUser2)
+    )
+  }
 
-      val testYear: Int                                = 2014
-      val testAmount: Int                              = 1400
-      val returnValue: GovernmentSpendingOutputWrapper =
-        GovernmentSpendingOutputWrapper(applicationConfig, new Amount(testAmount, "GBP"), testYear)
-
-      val parsedYear = returnValue.taxYear
-
-      testYear mustEqual parsedYear
-
-      val govSpendData = returnValue.govSpendAmountData
-
-      govSpendData(Welfare).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.2452).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Health).amount.amount                   must equal(
-        BigDecimal(testAmount * 0.1887).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Education).amount.amount                must equal(
-        BigDecimal(testAmount * 0.1315).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(StatePensions).amount.amount            must equal(
-        BigDecimal(testAmount * 0.1212).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(NationalDebtInterest).amount.amount     must equal(
-        BigDecimal(testAmount * 0.07).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Defence).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.0531).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(CriminalJustice).amount.amount          must equal(
-        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Transport).amount.amount                must equal(
-        BigDecimal(testAmount * 0.0295).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(BusinessAndIndustry).amount.amount      must equal(
-        BigDecimal(testAmount * 0.0274).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.0205).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Culture).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.0169).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Environment).amount.amount              must equal(
-        BigDecimal(testAmount * 0.0166).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(HousingAndUtilities).amount.amount      must equal(
-        BigDecimal(testAmount * 0.0164).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(OverseasAid).amount.amount              must equal(
-        BigDecimal(testAmount * 0.0115).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.0075).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.amount.amount
-      } must equal(BigDecimal("1400.00"))
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.percentage
-      } must equal(BigDecimal("100.00"))
-    }
-
-    "display correct amounts for a different user with total tax of £22,000 in 2014" in {
-
-      val testYear: Int                                = 2014
-      val testAmount: Int                              = 22000
-      val returnValue: GovernmentSpendingOutputWrapper =
-        GovernmentSpendingOutputWrapper(applicationConfig, new Amount(testAmount, "GBP"), testYear)
-
-      val parsedYear = returnValue.taxYear
-
-      testYear mustEqual parsedYear
-
-      val govSpendData = returnValue.govSpendAmountData
-
-      govSpendData(Welfare).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.2452).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Health).amount.amount                   must equal(
-        BigDecimal(testAmount * 0.1887).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Education).amount.amount                must equal(
-        BigDecimal(testAmount * 0.1315).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(StatePensions).amount.amount            must equal(
-        BigDecimal(testAmount * 0.1212).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(NationalDebtInterest).amount.amount     must equal(
-        BigDecimal(testAmount * 0.07).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Defence).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.0531).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(CriminalJustice).amount.amount          must equal(
-        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Transport).amount.amount                must equal(
-        BigDecimal(testAmount * 0.0295).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(BusinessAndIndustry).amount.amount      must equal(
-        BigDecimal(testAmount * 0.0274).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.0205).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Culture).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.0169).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Environment).amount.amount              must equal(
-        BigDecimal(testAmount * 0.0166).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(HousingAndUtilities).amount.amount      must equal(
-        BigDecimal(testAmount * 0.0164).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(OverseasAid).amount.amount              must equal(
-        BigDecimal(testAmount * 0.0115).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.0075).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.amount.amount
-      } must equal(BigDecimal("22000.00"))
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.percentage
-      } must equal(BigDecimal("100.00"))
-    }
-
-    "display correct amounts for a given user in 2015" in {
-
-      val testYear: Int                                = 2015
-      val testAmount: Int                              = 1400
-      val returnValue: GovernmentSpendingOutputWrapper =
-        GovernmentSpendingOutputWrapper(applicationConfig, new Amount(testAmount, "GBP"), testYear)
-
-      val parsedYear = returnValue.taxYear
-
-      testYear mustEqual parsedYear
-
-      val govSpendData = returnValue.govSpendAmountData
-
-      govSpendData(Welfare).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.253).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Health).amount.amount                   must equal(
-        BigDecimal(testAmount * 0.199).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(StatePensions).amount.amount            must equal(
-        BigDecimal(testAmount * 0.128).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Education).amount.amount                must equal(
-        BigDecimal(testAmount * 0.125).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Defence).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.054).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(NationalDebtInterest).amount.amount     must equal(
-        BigDecimal(testAmount * 0.05).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(PublicOrderAndSafety).amount.amount     must equal(
-        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Transport).amount.amount                must equal(
-        BigDecimal(testAmount * 0.03).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(BusinessAndIndustry).amount.amount      must equal(
-        BigDecimal(testAmount * 0.027).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.02).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Culture).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.018).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Environment).amount.amount              must equal(
-        BigDecimal(testAmount * 0.017).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(HousingAndUtilities).amount.amount      must equal(
-        BigDecimal(testAmount * 0.016).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(OverseasAid).amount.amount              must equal(
-        BigDecimal(testAmount * 0.013).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.006).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.amount.amount
-      } must equal(BigDecimal("1400.00"))
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.percentage
-      } must equal(BigDecimal("100.00"))
-    }
-
-    "display correct amounts for a different user with total tax of £22,000 in 2015" in {
-
-      val testYear: Int                                = 2015
-      val testAmount: Int                              = 22000
-      val returnValue: GovernmentSpendingOutputWrapper =
-        GovernmentSpendingOutputWrapper(applicationConfig, new Amount(testAmount, "GBP"), testYear)
-
-      val parsedYear = returnValue.taxYear
-
-      testYear mustEqual parsedYear
-
-      val govSpendData = returnValue.govSpendAmountData
-
-      govSpendData(Welfare).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.253).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Health).amount.amount                   must equal(
-        BigDecimal(testAmount * 0.199).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(StatePensions).amount.amount            must equal(
-        BigDecimal(testAmount * 0.128).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Education).amount.amount                must equal(
-        BigDecimal(testAmount * 0.125).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Defence).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.054).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(NationalDebtInterest).amount.amount     must equal(
-        BigDecimal(testAmount * 0.05).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(PublicOrderAndSafety).amount.amount     must equal(
-        BigDecimal(testAmount * 0.044).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Transport).amount.amount                must equal(
-        BigDecimal(testAmount * 0.03).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(BusinessAndIndustry).amount.amount      must equal(
-        BigDecimal(testAmount * 0.027).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(GovernmentAdministration).amount.amount must equal(
-        BigDecimal(testAmount * 0.02).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Culture).amount.amount                  must equal(
-        BigDecimal(testAmount * 0.018).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(Environment).amount.amount              must equal(
-        BigDecimal(testAmount * 0.017).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(HousingAndUtilities).amount.amount      must equal(
-        BigDecimal(testAmount * 0.016).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(OverseasAid).amount.amount              must equal(
-        BigDecimal(testAmount * 0.013).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-      govSpendData(UkContributionToEuBudget).amount.amount must equal(
-        BigDecimal(testAmount * 0.006).setScale(2, BigDecimal.RoundingMode.HALF_UP)
-      )
-
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.amount.amount
-      } must equal(BigDecimal("22000.00"))
-      govSpendData.values.foldLeft(BigDecimal(0.0)) {
-        _ + _.percentage
-      } must equal(BigDecimal("100.00"))
-    }
-    "has the correct spend percentages for 2014" in {
-
-      val testYear: Int                                = 2014
-      val returnValue: GovernmentSpendingOutputWrapper =
-        GovernmentSpendingOutputWrapper(applicationConfig, new Amount(1400, "GBP"), testYear)
-
-      val govSpendData = returnValue.govSpendAmountData
-      govSpendData(Welfare).percentage                  must equal(24.52)
-      govSpendData(Health).percentage                   must equal(18.87)
-      govSpendData(Education).percentage                must equal(13.15)
-      govSpendData(StatePensions).percentage            must equal(12.12)
-      govSpendData(NationalDebtInterest).percentage     must equal(7.00)
-      govSpendData(Defence).percentage                  must equal(5.31)
-      govSpendData(CriminalJustice).percentage          must equal(4.40)
-      govSpendData(Transport).percentage                must equal(2.95)
-      govSpendData(BusinessAndIndustry).percentage      must equal(2.74)
-      govSpendData(GovernmentAdministration).percentage must equal(2.05)
-      govSpendData(Culture).percentage                  must equal(1.69)
-      govSpendData(Environment).percentage              must equal(1.66)
-      govSpendData(HousingAndUtilities).percentage      must equal(1.64)
-      govSpendData(OverseasAid).percentage              must equal(1.15)
-      govSpendData(UkContributionToEuBudget).percentage must equal(0.75)
-    }
-
-    "has the correct spend percentages for 2015" in {
-
-      val testYear: Int                                = 2015
-      val returnValue: GovernmentSpendingOutputWrapper =
-        GovernmentSpendingOutputWrapper(applicationConfig, new Amount(1400, "GBP"), testYear)
-
-      val govSpendData = returnValue.govSpendAmountData
-      govSpendData(Welfare).percentage                  must equal(25.30)
-      govSpendData(Health).percentage                   must equal(19.90)
-      govSpendData(StatePensions).percentage            must equal(12.80)
-      govSpendData(Education).percentage                must equal(12.50)
-      govSpendData(Defence).percentage                  must equal(5.40)
-      govSpendData(NationalDebtInterest).percentage     must equal(5.00)
-      govSpendData(PublicOrderAndSafety).percentage     must equal(4.40)
-      govSpendData(Transport).percentage                must equal(3.00)
-      govSpendData(BusinessAndIndustry).percentage      must equal(2.70)
-      govSpendData(GovernmentAdministration).percentage must equal(2.00)
-      govSpendData(Culture).percentage                  must equal(1.80)
-      govSpendData(Environment).percentage              must equal(1.70)
-      govSpendData(HousingAndUtilities).percentage      must equal(1.60)
-      govSpendData(OverseasAid).percentage              must equal(1.30)
-      govSpendData(UkContributionToEuBudget).percentage must equal(0.60)
-    }
+  s"The Gov spending data for $previousTaxYear" must {
+    behave like governmentSpend(
+      testAmountUser1,
+      previousTaxYear,
+      randomPercentagesForPreviousTaxYear,
+      expectedTotalForPreviousTaxYear(testAmountUser1)
+    )
+    behave like governmentSpend(
+      testAmountUser2,
+      previousTaxYear,
+      randomPercentagesForPreviousTaxYear,
+      expectedTotalForPreviousTaxYear(testAmountUser2)
+    )
   }
 }
