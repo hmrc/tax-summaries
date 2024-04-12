@@ -33,6 +33,7 @@ import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 
 class OdsServiceSpec extends BaseSpec {
+  private val taxYear                            = 2023
   private implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   private val odsConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
@@ -110,17 +111,17 @@ class OdsServiceSpec extends BaseSpec {
 
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any()))
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any()))
+        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any()))
           .thenReturn(mock[JsValue])
 
-        val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier], mock[Request[_]]).value
+        val result = service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res.isRight mustBe true
 
-          verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any())
+          verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
         }
       }
     }
@@ -129,34 +130,35 @@ class OdsServiceSpec extends BaseSpec {
       "Not found response is received from self assessment" in {
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any()))
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(NOT_FOUND, "")))
 
-        val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier], mock[Request[_]]).value
+        val result = service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res mustBe a[Left[UpstreamErrorResponse, _]]
 
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
-          verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any())
+          verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any())
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
         }
       }
 
       "Not found response is received from tax payer details" in {
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(NOT_FOUND, "")))
-        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any()))
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
 
-        val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier], mock[Request[_]]).value
+        val result = service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res mustBe a[Left[UpstreamErrorResponse, _]]
 
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
-          verify(odsConnector, times(0)).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any())
+          verify(odsConnector, times(0))
+            .connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any())
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
         }
       }
 
@@ -166,17 +168,17 @@ class OdsServiceSpec extends BaseSpec {
 
           when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
             .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-          when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any()))
+          when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
             .thenReturn(EitherT.leftT(response))
 
-          val result = service.getPayload(testUtr, 2014)(mock[HeaderCarrier], mock[Request[_]]).value
+          val result = service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
           whenReady(result) { res =>
             res mustBe a[Left[UpstreamErrorResponse, _]]
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
-            verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(2014))(any[HeaderCarrier], any())
-            verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any())
+            verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any())
+            verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
           }
         }
       }
@@ -218,7 +220,7 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector, times(0)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(2014))(any())
+          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
         }
       }
 

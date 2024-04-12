@@ -29,7 +29,7 @@ import utils.FileHelper
 import java.time.LocalDate
 
 class Ddcnl5893 extends SaTestHelper {
-  val taxPayerFile     = "taxPayerDetails.json"
+  val taxPayerFile     = "sa/taxPayerDetails.json"
   val currentYear: Int = LocalDate.now().getYear
 
   trait Test {
@@ -90,7 +90,7 @@ class Ddcnl5893 extends SaTestHelper {
               WireMock
                 .get(urlEqualTo(odsUrl(taxYear)))
                 .willReturn(
-                  ok(FileHelper.loadFile("regressions/DDCNL-5893-1.json").replace("<year>", taxYear.toString))
+                  ok(FileHelper.loadFile("sa/regressions/DDCNL-5893-1.json").replace("<year>", taxYear.toString))
                 )
             )
 
@@ -147,7 +147,7 @@ class Ddcnl5893 extends SaTestHelper {
                 .get(urlEqualTo(odsUrl(taxYear)))
                 .willReturn(
                   ok(
-                    FileHelper.loadFile("regressions/DDCNL-5893-2.json").replace("<year>", taxYear.toString)
+                    FileHelper.loadFile("sa/regressions/DDCNL-5893-2.json").replace("<year>", taxYear.toString)
                   )
                 )
             )
@@ -206,7 +206,7 @@ class Ddcnl5893 extends SaTestHelper {
                 .get(urlEqualTo(odsUrl(taxYear)))
                 .willReturn(
                   ok(
-                    FileHelper.loadFile("regressions/DDCNL-5893-3.json").replace("<year>", taxYear.toString)
+                    FileHelper.loadFile("sa/regressions/DDCNL-5893-3.json").replace("<year>", taxYear.toString)
                   )
                 )
             )

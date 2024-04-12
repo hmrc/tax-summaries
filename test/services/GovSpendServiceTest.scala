@@ -22,27 +22,6 @@ import utils.BaseSpec
 class GovSpendServiceTest extends BaseSpec {
 
   "govSpending" must {
-    "return correct amounts for 2016" in {
-      val result: Map[GoodsAndServices, Double] =
-        new GovSpendService(applicationConfig).govSpending(2016)
-
-      result.get(Welfare) mustBe Some(25.00)
-      result.get(Health) mustBe Some(19.90)
-      result.get(StatePensions) mustBe Some(12.80)
-      result.get(Education) mustBe Some(12.00)
-      result.get(Defence) mustBe Some(5.20)
-      result.get(NationalDebtInterest) mustBe Some(5.30)
-      result.get(PublicOrderAndSafety) mustBe Some(4.30)
-      result.get(Transport) mustBe Some(4.00)
-      result.get(BusinessAndIndustry) mustBe Some(2.40)
-      result.get(GovernmentAdministration) mustBe Some(2.00)
-      result.get(Culture) mustBe Some(1.60)
-      result.get(Environment) mustBe Some(1.70)
-      result.get(HousingAndUtilities) mustBe Some(1.40)
-      result.get(OverseasAid) mustBe Some(1.20)
-      result.get(UkContributionToEuBudget) mustBe Some(1.10)
-    }
-
     "return correct amounts for 2022" in {
       val result: Map[GoodsAndServices, Double] =
         new GovSpendService(applicationConfig).govSpending(2022)

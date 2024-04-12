@@ -36,7 +36,7 @@ class HasSummarySpec extends IntegrationSpec {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrl))
-          .willReturn(ok(FileHelper.loadFile("odsData.json")))
+          .willReturn(ok(FileHelper.loadFile("paye/odsData.json")))
       )
 
       val result = route(app, request)
@@ -110,7 +110,7 @@ class HasSummarySpec extends IntegrationSpec {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrl))
-          .willReturn(ok(FileHelper.loadFile("odsData.json")).withFixedDelay(10000))
+          .willReturn(ok(FileHelper.loadFile("paye/odsData.json")).withFixedDelay(10000))
       )
 
       val result = route(app, request)
