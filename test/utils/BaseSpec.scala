@@ -44,6 +44,6 @@ class BaseSpec
   implicit lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
   implicit lazy val hc: HeaderCarrier                          = HeaderCarrier()
 
-  val fakeTaxYear = 2023
+  val fakeTaxYear = 2024
 
 }

@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 
 class OdsServiceSpec extends BaseSpec {
-  private val taxYear                            = 2023
+  private val taxYear                            = fakeTaxYear
   private implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   private val odsConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
