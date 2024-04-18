@@ -76,14 +76,8 @@ class OdsService @Inject() (
             notFoundCount = 0
           )
       }
-    // Below to track any issue with large ranges: there should never be more than 4 years
-    val rangeToUse                                       = if (range.size > 4) {
-      logger.warn(s"Range $range has size > 4. Will truncate to last 4 items")
-      range.takeRight(4)
-    } else {
-      range
-    }
-    Future.sequence(rangeToUse.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
+
+    Future.sequence(range.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
       InterimResult(
         processedYears = seqInterimResult.flatMap(_.processedYears),
         failureInfo = seqInterimResult.flatMap(_.failureInfo),
