@@ -91,7 +91,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
       }
     }
 
-    "return 400" when {
+    "return 404" when {
 
       "connector returns a left with BadRequestError" in {
 
@@ -102,7 +102,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe msg
       }
     }
@@ -173,7 +173,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
       }
     }
 
-    "return 400" when {
+    "return 404" when {
 
       "connector returns a left with BadRequestError" in {
 
@@ -183,7 +183,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val result = controller.hasAts(testUtr)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe upstreamError.getMessage
       }
     }
@@ -260,7 +260,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
       }
     }
 
-    "return 400" when {
+    "return 404" when {
 
       "connector returns a left with BadRequestError" in {
 
@@ -271,7 +271,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val result = controller.getAtsSaList(testUtr, 2021, 5)(request)
 
-        status(result) mustBe INTERNAL_SERVER_ERROR
+        status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe upstreamError.getMessage
       }
     }

@@ -34,15 +34,13 @@ class ATSErrorHandlerSpec extends BaseSpec {
 
         result mustBe NotFound(error.message)
       }
-    }
 
-    "return badRequest response" when {
       "an upstreamErrorResponse with status 400 is received" in {
         val error = UpstreamErrorResponse("Not found", BAD_REQUEST, INTERNAL_SERVER_ERROR)
 
         val result = sut.errorToResponse(error)
 
-        result mustBe InternalServerError(error.message)
+        result mustBe NotFound(error.message)
       }
     }
   }
