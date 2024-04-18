@@ -71,7 +71,7 @@ class OdsService @Inject() (
         case Right(response)                                         =>
           InterimResult(
             processedYears =
-              if (jsonHelper.getATSCalculations(taxYear, response.json).hasLiability) Seq(taxYear) else Nil,
+              if (jsonHelper.getATSCalculations(taxYear, response.json).exists(_.hasLiability)) Seq(taxYear) else Nil,
             failureInfo = Nil,
             notFoundCount = 0
           )

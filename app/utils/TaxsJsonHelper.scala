@@ -29,12 +29,16 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int)(implicit
     hc: HeaderCarrier
   ): JsValue = {
-    val taxRate      = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-    val calculations = ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate)
-    Json.toJson(aTSRawDataTransformer.atsDataDTO(taxRate, calculations, rawTaxpayerJson, UTR, taxYear))
+    val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate) match {
+      case Some(calculations) =>
+        Json.toJson(aTSRawDataTransformer.atsDataDTO(taxRate, calculations, rawTaxpayerJson, UTR, taxYear))
+      case _                  => Json.obj()
+    }
+
   }
 
-  def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): ATSCalculations = {
+  def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] = {
     val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
     ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate)
   }

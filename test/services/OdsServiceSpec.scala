@@ -48,7 +48,7 @@ class OdsServiceSpec extends BaseSpec {
   private val mockTaxRateService = mock[TaxRateService]
 
   private def atsCalculations(taxYear: Int, amount: BigDecimal) =
-    new ATSCalculations {
+    Some(new ATSCalculations {
       override protected val summaryData: TaxSummaryLiability = TaxSummaryLiability(
         taxYear,
         PensionTaxRate(0),
@@ -59,7 +59,7 @@ class OdsServiceSpec extends BaseSpec {
       override protected val taxRates: TaxRateService         = mockTaxRateService
 
       override def taxLiability: Amount = Amount(amount, "GBP")
-    }
+    })
 
   private implicit def convertIntToSeqInt(i: Int): Seq[Int] = Seq(i)
 

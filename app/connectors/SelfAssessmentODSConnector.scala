@@ -134,7 +134,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
   def ifUrl(path: String): String = s"${applicationConfig.ifBaseURL}$path"
 
   private def createHeader(ifToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
-    if (ifToggle)
+    if (ifToggle) {
       Seq(
         "Environment"          -> applicationConfig.ifEnvironment,
         "Authorization"        -> applicationConfig.ifAuthorization,
@@ -143,14 +143,15 @@ class DefaultSelfAssessmentODSConnector @Inject() (
         "CorrelationId"        -> UUID.randomUUID().toString,
         "OriginatorId"         -> applicationConfig.ifOriginatorId
       )
-    else
+    } else {
       Seq(
         HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
         HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
         "CorrelationId"        -> UUID.randomUUID().toString
       )
+    }
 
-  def readEitherOfWithNotFound[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
+  private def readEitherOfWithNotFound[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
     HttpReads.ask.flatMap {
       case (_, _, response) if response.status == NOT_FOUND => HttpReads[A].map(Right.apply)
       case _                                                => HttpReads[Either[UpstreamErrorResponse, A]]
@@ -163,8 +164,11 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     featureFlagService.getAsEitherT(SelfAssessmentDetailsFromIfToggle).flatMap { toggle =>
       val path = "/self-assessment/individuals/" + utr + "/annual-tax-summaries/" + taxYear
       val url  =
-        if (toggle.isEnabled) ifUrl(path)
-        else desUrl(path)
+        if (toggle.isEnabled) {
+          ifUrl(path)
+        } else {
+          desUrl(path)
+        }
 
       httpClientResponse.read(
         httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](

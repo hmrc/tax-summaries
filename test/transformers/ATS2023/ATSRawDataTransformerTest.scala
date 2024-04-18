@@ -35,7 +35,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   "The total income before tax" must {
     "parse the tax rates transformation (based on utr year:2023 data)" in {
       val parsedJson   = Json.parse(sampleJson)
-      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
+      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate).get
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
