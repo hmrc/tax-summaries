@@ -22,7 +22,7 @@ import cats.data.EitherT
 import controllers.auth.{AuthJourney, FakeAuthAction, FakeAuthJourney, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
-import play.api.http.Status._
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Result}
 import play.api.test.FakeRequest
@@ -55,12 +55,10 @@ class AtsPayeDataControllerTest extends BaseSpec {
   val expectedResponseCY: PayeAtsMiddleTier      = PayeAtsMiddleTier(cy, testNino, None, None, None, None, None)
   val expectedResponseCYPlus1: PayeAtsMiddleTier = PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None)
 
-  val notFoundError: UpstreamErrorResponse             = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
-  val badRequestError: UpstreamErrorResponse           = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
-  val unauthoriusedRequestError: UpstreamErrorResponse =
-    UpstreamErrorResponse("Unauthorised", UNAUTHORIZED, INTERNAL_SERVER_ERROR)
-  val downstreamClientError: UpstreamErrorResponse     = UpstreamErrorResponse("", LOCKED, INTERNAL_SERVER_ERROR)
-  val downstreamServerError: UpstreamErrorResponse     =
+  val notFoundError: UpstreamErrorResponse         = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
+  val badRequestError: UpstreamErrorResponse       = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)
+  val downstreamClientError: UpstreamErrorResponse = UpstreamErrorResponse("", LOCKED, INTERNAL_SERVER_ERROR)
+  val downstreamServerError: UpstreamErrorResponse =
     UpstreamErrorResponse("", INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
 
   override def beforeEach(): Unit = {
@@ -81,11 +79,11 @@ class AtsPayeDataControllerTest extends BaseSpec {
 
     "return a failed future" in new TestController {
       when(npsService.getPayeATSData(eqTo(testNino), eqTo(cy))(any[HeaderCarrier]))
-        .thenReturn(EitherT.leftT(unauthoriusedRequestError))
+        .thenReturn(EitherT.leftT(badRequestError))
       val result: Future[Result] = getAtsPayeData(testNino, cy)(request)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      contentAsString(result) mustBe unauthoriusedRequestError.message
+      contentAsString(result) mustBe badRequestError.message
     }
   }
 
@@ -111,6 +109,9 @@ class AtsPayeDataControllerTest extends BaseSpec {
 
         status(result) mustBe NOT_FOUND
       }
+    }
+
+    "return BAD_REQUEST" when {
 
       "the service returns bad request" in new TestController {
         when(npsService.getAtsPayeDataMultipleYears(eqTo(testNino), any())(any[HeaderCarrier]))
@@ -118,7 +119,7 @@ class AtsPayeDataControllerTest extends BaseSpec {
 
         val result: Future[Result] = getAtsPayeDataMultipleYears(testNino, cy, cyPlus1)(request)
 
-        status(result) mustBe NOT_FOUND
+        status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
 

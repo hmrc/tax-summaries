@@ -39,7 +39,7 @@ class AtsPayeDataController @Inject() (
       npsService
         .getPayeATSData(nino, taxYear)
         .fold(
-          error => atsErrorHandler.errorToResponse(error),
+          error => atsErrorHandler.payeErrorToResponse(error),
           result => Ok(Json.toJson(result))
         )
   }
@@ -49,7 +49,7 @@ class AtsPayeDataController @Inject() (
       npsService
         .getAtsPayeDataMultipleYears(nino, (yearFrom to yearTo).toList)
         .fold(
-          error => atsErrorHandler.errorToResponse(error),
+          error => atsErrorHandler.payeErrorToResponse(error),
           result => if (result.isEmpty) NotFound("") else Ok(Json.toJson(result))
         )
     }

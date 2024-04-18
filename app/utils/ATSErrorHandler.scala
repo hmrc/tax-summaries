@@ -25,7 +25,15 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class ATSErrorHandler @Inject() () extends Logging {
 
-  def errorToResponse(error: UpstreamErrorResponse): Result =
+  def payeErrorToResponse(error: UpstreamErrorResponse): Result =
+    error match {
+      case error if error.statusCode == NOT_FOUND         => NotFound(error.message)
+      case error if error.statusCode == TOO_MANY_REQUESTS => TooManyRequests
+      case error if error.statusCode < 498                => InternalServerError(error.message)
+      case error                                          => BadGateway(error.message)
+    }
+
+  def saErrorToResponse(error: UpstreamErrorResponse): Result =
     error match {
       case error if error.statusCode == NOT_FOUND         => NotFound(error.message)
       case error if error.statusCode == BAD_REQUEST       =>

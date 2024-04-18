@@ -24,13 +24,13 @@ class ATSErrorHandlerSpec extends BaseSpec {
 
   lazy val sut: ATSErrorHandler = app.injector.instanceOf[ATSErrorHandler]
 
-  "errorToResponse" must {
+  "saErrorToResponse" must {
 
     "return notFound response" when {
       "an upstreamErrorResponse with status 404 is received" in {
         val error = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
 
-        val result = sut.errorToResponse(error)
+        val result = sut.saErrorToResponse(error)
 
         result mustBe NotFound(error.message)
       }
@@ -38,40 +38,94 @@ class ATSErrorHandlerSpec extends BaseSpec {
       "an upstreamErrorResponse with status 400 is received" in {
         val error = UpstreamErrorResponse("Not found", BAD_REQUEST, INTERNAL_SERVER_ERROR)
 
-        val result = sut.errorToResponse(error)
+        val result = sut.saErrorToResponse(error)
 
         result mustBe NotFound(error.message)
       }
     }
-  }
 
-  "return TooManyRequests response" when {
-    "an upstreamErrorResponse with status 429 is received" in {
-      val error = UpstreamErrorResponse("Too many requests", TOO_MANY_REQUESTS, TOO_MANY_REQUESTS)
+    "return TooManyRequests response" when {
+      "an upstreamErrorResponse with status 429 is received" in {
+        val error = UpstreamErrorResponse("Too many requests", TOO_MANY_REQUESTS, TOO_MANY_REQUESTS)
 
-      val result = sut.errorToResponse(error)
+        val result = sut.saErrorToResponse(error)
 
-      result mustBe TooManyRequests
+        result mustBe TooManyRequests
+      }
+    }
+
+    "return BadGateway response" when {
+      "an upstreamErrorResponse with status 5XX is received" in {
+        val error = UpstreamErrorResponse("Error", INTERNAL_SERVER_ERROR, BAD_GATEWAY)
+
+        val result = sut.saErrorToResponse(error)
+
+        result mustBe BadGateway(error.message)
+      }
+    }
+
+    "return InternalError response" when {
+      "an upstreamErrorResponse with status 4XX and not 400 and 404 is received" in {
+        val error = UpstreamErrorResponse("Error", LOCKED, INTERNAL_SERVER_ERROR)
+
+        val result = sut.saErrorToResponse(error)
+
+        result mustBe InternalServerError(error.message)
+      }
     }
   }
 
-  "return BadGateway response" when {
-    "an upstreamErrorResponse with status 5XX is received" in {
-      val error = UpstreamErrorResponse("Error", INTERNAL_SERVER_ERROR, BAD_GATEWAY)
+  "payeErrorToResponse" must {
 
-      val result = sut.errorToResponse(error)
+    "return notFound response" when {
+      "an upstreamErrorResponse with status 404 is received" in {
+        val error = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
 
-      result mustBe BadGateway(error.message)
+        val result = sut.payeErrorToResponse(error)
+
+        result mustBe NotFound(error.message)
+      }
+    }
+
+    "return badRequest response" when {
+      "an upstreamErrorResponse with status 400 is received" in {
+        val error = UpstreamErrorResponse("Not found", BAD_REQUEST, INTERNAL_SERVER_ERROR)
+
+        val result = sut.payeErrorToResponse(error)
+
+        result mustBe InternalServerError(error.message)
+      }
+    }
+
+    "return TooManyRequests response" when {
+      "an upstreamErrorResponse with status 429 is received" in {
+        val error = UpstreamErrorResponse("Too many requests", TOO_MANY_REQUESTS, TOO_MANY_REQUESTS)
+
+        val result = sut.payeErrorToResponse(error)
+
+        result mustBe TooManyRequests
+      }
+    }
+
+    "return BadGateway response" when {
+      "an upstreamErrorResponse with status 5XX is received" in {
+        val error = UpstreamErrorResponse("Error", INTERNAL_SERVER_ERROR, BAD_GATEWAY)
+
+        val result = sut.payeErrorToResponse(error)
+
+        result mustBe BadGateway(error.message)
+      }
+    }
+
+    "return InternalError response" when {
+      "an upstreamErrorResponse with status 4XX and not 400 and 404 is received" in {
+        val error = UpstreamErrorResponse("Error", LOCKED, INTERNAL_SERVER_ERROR)
+
+        val result = sut.payeErrorToResponse(error)
+
+        result mustBe InternalServerError(error.message)
+      }
     }
   }
 
-  "return InternalError response" when {
-    "an upstreamErrorResponse with status 4XX and not 400 and 404 is received" in {
-      val error = UpstreamErrorResponse("Error", LOCKED, INTERNAL_SERVER_ERROR)
-
-      val result = sut.errorToResponse(error)
-
-      result mustBe InternalServerError(error.message)
-    }
-  }
 }
