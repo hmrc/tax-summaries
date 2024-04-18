@@ -497,10 +497,10 @@ class OdsServiceSpec extends BaseSpec {
     "return true where all but 1 year have no tax data or no tax liability found" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(OK, OK, NOT_FOUND, OK, OK)
+        responseStatusesToMockForSA = Seq(OK, NOT_FOUND, OK, OK)
       )
       whenClausesForATSCalculations(endTaxYear = currentTaxYear, values = Seq(BigDecimal(0), BigDecimal(0)))
-      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(0)))
+      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1)))
 
       whenReady(
         service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
@@ -521,10 +521,10 @@ class OdsServiceSpec extends BaseSpec {
     "return json with false value where all years have no tax data (+ must not do tax liability calculations) or no tax liability found" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(OK, NOT_FOUND, NOT_FOUND, OK, NOT_FOUND)
+        responseStatusesToMockForSA = Seq(OK, NOT_FOUND, OK, NOT_FOUND)
       )
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 1, values = Seq(BigDecimal(0)))
-      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 4, values = Seq(BigDecimal(0)))
+      whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(0)))
 
       whenReady(
         service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
@@ -537,7 +537,7 @@ class OdsServiceSpec extends BaseSpec {
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 1, 0)
+          expectedNumberOfCalls = Seq(1, 0, 1, 0)
         )
       }
     }
@@ -596,12 +596,12 @@ class OdsServiceSpec extends BaseSpec {
     "return json with true value when multiple HOD calls fail but doesn't retry because has found 1 tax year" in {
       whenClausesForSA(
         endTaxYear = currentTaxYear,
-        responseStatusesToMockForSA = Seq(OK, INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR, NOT_FOUND, NOT_FOUND)
+        responseStatusesToMockForSA = Seq(OK, INTERNAL_SERVER_ERROR, NOT_FOUND, NOT_FOUND)
       )
 
       whenClausesForATSCalculations(
         endTaxYear = currentTaxYear - 2,
-        values = Seq(BigDecimal(1), BigDecimal(1), BigDecimal(1))
+        values = Seq(BigDecimal(1), BigDecimal(1))
       )
 
       whenReady(
@@ -615,7 +615,7 @@ class OdsServiceSpec extends BaseSpec {
         )
         verifyATSCalculations(
           endTaxYear = currentTaxYear,
-          expectedNumberOfCalls = Seq(0, 0, 0, 0)
+          expectedNumberOfCalls = Seq(0, 0, 0)
         )
       }
     }

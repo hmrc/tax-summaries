@@ -76,8 +76,14 @@ class OdsService @Inject() (
             notFoundCount = 0
           )
       }
-
-    Future.sequence(range.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
+    // Below to track any issue with large ranges: there should never be more than 4 years
+    val rangeToUse                                       = if (range.size > 4) {
+      logger.warn(s"Range $range has size > 4. Will truncate to last 4 items")
+      range.takeRight(4)
+    } else {
+      range
+    }
+    Future.sequence(rangeToUse.map(taxYear => connectToSA(taxYear))).map { seqInterimResult =>
       InterimResult(
         processedYears = seqInterimResult.flatMap(_.processedYears),
         failureInfo = seqInterimResult.flatMap(_.failureInfo),
@@ -140,7 +146,7 @@ class OdsService @Inject() (
   def hasATS(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] = {
-    val startTaxYear   = TaxYear.current.startYear - 4
+    val startTaxYear   = TaxYear.current.startYear - 3
     val currentTaxYear = TaxYear.current.startYear
 
     val futureResult = findAllYears(utr, currentTaxYear to startTaxYear by -1).flatMap {
