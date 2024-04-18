@@ -18,6 +18,7 @@ package utils
 
 import com.google.inject.Inject
 import config.ApplicationConfig
+import models.AtsMiddleTierData.noAtsResult
 import models.{AtsYearList, TaxSummaryLiability}
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import services.TaxRateService
@@ -29,13 +30,13 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int)(implicit
     hc: HeaderCarrier
   ): JsValue = {
-    val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate) match {
+    val taxRate        = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+    val middleTierData = ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate) match {
       case Some(calculations) =>
-        Json.toJson(aTSRawDataTransformer.atsDataDTO(taxRate, calculations, rawTaxpayerJson, UTR, taxYear))
-      case _                  => Json.obj()
+        aTSRawDataTransformer.atsDataDTO(taxRate, calculations, rawTaxpayerJson, UTR, taxYear)
+      case _                  => noAtsResult(taxYear)
     }
-
+    Json.toJson(middleTierData)
   }
 
   def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] = {
