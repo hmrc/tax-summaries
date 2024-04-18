@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import connectors.SelfAssessmentODSConnector
 import play.api.Logger
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
 import services.OdsService._
@@ -36,6 +36,7 @@ class OdsService @Inject() (
 )(implicit ec: ExecutionContext) {
   private val logger = Logger(getClass.getName)
 
+  //scalastyle:off cyclomatic.complexity
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -52,6 +53,8 @@ class OdsService @Inject() (
       taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
                         case Right(response) if response.status == NOT_FOUND =>
                           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+                        case Left(error) if error.statusCode == BAD_REQUEST  =>
+                          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
                         case Right(response)                                 => Right(response.json.as[JsValue])
                         case Left(error)                                     => Left(error)
                       }
@@ -64,6 +67,7 @@ class OdsService @Inject() (
     def connectToSA(taxYear: Int): Future[InterimResult] =
       selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
         case Right(HttpResponse(NOT_FOUND, _, _))                    => InterimResult(Nil, Nil, 1)
+        case Left(error) if error.statusCode == BAD_REQUEST          => InterimResult(Nil, Nil, 0)
         case Left(error) if error.statusCode < INTERNAL_SERVER_ERROR =>
           logger.error(error.getMessage(), error)
           InterimResult(Nil, Nil, 0)

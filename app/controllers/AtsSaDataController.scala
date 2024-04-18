@@ -41,7 +41,7 @@ class AtsSaDataController @Inject() (
     odsService
       .getList(utr)
       .fold(
-        error => atsErrorHandler.saErrorToResponse(error),
+        error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)
       )
   }
@@ -50,7 +50,7 @@ class AtsSaDataController @Inject() (
     odsService
       .getPayload(utr, tax_year)
       .fold(
-        error => atsErrorHandler.saErrorToResponse(error),
+        error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)
       )
   }
@@ -81,7 +81,7 @@ class AtsSaDataController @Inject() (
       )
 
       response.fold(
-        error => atsErrorHandler.saErrorToResponse(error),
+        error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)
       )
   }

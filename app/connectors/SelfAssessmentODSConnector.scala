@@ -170,7 +170,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
           desUrl(path)
         }
 
-      httpClientResponse.read(
+      httpClientResponse.readSA(
         httpClient.GET[Either[UpstreamErrorResponse, HttpResponse]](
           url = url,
           headers = createHeader(toggle.isEnabled)
@@ -182,7 +182,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
+    httpClientResponse.readSA(
       httpClient
         .GET[Either[UpstreamErrorResponse, HttpResponse]](
           url = desUrl("/self-assessment/individuals/" + utr + "/annual-tax-summaries"),
