@@ -166,21 +166,21 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "return an empty amount for scottishIncomeTax" in {
 
-      calculation.get.scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxUK2020")
+      calculation.map(_.scottishIncomeTax) mustBe Some(Amount.empty("scottishIncomeTaxUK2020"))
     }
 
     "return empty for savingsRate" in {
 
-      calculation.get.savingsRate mustBe Amount.empty("savingsRateUK2020")
+      calculation.map(_.savingsRate) mustBe Some(Amount.empty("savingsRateUK2020"))
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.get.savingsRateAmount mustBe Amount.empty("savingsRateAmountUK2020")
+      calculation.map(_.savingsRateAmount) mustBe Some(Amount.empty("savingsRateAmountUK2020"))
     }
 
     "return empty for welshIncomeTax" in {
-      calculation.get.welshIncomeTax mustBe Amount.empty("welshIncomeTax")
+      calculation.map(_.welshIncomeTax) mustBe Some(Amount.empty("welshIncomeTax"))
     }
   }
 
@@ -190,45 +190,47 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     val calculation     = scottishFixture().calculation
 
     "return an empty amount for scottishIncomeTax" in {
-      calculation.get.scottishIncomeTax mustBe Amount.empty("scottishIncomeTaxScottish1019")
+      calculation.map(_.scottishIncomeTax) mustBe Some(Amount.empty("scottishIncomeTaxScottish1019"))
     }
 
     "return an empty amount for basicRateIncomeTaxAmount" in {
-      calculation.get.basicRateIncomeTaxAmount mustBe Amount.empty("basicRateIncomeTaxAmountScottish2020")
+      calculation.map(_.basicRateIncomeTaxAmount) mustBe Some(Amount.empty("basicRateIncomeTaxAmountScottish2020"))
     }
 
     "return an empty amount for higherRateIncomeTaxAmount" in {
-      calculation.get.higherRateIncomeTaxAmount mustBe Amount.empty("higherRateIncomeTaxAmountScottish2020")
+      calculation.map(_.higherRateIncomeTaxAmount) mustBe Some(Amount.empty("higherRateIncomeTaxAmountScottish2020"))
     }
 
     "return an empty amount for additionalRateIncomeTaxAmount" in {
-      calculation.get.additionalRateIncomeTaxAmount mustBe Amount.empty("additionalRateIncomeTaxAmountScottish2020")
+      calculation.map(_.additionalRateIncomeTaxAmount) mustBe Some(
+        Amount.empty("additionalRateIncomeTaxAmountScottish2020")
+      )
     }
 
     "return an empty amount for basicRateIncomeTax" in {
-      calculation.get.basicRateIncomeTax mustBe Amount.empty("basicRateIncomeTaxScottish2020")
+      calculation.map(_.basicRateIncomeTax) mustBe Some(Amount.empty("basicRateIncomeTaxScottish2020"))
     }
 
     "return an empty amount for higherRateIncomeTax" in {
-      calculation.get.higherRateIncomeTax mustBe Amount.empty("higherRateIncomeTaxScottish2020")
+      calculation.map(_.higherRateIncomeTax) mustBe Some(Amount.empty("higherRateIncomeTaxScottish2020"))
     }
 
     "return an empty amount for additionalRateIncomeTax" in {
-      calculation.get.additionalRateIncomeTax mustBe Amount.empty("additionalRateIncomeTaxScottish2020")
+      calculation.map(_.additionalRateIncomeTax) mustBe Some(Amount.empty("additionalRateIncomeTaxScottish2020"))
     }
 
     "return empty for savingsRate" in {
 
-      calculation.get.savingsRate mustBe Amount.empty("savingsRateScottish2020")
+      calculation.map(_.savingsRate) mustBe Some(Amount.empty("savingsRateScottish2020"))
     }
 
     "return empty for savingsRateAmount" in {
 
-      calculation.get.savingsRateAmount mustBe Amount.empty("savingsRateAmountScottish2020")
+      calculation.map(_.savingsRateAmount) mustBe Some(Amount.empty("savingsRateAmountScottish2020"))
     }
 
     "return empty for welshIncomeTax" in {
-      calculation.get.welshIncomeTax mustBe Amount.empty("welshIncomeTax")
+      calculation.map(_.welshIncomeTax) mustBe Some(Amount.empty("welshIncomeTax"))
     }
 
     "scottishStarterRateTaxAmount includes pension tax when pension rate matches starter rate" in {
@@ -241,9 +243,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           PensionLsumTaxDue           -> Amount.gbp(pension, PensionLsumTaxDue.apiValue)
         )
 
-        sut.calculation.get.scottishStarterRateTax mustBe Amount.gbp(
-          income + pension,
-          s"$income(taxOnPaySSR) + $pension(ctnPensionLsumTaxDueAmt)"
+        sut.calculation.map(_.scottishStarterRateTax) mustBe Some(
+          Amount.gbp(
+            income + pension,
+            s"$income(taxOnPaySSR) + $pension(ctnPensionLsumTaxDueAmt)"
+          )
         )
       }
     }
@@ -258,9 +262,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           PensionLsumTaxDue  -> Amount.gbp(pension, PensionLsumTaxDue.apiValue)
         )
 
-        sut.calculation.get.scottishBasicRateTax.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(ctnIncomeTaxBasicRate) + $pension(ctnPensionLsumTaxDueAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishBasicRateTax.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(ctnIncomeTaxBasicRate) + $pension(ctnPensionLsumTaxDueAmt)")
+            .roundAmount()
+        )
       }
     }
 
@@ -274,9 +280,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           PensionLsumTaxDue                -> Amount.gbp(pension, PensionLsumTaxDue.apiValue)
         )
 
-        sut.calculation.get.scottishIntermediateRateTax.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(taxOnPaySIR) + $pension(ctnPensionLsumTaxDueAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishIntermediateRateTax.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(taxOnPaySIR) + $pension(ctnPensionLsumTaxDueAmt)")
+            .roundAmount()
+        )
       }
     }
 
@@ -290,9 +298,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           PensionLsumTaxDue   -> Amount.gbp(pension, PensionLsumTaxDue.apiValue)
         )
 
-        sut.calculation.get.scottishHigherRateTax.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(ctnIncomeTaxHigherRate) + $pension(ctnPensionLsumTaxDueAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishHigherRateTax.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(ctnIncomeTaxHigherRate) + $pension(ctnPensionLsumTaxDueAmt)")
+            .roundAmount()
+        )
       }
     }
 
@@ -306,9 +316,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           PensionLsumTaxDue    -> Amount.gbp(pension, PensionLsumTaxDue.apiValue)
         )
 
-        sut.calculation.get.scottishAdditionalRateTax.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(ctnIncomeTaxAddHighRate) + $pension(ctnPensionLsumTaxDueAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishAdditionalRateTax.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(ctnIncomeTaxAddHighRate) + $pension(ctnPensionLsumTaxDueAmt)")
+            .roundAmount()
+        )
       }
     }
 
@@ -322,9 +334,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           StatePensionGross             -> Amount.gbp(pension, StatePensionGross.apiValue)
         )
 
-        sut.calculation.get.scottishStarterRateIncome.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(taxablePaySSR) + $pension(itfStatePensionLsGrossAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishStarterRateIncome.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(taxablePaySSR) + $pension(itfStatePensionLsGrossAmt)")
+            .roundAmount()
+        )
       }
     }
 
@@ -338,9 +352,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           StatePensionGross         -> Amount.gbp(pension, StatePensionGross.apiValue)
         )
 
-        sut.calculation.get.scottishBasicRateIncome.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(ctnIncomeChgbleBasicRate) + $pension(itfStatePensionLsGrossAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishBasicRateIncome.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(ctnIncomeChgbleBasicRate) + $pension(itfStatePensionLsGrossAmt)")
+            .roundAmount()
+        )
       }
     }
 
@@ -371,9 +387,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           StatePensionGross          -> Amount.gbp(pension, StatePensionGross.apiValue)
         )
 
-        sut.calculation.get.scottishHigherRateIncome.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(ctnIncomeChgbleHigherRate) + $pension(itfStatePensionLsGrossAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishHigherRateIncome.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(ctnIncomeChgbleHigherRate) + $pension(itfStatePensionLsGrossAmt)")
+            .roundAmount()
+        )
       }
     }
 
@@ -387,9 +405,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           StatePensionGross        -> Amount.gbp(pension, StatePensionGross.apiValue)
         )
 
-        sut.calculation.get.scottishAdditionalRateIncome.roundAmount() mustBe Amount
-          .gbp(income + pension, s"$income(ctnIncomeChgbleAddHRate) + $pension(itfStatePensionLsGrossAmt)")
-          .roundAmount()
+        sut.calculation.map(_.scottishAdditionalRateIncome.roundAmount()) mustBe Some(
+          Amount
+            .gbp(income + pension, s"$income(ctnIncomeChgbleAddHRate) + $pension(itfStatePensionLsGrossAmt)")
+            .roundAmount()
+        )
       }
     }
 
