@@ -182,14 +182,11 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def welshIncomeTax: Amount = Amount.empty("welshIncomeTax")
 
   def otherAdjustmentsIncreasing: Amount =
-    (
-      get(NonDomCharge) +
-        get(TaxExcluded) +
-        get(IncomeTaxDue) +
-        get(NetAnnuityPaytsTaxDue) +
-        get(ChildBenefitCharge) +
-        get(PensionSavingChargeable)
-    ) - get(TaxDueAfterAllceRlf)
+    get(NonDomCharge) +
+      get(GiftAidTaxReduced) +
+      get(NetAnnuityPaytsTaxDue) +
+      get(ChildBenefitCharge) +
+      get(PensionSavingChargeable)
 
   def otherAdjustmentsReducing: Amount =
     get(DeficiencyRelief) +
