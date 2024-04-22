@@ -24,7 +24,7 @@ import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import repositories.TaxSummariesSessionCacheRepository
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import utils.{BaseSpec, WireMockHelper}
 
@@ -35,7 +35,6 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
   val mockSelfAssessmentODSConnector: SelfAssessmentODSConnector     = mock[SelfAssessmentODSConnector]
   val mockSessionCacheRepository: TaxSummariesSessionCacheRepository = mock[TaxSummariesSessionCacheRepository]
 
-  override implicit val hc: HeaderCarrier         = HeaderCarrier()
   override implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
   override implicit lazy val app: Application = app(
