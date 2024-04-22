@@ -17,10 +17,10 @@
 package models
 
 import errors.AtsError
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class AtsMiddleTierTaxpayerData(taxpayer_name: Option[Map[String, String]], taxpayer_data_errors: Option[AtsError])
 
 object AtsMiddleTierTaxpayerData {
-  implicit val formats = Json.format[AtsMiddleTierTaxpayerData]
+  implicit val formats: OFormat[AtsMiddleTierTaxpayerData] = Json.format[AtsMiddleTierTaxpayerData]
 }

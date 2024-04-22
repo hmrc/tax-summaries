@@ -18,7 +18,7 @@ package models
 
 import config.ApplicationConfig
 import errors.AtsError
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import services.{GoodsAndServices, GovSpendService}
 
 case class GovernmentSpendingOutputWrapper(
@@ -29,7 +29,7 @@ case class GovernmentSpendingOutputWrapper(
 )
 
 object GovernmentSpendingOutputWrapper {
-  implicit val formats = Json.format[GovernmentSpendingOutputWrapper]
+  implicit val formats: OFormat[GovernmentSpendingOutputWrapper] = Json.format[GovernmentSpendingOutputWrapper]
 
   def apply(
     applicationConfig: ApplicationConfig,

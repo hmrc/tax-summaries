@@ -16,11 +16,11 @@
 
 package controllers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
 import cats.data.EitherT
 import controllers.auth.{AuthJourney, FakeAuthAction, FakeAuthJourney, PayeAuthAction}
 import models.paye.PayeAtsMiddleTier
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, LOCKED, NOT_FOUND}
 import play.api.libs.json.Json

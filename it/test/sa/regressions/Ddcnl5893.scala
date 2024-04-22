@@ -88,9 +88,9 @@ class Ddcnl5893 extends SaTestHelper {
           s"return the correct key $key" in new Test {
             server.stubFor(
               WireMock
-                .get(urlEqualTo(odsUrl(taxYear)))
+                .get(urlEqualTo(odsUrl(this.taxYear)))
                 .willReturn(
-                  ok(FileHelper.loadFile("sa/regressions/DDCNL-5893-1.json").replace("<year>", taxYear.toString))
+                  ok(FileHelper.loadFile("sa/regressions/DDCNL-5893-1.json").replace("<year>", this.taxYear.toString))
                 )
             )
 
@@ -144,10 +144,10 @@ class Ddcnl5893 extends SaTestHelper {
           s"return the correct key $key" in new Test {
             server.stubFor(
               WireMock
-                .get(urlEqualTo(odsUrl(taxYear)))
+                .get(urlEqualTo(odsUrl(this.taxYear)))
                 .willReturn(
                   ok(
-                    FileHelper.loadFile("sa/regressions/DDCNL-5893-2.json").replace("<year>", taxYear.toString)
+                    FileHelper.loadFile("sa/regressions/DDCNL-5893-2.json").replace("<year>", this.taxYear.toString)
                   )
                 )
             )
@@ -203,10 +203,10 @@ class Ddcnl5893 extends SaTestHelper {
           s"return the correct key $key" in new Test {
             server.stubFor(
               WireMock
-                .get(urlEqualTo(odsUrl(taxYear)))
+                .get(urlEqualTo(odsUrl(this.taxYear)))
                 .willReturn(
                   ok(
-                    FileHelper.loadFile("sa/regressions/DDCNL-5893-3.json").replace("<year>", taxYear.toString)
+                    FileHelper.loadFile("sa/regressions/DDCNL-5893-3.json").replace("<year>", this.taxYear.toString)
                   )
                 )
             )

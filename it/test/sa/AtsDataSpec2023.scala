@@ -571,7 +571,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       // Tax Free Amount
       PersonalTaxFreeAmount              -> 0.0, //LS8.1 tax free amount
       MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 Marriage Allowance transferred
-      OtherAllowancesAmount              -> 13186.00, //LS9 Other allowances, deducations and expenses
+      OtherAllowancesAmount              -> 13186.00, //LS9 Other allowances, deductions and expenses
       TotalTaxFreeAmount                 -> 13186.0, //LS10 Less your total tax free amount
       // LS11 You pay tax on
 
@@ -644,7 +644,7 @@ class AtsDataSpec2023 extends SaTestHelper {
       // Tax Free Amount
       PersonalTaxFreeAmount              -> 0.0, //LS8.1 tax free amount
       MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 Marriage Allowance transferred
-      OtherAllowancesAmount              -> 0.00, //LS9 Other allowances, deducations and expenses
+      OtherAllowancesAmount              -> 0.00, //LS9 Other allowances, deductions and expenses
       TotalTaxFreeAmount                 -> 0.0, //LS10 Less your total tax free amount
       // LS11 You pay tax on
 

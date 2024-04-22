@@ -16,9 +16,9 @@
 
 package utils
 
-import akka.Done
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
+import org.apache.pekko.Done
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
