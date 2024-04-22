@@ -16,8 +16,8 @@
 
 package controllers
 
-import akka.stream.Materializer
 import controllers.auth.FakeAuthAction
+import org.apache.pekko.stream.Materializer
 import org.mockito.ArgumentMatchers.{eq => meq}
 import play.api.http.Status.OK
 import play.api.test.FakeRequest

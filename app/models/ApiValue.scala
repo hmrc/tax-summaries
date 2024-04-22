@@ -18,11 +18,12 @@ package models
 
 import play.api.libs.json._
 
-import scala.annotation.tailrec
+import scala.annotation.{nowarn, tailrec}
 import scala.collection.{Map => CMap}
 
 abstract class ApiValue(val apiValue: String)
 
+@nowarn("msg=in method readsMap is never used")
 object ApiValue extends DefaultReads {
 
   private def readKeyValue[K <: ApiValue](key: String, ls: List[K]): JsResult[K] =
