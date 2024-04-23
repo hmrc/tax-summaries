@@ -28,10 +28,7 @@ object AppDependencies {
     filters,
     ws,
     "uk.gov.hmrc"       %% s"bootstrap-backend-$playVersion" % bootstrapVersion,
-    "uk.gov.hmrc"       %% s"http-caching-client-$playVersion"             % "11.2.0",
     "uk.gov.hmrc"       %% s"domain-$playVersion"                          % "9.0.0",
-    "com.github.java-json-tools"     % "json-schema-validator"           % jsonSchemaValidatorVersion,
-    "uk.gov.hmrc.mongo" %% s"hmrc-mongo-$playVersion"        % hmrcMongoVersion,
     "org.typelevel"     %% "cats-core"                       % "2.10.0",
     "uk.gov.hmrc"       %% "tax-year"                   % "4.0.0",
     "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion"    % "1.3.0"
@@ -41,8 +38,6 @@ object AppDependencies {
     "uk.gov.hmrc"         %% s"bootstrap-test-$playVersion"  % bootstrapVersion,
     "org.mockito"         %% "mockito-scala-scalatest"       % "1.17.31",
     "org.scalatestplus"   %% "scalacheck-1-17"               % "3.2.18.0",
-    "org.jsoup"            % "jsoup"                         % "1.17.2",
-    "com.github.java-json-tools"       % "json-schema-validator"         % jsonSchemaValidatorVersion,
     "uk.gov.hmrc.mongo"   %% s"hmrc-mongo-test-$playVersion" % hmrcMongoVersion
   ).map(_ % "test")
 
