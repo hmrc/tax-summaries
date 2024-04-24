@@ -18,12 +18,11 @@ package models
 
 import play.api.libs.json._
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.{Map => CMap}
 
 abstract class ApiValue(val apiValue: String)
 
-@nowarn("msg=in method readsMap is never used")
 object ApiValue extends DefaultReads {
 
   private def readKeyValue[K <: ApiValue](key: String, ls: List[K]): JsResult[K] =
@@ -55,7 +54,7 @@ object ApiValue extends DefaultReads {
       }
     }
 
-  private def readsMap[K <: ApiValue, V: Reads](ls: List[K], reads: Reads[V]): Reads[Map[K, V]] = Reads {
+  private def readsMap[K <: ApiValue, V](ls: List[K], reads: Reads[V]): Reads[Map[K, V]] = Reads {
     case JsObject(m) => readMapRecursive(m, ls, reads, Nil, Nil)
     case _           => JsError("error.expected.jsobject")
   }

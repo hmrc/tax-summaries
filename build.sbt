@@ -26,10 +26,7 @@ ThisBuild / scalaVersion := scala2_13
 ThisBuild / scalafmtOnCompile := true
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(play.sbt.PlayScala,
-    SbtAutoBuildPlugin,
-    SbtGitVersioning,
-    SbtDistributablesPlugin)
+  .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
     PlayKeys.playDefaultPort := 9323,
