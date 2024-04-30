@@ -35,7 +35,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   "The total income before tax" must {
     "parse the tax rates transformation (based on utr year:2023 data)" in {
       val parsedJson   = Json.parse(sampleJson)
-      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate).get
+      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate)
 
       val returnValue: AtsMiddleTierData =
         SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
@@ -44,7 +44,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val testYear: Int = 2023
       testYear mustEqual parsedYear
 
-      val parsedPayload = returnValue.income_tax.get.payload
+      val parsedPayload = returnValue.income_tax.get.payload.get
       val testPayload   =
         Map(
           StartingRateForSavingsAmount    -> Amount(0.00, "GBP"),
@@ -86,12 +86,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
           ScottishStarterIncome           -> Amount(2097.00, "GBP")
         )
 
-      parsedPayload
-        .map(_.map(x => x._1 -> x._2.amount) must contain allElementsOf testPayload.map(x => x._1 -> x._2.amount))
-        .getOrElse(fail("No calculation returned"))
+      parsedPayload.map(x => x._1 -> x._2.amount) must contain allElementsOf testPayload.map(x => x._1 -> x._2.amount)
 
-      val parsedRates = returnValue.income_tax.get.rates.get
-      val testRates   =
+      val parsedRates   = returnValue.income_tax.get.rates.get
+      val testRates     =
         Map(
           "starting_rate_for_savings_rate"  -> ApiRate("0%"),
           "basic_rate_income_tax_rate"      -> ApiRate("20%"),
