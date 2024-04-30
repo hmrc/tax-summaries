@@ -32,4 +32,5 @@ class ATSErrorHandler @Inject() () extends Logging {
       case error if error.statusCode < 498                => InternalServerError(error.message)
       case error                                          => BadGateway(error.message)
     }
+
 }

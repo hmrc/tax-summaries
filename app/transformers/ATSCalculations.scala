@@ -324,18 +324,23 @@ object ATSCalculations {
     )
   }
 
-  def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): ATSCalculations =
-    (calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
-      case Some(found) => found
+  def make(summaryData: TaxSummaryLiability, taxRates: TaxRateService): Option[ATSCalculations] =
+    calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
+      case Some(found) => Some(found(summaryData, taxRates))
       case None        =>
         val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
           .filter(_._1 == summaryData.nationality)
           .map(_._2)
           .max
         if (summaryData.taxYear > maxDefinedYearForCountry) {
-          calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))
+          Some(
+            calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))(
+              summaryData,
+              taxRates
+            )
+          )
         } else {
-          throw new RuntimeException(s"No calculations present for year ${summaryData.taxYear}")
+          None
         }
-    })(summaryData, taxRates)
+    }
 }
