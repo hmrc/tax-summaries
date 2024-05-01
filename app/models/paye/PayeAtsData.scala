@@ -47,14 +47,14 @@ case class PayeAtsData(
       nino,
       Some(createIncomeTaxData),
       Some(createSummaryData),
-      Some(createIncomeData(applicationConfig)),
+      Some(createIncomeData()),
       Some(createAllowanceData),
       Some(createGovSpendData(applicationConfig, taxYear))
     )
 
-  def optionToAmount(key: LiabilityKey, opt: Option[Double]): Amount =
+  private def optionToAmount(key: LiabilityKey, opt: Option[Double]): Amount =
     opt.fold(Amount.empty(key.apiValue))(Amount.gbp(_, key.apiValue))
-  def optionToRate(opt: Option[Double]): ApiRate                     = Rate(opt.getOrElse(0)).apiValue
+  private def optionToRate(opt: Option[Double]): ApiRate                     = Rate(opt.getOrElse(0)).apiValue
 
   private def createIncomeTaxData: DataHolder =
     DataHolder.make(createIncomeTaxPayload, createIncomeTaxRates)
@@ -152,7 +152,7 @@ case class PayeAtsData(
     NICS -> optionToRate(averageRateTax.map(_.toDouble))
   )
 
-  private def createIncomeData(applicationConfig: ApplicationConfig): DataHolder =
+  private def createIncomeData(): DataHolder =
     DataHolder.make(createIncomePayload)
 
   private def createIncomePayload: Map[LiabilityKey, Amount] =

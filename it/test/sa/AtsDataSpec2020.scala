@@ -19,8 +19,8 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import models.{Amount, AtsMiddleTierData, GovernmentSpendingOutputWrapper, SpendData}
 import models.LiabilityKey.{StatePension, _}
+import models.{Amount, AtsMiddleTierData, GovernmentSpendingOutputWrapper, SpendData}
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -154,7 +154,7 @@ class AtsDataSpec2020 extends SaTestHelper {
     }
 
     "return correct government spending" in new Test {
-      val expectedValue = GovernmentSpendingOutputWrapper(
+      val expectedValue: GovernmentSpendingOutputWrapper = GovernmentSpendingOutputWrapper(
         2020,
         Map(
           PublicOrderAndSafety     -> SpendData(Amount(274.21, "GBP"), 4.3),

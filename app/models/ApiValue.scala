@@ -54,7 +54,7 @@ object ApiValue extends DefaultReads {
       }
     }
 
-  private def readsMap[K <: ApiValue, V: Reads](ls: List[K], reads: Reads[V]): Reads[Map[K, V]] = Reads {
+  private def readsMap[K <: ApiValue, V](ls: List[K], reads: Reads[V]): Reads[Map[K, V]] = Reads {
     case JsObject(m) => readMapRecursive(m, ls, reads, Nil, Nil)
     case _           => JsError("error.expected.jsobject")
   }

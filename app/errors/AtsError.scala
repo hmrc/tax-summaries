@@ -16,10 +16,10 @@
 
 package errors
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class AtsError(error: String)
 
 object AtsError {
-  implicit val formats = Json.format[AtsError]
+  implicit val formats: OFormat[AtsError] = Json.format[AtsError]
 }

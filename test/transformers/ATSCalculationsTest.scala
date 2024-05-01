@@ -30,7 +30,7 @@ import scala.util.Random
 
 class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with DoubleUtils {
 
-  class CalcFixtures(val taxYear: Int, val origin: Nationality, applicationConfig: ApplicationConfig)(
+  class CalcFixtures(val taxYear: Int, val origin: Nationality)(
     pensionTaxRate: PensionTaxRate,
     newAtsData: (ODSLiabilities, Amount)*
   ) { self =>
@@ -70,16 +70,16 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
   class Fixture(val taxYear: Int, origin: Nationality, applicationConfig: ApplicationConfig = applicationConfig) {
 
     def apply(): CalcFixtures =
-      new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0))
+      new CalcFixtures(taxYear, origin)(PensionTaxRate(0))
 
     def apply(newPensionTaxRate: PensionTaxRate, newAtsData: (ODSLiabilities, Amount)*): CalcFixtures =
-      new CalcFixtures(taxYear, origin, applicationConfig)(newPensionTaxRate, newAtsData: _*)
+      new CalcFixtures(taxYear, origin)(newPensionTaxRate, newAtsData: _*)
 
     def apply(newAtsData: (ODSLiabilities, Amount)*): CalcFixtures =
-      new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0), newAtsData: _*)
+      new CalcFixtures(taxYear, origin)(PensionTaxRate(0), newAtsData: _*)
 
     def apply(newAtsData: List[(ODSLiabilities, Amount)]): CalcFixtures =
-      new CalcFixtures(taxYear, origin, applicationConfig)(PensionTaxRate(0), newAtsData: _*)
+      new CalcFixtures(taxYear, origin)(PensionTaxRate(0), newAtsData: _*)
   }
 
   val emptyValues: List[(ODSLiabilities, Amount)] = List(
