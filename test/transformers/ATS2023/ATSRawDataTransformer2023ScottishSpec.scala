@@ -30,7 +30,7 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
 
   private val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
-  private lazy val parsedJson = buildJsonPayload(tliSlpAtsData)
+  private lazy val parsedJson                     = buildJsonPayload(tliSlpAtsData)
   private lazy val returnValue: AtsMiddleTierData =
     atsRawDataTransformer.atsDataDTO(parsedJson, parsedTaxpayerDetailsJson, "", taxYear)
 
@@ -79,9 +79,9 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
       s"calculate field values correctly for $descr" when {
         val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
 
-//        act.foreach { y =>
-//          println(s"""${y._1} -> amt(BigDecimal(${y._2.amount}), "${y._2.calculus.get}"),""")
-//        }
+        //        act.foreach { y =>
+        //          println(s"""${y._1} -> amt(BigDecimal(${y._2.amount}), "${y._2.calculus.get}"),""")
+        //        }
 
         act.foreach { item =>
           exp.find(_._1 == item._1).map { actItem =>
@@ -102,7 +102,7 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
 object ATSRawDataTransformer2023ScottishSpec {
   private val taxYear: Int = 2023
 
-  private val tliSlpAtsData: Map[String, BigDecimal] = Map(
+  private val tliSlpAtsData: Map[String, BigDecimal]           = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(0.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(0.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(0.00),
@@ -231,90 +231,191 @@ object ATSRawDataTransformer2023ScottishSpec {
     "ctnTaxableCegSr"            -> BigDecimal(0.00),
     "ctnTaxOnCegSr"              -> BigDecimal(0.00),
     "ctnTaxableRedundancySsr"    -> BigDecimal(0.00)
-  )
-  
+  ).map(item => item._1 -> item._2.setScale(2))
+
   private def amt(value: BigDecimal, calculus: String): Amount = Amount(value, "GBP", Some(calculus))
 
+  private def calcExp(fieldNames: String*): Amount = {
+    val retrieveAmount: String => Amount = fieldName => {
+      val (name, isNull) = {
+        if (fieldName.endsWith(":null")) {
+          (fieldName.takeWhile(_ != ':'), true)
+        } else {
+          (fieldName, false)
+        }
+      }
+
+      if (isNull) {
+        Amount.empty(name)
+      } else {
+        val bdValue = tliSlpAtsData(name)
+        Amount(bdValue, "GBP", Some(s"$bdValue($name)"))
+      }
+    }
+
+    val initialValue = retrieveAmount(fieldNames.head)
+    fieldNames.tail.foldLeft[Amount](initialValue) { (c, i) =>
+      c + retrieveAmount(i)
+    }
+  }
+
+  private val fieldsOtherAdjustmentsReducing = Seq(
+    "ctnDeficiencyRelief",
+    "topSlicingRelief",
+    "ctnVctSharesReliefAmt",
+    "ctnEisReliefAmt",
+    "ctnSeedEisReliefAmt",
+    "ctnCommInvTrustRelAmt",
+    "ctnSocialInvTaxRelAmt",
+    "atsSurplusMcaAlimonyRel",
+    "alimony",
+    "ctnNotionalTaxCegs",
+    "ctnNotlTaxOthrSrceAmo",
+    "ctnFtcrRestricted",
+    "reliefForFinanceCosts",
+    "lfiRelief",
+    "ctnRelTaxAcctFor"
+  )
+
+  private val fieldsTotalIncomeTax = Seq(
+    "savingsRateAmountScottish2023:null",
+    "basicRateIncomeTaxAmountScottish2023:null",
+    "higherRateIncomeTaxAmountScottish2023:null",
+    "additionalRateIncomeTaxAmountScottish2023:null",
+    "ctnDividendTaxLowRate",
+    "ctnDividendTaxHighRate",
+    "ctnDividendTaxAddHighRate",
+    "nonDomChargeAmount",
+    "giftAidTaxReduced",
+    "netAnnuityPaytsTaxDue",
+    "ctnChildBenefitChrgAmt",
+    "ctnPensionSavingChrgbleAmt", // -
+    "ctnDeficiencyRelief",
+    "topSlicingRelief",
+    "ctnVctSharesReliefAmt",
+    "ctnEisReliefAmt",
+    "ctnSeedEisReliefAmt",
+    "ctnCommInvTrustRelAmt",
+    "ctnSocialInvTaxRelAmt",
+    "atsSurplusMcaAlimonyRel",
+    "alimony",
+    "ctnNotionalTaxCegs",
+    "ctnNotlTaxOthrSrceAmo",
+    "ctnFtcrRestricted",
+    "reliefForFinanceCosts",
+    "lfiRelief",
+    "ctnRelTaxAcctFor", // -
+    "ctnMarriageAllceInAmt",
+    "taxOnPaySSR",
+    "ctnTaxOnRedundancySsr",
+    "ctnPensionLsumTaxDueAmt:null",
+    "ctnIncomeTaxBasicRate",
+    "ctnTaxOnRedundancyBr",
+    "ctnPensionLsumTaxDueAmt:null",
+    "taxOnPaySIR",
+    "ctnTaxOnRedundancySir",
+    "ctnPensionLsumTaxDueAmt:null",
+    "ctnIncomeTaxHigherRate",
+    "ctnTaxOnRedundancyHr",
+    "ctnPensionLsumTaxDueAmt:null",
+    "ctnIncomeTaxAddHighRate",
+    "ctnTaxOnRedundancyAhr",
+    "ctnPensionLsumTaxDueAmt:null",
+    "ctnSavingsTaxLowerRate",
+    "ctnSavingsTaxHigherRate",
+    "ctnSavingsTaxAddHighRate",
+    "ctnTaxOnCegAhr"
+  )
+
   private val expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
-    StartingRateForSavingsAmount    -> amt(BigDecimal(0), "null (savingsRateAmountScottish2023)"),
-    OtherAdjustmentsReducing        -> amt(
-      BigDecimal(510),
-      "0.00(ctnDeficiencyRelief) + 0.00(topSlicingRelief) + 0.00(ctnVctSharesReliefAmt) + 0.00(ctnEisReliefAmt) + 0.00(ctnSeedEisReliefAmt) + 0.00(ctnCommInvTrustRelAmt) + 0.00(ctnSocialInvTaxRelAmt) + 0.00(atsSurplusMcaAlimonyRel) + 0.00(alimony) + 0.00(ctnNotionalTaxCegs) + 0.00(ctnNotlTaxOthrSrceAmo) + 0.00(ctnFtcrRestricted) + 500.00(reliefForFinanceCosts) + 0.00(lfiRelief) + 10.00(ctnRelTaxAcctFor)"
+    StartingRateForSavingsAmount    -> calcExp("savingsRateAmountScottish2023:null"),
+    OtherAdjustmentsReducing        -> calcExp(fieldsOtherAdjustmentsReducing: _*),
+    UpperRate                       -> calcExp("ctnDividendChgbleHighRate"),
+    SavingsLowerIncome              -> calcExp("ctnSavingsChgbleLowerRate"),
+    SavingsLowerRateTax             -> calcExp("ctnSavingsTaxLowerRate"),
+    ScottishIncomeTax               -> calcExp("scottishIncomeTaxScottish2023:null"),
+    ScottishIntermediateRateTax     -> calcExp("taxOnPaySIR", "ctnTaxOnRedundancySir", "ctnPensionLsumTaxDueAmt:null"),
+    MarriageAllowanceReceivedAmount -> calcExp("ctnMarriageAllceInAmt"),
+    OrdinaryRateAmount              -> calcExp("ctnDividendTaxLowRate"),
+    ScottishHigherIncome            -> calcExp(
+      "ctnIncomeChgbleHigherRate",
+      "ctnTaxableRedundancyHr",
+      "itfStatePensionLsGrossAmt:null"
     ),
-    UpperRate                       -> amt(BigDecimal(0.00), "0.00(ctnDividendChgbleHighRate)"),
-    SavingsLowerIncome              -> amt(BigDecimal(2678.00), "2678.00(ctnSavingsChgbleLowerRate)"),
-    SavingsLowerRateTax             -> amt(BigDecimal(535.60), "535.60(ctnSavingsTaxLowerRate)"),
-    ScottishIncomeTax               -> amt(BigDecimal(0), "null (scottishIncomeTaxScottish2023)"),
-    ScottishIntermediateRateTax     -> amt(
-      BigDecimal(1438.50),
-      "1438.50(taxOnPaySIR) + 0.00(ctnTaxOnRedundancySir) + null (ctnPensionLsumTaxDueAmt)"
+    ScottishStarterRateTax          -> calcExp("taxOnPaySSR", "ctnTaxOnRedundancySsr", "ctnPensionLsumTaxDueAmt:null"),
+    AdditionalRate                  -> calcExp("ctnDividendChgbleAddHRate"),
+    StartingRateForSavings          -> calcExp("savingsRateScottish2023:null"),
+    AdditionalRateIncomeTax         -> calcExp("additionalRateIncomeTaxScottish2023:null"),
+    SavingsAdditionalIncome         -> calcExp("ctnSavingsChgbleAddHRate"),
+    SavingsHigherIncome             -> calcExp("ctnSavingsChgbleHigherRate"),
+    ScottishAdditionalRateTax       -> calcExp(
+      "ctnIncomeTaxAddHighRate",
+      "ctnTaxOnRedundancyAhr",
+      "ctnPensionLsumTaxDueAmt:null"
     ),
-    MarriageAllowanceReceivedAmount -> amt(BigDecimal(0.00), "0.00(ctnMarriageAllceInAmt)"),
-    OrdinaryRateAmount              -> amt(BigDecimal(806.25), "806.25(ctnDividendTaxLowRate)"),
-    ScottishHigherIncome            -> amt(
-      BigDecimal(0.00),
-      "0.00(ctnIncomeChgbleHigherRate) + 0.00(ctnTaxableRedundancyHr) + null (itfStatePensionLsGrossAmt)"
+    OtherAdjustmentsIncreasing      -> calcExp(
+      "nonDomChargeAmount",
+      "giftAidTaxReduced",
+      "netAnnuityPaytsTaxDue",
+      "ctnChildBenefitChrgAmt",
+      "ctnPensionSavingChrgbleAmt"
     ),
-    ScottishStarterRateTax          -> amt(
-      BigDecimal(398.43),
-      "398.43(taxOnPaySSR) + 0.00(ctnTaxOnRedundancySsr) + null (ctnPensionLsumTaxDueAmt)"
+    HigherRateIncomeTax             -> calcExp("higherRateIncomeTaxScottish2023:null"),
+    ScottishBasicRateTax            -> calcExp("ctnIncomeTaxBasicRate", "ctnTaxOnRedundancyBr", "ctnPensionLsumTaxDueAmt:null"),
+    BasicRateIncomeTaxAmount        -> calcExp("basicRateIncomeTaxAmountScottish2023:null"),
+    AdditionalRateAmount            -> calcExp("ctnDividendTaxAddHighRate"),
+    WelshIncomeTax                  -> calcExp("welshIncomeTax:null"),
+    ScottishAdditionalIncome        -> calcExp(
+      "ctnIncomeChgbleAddHRate",
+      "ctnTaxableRedundancyAhr",
+      "itfStatePensionLsGrossAmt:null"
     ),
-    AdditionalRate                  -> amt(BigDecimal(0.00), "0.00(ctnDividendChgbleAddHRate)"),
-    StartingRateForSavings          -> amt(BigDecimal(0), "null (savingsRateScottish2023)"),
-    AdditionalRateIncomeTax         -> amt(BigDecimal(0), "null (additionalRateIncomeTaxScottish2023)"),
-    SavingsAdditionalIncome         -> amt(BigDecimal(0.00), "0.00(ctnSavingsChgbleAddHRate)"),
-    SavingsHigherIncome             -> amt(BigDecimal(0.00), "0.00(ctnSavingsChgbleHigherRate)"),
-    ScottishAdditionalRateTax       -> amt(
-      BigDecimal(0.00),
-      "0.00(ctnIncomeTaxAddHighRate) + 0.00(ctnTaxOnRedundancyAhr) + null (ctnPensionLsumTaxDueAmt)"
+    ScottishIntermediateIncome      -> calcExp("taxablePaySIR", "ctnTaxableRedundancySir", "itfStatePensionLsGrossAmt:null"),
+    UpperRateAmount                 -> calcExp("ctnDividendTaxHighRate"),
+    AdditionalRateIncomeTaxAmount   -> calcExp("additionalRateIncomeTaxAmountScottish2023:null"),
+    ScottishBasicIncome             -> calcExp(
+      "ctnIncomeChgbleBasicRate",
+      "ctnTaxableRedundancyBr",
+      "itfStatePensionLsGrossAmt:null"
     ),
-    OtherAdjustmentsIncreasing      -> amt(
-      BigDecimal(0.00),
-      "0.00(nonDomChargeAmount) + 0.00(giftAidTaxReduced) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt)"
+    ScottishTotalTax                -> calcExp(
+      "taxOnPaySSR",
+      "ctnTaxOnRedundancySsr",
+      "ctnPensionLsumTaxDueAmt:null",
+      "ctnIncomeTaxBasicRate",
+      "ctnTaxOnRedundancyBr",
+      "ctnPensionLsumTaxDueAmt:null",
+      "taxOnPaySIR",
+      "ctnTaxOnRedundancySir",
+      "ctnPensionLsumTaxDueAmt:null",
+      "ctnIncomeTaxHigherRate",
+      "ctnTaxOnRedundancyHr",
+      "ctnPensionLsumTaxDueAmt:null",
+      "ctnIncomeTaxAddHighRate",
+      "ctnTaxOnRedundancyAhr",
+      "ctnPensionLsumTaxDueAmt:null"
     ),
-    HigherRateIncomeTax             -> amt(BigDecimal(0), "null (higherRateIncomeTaxScottish2023)"),
-    ScottishBasicRateTax            -> amt(
-      BigDecimal(3483.80),
-      "3483.80(ctnIncomeTaxBasicRate) + 0.00(ctnTaxOnRedundancyBr) + null (ctnPensionLsumTaxDueAmt)"
-    ),
-    BasicRateIncomeTaxAmount        -> amt(BigDecimal(0), "null (basicRateIncomeTaxAmountScottish2023)"),
-    AdditionalRateAmount            -> amt(BigDecimal(0.00), "0.00(ctnDividendTaxAddHighRate)"),
-    WelshIncomeTax                  -> amt(BigDecimal(0), "null (welshIncomeTax)"),
-    ScottishAdditionalIncome        -> amt(
-      BigDecimal(0.00),
-      "0.00(ctnIncomeChgbleAddHRate) + 0.00(ctnTaxableRedundancyAhr) + null (itfStatePensionLsGrossAmt)"
-    ),
-    ScottishIntermediateIncome      -> amt(
-      BigDecimal(6850.00),
-      "6850.00(taxablePaySIR) + 0.00(ctnTaxableRedundancySir) + null (itfStatePensionLsGrossAmt)"
-    ),
-    UpperRateAmount                 -> amt(BigDecimal(0.00), "0.00(ctnDividendTaxHighRate)"),
-    AdditionalRateIncomeTaxAmount   -> amt(BigDecimal(0), "null (additionalRateIncomeTaxAmountScottish2023)"),
-    ScottishBasicIncome             -> amt(
-      BigDecimal(17419.00),
-      "17419.00(ctnIncomeChgbleBasicRate) + 0.00(ctnTaxableRedundancyBr) + null (itfStatePensionLsGrossAmt)"
-    ),
-    ScottishTotalTax                -> amt(
-      BigDecimal(5320.73),
-      "398.43(taxOnPaySSR) + 0.00(ctnTaxOnRedundancySsr) + null (ctnPensionLsumTaxDueAmt) + 3483.80(ctnIncomeTaxBasicRate) + 0.00(ctnTaxOnRedundancyBr) + null (ctnPensionLsumTaxDueAmt) + 1438.50(taxOnPaySIR) + 0.00(ctnTaxOnRedundancySir) + null (ctnPensionLsumTaxDueAmt) + 0.00(ctnIncomeTaxHigherRate) + 0.00(ctnTaxOnRedundancyHr) + null (ctnPensionLsumTaxDueAmt) + 0.00(ctnIncomeTaxAddHighRate) + 0.00(ctnTaxOnRedundancyAhr) + null (ctnPensionLsumTaxDueAmt)"
-    ),
-    BasicRateIncomeTax              -> amt(BigDecimal(0), "null (basicRateIncomeTaxScottish2023)"),
-    SavingsAdditionalRateTax        -> amt(BigDecimal(0.00), "0.00(ctnSavingsTaxAddHighRate) + 0.00(ctnTaxOnCegAhr)"),
-    HigherRateIncomeTaxAmount       -> amt(BigDecimal(0), "null (higherRateIncomeTaxAmountScottish2023)"),
+    BasicRateIncomeTax              -> calcExp("basicRateIncomeTaxScottish2023:null"),
+    SavingsAdditionalRateTax        -> calcExp("ctnSavingsTaxAddHighRate", "ctnTaxOnCegAhr"),
+    HigherRateIncomeTaxAmount       -> calcExp("higherRateIncomeTaxAmountScottish2023:null"),
+    // TODO: Uncomment and make work line below. There are a couple of minus signs so need to work out how to incorporate that:-
+//    TotalIncomeTax -> calcExp(fieldsTotalIncomeTax:_*),
     TotalIncomeTax                  -> amt(
       BigDecimal(6152.58),
-      "null (savingsRateAmountScottish2023) + null (basicRateIncomeTaxAmountScottish2023) + null (higherRateIncomeTaxAmountScottish2023) + null (additionalRateIncomeTaxAmountScottish2023) + 806.25(ctnDividendTaxLowRate) + 0.00(ctnDividendTaxHighRate) + 0.00(ctnDividendTaxAddHighRate) + 0.00(nonDomChargeAmount) + 0.00(giftAidTaxReduced) + 0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) - 0.00(ctnDeficiencyRelief) + 0.00(topSlicingRelief) + 0.00(ctnVctSharesReliefAmt) + 0.00(ctnEisReliefAmt) + 0.00(ctnSeedEisReliefAmt) + 0.00(ctnCommInvTrustRelAmt) + 0.00(ctnSocialInvTaxRelAmt) + 0.00(atsSurplusMcaAlimonyRel) + 0.00(alimony) + 0.00(ctnNotionalTaxCegs) + 0.00(ctnNotlTaxOthrSrceAmo) + 0.00(ctnFtcrRestricted) + 500.00(reliefForFinanceCosts) + 0.00(lfiRelief) + 10.00(ctnRelTaxAcctFor) - 0.00(ctnMarriageAllceInAmt) + 398.43(taxOnPaySSR) + 0.00(ctnTaxOnRedundancySsr) + null (ctnPensionLsumTaxDueAmt) + 3483.80(ctnIncomeTaxBasicRate) + 0.00(ctnTaxOnRedundancyBr) + null (ctnPensionLsumTaxDueAmt) + 1438.50(taxOnPaySIR) + 0.00(ctnTaxOnRedundancySir) + null (ctnPensionLsumTaxDueAmt) + 0.00(ctnIncomeTaxHigherRate) + 0.00(ctnTaxOnRedundancyHr) + null (ctnPensionLsumTaxDueAmt) + 0.00(ctnIncomeTaxAddHighRate) + 0.00(ctnTaxOnRedundancyAhr) + null (ctnPensionLsumTaxDueAmt) + 535.60(ctnSavingsTaxLowerRate) + 0.00(ctnSavingsTaxHigherRate) + 0.00(ctnSavingsTaxAddHighRate) + 0.00(ctnTaxOnCegAhr)"
+      "null (savingsRateAmountScottish2023) + null (basicRateIncomeTaxAmountScottish2023) + null (higherRateIncomeTaxAmountScottish2023) + null (additionalRateIncomeTaxAmountScottish2023) + " +
+        "806.25(ctnDividendTaxLowRate) + 0.00(ctnDividendTaxHighRate) + 0.00(ctnDividendTaxAddHighRate) + 0.00(nonDomChargeAmount) + 0.00(giftAidTaxReduced) + " +
+        "0.00(netAnnuityPaytsTaxDue) + 0.00(ctnChildBenefitChrgAmt) + 0.00(ctnPensionSavingChrgbleAmt) - 0.00(ctnDeficiencyRelief) + 0.00(topSlicingRelief) + " +
+        "0.00(ctnVctSharesReliefAmt) + 0.00(ctnEisReliefAmt) + 0.00(ctnSeedEisReliefAmt) + 0.00(ctnCommInvTrustRelAmt) + 0.00(ctnSocialInvTaxRelAmt) + " +
+        "0.00(atsSurplusMcaAlimonyRel) + 0.00(alimony) + 0.00(ctnNotionalTaxCegs) + 0.00(ctnNotlTaxOthrSrceAmo) + 0.00(ctnFtcrRestricted) + 500.00(reliefForFinanceCosts) + " +
+        "0.00(lfiRelief) + 10.00(ctnRelTaxAcctFor) - 0.00(ctnMarriageAllceInAmt) + 398.43(taxOnPaySSR) + 0.00(ctnTaxOnRedundancySsr) + null (ctnPensionLsumTaxDueAmt) + " +
+        "3483.80(ctnIncomeTaxBasicRate) + 0.00(ctnTaxOnRedundancyBr) + null (ctnPensionLsumTaxDueAmt) + 1438.50(taxOnPaySIR) + 0.00(ctnTaxOnRedundancySir) + " +
+        "null (ctnPensionLsumTaxDueAmt) + 0.00(ctnIncomeTaxHigherRate) + 0.00(ctnTaxOnRedundancyHr) + null (ctnPensionLsumTaxDueAmt) + 0.00(ctnIncomeTaxAddHighRate) + " +
+        "0.00(ctnTaxOnRedundancyAhr) + null (ctnPensionLsumTaxDueAmt) + 535.60(ctnSavingsTaxLowerRate) + 0.00(ctnSavingsTaxHigherRate) + 0.00(ctnSavingsTaxAddHighRate) + 0.00(ctnTaxOnCegAhr)"
     ),
-    SavingsHigherRateTax            -> amt(BigDecimal(0.00), "0.00(ctnSavingsTaxHigherRate)"),
-    OrdinaryRate                    -> amt(BigDecimal(10750.00), "10750.00(ctnDividendChgbleLowRate)"),
-    ScottishHigherRateTax           -> amt(
-      BigDecimal(0.00),
-      "0.00(ctnIncomeTaxHigherRate) + 0.00(ctnTaxOnRedundancyHr) + null (ctnPensionLsumTaxDueAmt)"
-    ),
-    ScottishStarterIncome           -> amt(
-      BigDecimal(2097.00),
-      "2097.00(taxablePaySSR) + 0.00(ctnTaxableRedundancySsr) + null (itfStatePensionLsGrossAmt)"
-    )
+    SavingsHigherRateTax            -> calcExp("ctnSavingsTaxHigherRate"),
+    OrdinaryRate                    -> calcExp("ctnDividendChgbleLowRate"),
+    ScottishHigherRateTax           -> calcExp("ctnIncomeTaxHigherRate", "ctnTaxOnRedundancyHr", "ctnPensionLsumTaxDueAmt:null"),
+    ScottishStarterIncome           -> calcExp("taxablePaySSR", "ctnTaxableRedundancySsr", "itfStatePensionLsGrossAmt:null")
   )
 
   private val expectedResultIncomeData: Map[LiabilityKey, Amount] = Map(
