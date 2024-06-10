@@ -20,32 +20,28 @@ import models.LiabilityKey._
 import models._
 import play.api.libs.json.Json
 import services.TaxRateService
-import transformers.{ATSCalculations, ATSRawDataTransformer}
+import transformers.ATSRawDataTransformer
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
 class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   import ATSRawDataTransformerTest._
   private val taxpayerDetailsJson       = JsonUtil.load("/taxpayer/sa_taxpayer-valid.json")
   private val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  private val taxYear: Int              = 2023
   private val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
   private val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
   "The total income before tax" must {
     "parse the tax rates transformation (based on utr year:2023 data)" in {
-      val parsedJson   = Json.parse(sampleJson)
-      val calculations = ATSCalculations.make(parsedJson.as[TaxSummaryLiability], taxRate).get
-
+      val parsedJson                     = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, calculations, parsedTaxpayerDetailsJson, "", taxYear)
+        SUT.atsDataDTO(taxRate, parsedJson, parsedTaxpayerDetailsJson, "", taxYear)
 
-      val parsedYear    = returnValue.taxYear
-      val testYear: Int = 2023
-      testYear mustEqual parsedYear
+      val parsedYear = returnValue.taxYear
+      parsedYear mustBe taxYear
 
-      val parsedPayload = returnValue.income_tax.get.payload
-      val testPayload   =
+      val parsedPayload  = returnValue.income_tax.get.payload
+      val expectedResult =
         Map(
           StartingRateForSavingsAmount    -> Amount(0.00, "GBP"),
           OtherAdjustmentsReducing        -> Amount(510, "GBP"),
@@ -87,7 +83,7 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
         )
 
       parsedPayload
-        .map(_.map(x => x._1 -> x._2.amount) must contain allElementsOf testPayload.map(x => x._1 -> x._2.amount))
+        .map(_.map(x => x._1 -> x._2.amount) must contain allElementsOf expectedResult.map(x => x._1 -> x._2.amount))
         .getOrElse(fail("No calculation returned"))
 
       val parsedRates = returnValue.income_tax.get.rates.get
@@ -116,9 +112,10 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 }
 
 object ATSRawDataTransformerTest {
-  private val sampleJson =
-    """{
-      |  "taxYear":2023,
+  private val taxYear: Int = 2023
+  private val sampleJson   =
+    s"""{
+      |  "taxYear":$taxYear,
       |  "saPayeNicDetails": {
       |    "employeeClass1Nic": {
       |      "amount": 0.00,

@@ -18,12 +18,13 @@ package transformers
 
 import com.google.inject.{Inject, Singleton}
 import config.ApplicationConfig
-import models.ODSLiabilities.ODSLiabilities.{StatePension, _}
+import models.AtsMiddleTierData.noAtsResult
 import models.LiabilityKey.{ScottishIncomeTax, _}
+import models.ODSLiabilities.ODSLiabilities.{StatePension, _}
 import models.RateKey._
 import models._
-import play.api.{Logger, Logging}
 import play.api.libs.json._
+import play.api.{Logger, Logging}
 import services.TaxRateService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -38,48 +39,57 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
   ec: ExecutionContext
 ) extends Logging {
 
+  // scalastyle:off method.length
   def atsDataDTO(
     taxRate: TaxRateService,
-    calculations: ATSCalculations,
+    rawPayloadJson: JsValue,
     rawTaxPayerJson: JsValue,
     UTR: String,
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
-    logger.debug(s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}")
-    auditConnector.sendEvent(
-      DataEvent(
-        auditSource = applicationConfig.appName,
-        auditType = "TaxLiability",
-        detail = Map(
-          "utr"                      -> UTR,
-          "taxYear"                  -> taxYear.toString,
-          "liabilityAmount"          -> calculations.taxLiability.amount.toString,
-          "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse("No calculation details present")
+    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate) match {
+      case Some(calculations) =>
+        logger.debug(
+          s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"
         )
-      )
-    )
-    try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
-      AtsMiddleTierData.make(
-        taxYear,
-        UTR,
-        createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
-        createSummaryData(calculations: ATSCalculations),
-        createIncomeData(calculations: ATSCalculations),
-        createAllowanceData(calculations: ATSCalculations),
-        createCapitalGainsData(calculations, taxRate),
-        createGovSpendData(calculations.totalTax, taxYear),
-        createTaxPayerData(rawTaxPayerJson)
-      )
-    } else {
-      logger.warn(s"There is no liability for the year $taxYear")
-      AtsMiddleTierData.noAtsResult(taxYear)
-    } catch {
-      case ATSParsingException(message) =>
-        AtsMiddleTierData.error(taxYear, message)
-      case otherError: Throwable =>
-        logger.error("Unexpected error has occurred", otherError)
-        AtsMiddleTierData.error(taxYear, "Other Error")
+        auditConnector.sendEvent(
+          DataEvent(
+            auditSource = applicationConfig.appName,
+            auditType = "TaxLiability",
+            detail = Map(
+              "utr"                      -> UTR,
+              "taxYear"                  -> taxYear.toString,
+              "liabilityAmount"          -> calculations.taxLiability.amount.toString,
+              "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse(
+                "No calculation details present"
+              )
+            )
+          )
+        )
+        try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
+          AtsMiddleTierData.make(
+            taxYear,
+            UTR,
+            createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
+            createSummaryData(calculations: ATSCalculations),
+            createIncomeData(calculations: ATSCalculations),
+            createAllowanceData(calculations: ATSCalculations),
+            createCapitalGainsData(calculations, taxRate),
+            createGovSpendData(calculations.totalTax, taxYear),
+            createTaxPayerData(rawTaxPayerJson)
+          )
+        } else {
+          logger.warn(s"There is no liability for the year $taxYear")
+          AtsMiddleTierData.noAtsResult(taxYear)
+        } catch {
+          case ATSParsingException(message) =>
+            AtsMiddleTierData.error(taxYear, message)
+          case otherError: Throwable        =>
+            logger.error("Unexpected error has occurred", otherError)
+            AtsMiddleTierData.error(taxYear, "Other Error")
+        }
+      case _                  => noAtsResult(taxYear)
     }
   }
 
