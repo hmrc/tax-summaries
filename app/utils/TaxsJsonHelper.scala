@@ -28,8 +28,7 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
   def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int)(implicit
     hc: HeaderCarrier
   ): JsValue = {
-    val taxRate        = new TaxRateService(taxYear, applicationConfig.ratePercentages)
-    val middleTierData = aTSRawDataTransformer.atsDataDTO(taxRate, rawPayloadJson, rawTaxpayerJson, UTR, taxYear)
+    val middleTierData = aTSRawDataTransformer.atsDataDTO(rawPayloadJson, rawTaxpayerJson, UTR, taxYear)
     Json.toJson(middleTierData)
   }
 

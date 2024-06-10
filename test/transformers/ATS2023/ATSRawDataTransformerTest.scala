@@ -19,7 +19,6 @@ package transformers.ATS2023
 import models.LiabilityKey._
 import models._
 import play.api.libs.json.Json
-import services.TaxRateService
 import transformers.ATSRawDataTransformer
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
@@ -27,15 +26,14 @@ class ATSRawDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
   import ATSRawDataTransformerTest._
   private val taxpayerDetailsJson       = JsonUtil.load("/taxpayer/sa_taxpayer-valid.json")
   private val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
-  private val taxRate                   = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
-  private val SUT: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  private val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
-  "The total income before tax" must {
+  "atsDataDTO" must {
     "parse the tax rates transformation (based on utr year:2023 data)" in {
       val parsedJson                     = Json.parse(sampleJson)
       val returnValue: AtsMiddleTierData =
-        SUT.atsDataDTO(taxRate, parsedJson, parsedTaxpayerDetailsJson, "", taxYear)
+        atsRawDataTransformer.atsDataDTO(parsedJson, parsedTaxpayerDetailsJson, "", taxYear)
 
       val parsedYear = returnValue.taxYear
       parsedYear mustBe taxYear

@@ -41,13 +41,13 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
 
   // scalastyle:off method.length
   def atsDataDTO(
-    taxRate: TaxRateService,
     rawPayloadJson: JsValue,
     rawTaxPayerJson: JsValue,
     UTR: String,
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
-    val logger = Logger(getClass.getName)
+    val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+    val logger  = Logger(getClass.getName)
     ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRate) match {
       case Some(calculations) =>
         logger.debug(
