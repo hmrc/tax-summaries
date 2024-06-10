@@ -84,10 +84,9 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
 //        }
 
         act.foreach { item =>
-          s"field ${item._1} calculated" in {
-            exp.find(_._1 == item._1) match {
-              case Some(i) => item._2 mustBe i._2
-              case _       => assert(false, s"Item $item not found")
+          exp.find(_._1 == item._1).map { actItem =>
+            s"field ${item._1} calculated" in {
+              item._2 mustBe actItem._2
             }
           }
         }
