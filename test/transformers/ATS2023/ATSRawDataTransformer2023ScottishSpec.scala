@@ -19,7 +19,7 @@ package transformers.ATS2023
 import models.LiabilityKey._
 import models.RateKey._
 import models._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import transformers.ATSRawDataTransformer
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
@@ -30,7 +30,7 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
 
   private val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
-  private lazy val parsedJson                     = Json.parse(sampleJson)
+  private lazy val parsedJson = buildJsonPayload(tliSlpAtsData)
   private lazy val returnValue: AtsMiddleTierData =
     atsRawDataTransformer.atsDataDTO(parsedJson, parsedTaxpayerDetailsJson, "", taxYear)
 
@@ -100,544 +100,139 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
 }
 
 object ATSRawDataTransformer2023ScottishSpec {
-  private val taxYear: Int                                     = 2023
-  private val sampleJson                                       =
-    s"""{
-      |  "taxYear":$taxYear,
-      |  "saPayeNicDetails": {
-      |    "employeeClass1Nic": {
-      |      "amount": 100.00,
-      |      "currency": "GBP"
-      |    },
-      |    "employeeClass2Nic": {
-      |      "amount": 200.00,
-      |      "currency": "GBP"
-      |    },
-      |    "employerNic": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    }
-      |  },
-      |  "tliSlpAtsData": {
-      |    "incomeTaxStatus": "0002",
-      |    "tliLastUpdated": "2022-09-01",
-      |    "ctnPensionLumpSumTaxRate": 0.00,
-      |    "ctnEmploymentBenefitsAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalScheduleD": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalPartnership": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalEmployment": {
-      |      "amount": 23678.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsStatePensionAmt": {
-      |      "amount": 9783.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsOtherPensionAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "itfStatePensionLsGrossAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsIncBenefitSuppAllowAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsJobSeekersAllowanceAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsOthStatePenBenefitsAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotShareOptions": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalUklProperty": {
-      |      "amount": 5475.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotForeignIncome": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotTrustEstates": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalOtherIncome": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotForeignSav": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnForeignCegDedn": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalUkInterest": {
-      |      "amount": 3678.00,
-      |      "currency": "GBP"
-      |    },
-      |    "itfCegReceivedAfterTax": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotForeignDiv": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalUkIntDivs": {
-      |      "amount": 12750.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctn4SumTotLifePolicyGains": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnPersonalAllowance": {
-      |      "amount": 12570.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnEmploymentExpensesAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSummaryTotalDedPpr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSumTotForeignTaxRelief": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSumTotLoanRestricted": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSumTotLossRestricted": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "grossAnnuityPayts": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "itf4GiftsInvCharitiesAmo": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "itfTradeUnionDeathBenefits": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnBpaAllowanceAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "itfBpaAmount": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "grossExcludedIncome": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "class4Nic": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnClass2NicAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsChgbleStartRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsTaxStartingRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnIncomeChgbleBasicRate": {
-      |      "amount": 17419.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsChgbleLowerRate": {
-      |      "amount": 2678.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnIncomeTaxBasicRate": {
-      |      "amount": 3483.80,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsTaxLowerRate": {
-      |      "amount": 535.60,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnIncomeChgbleHigherRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsChgbleHigherRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnIncomeTaxHigherRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsTaxHigherRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnIncomeChgbleAddHRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsChgbleAddHRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnIncomeTaxAddHighRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsTaxAddHighRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "taxablePaySSR": {
-      |      "amount": 2097.00,
-      |      "currency": "GBP"
-      |    },
-      |    "taxOnPaySSR": {
-      |      "amount": 398.43,
-      |      "currency": "GBP"
-      |    },
-      |    "taxablePaySIR": {
-      |      "amount": 6850.00,
-      |      "currency": "GBP"
-      |    },
-      |    "taxOnPaySIR": {
-      |      "amount": 1438.50,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDividendChgbleLowRate": {
-      |      "amount": 10750.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDividendTaxLowRate": {
-      |      "amount": 806.25,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDividendChgbleHighRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDividendTaxHighRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDividendChgbleAddHRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDividendTaxAddHighRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableRedundancySSR": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnRedundancySsr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableRedundancyBr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnRedundancyBr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableRedundancySir": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnRedundancySir": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableRedundancyHr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnRedundancyHr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableRedundancyAhr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnRedundancyAhr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableCegBr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnCegBr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableCegHr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnCegHr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableCegAhr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnCegAhr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "nonDomChargeAmount": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "taxExcluded": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "taxOnNonExcludedInc": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "incomeTaxDue": {
-      |      "amount": 6162.58,
-      |      "currency": "GBP"
-      |    },
-      |    "ctn4TaxDueAfterAllceRlf": {
-      |      "amount": 6162.58,
-      |      "currency": "GBP"
-      |    },
-      |    "netAnnuityPaytsTaxDue": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnChildBenefitChrgAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnPensionSavingChrgbleAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsTaxCharged": {
-      |      "amount": 6662.58,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDeficiencyRelief": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "topSlicingRelief": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnVctSharesReliefAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnEisReliefAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSeedEisReliefAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCommInvTrustRelAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsSurplusMcaAlimonyRel": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "alimony": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnNotionalTaxCegs": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnNotlTaxOthrSrceAmo": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnFtcrRestricted": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "reliefForFinanceCosts": {
-      |      "amount": 500.00,
-      |      "currency": "GBP"
-      |    },
-      |    "lfiRelief": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnRelTaxAcctFor": {
-      |      "amount": 10.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxCredForDivs": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnQualDistnReliefAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "figTotalTaxCreditRelief": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnNonPayableTaxCredits": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsCgTotGainsAfterLosses": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsCgGainsAfterLossesAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "cap3AssessableChgeableGain": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "atsCgAnnualExemptAmt": {
-      |      "amount": 12300.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCgAtEntrepreneursRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCgDueEntrepreneursRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCgAtLowerRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCgDueLowerRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCgAtHigherRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCgDueHigherRate": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCGAtLowerRateRPCI": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnLowerRateCgtRPCI": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnCGAtHigherRateRPCI": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnHigherRateCgtRPCI": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "capAdjustmentAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnPensionLsumTaxDueAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnMarriageAllceInAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnMarriageAllceOutAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSocialInvTaxRelAmt": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnSavingsPartnership": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnDividendsPartnership": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "giftAidTaxReduced": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableCegSr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxOnCegSr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    },
-      |    "ctnTaxableRedundancySsr": {
-      |      "amount": 0.00,
-      |      "currency": "GBP"
-      |    }
-      |  }
-      |}
-      |
-      |""".stripMargin
+  private val taxYear: Int = 2023
+
+  private val tliSlpAtsData: Map[String, BigDecimal] = Map(
+    "ctnEmploymentBenefitsAmt"   -> BigDecimal(0.00),
+    "ctnSummaryTotalScheduleD"   -> BigDecimal(0.00),
+    "ctnSummaryTotalPartnership" -> BigDecimal(0.00),
+    "ctnSummaryTotalEmployment"  -> BigDecimal(23678.00),
+    "atsStatePensionAmt"         -> BigDecimal(9783.00),
+    "atsOtherPensionAmt"         -> BigDecimal(0.00),
+    "itfStatePensionLsGrossAmt"  -> BigDecimal(0.00),
+    "atsIncBenefitSuppAllowAmt"  -> BigDecimal(0.00),
+    "atsJobSeekersAllowanceAmt"  -> BigDecimal(0.00),
+    "atsOthStatePenBenefitsAmt"  -> BigDecimal(0.00),
+    "ctnSummaryTotShareOptions"  -> BigDecimal(0.00),
+    "ctnSummaryTotalUklProperty" -> BigDecimal(5475.00),
+    "ctnSummaryTotForeignIncome" -> BigDecimal(0.00),
+    "ctnSummaryTotTrustEstates"  -> BigDecimal(0.00),
+    "ctnSummaryTotalOtherIncome" -> BigDecimal(0.00),
+    "ctnSummaryTotForeignSav"    -> BigDecimal(0.00),
+    "ctnForeignCegDedn"          -> BigDecimal(0.00),
+    "ctnSummaryTotalUkInterest"  -> BigDecimal(3678.00),
+    "itfCegReceivedAfterTax"     -> BigDecimal(0.00),
+    "ctnSummaryTotForeignDiv"    -> BigDecimal(0.00),
+    "ctnSummaryTotalUkIntDivs"   -> BigDecimal(12750.00),
+    "ctn4SumTotLifePolicyGains"  -> BigDecimal(0.00),
+    "ctnPersonalAllowance"       -> BigDecimal(12570.00),
+    "ctnEmploymentExpensesAmt"   -> BigDecimal(0.00),
+    "ctnSummaryTotalDedPpr"      -> BigDecimal(0.00),
+    "ctnSumTotForeignTaxRelief"  -> BigDecimal(0.00),
+    "ctnSumTotLoanRestricted"    -> BigDecimal(0.00),
+    "ctnSumTotLossRestricted"    -> BigDecimal(0.00),
+    "grossAnnuityPayts"          -> BigDecimal(0.00),
+    "itf4GiftsInvCharitiesAmo"   -> BigDecimal(0.00),
+    "itfTradeUnionDeathBenefits" -> BigDecimal(0.00),
+    "ctnBpaAllowanceAmt"         -> BigDecimal(0.00),
+    "itfBpaAmount"               -> BigDecimal(0.00),
+    "grossExcludedIncome"        -> BigDecimal(0.00),
+    "class4Nic"                  -> BigDecimal(0.00),
+    "ctnClass2NicAmt"            -> BigDecimal(0.00),
+    "ctnSavingsChgbleStartRate"  -> BigDecimal(0.00),
+    "ctnSavingsTaxStartingRate"  -> BigDecimal(0.00),
+    "ctnIncomeChgbleBasicRate"   -> BigDecimal(17419.00),
+    "ctnSavingsChgbleLowerRate"  -> BigDecimal(2678.00),
+    "ctnIncomeTaxBasicRate"      -> BigDecimal(3483.80),
+    "ctnSavingsTaxLowerRate"     -> BigDecimal(535.60),
+    "ctnIncomeChgbleHigherRate"  -> BigDecimal(0.00),
+    "ctnSavingsChgbleHigherRate" -> BigDecimal(0.00),
+    "ctnIncomeTaxHigherRate"     -> BigDecimal(0.00),
+    "ctnSavingsTaxHigherRate"    -> BigDecimal(0.00),
+    "ctnIncomeChgbleAddHRate"    -> BigDecimal(0.00),
+    "ctnSavingsChgbleAddHRate"   -> BigDecimal(0.00),
+    "ctnIncomeTaxAddHighRate"    -> BigDecimal(0.00),
+    "ctnSavingsTaxAddHighRate"   -> BigDecimal(0.00),
+    "taxablePaySSR"              -> BigDecimal(2097.00),
+    "taxOnPaySSR"                -> BigDecimal(398.43),
+    "taxablePaySIR"              -> BigDecimal(6850.00),
+    "taxOnPaySIR"                -> BigDecimal(1438.50),
+    "ctnDividendChgbleLowRate"   -> BigDecimal(10750.00),
+    "ctnDividendTaxLowRate"      -> BigDecimal(806.25),
+    "ctnDividendChgbleHighRate"  -> BigDecimal(0.00),
+    "ctnDividendTaxHighRate"     -> BigDecimal(0.00),
+    "ctnDividendChgbleAddHRate"  -> BigDecimal(0.00),
+    "ctnDividendTaxAddHighRate"  -> BigDecimal(0.00),
+    "ctnTaxableRedundancySSR"    -> BigDecimal(0.00),
+    "ctnTaxOnRedundancySsr"      -> BigDecimal(0.00),
+    "ctnTaxableRedundancyBr"     -> BigDecimal(0.00),
+    "ctnTaxOnRedundancyBr"       -> BigDecimal(0.00),
+    "ctnTaxableRedundancySir"    -> BigDecimal(0.00),
+    "ctnTaxOnRedundancySir"      -> BigDecimal(0.00),
+    "ctnTaxableRedundancyHr"     -> BigDecimal(0.00),
+    "ctnTaxOnRedundancyHr"       -> BigDecimal(0.00),
+    "ctnTaxableRedundancyAhr"    -> BigDecimal(0.00),
+    "ctnTaxOnRedundancyAhr"      -> BigDecimal(0.00),
+    "ctnTaxableCegBr"            -> BigDecimal(0.00),
+    "ctnTaxOnCegBr"              -> BigDecimal(0.00),
+    "ctnTaxableCegHr"            -> BigDecimal(0.00),
+    "ctnTaxOnCegHr"              -> BigDecimal(0.00),
+    "ctnTaxableCegAhr"           -> BigDecimal(0.00),
+    "ctnTaxOnCegAhr"             -> BigDecimal(0.00),
+    "nonDomChargeAmount"         -> BigDecimal(0.00),
+    "taxExcluded"                -> BigDecimal(0.00),
+    "taxOnNonExcludedInc"        -> BigDecimal(0.00),
+    "incomeTaxDue"               -> BigDecimal(6162.58),
+    "ctn4TaxDueAfterAllceRlf"    -> BigDecimal(6162.58),
+    "netAnnuityPaytsTaxDue"      -> BigDecimal(0.00),
+    "ctnChildBenefitChrgAmt"     -> BigDecimal(0.00),
+    "ctnPensionSavingChrgbleAmt" -> BigDecimal(0.00),
+    "atsTaxCharged"              -> BigDecimal(6662.58),
+    "ctnDeficiencyRelief"        -> BigDecimal(0.00),
+    "topSlicingRelief"           -> BigDecimal(0.00),
+    "ctnVctSharesReliefAmt"      -> BigDecimal(0.00),
+    "ctnEisReliefAmt"            -> BigDecimal(0.00),
+    "ctnSeedEisReliefAmt"        -> BigDecimal(0.00),
+    "ctnCommInvTrustRelAmt"      -> BigDecimal(0.00),
+    "atsSurplusMcaAlimonyRel"    -> BigDecimal(0.00),
+    "alimony"                    -> BigDecimal(0.00),
+    "ctnNotionalTaxCegs"         -> BigDecimal(0.00),
+    "ctnNotlTaxOthrSrceAmo"      -> BigDecimal(0.00),
+    "ctnFtcrRestricted"          -> BigDecimal(0.00),
+    "reliefForFinanceCosts"      -> BigDecimal(500.00),
+    "lfiRelief"                  -> BigDecimal(0.00),
+    "ctnRelTaxAcctFor"           -> BigDecimal(10.00),
+    "ctnTaxCredForDivs"          -> BigDecimal(0.00),
+    "ctnQualDistnReliefAmt"      -> BigDecimal(0.00),
+    "figTotalTaxCreditRelief"    -> BigDecimal(0.00),
+    "ctnNonPayableTaxCredits"    -> BigDecimal(0.00),
+    "atsCgTotGainsAfterLosses"   -> BigDecimal(0.00),
+    "atsCgGainsAfterLossesAmt"   -> BigDecimal(0.00),
+    "cap3AssessableChgeableGain" -> BigDecimal(0.00),
+    "atsCgAnnualExemptAmt"       -> BigDecimal(12300.00),
+    "ctnCgAtEntrepreneursRate"   -> BigDecimal(0.00),
+    "ctnCgDueEntrepreneursRate"  -> BigDecimal(0.00),
+    "ctnCgAtLowerRate"           -> BigDecimal(0.00),
+    "ctnCgDueLowerRate"          -> BigDecimal(0.00),
+    "ctnCgAtHigherRate"          -> BigDecimal(0.00),
+    "ctnCgDueHigherRate"         -> BigDecimal(0.00),
+    "ctnCGAtLowerRateRPCI"       -> BigDecimal(0.00),
+    "ctnLowerRateCgtRPCI"        -> BigDecimal(0.00),
+    "ctnCGAtHigherRateRPCI"      -> BigDecimal(0.00),
+    "ctnHigherRateCgtRPCI"       -> BigDecimal(0.00),
+    "capAdjustmentAmt"           -> BigDecimal(0.00),
+    "ctnPensionLsumTaxDueAmt"    -> BigDecimal(0.00),
+    "ctnMarriageAllceInAmt"      -> BigDecimal(0.00),
+    "ctnMarriageAllceOutAmt"     -> BigDecimal(0.00),
+    "ctnSocialInvTaxRelAmt"      -> BigDecimal(0.00),
+    "ctnSavingsPartnership"      -> BigDecimal(0.00),
+    "ctnDividendsPartnership"    -> BigDecimal(0.00),
+    "giftAidTaxReduced"          -> BigDecimal(0.00),
+    "ctnTaxableCegSr"            -> BigDecimal(0.00),
+    "ctnTaxOnCegSr"              -> BigDecimal(0.00),
+    "ctnTaxableRedundancySsr"    -> BigDecimal(0.00)
+  )
+  
   private def amt(value: BigDecimal, calculus: String): Amount = Amount(value, "GBP", Some(calculus))
 
   private val expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
@@ -817,4 +412,39 @@ object ATSRawDataTransformer2023ScottishSpec {
     EmployeeNicAmount         -> amt(BigDecimal(100.00), "100.00(employeeClass1Nic) + 0.00(ctnClass2NicAmt) + 0.00(class4Nic)"),
     TaxableGains              -> amt(BigDecimal(0.00), "0.00(atsCgTotGainsAfterLosses) + 0.00(atsCgGainsAfterLossesAmt)")
   )
+
+  private def buildJsonPayload(tliSlpAtsData: Map[String, BigDecimal]): JsObject = {
+    val tliSlpAtsDataAsJsObject = tliSlpAtsData.foldLeft[JsObject](
+      Json.obj(
+        "incomeTaxStatus"          -> "0002",
+        "tliLastUpdated"           -> "2022-09-01",
+        "ctnPensionLumpSumTaxRate" -> 0.00
+      )
+    ) { (c, i) =>
+      c ++ Json.obj(
+        i._1 -> Json.obj(
+          "amount"   -> i._2.setScale(2),
+          "currency" -> "GBP"
+        )
+      )
+    }
+    Json.obj(
+      "taxYear" -> taxYear,
+      "saPayeNicDetails" -> Json.obj(
+        "employeeClass1Nic" -> Json.obj(
+          "amount"   -> BigDecimal(100.00).setScale(2),
+          "currency" -> "GBP"
+        ),
+        "employeeClass2Nic" -> Json.obj(
+          "amount"   -> BigDecimal(200.00).setScale(2),
+          "currency" -> "GBP"
+        ),
+        "employerNic"       -> Json.obj(
+          "amount"   -> BigDecimal(0.00).setScale(2),
+          "currency" -> "GBP"
+        )
+      ),
+      "tliSlpAtsData"    -> tliSlpAtsDataAsJsObject
+    )
+  }
 }
