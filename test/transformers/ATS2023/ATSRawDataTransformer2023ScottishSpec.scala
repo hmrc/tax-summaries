@@ -281,6 +281,14 @@ object ATSRawDataTransformer2023ScottishSpec {
     "ctnRelTaxAcctFor"
   )
 
+  private val fieldsOtherAdjustmentsIncreasing = Seq(
+    "nonDomChargeAmount",
+    "giftAidTaxReduced",
+    "netAnnuityPaytsTaxDue",
+    "ctnChildBenefitChrgAmt",
+    "ctnPensionSavingChrgbleAmt"
+  )
+
   private val fieldsXX1 = Seq(
     "savingsRateAmountScottish2023:null",
     "basicRateIncomeTaxAmountScottish2023:null",
@@ -288,12 +296,7 @@ object ATSRawDataTransformer2023ScottishSpec {
     "additionalRateIncomeTaxAmountScottish2023:null",
     "ctnDividendTaxLowRate",
     "ctnDividendTaxHighRate",
-    "ctnDividendTaxAddHighRate",
-    "nonDomChargeAmount",
-    "giftAidTaxReduced",
-    "netAnnuityPaytsTaxDue",
-    "ctnChildBenefitChrgAmt",
-    "ctnPensionSavingChrgbleAmt"
+    "ctnDividendTaxAddHighRate"
   )
 
   private val fieldsXX2 = Seq(
@@ -319,11 +322,25 @@ object ATSRawDataTransformer2023ScottishSpec {
   )
 
   private def expTotalIncomeTax: Amount =
-    ((calcExp(fieldsXX1: _*) - calcExp(fieldsOtherAdjustmentsReducing: _*)) - calcExp(
+    ((calcExp((fieldsXX1 ++ fieldsOtherAdjustmentsIncreasing): _*) - calcExp(
+      fieldsOtherAdjustmentsReducing: _*
+    )) - calcExp(
       "ctnMarriageAllceInAmt"
     )) + calcExp(
       fieldsXX2: _*
     )
+
+  private def expTotalTaxFreeAmount: Amount = calcExp(
+    "ctnEmploymentExpensesAmt",
+    "ctnSummaryTotalDedPpr",
+    "ctnSumTotForeignTaxRelief",
+    "ctnSumTotLossRestricted",
+    "grossAnnuityPayts",
+    "itf4GiftsInvCharitiesAmo",
+    "ctnBpaAllowanceAmt",
+    "itfBpaAmount",
+    "ctnPersonalAllowance"
+  ) - calcExp("ctnMarriageAllceOutAmt")
 
   private val expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
     StartingRateForSavingsAmount    -> calcExp("savingsRateAmountScottish2023:null"),
@@ -352,11 +369,7 @@ object ATSRawDataTransformer2023ScottishSpec {
       "ctnPensionLsumTaxDueAmt:null"
     ),
     OtherAdjustmentsIncreasing      -> calcExp(
-      "nonDomChargeAmount",
-      "giftAidTaxReduced",
-      "netAnnuityPaytsTaxDue",
-      "ctnChildBenefitChrgAmt",
-      "ctnPensionSavingChrgbleAmt"
+      fieldsOtherAdjustmentsIncreasing: _*
     ),
     HigherRateIncomeTax             -> calcExp("higherRateIncomeTaxScottish2023:null"),
     ScottishBasicRateTax            -> calcExp("ctnIncomeTaxBasicRate", "ctnTaxOnRedundancyBr", "ctnPensionLsumTaxDueAmt:null"),
@@ -404,13 +417,15 @@ object ATSRawDataTransformer2023ScottishSpec {
   )
 
   private val expectedResultIncomeData: Map[LiabilityKey, Amount] = Map(
-    SelfEmploymentIncome   -> amt(
-      BigDecimal(0.00),
-      "0.00(ctnSummaryTotalScheduleD) + 0.00(ctnSummaryTotalPartnership) + 0.00(ctnSavingsPartnership) + 0.00(ctnDividendsPartnership)"
+    SelfEmploymentIncome   -> calcExp(
+      "ctnSummaryTotalScheduleD",
+      "ctnSummaryTotalPartnership",
+      "ctnSavingsPartnership",
+      "ctnDividendsPartnership"
     ),
-    IncomeFromEmployment   -> amt(BigDecimal(23678.00), "23678.00(ctnSummaryTotalEmployment)"),
-    StatePension           -> amt(BigDecimal(9783.00), "9783.00(atsStatePensionAmt)"),
-    OtherPensionIncome     -> amt(BigDecimal(0.00), "0.00(atsOtherPensionAmt) + 0.00(itfStatePensionLsGrossAmt)"),
+    IncomeFromEmployment   -> calcExp("ctnSummaryTotalEmployment"),
+    StatePension           -> calcExp("atsStatePensionAmt"),
+    OtherPensionIncome     -> calcExp("atsOtherPensionAmt", "itfStatePensionLsGrossAmt"),
     TotalIncomeBeforeTax   -> amt(
       BigDecimal(55364.00),
       "0.00(ctnSummaryTotalScheduleD) + 0.00(ctnSummaryTotalPartnership) + 0.00(ctnSavingsPartnership) + 0.00(ctnDividendsPartnership) + 23678.00(ctnSummaryTotalEmployment) + 9783.00(atsStatePensionAmt) + 0.00(atsOtherPensionAmt) + 0.00(itfStatePensionLsGrossAmt) + 0.00(atsIncBenefitSuppAllowAmt) + 0.00(atsJobSeekersAllowanceAmt) + 0.00(atsOthStatePenBenefitsAmt) + 0.00(ctnSummaryTotShareOptions) + 5475.00(ctnSummaryTotalUklProperty) + 0.00(ctnSummaryTotForeignIncome) + 0.00(ctnSummaryTotTrustEstates) + 0.00(ctnSummaryTotalOtherIncome) + 3678.00(ctnSummaryTotalUkInterest) + 0.00(ctnSummaryTotForeignDiv) + 12750.00(ctnSummaryTotalUkIntDivs) + 0.00(ctn4SumTotLifePolicyGains) + 0.00(ctnSummaryTotForeignSav) + 0.00(ctnForeignCegDedn) + 0.00(itfCegReceivedAfterTax) + 0.00(ctnEmploymentBenefitsAmt)"
@@ -419,49 +434,50 @@ object ATSRawDataTransformer2023ScottishSpec {
       BigDecimal(21903.00),
       "0.00(ctnSummaryTotShareOptions) + 5475.00(ctnSummaryTotalUklProperty) + 0.00(ctnSummaryTotForeignIncome) + 0.00(ctnSummaryTotTrustEstates) + 0.00(ctnSummaryTotalOtherIncome) + 3678.00(ctnSummaryTotalUkInterest) + 0.00(ctnSummaryTotForeignDiv) + 12750.00(ctnSummaryTotalUkIntDivs) + 0.00(ctn4SumTotLifePolicyGains) + 0.00(ctnSummaryTotForeignSav) + 0.00(ctnForeignCegDedn) + 0.00(itfCegReceivedAfterTax)"
     ),
-    BenefitsFromEmployment -> amt(BigDecimal(0.00), "0.00(ctnEmploymentBenefitsAmt)"),
-    TaxableStateBenefits   -> amt(
-      BigDecimal(0.00),
-      "0.00(atsIncBenefitSuppAllowAmt) + 0.00(atsJobSeekersAllowanceAmt) + 0.00(atsOthStatePenBenefitsAmt)"
+    BenefitsFromEmployment -> calcExp("ctnEmploymentBenefitsAmt"),
+    TaxableStateBenefits   -> calcExp(
+      "atsIncBenefitSuppAllowAmt",
+      "atsJobSeekersAllowanceAmt",
+      "atsOthStatePenBenefitsAmt"
     )
   )
 
   private val expectedResultAllowanceData: Map[LiabilityKey, Amount] = Map(
-    PersonalTaxFreeAmount              -> amt(BigDecimal(12570.00), "12570.00(ctnPersonalAllowance)"),
-    MarriageAllowanceTransferredAmount -> amt(BigDecimal(0.00), "0.00(ctnMarriageAllceOutAmt)"),
-    OtherAllowancesAmount              -> amt(
-      BigDecimal(0),
-      "0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount)"
+    PersonalTaxFreeAmount              -> calcExp("ctnPersonalAllowance"),
+    MarriageAllowanceTransferredAmount -> calcExp("ctnMarriageAllceOutAmt"),
+    OtherAllowancesAmount              -> calcExp(
+      "ctnEmploymentExpensesAmt",
+      "ctnSummaryTotalDedPpr",
+      "ctnSumTotForeignTaxRelief",
+      "ctnSumTotLossRestricted",
+      "grossAnnuityPayts",
+      "itf4GiftsInvCharitiesAmo",
+      "ctnBpaAllowanceAmt",
+      "itfBpaAmount"
     ),
-    TotalTaxFreeAmount                 -> amt(
-      BigDecimal(12570.00),
-      "(0.00(ctnEmploymentExpensesAmt) + 0.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 0.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 12570.00(ctnPersonalAllowance)) - 0.00(ctnMarriageAllceOutAmt)"
-    )
+    TotalTaxFreeAmount                 -> expTotalTaxFreeAmount
   )
 
   private val expectedResultCGData: Map[LiabilityKey, Amount] = Map(
-    AmountDueRPCILowerRate       -> amt(BigDecimal(0.00), "0.00(ctnLowerRateCgtRPCI)"),
-    AmountAtHigherRate           -> amt(BigDecimal(0.00), "0.00(ctnCgAtHigherRate)"),
-    Adjustments                  -> amt(BigDecimal(0.00), "0.00(capAdjustmentAmt)"),
-    AmountAtOrdinaryRate         -> amt(BigDecimal(0.00), "0.00(ctnCgAtLowerRate)"),
-    AmountAtRPCIHigheRate        -> amt(BigDecimal(0.00), "0.00(ctnCGAtHigherRateRPCI)"),
-    AmountDueAtEntrepreneursRate -> amt(BigDecimal(0.00), "0.00(ctnCgDueEntrepreneursRate)"),
-    CgTaxPerCurrencyUnit         -> amt(
-      BigDecimal(0.00),
-      "0.00(atsCgTotGainsAfterLosses) + 0.00(atsCgGainsAfterLossesAmt)"
-    ),
-    TaxableGains                 -> amt(BigDecimal(0.00), "0.00(atsCgTotGainsAfterLosses) + 0.00(atsCgGainsAfterLossesAmt)"),
-    AmountDueAtOrdinaryRate      -> amt(BigDecimal(0.00), "0.00(ctnCgDueLowerRate)"),
+    AmountDueRPCILowerRate       -> calcExp("ctnLowerRateCgtRPCI"),
+    AmountAtHigherRate           -> calcExp("ctnCgAtHigherRate"),
+    Adjustments                  -> calcExp("capAdjustmentAmt"),
+    AmountAtOrdinaryRate         -> calcExp("ctnCgAtLowerRate"),
+    AmountAtRPCIHigheRate        -> calcExp("ctnCGAtHigherRateRPCI"),
+    AmountDueAtEntrepreneursRate -> calcExp("ctnCgDueEntrepreneursRate"),
+    CgTaxPerCurrencyUnit         -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt"),
+    TaxableGains                 -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt"),
+    AmountDueAtOrdinaryRate      -> calcExp("ctnCgDueLowerRate"),
     PayCgTaxOn                   -> amt(BigDecimal(0), "null (taxableGains() < get(CgAnnualExempt))"),
     TotalCgTax                   -> amt(
       BigDecimal(0.00),
       "max(0, Some(0.00(ctnLowerRateCgtRPCI) + 0.00(ctnHigherRateCgtRPCI) + 0.00(ctnCgDueEntrepreneursRate) + 0.00(ctnCgDueLowerRate) + 0.00(ctnCgDueHigherRate) + 0.00(capAdjustmentAmt)))"
     ),
-    AmountAtEntrepreneursRate    -> amt(BigDecimal(0.00), "0.00(ctnCgAtEntrepreneursRate)"),
-    LessTaxFreeAmount            -> amt(BigDecimal(12300.00), "12300.00(atsCgAnnualExemptAmt)"),
-    AmountDueRPCIHigherRate      -> amt(BigDecimal(0.00), "0.00(ctnHigherRateCgtRPCI)"),
-    AmountDueAtHigherRate        -> amt(BigDecimal(0.00), "0.00(ctnCgDueHigherRate)"),
-    AmountAtRPCILowerRate        -> amt(BigDecimal(0.00), "0.00(ctnCGAtLowerRateRPCI)")
+    AmountAtEntrepreneursRate    -> calcExp("ctnCgAtEntrepreneursRate"),
+    LessTaxFreeAmount            -> calcExp("atsCgAnnualExemptAmt"),
+    AmountDueRPCIHigherRate      -> calcExp("ctnHigherRateCgtRPCI"),
+    AmountDueAtHigherRate        -> calcExp("ctnCgDueHigherRate"),
+    AmountAtRPCILowerRate        -> calcExp("ctnCGAtLowerRateRPCI")
   )
 
   private val expectedResultSummaryData: Map[LiabilityKey, Amount] = Map(
