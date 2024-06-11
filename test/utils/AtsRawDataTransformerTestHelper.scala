@@ -16,6 +16,4 @@
 
 package utils
 
-trait AtsRawDataTransformerTestHelper {
-  
-}
+trait AtsRawDataTransformerTestHelper {}

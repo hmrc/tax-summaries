@@ -37,7 +37,8 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
     atsRawDataTransformer.atsDataDTO(jsonPayload, parsedTaxpayerDetailsJson, "", taxYear)
   }
 
-  private lazy val transformedData: AtsMiddleTierData = doTest(buildJsonPayload(tliSlpAtsData))
+  private lazy val transformedData: AtsMiddleTierData =
+    doTest(buildJsonPayload(incomeTaxStatus = "0002", tliSlpAtsData = tliSlpAtsData))
 
   "atsDataDTO for country Scotland and tax year 2023" must {
     "have the correct tax year from json" in {
@@ -227,7 +228,7 @@ object ATSRawDataTransformer2023ScottishSpec extends BaseSpec {
     expResultCapitalGainsData: Map[LiabilityKey, Amount],
     expResultAllowanceData: Map[LiabilityKey, Amount],
     expResultSummaryData: Map[LiabilityKey, Amount]
-  ): Unit =
+  ): Unit                                            =
     Set(
       ("income tax", transformedData.income_tax, expResultIncomeTax),
       ("income data", transformedData.income_data, expResultIncomeData),
@@ -564,10 +565,10 @@ object ATSRawDataTransformer2023ScottishSpec extends BaseSpec {
     TaxableGains              -> amt(BigDecimal(0.00), "0.00(atsCgTotGainsAfterLosses) + 0.00(atsCgGainsAfterLossesAmt)")
   )
 
-  private def buildJsonPayload(tliSlpAtsData: Map[String, BigDecimal]): JsObject = {
+  private def buildJsonPayload(incomeTaxStatus: String, tliSlpAtsData: Map[String, BigDecimal]): JsObject = {
     val tliSlpAtsDataAsJsObject = tliSlpAtsData.foldLeft[JsObject](
       Json.obj(
-        "incomeTaxStatus"          -> "0002",
+        "incomeTaxStatus"          -> incomeTaxStatus,
         "tliLastUpdated"           -> "2022-09-01",
         "ctnPensionLumpSumTaxRate" -> 0.00
       )
