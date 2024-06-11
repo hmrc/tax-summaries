@@ -30,8 +30,8 @@ import utils.{AtsJsonDataUpdate, AtsRawDataTransformerTestHelper}
 class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelper with AtsJsonDataUpdate {
   import ATSRawDataTransformer2023EnglishSpec._
 
-  override protected val taxYear: Int                           = 2023
-  override protected val incomeTaxStatus: String                = "0001"
+  override protected val taxYear: Int            = 2023
+  override protected val incomeTaxStatus: String = "0001"
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     "have the correct tax year from json" in {
@@ -71,21 +71,17 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
   }
 
   private def expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
-    StartingRateForSavingsAmount    -> calcExp("savingsRateAmountScottish2023:null"),
+    StartingRateForSavingsAmount    -> calcExp("ctnSavingsTaxStartingRate", "ctnTaxOnCegSr"),
     OtherAdjustmentsReducing        -> calcExp(fieldsOtherAdjustmentsReducing: _*),
     UpperRate                       -> calcExp("ctnDividendChgbleHighRate"),
-    SavingsLowerIncome              -> calcExp("ctnSavingsChgbleLowerRate"),
-    SavingsLowerRateTax             -> calcExp("ctnSavingsTaxLowerRate"),
-    ScottishIncomeTax               -> calcExp("scottishIncomeTaxScottish2023:null"),
-    ScottishIntermediateRateTax     -> calcExp("taxOnPaySIR", "ctnTaxOnRedundancySir", "ctnPensionLsumTaxDueAmt:null"),
+    SavingsLowerIncome              -> calcExp("savingsBasicRateIncome:null"),
+    SavingsLowerRateTax             -> calcExp("savingsBasicRateTax:null"),
+    ScottishIncomeTax               -> calcExp("scottishIncomeTaxUK2023:null"),
+    ScottishIntermediateRateTax     -> calcExp("scottishIntermediateRateTax:null"),
     MarriageAllowanceReceivedAmount -> calcExp("ctnMarriageAllceInAmt"),
     OrdinaryRateAmount              -> calcExp("ctnDividendTaxLowRate"),
-    ScottishHigherIncome            -> calcExp(
-      "ctnIncomeChgbleHigherRate",
-      "ctnTaxableRedundancyHr",
-      "itfStatePensionLsGrossAmt:null"
-    ),
-    ScottishStarterRateTax          -> calcExp("taxOnPaySSR", "ctnTaxOnRedundancySsr", "ctnPensionLsumTaxDueAmt:null"),
+    ScottishHigherIncome            -> calcExp("scottishHigherRateIncome:null"),
+    ScottishStarterRateTax          -> calcExp("scottishStarterRateTax:null"),
     AdditionalRate                  -> calcExp("ctnDividendChgbleAddHRate"),
     StartingRateForSavings          -> calcExp("savingsRateScottish2023:null"),
     AdditionalRateIncomeTax         -> calcExp("additionalRateIncomeTaxScottish2023:null"),
