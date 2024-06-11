@@ -23,24 +23,29 @@ import play.api.libs.json.{JsObject, Json}
 import transformers.ATSRawDataTransformer
 import utils.{AtsJsonDataUpdate, BaseSpec, JsonUtil}
 
+// TODO:-
+//   Move code into helper class
+//   Copy to England class (or add to existing class?) and get that working, do diff scenarios to cover everything.
+//   I don't need to use calcExp for every field - the more complex ones I can just hard coded exp values
+//    (as a WIP could over time improve this and reduce the no of hard coded values year on year)
+
 class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpdate {
   import ATSRawDataTransformer2023ScottishSpec._
-  private val taxpayerDetailsJson       = JsonUtil.load("/taxpayer/sa_taxpayer-valid.json")
-  private val parsedTaxpayerDetailsJson = Json.parse(taxpayerDetailsJson)
 
-  private val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  private def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
+    val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+    atsRawDataTransformer.atsDataDTO(jsonPayload, parsedTaxpayerDetailsJson, "", taxYear)
+  }
 
-  private lazy val parsedJson                     = buildJsonPayload(tliSlpAtsData)
-  private lazy val returnValue: AtsMiddleTierData =
-    atsRawDataTransformer.atsDataDTO(parsedJson, parsedTaxpayerDetailsJson, "", taxYear)
+  private lazy val transformedData: AtsMiddleTierData = doTest(buildJsonPayload(tliSlpAtsData))
 
   "atsDataDTO for country Scotland and tax year 2023" must {
     "have the correct tax year from json" in {
-      returnValue.taxYear mustBe taxYear
+      transformedData.taxYear mustBe taxYear
     }
 
     "use the correct tax rates" in {
-      returnValue.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
+      transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
         Set(
           Additional               -> ApiRate("39.35%"),
           Ordinary                 -> ApiRate("8.75%"),
@@ -61,7 +66,7 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
       )
 
       //      val parsedPayload: Option[Set[(RateKey, ApiRate)]] =
-      //        returnValue.income_tax.flatMap(_.rates).map(_.toSet)
+      //        doTest.income_tax.flatMap(_.rates).map(_.toSet)
       //      parsedPayload.map { x =>
       //        x.map { y =>
       //          println(s"""\n${y._1} -> ApiRate("${y._2.percent}"),""")
@@ -69,40 +74,22 @@ class ATSRawDataTransformer2023ScottishSpec extends BaseSpec with AtsJsonDataUpd
       //      }
     }
 
-    Set(
-      ("income tax", returnValue.income_tax, expectedResultIncomeTax),
-      ("income data", returnValue.income_data, expectedResultIncomeData),
-      ("cap gains data", returnValue.capital_gains_data, expectedResultCGData),
-      ("allowance data", returnValue.allowance_data, expectedResultAllowanceData)
-      //     ("summary data", returnValue.summary_data, expectedResultSummaryData)
-    ).foreach { case (descr, actualOptDataHolder, exp) =>
-      s"calculate field values correctly for $descr" when {
-        val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
-
-        //        act.foreach { y =>
-        //          println(s"""${y._1} -> amt(BigDecimal(${y._2.amount}), "${y._2.calculus.get}"),""")
-        //        }
-
-        act.foreach { item =>
-          exp.find(_._1 == item._1).map { actItem =>
-            s"field ${item._1} calculated" in {
-              item._2 mustBe actItem._2
-            }
-          }
-        }
-
-        "check for missing keys made" in {
-          exp.keys.toSeq.diff(act.keys.toSeq) mustBe Nil
-        }
-      }
-    }
+    behave like atsRawDataTransformer(
+      transformedData = transformedData,
+      expResultIncomeTax = expectedResultIncomeTax,
+      expResultIncomeData = expectedResultIncomeData,
+      expResultCapitalGainsData = expectedResultCGData,
+      expResultAllowanceData = expectedResultAllowanceData,
+      expResultSummaryData = expectedResultSummaryData
+    )
   }
 }
 
-object ATSRawDataTransformer2023ScottishSpec {
-  private val taxYear: Int = 2023
+object ATSRawDataTransformer2023ScottishSpec extends BaseSpec {
+  private val taxYear: Int              = 2023
+  private val parsedTaxpayerDetailsJson = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
-  private val tliSlpAtsData: Map[String, BigDecimal]           = Map(
+  private val tliSlpAtsData: Map[String, BigDecimal] = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(0.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(0.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(0.00),
@@ -233,6 +220,42 @@ object ATSRawDataTransformer2023ScottishSpec {
     "ctnTaxableRedundancySsr"    -> BigDecimal(0.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
+  private def atsRawDataTransformer(
+    transformedData: AtsMiddleTierData,
+    expResultIncomeTax: Map[LiabilityKey, Amount],
+    expResultIncomeData: Map[LiabilityKey, Amount],
+    expResultCapitalGainsData: Map[LiabilityKey, Amount],
+    expResultAllowanceData: Map[LiabilityKey, Amount],
+    expResultSummaryData: Map[LiabilityKey, Amount]
+  ): Unit =
+    Set(
+      ("income tax", transformedData.income_tax, expResultIncomeTax),
+      ("income data", transformedData.income_data, expResultIncomeData),
+      ("cap gains data", transformedData.capital_gains_data, expResultCapitalGainsData),
+      ("allowance data", transformedData.allowance_data, expResultAllowanceData)
+      //     ("summary data", doTest.summary_data, expResultSummaryData)
+    ).foreach { case (descr, actualOptDataHolder, exp) =>
+      s"calculate field values correctly for $descr" when {
+        val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
+
+        //        act.foreach { y =>
+        //          println(s"""${y._1} -> amt(BigDecimal(${y._2.amount}), "${y._2.calculus.get}"),""")
+        //        }
+
+        act.foreach { item =>
+          exp.find(_._1 == item._1).map { actItem =>
+            s"field ${item._1} calculated" in {
+              item._2 mustBe actItem._2
+            }
+          }
+        }
+
+        "check for missing keys made" in {
+          exp.keys.toSeq.diff(act.keys.toSeq) mustBe Nil
+        }
+      }
+    }
+
   private def amt(value: BigDecimal, calculus: String): Amount = Amount(value, "GBP", Some(calculus))
 
   private def calcExp(fieldNames: String*): Amount = {
@@ -284,6 +307,50 @@ object ATSRawDataTransformer2023ScottishSpec {
     "ctnChildBenefitChrgAmt",
     "ctnPensionSavingChrgbleAmt"
   )
+
+  private def fieldsSelfEmployment: Seq[String] = Seq(
+    "ctnSummaryTotalScheduleD",
+    "ctnSummaryTotalPartnership",
+    "ctnSavingsPartnership",
+    "ctnDividendsPartnership"
+  )
+
+  private def fieldsOtherIncome: Seq[String] = Seq(
+    "ctnSummaryTotShareOptions",
+    "ctnSummaryTotalUklProperty",
+    "ctnSummaryTotForeignIncome",
+    "ctnSummaryTotTrustEstates",
+    "ctnSummaryTotalOtherIncome",
+    "ctnSummaryTotalUkInterest",
+    "ctnSummaryTotForeignDiv",
+    "ctnSummaryTotalUkIntDivs",
+    "ctn4SumTotLifePolicyGains",
+    "ctnSummaryTotForeignSav",
+    "ctnForeignCegDedn",
+    "itfCegReceivedAfterTax"
+  )
+
+  private def fieldsTotalIncomeBeforeTax: Seq[String] =
+    fieldsSelfEmployment ++ Seq(
+      "ctnSummaryTotalEmployment",
+      "atsStatePensionAmt",
+      "atsOtherPensionAmt",
+      "itfStatePensionLsGrossAmt",
+      "atsIncBenefitSuppAllowAmt",
+      "atsJobSeekersAllowanceAmt",
+      "atsOthStatePenBenefitsAmt"
+    ) ++ fieldsOtherIncome ++ Seq("ctnEmploymentBenefitsAmt")
+
+  private def fieldsTotalCgTax: Seq[String] = Seq(
+    "ctnLowerRateCgtRPCI",
+    "ctnHigherRateCgtRPCI",
+    "ctnCgDueEntrepreneursRate",
+    "ctnCgDueLowerRate",
+    "ctnCgDueHigherRate",
+    "capAdjustmentAmt"
+  )
+
+  private def fieldsTaxableGains: Seq[String] = Seq("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
 
   private def expTotalIncomeTax: Amount =
     ((calcExp(
@@ -392,39 +459,6 @@ object ATSRawDataTransformer2023ScottishSpec {
     ScottishStarterIncome           -> calcExp("taxablePaySSR", "ctnTaxableRedundancySsr", "itfStatePensionLsGrossAmt:null")
   )
 
-  private def fieldsSelfEmployment: Seq[String] = Seq(
-    "ctnSummaryTotalScheduleD",
-    "ctnSummaryTotalPartnership",
-    "ctnSavingsPartnership",
-    "ctnDividendsPartnership"
-  )
-
-  private def fieldsOtherIncome: Seq[String] = Seq(
-    "ctnSummaryTotShareOptions",
-    "ctnSummaryTotalUklProperty",
-    "ctnSummaryTotForeignIncome",
-    "ctnSummaryTotTrustEstates",
-    "ctnSummaryTotalOtherIncome",
-    "ctnSummaryTotalUkInterest",
-    "ctnSummaryTotForeignDiv",
-    "ctnSummaryTotalUkIntDivs",
-    "ctn4SumTotLifePolicyGains",
-    "ctnSummaryTotForeignSav",
-    "ctnForeignCegDedn",
-    "itfCegReceivedAfterTax"
-  )
-
-  private def fieldsTotalIncomeBeforeTax: Seq[String] =
-    fieldsSelfEmployment ++ Seq(
-      "ctnSummaryTotalEmployment",
-      "atsStatePensionAmt",
-      "atsOtherPensionAmt",
-      "itfStatePensionLsGrossAmt",
-      "atsIncBenefitSuppAllowAmt",
-      "atsJobSeekersAllowanceAmt",
-      "atsOthStatePenBenefitsAmt"
-    ) ++ fieldsOtherIncome ++ Seq("ctnEmploymentBenefitsAmt")
-
   private val expectedResultIncomeData: Map[LiabilityKey, Amount] = Map(
     SelfEmploymentIncome   -> calcExp(fieldsSelfEmployment: _*),
     IncomeFromEmployment   -> calcExp("ctnSummaryTotalEmployment"),
@@ -465,17 +499,6 @@ object ATSRawDataTransformer2023ScottishSpec {
       "ctnPersonalAllowance"
     ) - calcExp("ctnMarriageAllceOutAmt"))
   )
-
-  private def fieldsTotalCgTax: Seq[String] = Seq(
-    "ctnLowerRateCgtRPCI",
-    "ctnHigherRateCgtRPCI",
-    "ctnCgDueEntrepreneursRate",
-    "ctnCgDueLowerRate",
-    "ctnCgDueHigherRate",
-    "capAdjustmentAmt"
-  )
-
-  private def fieldsTaxableGains: Seq[String] = Seq("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
 
   private def expPayCapitalGainsTaxOn: Amount = {
     val taxableGains         = calcExp(fieldsTaxableGains: _*)
