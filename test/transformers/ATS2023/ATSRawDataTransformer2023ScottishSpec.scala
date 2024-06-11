@@ -255,11 +255,7 @@ object ATSRawDataTransformer2023ScottishSpec {
 
     val initialValue = retrieveAmount(fieldNames.head)
     fieldNames.tail.foldLeft[Amount](initialValue) { (c, i) =>
-      if (i.startsWith("-")) {
-        c - retrieveAmount(i.substring(1))
-      } else {
-        c + retrieveAmount(i)
-      }
+      c + retrieveAmount(i)
     }
   }
 
@@ -289,61 +285,43 @@ object ATSRawDataTransformer2023ScottishSpec {
     "ctnPensionSavingChrgbleAmt"
   )
 
-  private val fieldsXX1 = Seq(
-    "savingsRateAmountScottish2023:null",
-    "basicRateIncomeTaxAmountScottish2023:null",
-    "higherRateIncomeTaxAmountScottish2023:null",
-    "additionalRateIncomeTaxAmountScottish2023:null",
-    "ctnDividendTaxLowRate",
-    "ctnDividendTaxHighRate",
-    "ctnDividendTaxAddHighRate"
-  )
-
-  private val fieldsXX2 = Seq(
-    "taxOnPaySSR",
-    "ctnTaxOnRedundancySsr",
-    "ctnPensionLsumTaxDueAmt:null",
-    "ctnIncomeTaxBasicRate",
-    "ctnTaxOnRedundancyBr",
-    "ctnPensionLsumTaxDueAmt:null",
-    "taxOnPaySIR",
-    "ctnTaxOnRedundancySir",
-    "ctnPensionLsumTaxDueAmt:null",
-    "ctnIncomeTaxHigherRate",
-    "ctnTaxOnRedundancyHr",
-    "ctnPensionLsumTaxDueAmt:null",
-    "ctnIncomeTaxAddHighRate",
-    "ctnTaxOnRedundancyAhr",
-    "ctnPensionLsumTaxDueAmt:null",
-    "ctnSavingsTaxLowerRate",
-    "ctnSavingsTaxHigherRate",
-    "ctnSavingsTaxAddHighRate",
-    "ctnTaxOnCegAhr"
-  )
-
   private def expTotalIncomeTax: Amount =
-    ((calcExp((fieldsXX1 ++ fieldsOtherAdjustmentsIncreasing): _*) - calcExp(
+    ((calcExp(
+      (Seq(
+        "savingsRateAmountScottish2023:null",
+        "basicRateIncomeTaxAmountScottish2023:null",
+        "higherRateIncomeTaxAmountScottish2023:null",
+        "additionalRateIncomeTaxAmountScottish2023:null",
+        "ctnDividendTaxLowRate",
+        "ctnDividendTaxHighRate",
+        "ctnDividendTaxAddHighRate"
+      ) ++ fieldsOtherAdjustmentsIncreasing): _*
+    ) - calcExp(
       fieldsOtherAdjustmentsReducing: _*
-    )) - calcExp(
-      "ctnMarriageAllceInAmt"
-    )) + calcExp(
-      fieldsXX2: _*
+    )) - calcExp("ctnMarriageAllceInAmt")) + calcExp(
+      "taxOnPaySSR",
+      "ctnTaxOnRedundancySsr",
+      "ctnPensionLsumTaxDueAmt:null",
+      "ctnIncomeTaxBasicRate",
+      "ctnTaxOnRedundancyBr",
+      "ctnPensionLsumTaxDueAmt:null",
+      "taxOnPaySIR",
+      "ctnTaxOnRedundancySir",
+      "ctnPensionLsumTaxDueAmt:null",
+      "ctnIncomeTaxHigherRate",
+      "ctnTaxOnRedundancyHr",
+      "ctnPensionLsumTaxDueAmt:null",
+      "ctnIncomeTaxAddHighRate",
+      "ctnTaxOnRedundancyAhr",
+      "ctnPensionLsumTaxDueAmt:null",
+      "ctnSavingsTaxLowerRate",
+      "ctnSavingsTaxHigherRate",
+      "ctnSavingsTaxAddHighRate",
+      "ctnTaxOnCegAhr"
     )
 
-  private def expTotalTaxFreeAmount: Amount = calcExp(
-    "ctnEmploymentExpensesAmt",
-    "ctnSummaryTotalDedPpr",
-    "ctnSumTotForeignTaxRelief",
-    "ctnSumTotLossRestricted",
-    "grossAnnuityPayts",
-    "itf4GiftsInvCharitiesAmo",
-    "ctnBpaAllowanceAmt",
-    "itfBpaAmount",
-    "ctnPersonalAllowance"
-  ) - calcExp("ctnMarriageAllceOutAmt")
-
   private val expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
-    StartingRateForSavingsAmount    -> calcExp("savingsRateAmountScottish2023:null"), //ctnSavingsTaxStartingRate
+    StartingRateForSavingsAmount    -> calcExp("savingsRateAmountScottish2023:null"),
     OtherAdjustmentsReducing        -> calcExp(fieldsOtherAdjustmentsReducing: _*),
     UpperRate                       -> calcExp("ctnDividendChgbleHighRate"),
     SavingsLowerIncome              -> calcExp("ctnSavingsChgbleLowerRate"),
@@ -448,12 +426,7 @@ object ATSRawDataTransformer2023ScottishSpec {
     ) ++ fieldsOtherIncome ++ Seq("ctnEmploymentBenefitsAmt")
 
   private val expectedResultIncomeData: Map[LiabilityKey, Amount] = Map(
-    SelfEmploymentIncome   -> calcExp(
-      "ctnSummaryTotalScheduleD",
-      "ctnSummaryTotalPartnership",
-      "ctnSavingsPartnership",
-      "ctnDividendsPartnership"
-    ),
+    SelfEmploymentIncome   -> calcExp(fieldsSelfEmployment: _*),
     IncomeFromEmployment   -> calcExp("ctnSummaryTotalEmployment"),
     StatePension           -> calcExp("atsStatePensionAmt"),
     OtherPensionIncome     -> calcExp("atsOtherPensionAmt", "itfStatePensionLsGrossAmt"),
@@ -480,7 +453,17 @@ object ATSRawDataTransformer2023ScottishSpec {
       "ctnBpaAllowanceAmt",
       "itfBpaAmount"
     ),
-    TotalTaxFreeAmount                 -> expTotalTaxFreeAmount
+    TotalTaxFreeAmount                 -> (calcExp(
+      "ctnEmploymentExpensesAmt",
+      "ctnSummaryTotalDedPpr",
+      "ctnSumTotForeignTaxRelief",
+      "ctnSumTotLossRestricted",
+      "grossAnnuityPayts",
+      "itf4GiftsInvCharitiesAmo",
+      "ctnBpaAllowanceAmt",
+      "itfBpaAmount",
+      "ctnPersonalAllowance"
+    ) - calcExp("ctnMarriageAllceOutAmt"))
   )
 
   private def fieldsTotalCgTax: Seq[String] = Seq(
