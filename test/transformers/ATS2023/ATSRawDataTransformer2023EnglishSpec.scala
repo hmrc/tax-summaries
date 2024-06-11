@@ -27,11 +27,12 @@ import utils.{AtsJsonDataUpdate, AtsRawDataTransformerTestHelper}
 //   I don't need to use calcExp for every field - the more complex ones I can just hard coded exp values
 //    (as a WIP could over time improve this and reduce the no of hard coded values year on year)
 
-class ATSRawDataTransformer2023ScottishSpec extends AtsRawDataTransformerTestHelper with AtsJsonDataUpdate {
-  import ATSRawDataTransformer2023ScottishSpec._
+class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelper with AtsJsonDataUpdate {
+  import ATSRawDataTransformer2023EnglishSpec._
 
-  override protected val taxYear: Int            = 2023
-  override protected val incomeTaxStatus: String = "0002"
+  override protected val taxYear: Int                           = 2023
+  override protected val incomeTaxStatus: String                = "0001"
+
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     "have the correct tax year from json" in {
       transformedData.taxYear mustBe taxYear
@@ -285,7 +286,7 @@ class ATSRawDataTransformer2023ScottishSpec extends AtsRawDataTransformerTestHel
   }
 }
 
-object ATSRawDataTransformer2023ScottishSpec {
+object ATSRawDataTransformer2023EnglishSpec {
   private final val fieldsOtherAdjustmentsReducing = Seq(
     "ctnDeficiencyRelief",
     "topSlicingRelief",
