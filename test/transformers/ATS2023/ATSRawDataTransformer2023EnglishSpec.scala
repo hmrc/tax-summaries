@@ -21,12 +21,6 @@ import models.RateKey._
 import models._
 import utils.{AtsJsonDataUpdate, AtsRawDataTransformerTestHelper}
 
-// TODO:-
-//   Move code into helper class
-//   Copy to England class (or add to existing class?) and get that working, do diff scenarios to cover everything.
-//   I don't need to use calcExp for every field - the more complex ones I can just hard coded exp values
-//    (as a WIP could over time improve this and reduce the no of hard coded values year on year)
-
 class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelper with AtsJsonDataUpdate {
   import ATSRawDataTransformer2023EnglishSpec._
 
@@ -70,15 +64,20 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
       expResultSummaryData = expectedResultSummaryData
     )
 
+    val tliSlpAtsDataAlternative = tliSlpAtsData ++ Map(
+      "taxExcluded"          -> BigDecimal(0.00),
+      "taxOnNonExcludedInc"  -> BigDecimal(0.00),
+      "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
+    ).map(item => item._1 -> item._2.setScale(2))
+
     behave like atsRawDataTransformer(
-      description = "tax excluded/ tax on non-excluded income",
+      description = "tax excluded/ tax on non-excluded income/gains>cg exempt amount",
       transformedData = doTest(
-        buildJsonPayload(tliSlpAtsData =
-          tliSlpAtsData ++ Map(
-            "taxExcluded"         -> BigDecimal(0.00),
-            "taxOnNonExcludedInc" -> BigDecimal(0.00)
-          )
-        )
+        buildJsonPayload(tliSlpAtsData = tliSlpAtsDataAlternative)
+      ),
+      expResultCapitalGainsData = expectedResultCGData ++ Map(
+        PayCgTaxOn        -> (calcExp(fieldsTaxableGains: _*) - calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")),
+        LessTaxFreeAmount -> calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")
       ),
       expResultSummaryData = expectedResultSummaryDataNonExcluded
     )
@@ -206,7 +205,7 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
     ),
     TaxableGains                 -> calcExp(fieldsTaxableGains: _*),
     AmountDueAtOrdinaryRate      -> calcExp("ctnCgDueLowerRate"),
-    PayCgTaxOn                   -> expPayCapitalGainsTaxOn,
+    PayCgTaxOn                   -> Amount.empty("taxableGains() < get(CgAnnualExempt)"),
     TotalCgTax                   -> calcExp(fieldsTotalCgTax: _*).max(0),
     AmountAtEntrepreneursRate    -> calcExp("ctnCgAtEntrepreneursRate"),
     LessTaxFreeAmount            -> calcExp("atsCgAnnualExemptAmt"),
@@ -288,9 +287,9 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
     TaxableGains          -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
   )
 
-  private def expEmployeeNicAmount: Amount = calcExp("employeeClass1Nic", "ctnClass2NicAmt", "class4Nic")
+  protected def expEmployeeNicAmount: Amount = calcExp("employeeClass1Nic", "ctnClass2NicAmt", "class4Nic")
 
-  private def expTotalTaxFreeAmount: Amount = calcExp(
+  protected def expTotalTaxFreeAmount: Amount = calcExp(
     "ctnEmploymentExpensesAmt",
     "ctnSummaryTotalDedPpr",
     "ctnSumTotForeignTaxRelief",
@@ -302,16 +301,7 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
     "ctnPersonalAllowance"
   ) - calcExp("ctnMarriageAllceOutAmt")
 
-  private def expPayCapitalGainsTaxOn: Amount = {
-    val taxableGains         = calcExp(fieldsTaxableGains: _*)
-    val cgAnnualExemptAmount = calcExp("atsCgAnnualExemptAmt")
-    if (taxableGains < cgAnnualExemptAmount) {
-      Amount.empty("taxableGains() < get(CgAnnualExempt)")
-    } else {
-      taxableGains - cgAnnualExemptAmount
-    }
-  }
-  private def otherAdjustmentsIncreasing    = calcExp(
+  protected def otherAdjustmentsIncreasing: Amount = calcExp(
     "nonDomChargeAmount",
     "giftAidTaxReduced",
     "netAnnuityPaytsTaxDue",
@@ -319,7 +309,7 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
     "ctnPensionSavingChrgbleAmt"
   )
 
-  private def expOtherAdjustmentsReducing: Amount = calcExp(
+  protected def expOtherAdjustmentsReducing: Amount = calcExp(
     "ctnDeficiencyRelief",
     "topSlicingRelief",
     "ctnVctSharesReliefAmt",

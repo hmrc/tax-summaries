@@ -212,7 +212,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
 
   protected def amt(value: BigDecimal, calculus: String): Amount = Amount(value, "GBP", Some(calculus))
 
-  protected def calcExp(fieldNames: String*): Amount = {
+  protected def calcExp(tliSlpAtsData: Map[String, BigDecimal], fieldNames: String*): Amount = {
     val retrieveAmount: String => Amount = fieldName => {
       val (name, isNull) = {
         if (fieldName.endsWith(":null")) {
@@ -241,6 +241,9 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       c + retrieveAmount(i)
     }
   }
+
+  protected def calcExp(fieldNames: String*): Amount =
+    calcExp(tliSlpAtsData, fieldNames: _*)
 
   protected def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount): Amount =
     taxable match {
