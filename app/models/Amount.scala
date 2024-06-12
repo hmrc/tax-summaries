@@ -54,13 +54,6 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
     copy(amount = this.amount + that.amount, calculus = calculus)
   }
 
-  private def bracket(calculus: String): String =
-    if (calculus.contains(" + ") || calculus.contains(" - ")) {
-      "(" + calculus + ")"
-    } else {
-      calculus
-    }
-
   def -(that: Amount): Amount = {
     require(this.currency equals that.currency)
     val calculus = (this.calculus, that.calculus) match {
@@ -76,15 +69,13 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
         val error = new RuntimeException("A None calculus was found for argument this")
         logger.error(error.getMessage, error)
         Some(s"None - $thatCalculus")
-      case (Some(thisCalculus), Some(thatCalculus)) => Some(s"${bracket(thisCalculus)} - ${bracket(thatCalculus)}")
+      case (Some(thisCalculus), Some(thatCalculus)) => Some(s"$thisCalculus - $thatCalculus")
     }
     copy(amount = this.amount - that.amount, calculus = calculus)
   }
 
-  def *(that: Double): Amount = {
-    println("\n#######" + that)
+  def *(that: Double): Amount =
     copy(amount = this.amount * that, calculus = this.calculus.map(calc => s"$that * ($calc)"))
-  }
 
   def compare(that: Amount): Int = {
     require(this.currency equals that.currency)

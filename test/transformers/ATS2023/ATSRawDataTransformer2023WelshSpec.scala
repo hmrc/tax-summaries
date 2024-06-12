@@ -61,6 +61,7 @@ class ATSRawDataTransformer2023WelshSpec extends AtsRawDataTransformerTestHelper
     }
 
     behave like atsRawDataTransformer(
+      description = "main",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,

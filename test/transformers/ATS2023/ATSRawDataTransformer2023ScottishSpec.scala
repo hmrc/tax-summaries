@@ -60,6 +60,7 @@ class ATSRawDataTransformer2023ScottishSpec extends AtsRawDataTransformerTestHel
     }
 
     behave like atsRawDataTransformer(
+      description = "main",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
@@ -277,6 +278,7 @@ class ATSRawDataTransformer2023ScottishSpec extends AtsRawDataTransformerTestHel
     )
 
   private def expectedResultSummaryData: Map[LiabilityKey, Amount] = Map(
+    // TODO: The field below is failing - I think due to 2 excluded fields
     TotalIncomeTaxAndNics -> expTotalIncomeTaxAndNics,
     //    NicsAndTaxPerCurrencyUnit -> calcExp(
     //      "employeeClass1Nic",

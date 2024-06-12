@@ -176,33 +176,29 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     atsRawDataTransformer.atsDataDTO(jsonPayload, parsedTaxpayerDetailsJson, "", taxYear)
   }
 
-  protected def transformedData: AtsMiddleTierData = doTest(buildJsonPayload)
+  protected def transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
 
   protected def atsRawDataTransformer(
+    description: String,
     transformedData: AtsMiddleTierData,
-    expResultIncomeTax: Map[LiabilityKey, Amount],
-    expResultIncomeData: Map[LiabilityKey, Amount],
-    expResultCapitalGainsData: Map[LiabilityKey, Amount],
-    expResultAllowanceData: Map[LiabilityKey, Amount],
-    expResultSummaryData: Map[LiabilityKey, Amount]
+    expResultIncomeTax: Map[LiabilityKey, Amount] = Map.empty,
+    expResultIncomeData: Map[LiabilityKey, Amount] = Map.empty,
+    expResultCapitalGainsData: Map[LiabilityKey, Amount] = Map.empty,
+    expResultAllowanceData: Map[LiabilityKey, Amount] = Map.empty,
+    expResultSummaryData: Map[LiabilityKey, Amount] = Map.empty
   ): Unit =
-    Set(
+    Seq(
       ("income tax", transformedData.income_tax, expResultIncomeTax),
       ("income data", transformedData.income_data, expResultIncomeData),
       ("cap gains data", transformedData.capital_gains_data, expResultCapitalGainsData),
       ("allowance data", transformedData.allowance_data, expResultAllowanceData),
       ("summary data", transformedData.summary_data, expResultSummaryData)
-    ).foreach { case (descr, actualOptDataHolder, exp) =>
-      s"calculate field values correctly for $descr" when {
+    ).foreach { case (section, actualOptDataHolder, exp) =>
+      s"calculate $description field values correctly for $section" when {
         val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
-
-        //        act.foreach { y =>
-        //          println(s"""${y._1} -> amt(BigDecimal(${y._2.amount}), "${y._2.calculus.get}"),""")
-        //        }
-
         act.foreach { item =>
           exp.find(_._1 == item._1).map { actItem =>
-            s"field ${item._1} calculated" in {
+            s"field ${item._1} calculated (act ${actItem._2.amount}, exp ${item._2.amount})" in {
               item._2 mustBe actItem._2
             }
           }
@@ -252,7 +248,10 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       case _                     => tax.divideWithPrecision(taxable, 4)
     }
 
-  protected def buildJsonPayload: JsObject = {
+  protected def buildJsonPayload(
+    tliSlpAtsData: Map[String, BigDecimal] = tliSlpAtsData,
+    saPayeNicDetails: Map[String, BigDecimal] = saPayeNicDetails
+  ): JsObject = {
     val tliSlpAtsDataAsJsObject    = tliSlpAtsData.foldLeft[JsObject](
       Json.obj(
         "incomeTaxStatus"          -> incomeTaxStatus,
