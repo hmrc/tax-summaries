@@ -81,8 +81,10 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
     copy(amount = this.amount - that.amount, calculus = calculus)
   }
 
-  def *(that: Double): Amount =
+  def *(that: Double): Amount = {
+    println("\n#######" + that)
     copy(amount = this.amount * that, calculus = this.calculus.map(calc => s"$that * ($calc)"))
+  }
 
   def compare(that: Amount): Int = {
     require(this.currency equals that.currency)
