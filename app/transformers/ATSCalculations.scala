@@ -209,7 +209,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       getWithDefaultAmount(LFIRelief) +
       getWithDefaultAmount(Alimony)
 
-  def totalIncomeTaxAmount: Amount =
+  def totalIncomeTaxAmount: Amount  =
     savingsRateAmount + // LS12.1
       basicRateIncomeTaxAmount + // LS12.2
       higherRateIncomeTaxAmount + // LS12.3

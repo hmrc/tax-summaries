@@ -32,7 +32,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
   protected val taxYear: Int
   protected val incomeTaxStatus: String
 
-  protected val tliSlpAtsData: Map[String, BigDecimal] = Map(
+  protected val tliSlpAtsData: Map[String, BigDecimal]  = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(10.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(20.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(30.00),
@@ -163,7 +163,13 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "ctnTaxableRedundancySsr"    -> BigDecimal(1070.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def parsedTaxpayerDetailsJson: JsValue     = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
+  private val saPayeNicDetails: Map[String, BigDecimal] = Map(
+    "employeeClass1Nic" -> BigDecimal(1080.00),
+    "employeeClass2Nic" -> BigDecimal(200.00),
+    "employerNic"       -> BigDecimal(0.00)
+  ).map(item => item._1 -> item._2.setScale(2))
+
+  protected def parsedTaxpayerDetailsJson: JsValue      = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
   protected def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
@@ -184,8 +190,8 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       ("income tax", transformedData.income_tax, expResultIncomeTax),
       ("income data", transformedData.income_data, expResultIncomeData),
       ("cap gains data", transformedData.capital_gains_data, expResultCapitalGainsData),
-      ("allowance data", transformedData.allowance_data, expResultAllowanceData)
-      //     ("summary data", doTest.summary_data, expResultSummaryData)
+      ("allowance data", transformedData.allowance_data, expResultAllowanceData),
+      ("summary data", transformedData.summary_data, expResultSummaryData)
     ).foreach { case (descr, actualOptDataHolder, exp) =>
       s"calculate field values correctly for $descr" when {
         val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
@@ -223,7 +229,13 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       if (isNull) {
         Amount.empty(name)
       } else {
-        val bdValue = tliSlpAtsData(name)
+        val bdValue = if (tliSlpAtsData.isDefinedAt(name)) {
+          tliSlpAtsData(name)
+        } else if (saPayeNicDetails.isDefinedAt(name)) {
+          saPayeNicDetails(name)
+        } else {
+          throw new NoSuchElementException("key not found in either tliSlpAtsData or saPayeNicDetails: " + name)
+        }
         Amount(bdValue, "GBP", Some(s"$bdValue($name)"))
       }
     }
@@ -241,7 +253,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     }
 
   protected def buildJsonPayload: JsObject = {
-    val tliSlpAtsDataAsJsObject = tliSlpAtsData.foldLeft[JsObject](
+    val tliSlpAtsDataAsJsObject    = tliSlpAtsData.foldLeft[JsObject](
       Json.obj(
         "incomeTaxStatus"          -> incomeTaxStatus,
         "tliLastUpdated"           -> "2022-09-01",
@@ -255,22 +267,18 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
         )
       )
     }
-    Json.obj(
-      "taxYear" -> taxYear,
-      "saPayeNicDetails" -> Json.obj(
-        "employeeClass1Nic" -> Json.obj(
-          "amount"   -> BigDecimal(100.00).setScale(2),
-          "currency" -> "GBP"
-        ),
-        "employeeClass2Nic" -> Json.obj(
-          "amount"   -> BigDecimal(200.00).setScale(2),
-          "currency" -> "GBP"
-        ),
-        "employerNic"       -> Json.obj(
-          "amount"   -> BigDecimal(0.00).setScale(2),
+    val saPayeNicDetailsAsJsObject = saPayeNicDetails.foldLeft[JsObject](Json.obj()) { (c, i) =>
+      c ++ Json.obj(
+        i._1 -> Json.obj(
+          "amount"   -> i._2.setScale(2),
           "currency" -> "GBP"
         )
-      ),
+      )
+    }
+
+    Json.obj(
+      "taxYear"          -> taxYear,
+      "saPayeNicDetails" -> saPayeNicDetailsAsJsObject,
       "tliSlpAtsData"    -> tliSlpAtsDataAsJsObject
     )
   }
