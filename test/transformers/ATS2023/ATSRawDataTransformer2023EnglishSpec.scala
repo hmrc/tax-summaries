@@ -83,59 +83,75 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
     ScottishHigherIncome            -> calcExp("scottishHigherRateIncome:null"),
     ScottishStarterRateTax          -> calcExp("scottishStarterRateTax:null"),
     AdditionalRate                  -> calcExp("ctnDividendChgbleAddHRate"),
-    StartingRateForSavings          -> calcExp("savingsRateScottish2023:null"),
-    AdditionalRateIncomeTax         -> calcExp("additionalRateIncomeTaxScottish2023:null"),
-    SavingsAdditionalIncome         -> calcExp("ctnSavingsChgbleAddHRate"),
-    SavingsHigherIncome             -> calcExp("ctnSavingsChgbleHigherRate"),
+    StartingRateForSavings          -> calcExp("ctnSavingsChgbleStartRate", "ctnTaxableCegSr"),
+    AdditionalRateIncomeTax         -> calcExp(
+      "ctnIncomeChgbleAddHRate",
+      "ctnSavingsChgbleAddHRate",
+      "ctnTaxableRedundancyAhr",
+      "ctnTaxableCegAhr",
+      "itfStatePensionLsGrossAmt:null"
+    ),
+    SavingsAdditionalIncome         -> calcExp("savingsAdditionalRateIncome:null"),
+    SavingsHigherIncome             -> calcExp("savingsHigherRateIncome:null"),
     ScottishAdditionalRateTax       -> calcExp(
-      "ctnIncomeTaxAddHighRate",
-      "ctnTaxOnRedundancyAhr",
-      "ctnPensionLsumTaxDueAmt:null"
+      "scottishAdditionalRateTax:null"
     ),
     OtherAdjustmentsIncreasing      -> calcExp(fieldsOtherAdjustmentsIncreasing: _*),
-    HigherRateIncomeTax             -> calcExp("higherRateIncomeTaxScottish2023:null"),
-    ScottishBasicRateTax            -> calcExp("ctnIncomeTaxBasicRate", "ctnTaxOnRedundancyBr", "ctnPensionLsumTaxDueAmt:null"),
-    BasicRateIncomeTaxAmount        -> calcExp("basicRateIncomeTaxAmountScottish2023:null"),
-    AdditionalRateAmount            -> calcExp("ctnDividendTaxAddHighRate"),
-    WelshIncomeTax                  -> calcExp("welshIncomeTax:null"),
-    ScottishAdditionalIncome        -> calcExp(
-      "ctnIncomeChgbleAddHRate",
-      "ctnTaxableRedundancyAhr",
+    HigherRateIncomeTax             -> calcExp(
+      "ctnIncomeChgbleHigherRate",
+      "ctnSavingsChgbleHigherRate",
+      "ctnTaxableRedundancyHr",
+      "ctnTaxableCegHr",
       "itfStatePensionLsGrossAmt:null"
     ),
-    ScottishIntermediateIncome      -> calcExp("taxablePaySIR", "ctnTaxableRedundancySir", "itfStatePensionLsGrossAmt:null"),
-    UpperRateAmount                 -> calcExp("ctnDividendTaxHighRate"),
-    AdditionalRateIncomeTaxAmount   -> calcExp("additionalRateIncomeTaxAmountScottish2023:null"),
-    ScottishBasicIncome             -> calcExp(
-      "ctnIncomeChgbleBasicRate",
-      "ctnTaxableRedundancyBr",
-      "itfStatePensionLsGrossAmt:null"
-    ),
-    ScottishTotalTax                -> calcExp(
-      "taxOnPaySSR",
-      "ctnTaxOnRedundancySsr",
-      "ctnPensionLsumTaxDueAmt:null",
+    ScottishBasicRateTax            -> calcExp("scottishBasicRateTax:null"),
+    BasicRateIncomeTaxAmount        -> calcExp(
       "ctnIncomeTaxBasicRate",
+      "ctnSavingsTaxLowerRate",
       "ctnTaxOnRedundancyBr",
-      "ctnPensionLsumTaxDueAmt:null",
-      "taxOnPaySIR",
-      "ctnTaxOnRedundancySir",
-      "ctnPensionLsumTaxDueAmt:null",
-      "ctnIncomeTaxHigherRate",
-      "ctnTaxOnRedundancyHr",
-      "ctnPensionLsumTaxDueAmt:null",
-      "ctnIncomeTaxAddHighRate",
-      "ctnTaxOnRedundancyAhr",
+      "ctnTaxOnCegBr",
       "ctnPensionLsumTaxDueAmt:null"
     ),
-    BasicRateIncomeTax              -> calcExp("basicRateIncomeTaxScottish2023:null"),
-    SavingsAdditionalRateTax        -> calcExp("ctnSavingsTaxAddHighRate", "ctnTaxOnCegAhr"),
-    HigherRateIncomeTaxAmount       -> calcExp("higherRateIncomeTaxAmountScottish2023:null"),
-    TotalIncomeTax                  -> expTotalIncomeTax,
-    SavingsHigherRateTax            -> calcExp("ctnSavingsTaxHigherRate"),
+    AdditionalRateAmount            -> calcExp("ctnDividendTaxAddHighRate"),
+    WelshIncomeTax                  -> calcExp("welshIncomeTax:null"),
+    ScottishAdditionalIncome        -> calcExp("scottishAdditionalRateIncome:null"),
+    ScottishIntermediateIncome      -> calcExp("scottishIntermediateRateIncome:null"),
+    UpperRateAmount                 -> calcExp("ctnDividendTaxHighRate"),
+    AdditionalRateIncomeTaxAmount   -> calcExp(
+      "ctnIncomeTaxAddHighRate",
+      "ctnSavingsTaxAddHighRate",
+      "ctnTaxOnRedundancyAhr",
+      "ctnTaxOnCegAhr",
+      "ctnPensionLsumTaxDueAmt:null"
+    ),
+    ScottishBasicIncome             -> calcExp("scottishBasicRateIncome:null"),
+    ScottishTotalTax                -> calcExp(
+      "scottishStarterRateTax:null",
+      "scottishBasicRateTax:null",
+      "scottishIntermediateRateTax:null",
+      "scottishHigherRateTax:null",
+      "scottishAdditionalRateTax:null"
+    ),
+    BasicRateIncomeTax              -> calcExp(
+      "ctnIncomeChgbleBasicRate",
+      "ctnSavingsChgbleLowerRate",
+      "ctnTaxableRedundancyBr",
+      "ctnTaxableCegBr",
+      "itfStatePensionLsGrossAmt:null"
+    ),
+    SavingsAdditionalRateTax        -> calcExp("savingsAdditionalRateTax:null"),
+    HigherRateIncomeTaxAmount       -> calcExp(
+      "ctnIncomeTaxHigherRate",
+      "ctnSavingsTaxHigherRate",
+      "ctnTaxOnRedundancyHr",
+      "ctnTaxOnCegHr",
+      "ctnPensionLsumTaxDueAmt:null"
+    ),
+    TotalIncomeTax                  -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
+    SavingsHigherRateTax            -> calcExp("savingsHigherRateTax:null"),
     OrdinaryRate                    -> calcExp("ctnDividendChgbleLowRate"),
-    ScottishHigherRateTax           -> calcExp("ctnIncomeTaxHigherRate", "ctnTaxOnRedundancyHr", "ctnPensionLsumTaxDueAmt:null"),
-    ScottishStarterIncome           -> calcExp("taxablePaySSR", "ctnTaxableRedundancySsr", "itfStatePensionLsGrossAmt:null")
+    ScottishHigherRateTax           -> calcExp("scottishHigherRateTax:null"),
+    ScottishStarterIncome           -> calcExp("scottishStarterRateIncome:null")
   )
 
   private def expectedResultIncomeData: Map[LiabilityKey, Amount] = Map(
