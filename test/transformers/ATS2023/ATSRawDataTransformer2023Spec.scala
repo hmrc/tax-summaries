@@ -57,7 +57,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     UpperRateAmount                 -> calcExp("ctnDividendTaxHighRate"),
     AdditionalRate                  -> calcExp("ctnDividendChgbleAddHRate"),
     AdditionalRateAmount            -> calcExp("ctnDividendTaxAddHighRate"),
-    OtherAdjustmentsIncreasing      -> otherAdjustmentsIncreasing,
+    OtherAdjustmentsIncreasing      -> expOtherAdjustmentsIncreasing,
     MarriageAllowanceReceivedAmount -> calcExp("ctnMarriageAllceInAmt"),
     OtherAdjustmentsReducing        -> expOtherAdjustmentsReducing,
     TotalIncomeTax                  -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
@@ -132,33 +132,13 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     AmountDueRPCIHigherRate      -> calcExp("ctnHigherRateCgtRPCI")
   )
 
-  protected def expBasicRateIncomeTaxAmount = calcExp(
-    "ctnIncomeTaxBasicRate",
-    "ctnSavingsTaxLowerRate",
-    "ctnTaxOnRedundancyBr",
-    "ctnTaxOnCegBr",
-    "ctnPensionLsumTaxDueAmt:null"
-  )
-
   protected def expectedResultSummaryData: Map[LiabilityKey, Amount] = Map(
     EmployeeNicAmount         -> expEmployeeNicAmount,
     TotalIncomeTaxAndNics     -> (expEmployeeNicAmount + calcExp(
       "taxExcluded",
       "taxOnNonExcludedInc"
     )),
-    YourTotalTax              -> (expEmployeeNicAmount +
-      calcExp(
-        "taxExcluded",
-        "taxOnNonExcludedInc"
-      ) +
-      calcExp(
-        "ctnLowerRateCgtRPCI",
-        "ctnHigherRateCgtRPCI",
-        "ctnCgDueEntrepreneursRate",
-        "ctnCgDueLowerRate",
-        "ctnCgDueHigherRate",
-        "capAdjustmentAmt"
-      ).max(0)),
+    YourTotalTax              -> expYourTotalTax,
     PersonalTaxFreeAmount     -> amt(BigDecimal(12570.00), "12570.00(ctnPersonalAllowance)"),
     TotalTaxFreeAmount        -> expTotalTaxFreeAmount,
     TotalIncomeBeforeTax      -> expTotalIncomeBeforeTax,
@@ -169,12 +149,12 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
       expTotalCgTax.max(0),
       expTaxableGains
     ),
-    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnit
+    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMin
   )
 
   protected def expectedResultSummaryDataNonExcluded: Map[LiabilityKey, Amount] = Map(
     TotalIncomeTaxAndNics     -> expTotalIncomeTaxAndNics,
-    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitTemp, // HERE
+    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMax, // HERE
     CgTaxPerCurrencyUnit      -> taxPerTaxableCurrencyUnit(
       expTotalCgTax.max(0),
       expTaxableGains
@@ -187,6 +167,14 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     PersonalTaxFreeAmount     -> calcExp("ctnPersonalAllowance"),
     EmployeeNicAmount         -> expEmployeeNicAmount,
     TaxableGains              -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
+  )
+
+  protected def expBasicRateIncomeTaxAmount: Amount = calcExp(
+    "ctnIncomeTaxBasicRate",
+    "ctnSavingsTaxLowerRate",
+    "ctnTaxOnRedundancyBr",
+    "ctnTaxOnCegBr",
+    "ctnPensionLsumTaxDueAmt:null"
   )
 
   protected def expEmployeeNicAmount: Amount = calcExp("employeeClass1Nic", "ctnClass2NicAmt", "class4Nic")
@@ -205,7 +193,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
   protected def expTotalTaxFreeAmount: Amount = expOtherAllowancesAmount +
     calcExp("ctnPersonalAllowance") - calcExp("ctnMarriageAllceOutAmt")
 
-  protected def otherAdjustmentsIncreasing: Amount = calcExp(
+  protected def expOtherAdjustmentsIncreasing: Amount = calcExp(
     "nonDomChargeAmount",
     "giftAidTaxReduced",
     "netAnnuityPaytsTaxDue",
@@ -242,7 +230,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     )
 
   protected def expTotalIncomeTax: Amount =
-    expSavingsIncomeTaxDivs + otherAdjustmentsIncreasing - expOtherAdjustmentsReducing - calcExp(
+    expSavingsIncomeTaxDivs + expOtherAdjustmentsIncreasing - expOtherAdjustmentsReducing - calcExp(
       "ctnMarriageAllceInAmt"
     )
 
@@ -254,8 +242,16 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     "taxOnNonExcludedInc"
   )
 
-  protected def expNicsAndTaxPerCurrencyUnit: Amount =
+  protected def expNicsAndTaxPerCurrencyUnitExclNonExclMin: Amount =
     expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
+
+  protected def expNicsAndTaxPerCurrencyUnitExclNonExclMax: Amount = {
+    val totalAmountTaxAndNics = expEmployeeNicAmount +
+      expSavingsIncomeTaxDivs + expOtherAdjustmentsIncreasing - expOtherAdjustmentsReducing - calcExp(
+        "ctnMarriageAllceInAmt"
+      )
+    totalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
+  }
 
   protected def expHigherRateIncomeTaxAmount: Amount =
     calcExp(
@@ -274,23 +270,14 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     "ctnPensionLsumTaxDueAmt:null"
   )
 
-  protected def expNicsAndTaxPerCurrencyUnitTemp: Amount = {
-    val totalAmountTaxAndNics = expEmployeeNicAmount +
-      expSavingsIncomeTaxDivs + otherAdjustmentsIncreasing - expOtherAdjustmentsReducing - calcExp(
-        "ctnMarriageAllceInAmt"
-      )
-    val totalIncomeBeforeTax  = expTotalIncomeBeforeTax
-    totalAmountTaxAndNics.divideWithPrecision(totalIncomeBeforeTax, 4)
-  }
-
-  protected def expSelfEmployment = calcExp(
+  protected def expSelfEmployment: Amount = calcExp(
     "ctnSummaryTotalScheduleD",
     "ctnSummaryTotalPartnership",
     "ctnSavingsPartnership",
     "ctnDividendsPartnership"
   )
 
-  protected def expOtherIncome = calcExp(
+  protected def expOtherIncome: Amount = calcExp(
     "ctnSummaryTotShareOptions",
     "ctnSummaryTotalUklProperty",
     "ctnSummaryTotForeignIncome",
@@ -305,7 +292,15 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     "itfCegReceivedAfterTax"
   )
 
-  protected def expTotalCgTax = calcExp(
+  protected def expYourTotalTax: Amount =
+    expEmployeeNicAmount +
+      calcExp(
+        "taxExcluded",
+        "taxOnNonExcludedInc"
+      ) +
+      expTotalCgTax.max(0)
+
+  protected def expTotalCgTax: Amount = calcExp(
     "ctnLowerRateCgtRPCI",
     "ctnHigherRateCgtRPCI",
     "ctnCgDueEntrepreneursRate",
@@ -314,9 +309,9 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     "capAdjustmentAmt"
   )
 
-  protected def expTaxableGains = calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
+  protected def expTaxableGains: Amount = calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
 
-  protected def expTotalIncomeBeforeTax = expSelfEmployment + calcExp(
+  protected def expTotalIncomeBeforeTax: Amount = expSelfEmployment + calcExp(
     "ctnSummaryTotalEmployment",
     "atsStatePensionAmt",
     "atsOtherPensionAmt",

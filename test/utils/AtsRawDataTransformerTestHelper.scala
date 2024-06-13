@@ -20,19 +20,11 @@ import models.{Amount, AtsMiddleTierData, LiabilityKey}
 import play.api.libs.json.{JsObject, JsValue, Json}
 import transformers.ATSRawDataTransformer
 
-//      val parsedPayload: Option[Set[(RateKey, ApiRate)]] =
-//        doTest.income_tax.flatMap(_.rates).map(_.toSet)
-//      parsedPayload.map { x =>
-//        x.map { y =>
-//          println(s"""\n${y._1} -> ApiRate("${y._2.percent}"),""")
-//        }
-//      }
-
 trait AtsRawDataTransformerTestHelper extends BaseSpec {
   protected val taxYear: Int
   protected val incomeTaxStatus: String
 
-  protected val tliSlpAtsData: Map[String, BigDecimal]  = Map(
+  protected val tliSlpAtsData: Map[String, BigDecimal]            = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(10.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(20.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(30.00),
@@ -163,13 +155,19 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "ctnTaxableRedundancySsr"    -> BigDecimal(1070.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  private val saPayeNicDetails: Map[String, BigDecimal] = Map(
+  protected val tliSlpAtsDataAlternative: Map[String, BigDecimal] = tliSlpAtsData ++ Map(
+    "taxExcluded"          -> BigDecimal(0.00),
+    "taxOnNonExcludedInc"  -> BigDecimal(0.00),
+    "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
+  ).map(item => item._1 -> item._2.setScale(2))
+
+  private val saPayeNicDetails: Map[String, BigDecimal]           = Map(
     "employeeClass1Nic" -> BigDecimal(1080.00),
     "employeeClass2Nic" -> BigDecimal(200.00),
     "employerNic"       -> BigDecimal(0.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def parsedTaxpayerDetailsJson: JsValue      = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
+  protected def parsedTaxpayerDetailsJson: JsValue                = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
   protected def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
