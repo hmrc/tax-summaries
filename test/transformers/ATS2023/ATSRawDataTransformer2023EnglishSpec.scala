@@ -22,7 +22,6 @@ import models._
 import utils.{AtsJsonDataUpdate, AtsRawDataTransformerTestHelper}
 
 class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelper with AtsJsonDataUpdate {
-  import ATSRawDataTransformer2023EnglishSpec._
 
   override protected val taxYear: Int            = 2023
   override protected val incomeTaxStatus: String = "0001"
@@ -76,7 +75,7 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
         buildJsonPayload(tliSlpAtsData = tliSlpAtsDataAlternative)
       ),
       expResultCapitalGainsData = expectedResultCGData ++ Map(
-        PayCgTaxOn        -> (calcExp(fieldsTaxableGains: _*) - calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")),
+        PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")),
         LessTaxFreeAmount -> calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")
       ),
       expResultSummaryData = expectedResultSummaryDataNonExcluded
@@ -148,7 +147,7 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
   )
 
   private def expectedResultIncomeData: Map[LiabilityKey, Amount] = Map(
-    SelfEmploymentIncome   -> calcExp(fieldsSelfEmployment: _*),
+    SelfEmploymentIncome   -> expSelfEmployment,
     IncomeFromEmployment   -> calcExp("ctnSummaryTotalEmployment"),
     StatePension           -> calcExp("atsStatePensionAmt"),
     OtherPensionIncome     -> calcExp("atsOtherPensionAmt", "itfStatePensionLsGrossAmt"),
@@ -157,9 +156,9 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
       "atsJobSeekersAllowanceAmt",
       "atsOthStatePenBenefitsAmt"
     ),
-    OtherIncome            -> calcExp(fieldsOtherIncome: _*),
+    OtherIncome            -> expOtherIncome,
     BenefitsFromEmployment -> calcExp("ctnEmploymentBenefitsAmt"),
-    TotalIncomeBeforeTax   -> calcExp(fieldsTotalIncomeBeforeTax: _*)
+    TotalIncomeBeforeTax   -> expTotalIncomeBeforeTax
   )
 
   private def expectedResultAllowanceData: Map[LiabilityKey, Amount] = Map(
@@ -170,7 +169,7 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
   )
 
   private def expectedResultCGData: Map[LiabilityKey, Amount] = Map(
-    TaxableGains                 -> calcExp(fieldsTaxableGains: _*),
+    TaxableGains                 -> expTaxableGains,
     LessTaxFreeAmount            -> calcExp("atsCgAnnualExemptAmt"),
     PayCgTaxOn                   -> Amount.empty("taxableGains() < get(CgAnnualExempt)"),
     AmountAtEntrepreneursRate    -> calcExp("ctnCgAtEntrepreneursRate"),
@@ -180,10 +179,10 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
     AmountAtHigherRate           -> calcExp("ctnCgAtHigherRate"),
     AmountDueAtHigherRate        -> calcExp("ctnCgDueHigherRate"),
     Adjustments                  -> calcExp("capAdjustmentAmt"),
-    TotalCgTax                   -> calcExp(fieldsTotalCgTax: _*).max(0),
+    TotalCgTax                   -> expTotalCgTax.max(0),
     CgTaxPerCurrencyUnit         -> taxPerTaxableCurrencyUnit(
-      calcExp(fieldsTotalCgTax: _*).max(0),
-      calcExp(fieldsTaxableGains: _*)
+      expTotalCgTax.max(0),
+      expTaxableGains
     ),
     AmountAtRPCILowerRate        -> calcExp("ctnCGAtLowerRateRPCI"),
     AmountDueRPCILowerRate       -> calcExp("ctnLowerRateCgtRPCI"),
@@ -220,13 +219,13 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
       ).max(0)),
     PersonalTaxFreeAmount     -> amt(BigDecimal(12570.00), "12570.00(ctnPersonalAllowance)"),
     TotalTaxFreeAmount        -> expTotalTaxFreeAmount,
-    TotalIncomeBeforeTax      -> calcExp(fieldsTotalIncomeBeforeTax: _*),
+    TotalIncomeBeforeTax      -> expTotalIncomeBeforeTax,
     TotalIncomeTax            -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
-    TotalCgTax                -> calcExp(fieldsTotalCgTax: _*).max(0),
+    TotalCgTax                -> expTotalCgTax.max(0),
     TaxableGains              -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt"),
     CgTaxPerCurrencyUnit      -> taxPerTaxableCurrencyUnit(
-      calcExp(fieldsTotalCgTax: _*).max(0),
-      calcExp(fieldsTaxableGains: _*)
+      expTotalCgTax.max(0),
+      expTaxableGains
     ),
     NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnit
   )
@@ -235,12 +234,12 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
     TotalIncomeTaxAndNics     -> expTotalIncomeTaxAndNics,
     NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitTemp, // HERE
     CgTaxPerCurrencyUnit      -> taxPerTaxableCurrencyUnit(
-      calcExp(fieldsTotalCgTax: _*).max(0),
-      calcExp(fieldsTaxableGains: _*)
+      expTotalCgTax.max(0),
+      expTaxableGains
     ),
-    TotalIncomeBeforeTax      -> calcExp(fieldsTotalIncomeBeforeTax: _*),
-    TotalCgTax                -> calcExp(fieldsTotalCgTax: _*).max(0),
-    YourTotalTax              -> (expTotalIncomeTaxAndNics + calcExp(fieldsTotalCgTax: _*).max(0)),
+    TotalIncomeBeforeTax      -> expTotalIncomeBeforeTax,
+    TotalCgTax                -> expTotalCgTax.max(0),
+    YourTotalTax              -> (expTotalIncomeTaxAndNics + expTotalCgTax.max(0)),
     TotalTaxFreeAmount        -> expTotalTaxFreeAmount,
     TotalIncomeTax            -> expTotalIncomeTax,
     PersonalTaxFreeAmount     -> calcExp("ctnPersonalAllowance"),
@@ -313,7 +312,7 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
       "taxExcluded",
       "taxOnNonExcludedInc"
     )
-    val totalIncomeBeforeTax  = calcExp(fieldsTotalIncomeBeforeTax: _*)
+    val totalIncomeBeforeTax  = expTotalIncomeBeforeTax
     totalAmountTaxAndNics.divideWithPrecision(totalIncomeBeforeTax, 4)
   }
 
@@ -339,20 +338,18 @@ class ATSRawDataTransformer2023EnglishSpec extends AtsRawDataTransformerTestHelp
       expSavingsIncomeTaxDivs + otherAdjustmentsIncreasing - expOtherAdjustmentsReducing - calcExp(
         "ctnMarriageAllceInAmt"
       )
-    val totalIncomeBeforeTax  = calcExp(fieldsTotalIncomeBeforeTax: _*)
+    val totalIncomeBeforeTax  = expTotalIncomeBeforeTax
     totalAmountTaxAndNics.divideWithPrecision(totalIncomeBeforeTax, 4)
   }
-}
 
-object ATSRawDataTransformer2023EnglishSpec {
-  private val fieldsSelfEmployment: Seq[String] = Seq(
+  private def expSelfEmployment = calcExp(
     "ctnSummaryTotalScheduleD",
     "ctnSummaryTotalPartnership",
     "ctnSavingsPartnership",
     "ctnDividendsPartnership"
   )
 
-  private val fieldsOtherIncome: Seq[String] = Seq(
+  private def expOtherIncome = calcExp(
     "ctnSummaryTotShareOptions",
     "ctnSummaryTotalUklProperty",
     "ctnSummaryTotForeignIncome",
@@ -367,18 +364,7 @@ object ATSRawDataTransformer2023EnglishSpec {
     "itfCegReceivedAfterTax"
   )
 
-  private val fieldsTotalIncomeBeforeTax: Seq[String] =
-    fieldsSelfEmployment ++ Seq(
-      "ctnSummaryTotalEmployment",
-      "atsStatePensionAmt",
-      "atsOtherPensionAmt",
-      "itfStatePensionLsGrossAmt",
-      "atsIncBenefitSuppAllowAmt",
-      "atsJobSeekersAllowanceAmt",
-      "atsOthStatePenBenefitsAmt"
-    ) ++ fieldsOtherIncome ++ Seq("ctnEmploymentBenefitsAmt")
-
-  private val fieldsTotalCgTax: Seq[String] = Seq(
+  private def expTotalCgTax = calcExp(
     "ctnLowerRateCgtRPCI",
     "ctnHigherRateCgtRPCI",
     "ctnCgDueEntrepreneursRate",
@@ -387,5 +373,15 @@ object ATSRawDataTransformer2023EnglishSpec {
     "capAdjustmentAmt"
   )
 
-  private val fieldsTaxableGains: Seq[String] = Seq("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
+  private def expTaxableGains = calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
+
+  private def expTotalIncomeBeforeTax = expSelfEmployment + calcExp(
+    "ctnSummaryTotalEmployment",
+    "atsStatePensionAmt",
+    "atsOtherPensionAmt",
+    "itfStatePensionLsGrossAmt",
+    "atsIncBenefitSuppAllowAmt",
+    "atsJobSeekersAllowanceAmt",
+    "atsOthStatePenBenefitsAmt"
+  ) + expOtherIncome + calcExp("ctnEmploymentBenefitsAmt")
 }
