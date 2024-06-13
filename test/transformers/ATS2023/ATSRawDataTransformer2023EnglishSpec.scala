@@ -26,7 +26,7 @@ class ATSRawDataTransformer2023EnglishSpec extends ATSRawDataTransformer2023Spec
 
     behave like atsRawDataTransformerWithTaxRatesAndYear()
 
-    behave like atsRawDataTransformer(
+    behave like atsRawDataTransformerWithCalculations(
       description = "main",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
@@ -36,7 +36,19 @@ class ATSRawDataTransformer2023EnglishSpec extends ATSRawDataTransformer2023Spec
       expResultSummaryData = expectedResultSummaryData
     )
 
-    behave like atsRawDataTransformer(
+//    behave like atsRawDataTransformerWithCalculations(
+//      description = "default amounts",
+//      transformedData = doTest(
+//        buildJsonPayload(tliSlpAtsData = tliSlpAtsDataRequiringDefaultAmount)
+//      ),
+//      expResultIncomeTax = expectedResultIncomeTax,
+//      expResultIncomeData = expectedResultIncomeData,
+//      expResultCapitalGainsData = expectedResultCGData,
+//      expResultAllowanceData = expectedResultAllowanceData,
+//      expResultSummaryData = expectedResultSummaryData
+//    )
+
+    behave like atsRawDataTransformerWithCalculations(
       description = "tax excluded/ tax on non-excluded income/gains>cg exempt amount",
       transformedData = doTest(
         buildJsonPayload(tliSlpAtsData = tliSlpAtsDataAlternative)

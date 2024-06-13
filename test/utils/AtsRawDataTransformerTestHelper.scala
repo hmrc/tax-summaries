@@ -161,13 +161,64 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  private val saPayeNicDetails: Map[String, BigDecimal]           = Map(
+  protected val tliSlpAtsDataRequiringDefaultAmount: Map[String, BigDecimal] = {
+    val fromAtsCalculations          = Seq(
+      "ctnLowerRateCgtRPCI",
+      "ctnHigherRateCgtRPCI",
+      "ctnMarriageAllceOutAmt",
+      "reliefForFinanceCosts",
+      "lfiRelief",
+      "alimony",
+      "ctnMarriageAllceInAmt",
+      "ctnIncomeChgbleBasicRate",
+      "ctnIncomeChgbleHigherRate",
+      "ctnIncomeChgbleAddHRate",
+      "ctnIncomeChgbleBasicRate",
+      "ctnIncomeChgbleHigherRate",
+      "ctnIncomeChgbleAddHRate"
+    )
+    val fromAtsCalculations2023      = Seq(
+      "ctnMarriageAllceInAmt",
+      "taxOnNonExcludedInc",
+      "alimony",
+      "reliefForFinanceCosts",
+      "lfiRelief",
+      "ctnRelTaxAcctFor",
+      "ctnIncomeChgbleBasicRate",
+      "ctnIncomeChgbleHigherRate",
+      "ctnIncomeChgbleAddHRate"
+    )
+    val fromAtsCalculations2023Welsh =
+      Seq("ctnIncomeChgbleBasicRate", "ctnIncomeChgbleHigherRate", "ctnIncomeChgbleAddHRate")
+
+    val fromAtsCalculations2023Scottish = Seq(
+      "taxOnPaySSR",
+      "ctnIncomeTaxBasicRate",
+      "taxOnPaySIR",
+      "ctnIncomeTaxHigherRate",
+      "ctnIncomeTaxAddHighRate",
+      "taxablePaySSR",
+      "ctnIncomeChgbleBasicRate",
+      "taxablePaySIR",
+      "ctnIncomeChgbleHigherRate",
+      "ctnIncomeChgbleAddHRate",
+      "ctnSavingsTaxLowerRate",
+      "ctnSavingsTaxHigherRate",
+      "ctnSavingsTaxAddHighRate",
+      "ctnSavingsChgbleLowerRate",
+      "ctnSavingsChgbleHigherRate",
+      "ctnSavingsChgbleAddHRate"
+    )
+    tliSlpAtsData -- fromAtsCalculations -- fromAtsCalculations2023
+  }
+
+  private val saPayeNicDetails: Map[String, BigDecimal] = Map(
     "employeeClass1Nic" -> BigDecimal(1080.00),
     "employeeClass2Nic" -> BigDecimal(200.00),
     "employerNic"       -> BigDecimal(0.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def parsedTaxpayerDetailsJson: JsValue                = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
+  protected def parsedTaxpayerDetailsJson: JsValue      = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
   protected def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
@@ -176,7 +227,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
 
   protected def transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
 
-  protected def atsRawDataTransformer(
+  protected def atsRawDataTransformerWithCalculations(
     description: String,
     transformedData: AtsMiddleTierData,
     expResultIncomeTax: Map[LiabilityKey, Amount] = Map.empty,
