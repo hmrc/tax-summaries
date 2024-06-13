@@ -21,12 +21,6 @@ import models.RateKey._
 import models._
 import utils.{AtsJsonDataUpdate, AtsRawDataTransformerTestHelper}
 
-// TODO:-
-//   Move code into helper class
-//   Copy to England class (or add to existing class?) and get that working, do diff scenarios to cover everything.
-//   I don't need to use calcExp for every field - the more complex ones I can just hard coded exp values
-//    (as a WIP could over time improve this and reduce the no of hard coded values year on year)
-
 class ATSRawDataTransformer2023WelshSpec extends AtsRawDataTransformerTestHelper with AtsJsonDataUpdate {
   import ATSRawDataTransformer2023WelshSpec._
 
