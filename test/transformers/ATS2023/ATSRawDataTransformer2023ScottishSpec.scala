@@ -257,13 +257,7 @@ class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spe
     )
   )
 
-  override protected def expNicsAndTaxPerCurrencyUnit: Amount = {
-    val totalAmountTaxAndNics = expEmployeeNicAmount +
-      expTotalIncomeTax
-
-    val totalIncomeBeforeTax = expTotalIncomeBeforeTax
-    totalAmountTaxAndNics.divideWithPrecision(totalIncomeBeforeTax, 4)
-  }
+  override protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
 
   override protected def expTotalIncomeTax: Amount =
     ((calcExp(

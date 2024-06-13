@@ -17,7 +17,6 @@
 package transformers.ATS2023
 
 import models.LiabilityKey.{TotalIncomeBeforeTax, _}
-import models.RateKey._
 import models._
 import utils.{AtsJsonDataUpdate, AtsRawDataTransformerTestHelper}
 
@@ -250,33 +249,15 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
   protected def expTotalIncomeTaxAndNics: Amount =
     expEmployeeNicAmount + expTotalIncomeTax
 
-  Amount(
-    0.1057,
-    "GBP",
-    Some(
-      "1080.00(employeeClass1Nic) + 310.00(ctnClass2NicAmt) + 300.00(class4Nic) + null (savingsRateAmountScottish2023) + " +
-        "null (basicRateIncomeTaxAmountScottish2023) + null (higherRateIncomeTaxAmountScottish2023) + null (additionalRateIncomeTaxAmountScottish2023) + " +
-        "806.25(ctnDividendTaxLowRate) + 430.00(ctnDividendTaxHighRate) + 450.00(ctnDividendTaxAddHighRate) + 620.00(nonDomChargeAmount) + 1040.00(giftAidTaxReduced) + " +
-        "650.00(netAnnuityPaytsTaxDue) + 660.00(ctnChildBenefitChrgAmt) + 670.00(ctnPensionSavingChrgbleAmt) - 680.00(ctnDeficiencyRelief) + 690.00(topSlicingRelief) + " +
-        "700.00(ctnVctSharesReliefAmt) + 710.00(ctnEisReliefAmt) + 720.00(ctnSeedEisReliefAmt) + 730.00(ctnCommInvTrustRelAmt) + 1010.00(ctnSocialInvTaxRelAmt) + 740.00(atsSurplusMcaAlimonyRel) +" +
-        " 750.00(alimony) + 760.00(ctnNotionalTaxCegs) + 770.00(ctnNotlTaxOthrSrceAmo) + 780.00(ctnFtcrRestricted) + 500.00(reliefForFinanceCosts) + 790.00(lfiRelief) + 10.00(ctnRelTaxAcctFor) " +
-        "- 990.00(ctnMarriageAllceInAmt) + 398.43(taxOnPaySSR) + 470.00(ctnTaxOnRedundancySsr) + null (ctnPensionLsumTaxDueAmt) + 3483.80(ctnIncomeTaxBasicRate) + 490.00(ctnTaxOnRedundancyBr) + " +
-        "null (ctnPensionLsumTaxDueAmt) + 1438.50(taxOnPaySIR) + 510.00(ctnTaxOnRedundancySir) + null (ctnPensionLsumTaxDueAmt) + 360.00(ctnIncomeTaxHigherRate) + 530.00(ctnTaxOnRedundancyHr) + " +
-        "null (ctnPensionLsumTaxDueAmt) + 400.00(ctnIncomeTaxAddHighRate) + 550.00(ctnTaxOnRedundancyAhr) + null (ctnPensionLsumTaxDueAmt) + 535.60(ctnSavingsTaxLowerRate) + 370.00(ctnSavingsTaxHigherRate) + " +
-        "410.00(ctnSavingsTaxAddHighRate) + 610.00(ctnTaxOnCegAhr)"
-    )
+  protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + calcExp(
+    "taxExcluded",
+    "taxOnNonExcludedInc"
   )
 
-  protected def expNicsAndTaxPerCurrencyUnit: Amount = {
-    val totalAmountTaxAndNics = expEmployeeNicAmount + calcExp(
-      "taxExcluded",
-      "taxOnNonExcludedInc"
-    )
-    val totalIncomeBeforeTax  = expTotalIncomeBeforeTax
-    totalAmountTaxAndNics.divideWithPrecision(totalIncomeBeforeTax, 4)
-  }
+  protected def expNicsAndTaxPerCurrencyUnit: Amount =
+    expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
 
-  protected def expHigherRateIncomeTaxAmount =
+  protected def expHigherRateIncomeTaxAmount: Amount =
     calcExp(
       "ctnIncomeTaxHigherRate",
       "ctnSavingsTaxHigherRate",
@@ -285,7 +266,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
       "ctnPensionLsumTaxDueAmt:null"
     )
 
-  protected def expAditionalRateIncomeTaxAmount = calcExp(
+  protected def expAditionalRateIncomeTaxAmount: Amount = calcExp(
     "ctnIncomeTaxAddHighRate",
     "ctnSavingsTaxAddHighRate",
     "ctnTaxOnRedundancyAhr",
