@@ -17,38 +17,14 @@
 package transformers.ATS2023
 
 import models.LiabilityKey._
-import models.RateKey._
 import models._
 
 class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spec {
   override protected val incomeTaxStatus: String = "0002"
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
-    "have the correct tax year from json" in {
-      transformedData.taxYear mustBe taxYear
-    }
 
-    "use the correct tax rates" in {
-      transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
-        Set(
-          Additional               -> ApiRate("39.35%"),
-          Ordinary                 -> ApiRate("8.75%"),
-          ScottishBasicRate        -> ApiRate("20%"),
-          SavingsLowerRate         -> ApiRate("20%"),
-          SavingsHigherRate        -> ApiRate("40%"),
-          ScottishAdditionalRate   -> ApiRate("46%"),
-          IncomeHigher             -> ApiRate("40%"),
-          ScottishIntermediateRate -> ApiRate("21%"),
-          SavingsAdditionalRate    -> ApiRate("45%"),
-          IncomeAdditional         -> ApiRate("45%"),
-          ScottishHigherRate       -> ApiRate("41%"),
-          ScottishStarterRate      -> ApiRate("19%"),
-          Savings                  -> ApiRate("0%"),
-          Upper                    -> ApiRate("33.75%"),
-          IncomeBasic              -> ApiRate("20%")
-        )
-      )
-    }
+    behave like atsRawDataTransformerWithTaxRatesAndYear()
 
     behave like atsRawDataTransformer(
       description = "main",

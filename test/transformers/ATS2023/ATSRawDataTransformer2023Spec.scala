@@ -17,6 +17,7 @@
 package transformers.ATS2023
 
 import models.LiabilityKey._
+import models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
 import models._
 import utils.{AtsJsonDataUpdate, AtsRawDataTransformerBaseSpec, AtsRawDataTransformerTestHelper}
 
@@ -26,6 +27,33 @@ trait ATSRawDataTransformer2023Spec
     with AtsRawDataTransformerBaseSpec
     with AtsJsonDataUpdate {
   override protected val taxYear: Int = 2023
+
+  protected def atsRawDataTransformerWithTaxRatesAndYear(): Unit = {
+    "have the correct tax year from json" in {
+      transformedData.taxYear mustBe taxYear
+    }
+    "use the correct tax rates" in {
+      transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
+        Set(
+          Additional               -> ApiRate("39.35%"),
+          Ordinary                 -> ApiRate("8.75%"),
+          ScottishBasicRate        -> ApiRate("20%"),
+          SavingsLowerRate         -> ApiRate("20%"),
+          SavingsHigherRate        -> ApiRate("40%"),
+          ScottishAdditionalRate   -> ApiRate("46%"),
+          IncomeHigher             -> ApiRate("40%"),
+          ScottishIntermediateRate -> ApiRate("21%"),
+          SavingsAdditionalRate    -> ApiRate("45%"),
+          IncomeAdditional         -> ApiRate("45%"),
+          ScottishHigherRate       -> ApiRate("41%"),
+          ScottishStarterRate      -> ApiRate("19%"),
+          Savings                  -> ApiRate("0%"),
+          Upper                    -> ApiRate("33.75%"),
+          IncomeBasic              -> ApiRate("20%")
+        )
+      )
+    }
+  }
 
   protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
     StartingRateForSavings          -> calcExp("ctnSavingsChgbleStartRate", "ctnTaxableCegSr"),
