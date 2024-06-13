@@ -183,4 +183,6 @@ class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spe
     "ctnSavingsTaxAddHighRate",
     "ctnTaxOnCegAhr"
   )
+
+  override protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
 }

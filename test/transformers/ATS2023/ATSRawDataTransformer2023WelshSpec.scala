@@ -88,9 +88,4 @@ class ATSRawDataTransformer2023WelshSpec extends ATSRawDataTransformer2023Spec {
       expResultSummaryData = expectedResultSummaryDataNonExcluded
     )
   }
-
-  override protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + calcExp(
-    "taxExcluded",
-    "taxOnNonExcludedInc"
-  )
 }

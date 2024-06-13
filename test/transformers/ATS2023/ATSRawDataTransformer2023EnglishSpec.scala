@@ -73,9 +73,4 @@ class ATSRawDataTransformer2023EnglishSpec extends ATSRawDataTransformer2023Spec
       expResultSummaryData = expectedResultSummaryDataNonExcluded
     )
   }
-
-  override protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + calcExp(
-    "taxExcluded",
-    "taxOnNonExcludedInc"
-  )
 }

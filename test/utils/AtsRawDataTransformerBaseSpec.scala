@@ -18,7 +18,7 @@ package utils
 
 import models.Amount
 
-trait AtsRawDataTransformerBaseSpec  {
+trait AtsRawDataTransformerBaseSpec {
   self: AtsRawDataTransformerTestHelper =>
   protected def expBasicRateIncomeTax: Amount =
     calcExp(
@@ -94,9 +94,12 @@ trait AtsRawDataTransformerBaseSpec  {
       "ctnMarriageAllceInAmt"
     )
 
-  protected def expTotalIncomeTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
+  protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + calcExp(
+    "taxExcluded",
+    "taxOnNonExcludedInc"
+  )
 
-  protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
+  protected def expTotalIncomeTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
 
   protected def expNicsAndTaxPerCurrencyUnitExclNonExclMin: Amount =
     expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
@@ -104,8 +107,8 @@ trait AtsRawDataTransformerBaseSpec  {
   protected def expNicsAndTaxPerCurrencyUnitExclNonExclMax: Amount = {
     val totalAmountTaxAndNics = expEmployeeNicAmount +
       expSavingsIncomeTaxDivs + expOtherAdjustmentsIncreasing - expOtherAdjustmentsReducing - calcExp(
-      "ctnMarriageAllceInAmt"
-    )
+        "ctnMarriageAllceInAmt"
+      )
     totalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
   }
 
