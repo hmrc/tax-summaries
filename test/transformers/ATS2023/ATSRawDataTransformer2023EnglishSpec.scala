@@ -61,12 +61,6 @@ class ATSRawDataTransformer2023EnglishSpec extends ATSRawDataTransformer2023Spec
       expResultSummaryData = expectedResultSummaryData
     )
 
-    val tliSlpAtsDataAlternative = tliSlpAtsData ++ Map(
-      "taxExcluded"          -> BigDecimal(0.00),
-      "taxOnNonExcludedInc"  -> BigDecimal(0.00),
-      "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
-    ).map(item => item._1 -> item._2.setScale(2))
-
     behave like atsRawDataTransformer(
       description = "tax excluded/ tax on non-excluded income/gains>cg exempt amount",
       transformedData = doTest(
