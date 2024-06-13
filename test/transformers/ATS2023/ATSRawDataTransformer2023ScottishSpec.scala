@@ -159,7 +159,7 @@ class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spe
       "ctnMarriageAllceInAmt"
     )) + expScottishTotalTax + expSavingsTotalTax
 
-  private def expScottishTotalTax: Amount = calcExp(
+  override protected def expScottishTotalTax: Amount = calcExp(
     "taxOnPaySSR",
     "ctnTaxOnRedundancySsr",
     "ctnPensionLsumTaxDueAmt:null",

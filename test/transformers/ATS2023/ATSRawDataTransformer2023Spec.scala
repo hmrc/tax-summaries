@@ -20,36 +20,18 @@ import models.LiabilityKey.{TotalIncomeBeforeTax, _}
 import models._
 import utils.{AtsJsonDataUpdate, AtsRawDataTransformerTestHelper}
 
+//scalastyle:off number.of.methods
 trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with AtsJsonDataUpdate {
-
   override protected val taxYear: Int = 2023
 
   protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
     StartingRateForSavings          -> calcExp("ctnSavingsChgbleStartRate", "ctnTaxableCegSr"),
     StartingRateForSavingsAmount    -> calcExp("ctnSavingsTaxStartingRate", "ctnTaxOnCegSr"),
-    BasicRateIncomeTax              -> calcExp(
-      "ctnIncomeChgbleBasicRate",
-      "ctnSavingsChgbleLowerRate",
-      "ctnTaxableRedundancyBr",
-      "ctnTaxableCegBr",
-      "itfStatePensionLsGrossAmt:null"
-    ),
+    BasicRateIncomeTax              -> expBasicRateIncomeTax,
     BasicRateIncomeTaxAmount        -> expBasicRateIncomeTaxAmount,
-    HigherRateIncomeTax             -> calcExp(
-      "ctnIncomeChgbleHigherRate",
-      "ctnSavingsChgbleHigherRate",
-      "ctnTaxableRedundancyHr",
-      "ctnTaxableCegHr",
-      "itfStatePensionLsGrossAmt:null"
-    ),
+    HigherRateIncomeTax             -> expHigherRateIncomeTax,
     HigherRateIncomeTaxAmount       -> expHigherRateIncomeTaxAmount,
-    AdditionalRateIncomeTax         -> calcExp(
-      "ctnIncomeChgbleAddHRate",
-      "ctnSavingsChgbleAddHRate",
-      "ctnTaxableRedundancyAhr",
-      "ctnTaxableCegAhr",
-      "itfStatePensionLsGrossAmt:null"
-    ),
+    AdditionalRateIncomeTax         -> expAdditionalRateIncomeTax,
     AdditionalRateIncomeTaxAmount   -> expAditionalRateIncomeTaxAmount,
     OrdinaryRate                    -> calcExp("ctnDividendChgbleLowRate"),
     OrdinaryRateAmount              -> calcExp("ctnDividendTaxLowRate"),
@@ -68,13 +50,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     ScottishIntermediateRateTax     -> calcExp("scottishIntermediateRateTax:null"),
     ScottishHigherRateTax           -> calcExp("scottishHigherRateTax:null"),
     ScottishAdditionalRateTax       -> calcExp("scottishAdditionalRateTax:null"),
-    ScottishTotalTax                -> calcExp(
-      "scottishStarterRateTax:null",
-      "scottishBasicRateTax:null",
-      "scottishIntermediateRateTax:null",
-      "scottishHigherRateTax:null",
-      "scottishAdditionalRateTax:null"
-    ),
+    ScottishTotalTax                -> expScottishTotalTax,
     ScottishStarterIncome           -> calcExp("scottishStarterRateIncome:null"),
     ScottishBasicIncome             -> calcExp("scottishBasicRateIncome:null"),
     ScottishIntermediateIncome      -> calcExp("scottishIntermediateRateIncome:null"),
@@ -93,11 +69,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     IncomeFromEmployment   -> calcExp("ctnSummaryTotalEmployment"),
     StatePension           -> calcExp("atsStatePensionAmt"),
     OtherPensionIncome     -> calcExp("atsOtherPensionAmt", "itfStatePensionLsGrossAmt"),
-    TaxableStateBenefits   -> calcExp(
-      "atsIncBenefitSuppAllowAmt",
-      "atsJobSeekersAllowanceAmt",
-      "atsOthStatePenBenefitsAmt"
-    ),
+    TaxableStateBenefits   -> expTaxableStateBenefits,
     OtherIncome            -> expOtherIncome,
     BenefitsFromEmployment -> calcExp("ctnEmploymentBenefitsAmt"),
     TotalIncomeBeforeTax   -> expTotalIncomeBeforeTax
@@ -154,7 +126,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
 
   protected def expectedResultSummaryDataNonExcluded: Map[LiabilityKey, Amount] = Map(
     TotalIncomeTaxAndNics     -> expTotalIncomeTaxAndNics,
-    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMax, // HERE
+    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMax,
     CgTaxPerCurrencyUnit      -> taxPerTaxableCurrencyUnit(
       expTotalCgTax.max(0),
       expTaxableGains
@@ -168,6 +140,15 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     EmployeeNicAmount         -> expEmployeeNicAmount,
     TaxableGains              -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
   )
+
+  protected def expBasicRateIncomeTax: Amount =
+    calcExp(
+      "ctnIncomeChgbleBasicRate",
+      "ctnSavingsChgbleLowerRate",
+      "ctnTaxableRedundancyBr",
+      "ctnTaxableCegBr",
+      "itfStatePensionLsGrossAmt:null"
+    )
 
   protected def expBasicRateIncomeTaxAmount: Amount = calcExp(
     "ctnIncomeTaxBasicRate",
@@ -249,6 +230,14 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     totalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
   }
 
+  protected def expHigherRateIncomeTax: Amount = calcExp(
+    "ctnIncomeChgbleHigherRate",
+    "ctnSavingsChgbleHigherRate",
+    "ctnTaxableRedundancyHr",
+    "ctnTaxableCegHr",
+    "itfStatePensionLsGrossAmt:null"
+  )
+
   protected def expHigherRateIncomeTaxAmount: Amount =
     calcExp(
       "ctnIncomeTaxHigherRate",
@@ -258,6 +247,14 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
       "ctnPensionLsumTaxDueAmt:null"
     )
 
+  protected def expAdditionalRateIncomeTax: Amount = calcExp(
+    "ctnIncomeChgbleAddHRate",
+    "ctnSavingsChgbleAddHRate",
+    "ctnTaxableRedundancyAhr",
+    "ctnTaxableCegAhr",
+    "itfStatePensionLsGrossAmt:null"
+  )
+
   protected def expAditionalRateIncomeTaxAmount: Amount = calcExp(
     "ctnIncomeTaxAddHighRate",
     "ctnSavingsTaxAddHighRate",
@@ -266,11 +263,25 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
     "ctnPensionLsumTaxDueAmt:null"
   )
 
+  protected def expScottishTotalTax: Amount = calcExp(
+    "scottishStarterRateTax:null",
+    "scottishBasicRateTax:null",
+    "scottishIntermediateRateTax:null",
+    "scottishHigherRateTax:null",
+    "scottishAdditionalRateTax:null"
+  )
+
   protected def expSelfEmployment: Amount = calcExp(
     "ctnSummaryTotalScheduleD",
     "ctnSummaryTotalPartnership",
     "ctnSavingsPartnership",
     "ctnDividendsPartnership"
+  )
+
+  protected def expTaxableStateBenefits: Amount = calcExp(
+    "atsIncBenefitSuppAllowAmt",
+    "atsJobSeekersAllowanceAmt",
+    "atsOthStatePenBenefitsAmt"
   )
 
   protected def expOtherIncome: Amount = calcExp(
