@@ -237,10 +237,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
   protected def expTotalIncomeTaxAndNics: Amount =
     expEmployeeNicAmount + expTotalIncomeTax
 
-  protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + calcExp(
-    "taxExcluded",
-    "taxOnNonExcludedInc"
-  )
+  protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
 
   protected def expNicsAndTaxPerCurrencyUnitExclNonExclMin: Amount =
     expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
