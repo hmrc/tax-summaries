@@ -146,8 +146,6 @@ class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spe
       "ctnMarriageAllceInAmt"
     ) + expScottishTotalTax + expSavingsTotalTax + expTotalCgTax.max(0)
 
-  override protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
-
   override protected def expTotalIncomeTax: Amount =
     ((calcExp(
       "savingsRateAmountScottish2023:null",

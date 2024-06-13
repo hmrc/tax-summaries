@@ -234,8 +234,7 @@ trait ATSRawDataTransformer2023Spec extends AtsRawDataTransformerTestHelper with
       "ctnMarriageAllceInAmt"
     )
 
-  protected def expTotalIncomeTaxAndNics: Amount =
-    expEmployeeNicAmount + expTotalIncomeTax
+  protected def expTotalIncomeTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
 
   protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
 
