@@ -28,7 +28,7 @@ class ATSRawDataTransformer2023WelshSpec
     behave like atsRawDataTransformerWithTaxRatesAndYear()
 
     behave like atsRawDataTransformerWithCalculations(
-      description = "tax excluded/ tax on non-excluded income > taxable amount",
+      description = "NOT using tax excluded/ tax on non-excluded income when > amount",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
@@ -69,7 +69,7 @@ class ATSRawDataTransformer2023WelshExclNonExclMinSpec
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     behave like atsRawDataTransformerWithCalculations(
-      description = "tax excluded/ tax on non-excluded income < taxable amount",
+      description = "using tax excluded/ tax on non-excluded income when < amount",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,

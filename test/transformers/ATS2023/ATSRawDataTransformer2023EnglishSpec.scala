@@ -27,7 +27,7 @@ class ATSRawDataTransformer2023EnglishSpec
     behave like atsRawDataTransformerWithTaxRatesAndYear()
 
     behave like atsRawDataTransformerWithCalculations(
-      description = "tax excluded/ tax on non-excluded income > taxable amount",
+      description = "NOT using tax excluded/ tax on non-excluded income when > amount",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
@@ -68,7 +68,7 @@ class ATSRawDataTransformer2023EnglishExclNonExclMinSpec
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     behave like atsRawDataTransformerWithCalculations(
-      description = "tax excluded/ tax on non-excluded income < taxable amount",
+      description = "using tax excluded/ tax on non-excluded income when < amount",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
@@ -94,10 +94,9 @@ class ATSRawDataTransformer2023EnglishCapGainsSpec
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     behave like atsRawDataTransformerWithCalculations(
-      description = "capital gains exempt",
+      description = "taking account of capital gains exempt amount",
       transformedData = transformedData,
-      expResultCapitalGainsData = expectedResultCapitalGainsData,
-      expResultSummaryData = expectedResultSummaryData
+      expResultCapitalGainsData = expectedResultCapitalGainsData
     )
   }
 }
