@@ -21,8 +21,7 @@ import models._
 
 class ATSRawDataTransformer2023ScottishSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023ScottishExpectedResults {
-  override protected val incomeTaxStatus: String = "0002"
+    with ATSRawDataTransformer2023ScottishCommon {
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
 
@@ -33,7 +32,7 @@ class ATSRawDataTransformer2023ScottishSpec
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
-      expResultCapitalGainsData = expectedResultCGData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultAllowanceData = expectedResultAllowanceData,
       expResultSummaryData = expectedResultSummaryData
     )
@@ -42,23 +41,22 @@ class ATSRawDataTransformer2023ScottishSpec
 
 class ATSRawDataTransformer2023ScottishExclNonExclMinSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023ScottishExpectedResults {
-  override protected val incomeTaxStatus: String                = "0002"
-  override protected def tliSlpAtsData: Map[String, BigDecimal] = super.tliSlpAtsData ++ Map(
+    with ATSRawDataTransformer2023ScottishCommon {
+  override protected def tliSlpAtsData: Map[String, BigDecimal]             = super.tliSlpAtsData ++ Map(
     "taxExcluded"           -> BigDecimal(630.00),
     "taxOnNonExcludedInc"   -> BigDecimal(640.00),
     "ctnDividendTaxLowRate" -> BigDecimal(9000.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  override protected def expTotalIncomeTax: Amount              =
+  override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
+    TotalIncomeTax -> expTotalIncomeTax
+  )
+
+  override protected def expTotalIncomeTax: Amount =
     calcExp(
       "taxExcluded",
       "taxOnNonExcludedInc"
     ) + expScottishTotalTax + expSavingsTotalTax
-
-  override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
-    TotalIncomeTax -> expTotalIncomeTax
-  )
 
   override protected def expectedResultSummaryData: Map[LiabilityKey, Amount] =
     super.expectedResultSummaryData ++ Map(
@@ -75,8 +73,31 @@ class ATSRawDataTransformer2023ScottishExclNonExclMinSpec
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
-      expResultCapitalGainsData = expectedResultCGData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultAllowanceData = expectedResultAllowanceData,
+      expResultSummaryData = expectedResultSummaryData
+    )
+  }
+}
+
+class ATSRawDataTransformer2023ScottishCapGainsSpec
+    extends ATSRawDataTransformer2023Spec
+    with ATSRawDataTransformer2023ScottishCommon {
+  override protected def tliSlpAtsData: Map[String, BigDecimal]                    = super.tliSlpAtsData ++ Map(
+    "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
+  ).map(item => item._1 -> item._2.setScale(2))
+
+  override protected def expectedResultCapitalGainsData: Map[LiabilityKey, Amount] =
+    super.expectedResultCapitalGainsData ++ Map(
+      PayCgTaxOn        -> (expTaxableGains - calcExp("atsCgAnnualExemptAmt")),
+      LessTaxFreeAmount -> calcExp("atsCgAnnualExemptAmt")
+    )
+
+  s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
+    behave like atsRawDataTransformerWithCalculations(
+      description = "capital gains exempt",
+      transformedData = transformedData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultSummaryData = expectedResultSummaryData
     )
   }
@@ -84,8 +105,7 @@ class ATSRawDataTransformer2023ScottishExclNonExclMinSpec
 
 class ATSRawDataTransformer2023ScottishDefaultAmountsSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023ScottishExpectedResults {
-  override protected val incomeTaxStatus: String = "0002"
+    with ATSRawDataTransformer2023ScottishCommon {
 
   override protected def tliSlpAtsData: Map[String, BigDecimal] =
     super.tliSlpAtsData -- Seq(
@@ -148,15 +168,15 @@ class ATSRawDataTransformer2023ScottishDefaultAmountsSpec
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
-      expResultCapitalGainsData = expectedResultCGData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultAllowanceData = expectedResultAllowanceData,
       expResultSummaryData = expectedResultSummaryData
     )
   }
-
 }
 
-protected trait ATSRawDataTransformer2023ScottishExpectedResults extends ATSRawDataTransformer2023Spec {
+protected trait ATSRawDataTransformer2023ScottishCommon extends ATSRawDataTransformer2023Spec {
+  override protected val incomeTaxStatus: String                            = "0002"
   override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
     StartingRateForSavingsAmount  -> calcExp("savingsRateAmountScottish2023:null"),
     SavingsLowerIncome            -> calcExp("ctnSavingsChgbleLowerRate"),

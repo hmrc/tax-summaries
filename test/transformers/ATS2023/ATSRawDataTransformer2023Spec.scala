@@ -112,7 +112,7 @@ trait ATSRawDataTransformer2023Spec
     TotalTaxFreeAmount                 -> expTotalTaxFreeAmount
   )
 
-  protected def expectedResultCGData: Map[LiabilityKey, Amount] = Map(
+  protected def expectedResultCapitalGainsData: Map[LiabilityKey, Amount] = Map(
     TaxableGains                 -> expTaxableGains,
     LessTaxFreeAmount            -> calcExp("atsCgAnnualExemptAmt"),
     PayCgTaxOn                   -> Amount.empty("taxableGains() < get(CgAnnualExempt)"),
@@ -124,10 +124,7 @@ trait ATSRawDataTransformer2023Spec
     AmountDueAtHigherRate        -> calcExp("ctnCgDueHigherRate"),
     Adjustments                  -> calcExp("capAdjustmentAmt"),
     TotalCgTax                   -> expTotalCgTax.max(0),
-    CgTaxPerCurrencyUnit         -> taxPerTaxableCurrencyUnit(
-      expTotalCgTax.max(0),
-      expTaxableGains
-    ),
+    CgTaxPerCurrencyUnit         -> expTotalCgTax.max(0).divideWithPrecision(expTaxableGains, 4),
     AmountAtRPCILowerRate        -> calcExp("ctnCGAtLowerRateRPCI"),
     AmountDueRPCILowerRate       -> calcExp("ctnLowerRateCgtRPCI"),
     AmountAtRPCIHigheRate        -> calcExp("ctnCGAtHigherRateRPCI"),
@@ -144,20 +141,7 @@ trait ATSRawDataTransformer2023Spec
     TotalIncomeTax            -> expTotalIncomeTax,
     TotalCgTax                -> expTotalCgTax.max(0),
     TaxableGains              -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt"),
-    CgTaxPerCurrencyUnit      -> taxPerTaxableCurrencyUnit(
-      expTotalCgTax.max(0),
-      expTaxableGains
-    ),
+    CgTaxPerCurrencyUnit      -> expTotalCgTax.max(0).divideWithPrecision(expTaxableGains, 4),
     NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMax
-  )
-
-  protected def expectedResultSummaryDataNonExcluded: Map[LiabilityKey, Amount] = Map(
-    TotalIncomeTaxAndNics     -> (expEmployeeNicAmount + calcExp(
-      "taxExcluded",
-      "taxOnNonExcludedInc"
-    )),
-    YourTotalTax              -> (expTotalIncomeTaxAndNics + expTotalCgTax.max(0)),
-    TotalIncomeTax            -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
-    NicsAndTaxPerCurrencyUnit -> expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
   )
 }

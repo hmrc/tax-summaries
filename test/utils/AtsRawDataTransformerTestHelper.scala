@@ -24,7 +24,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
   protected val taxYear: Int
   protected val incomeTaxStatus: String
 
-  protected def tliSlpAtsData: Map[String, BigDecimal]               = Map(
+  protected def tliSlpAtsData: Map[String, BigDecimal]    = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(10.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(20.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(30.00),
@@ -155,19 +155,13 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "ctnTaxableRedundancySsr"    -> BigDecimal(1070.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def tliSlpAtsDataTaxExclNonExcl: Map[String, BigDecimal] = tliSlpAtsData ++ Map(
-    "taxExcluded"          -> BigDecimal(630.00),
-    "taxOnNonExcludedInc"  -> BigDecimal(640.00),
-    "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
-  ).map(item => item._1 -> item._2.setScale(2))
-
-  protected def saPayeNicDetails: Map[String, BigDecimal]            = Map(
+  protected def saPayeNicDetails: Map[String, BigDecimal] = Map(
     "employeeClass1Nic" -> BigDecimal(1080.00),
     "employeeClass2Nic" -> BigDecimal(200.00),
     "employerNic"       -> BigDecimal(0.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def parsedTaxpayerDetailsJson: JsValue                   = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
+  protected def parsedTaxpayerDetailsJson: JsValue        = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
   protected def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
@@ -210,7 +204,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       }
     }
 
-  protected def calcExp(tliSlpAtsData: Map[String, BigDecimal], fieldNames: String*): Amount = {
+  protected def calcExp(fieldNames: String*): Amount = {
     val retrieveAmount: String => Amount = fieldName => {
       val (name, isNull) = {
         if (fieldName.endsWith(":null")) {
@@ -239,15 +233,6 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       c + retrieveAmount(i)
     }
   }
-
-  protected def calcExp(fieldNames: String*): Amount =
-    calcExp(tliSlpAtsData, fieldNames: _*)
-
-  protected def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount): Amount =
-    taxable match {
-      case value if value.isZero => taxable
-      case _                     => tax.divideWithPrecision(taxable, 4)
-    }
 
   protected def buildJsonPayload(
     tliSlpAtsData: Map[String, BigDecimal] = tliSlpAtsData,

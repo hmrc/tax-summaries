@@ -21,9 +21,7 @@ import models._
 
 class ATSRawDataTransformer2023WelshSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023WelshExpectedResults {
-
-  override protected val incomeTaxStatus: String = "0003"
+    with ATSRawDataTransformer2023WelshCommon {
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
 
@@ -34,7 +32,7 @@ class ATSRawDataTransformer2023WelshSpec
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
-      expResultCapitalGainsData = expectedResultCGData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultAllowanceData = expectedResultAllowanceData,
       expResultSummaryData = expectedResultSummaryData
     )
@@ -43,8 +41,7 @@ class ATSRawDataTransformer2023WelshSpec
 
 class ATSRawDataTransformer2023WelshExclNonExclMinSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023WelshExpectedResults {
-  override protected val incomeTaxStatus: String                            = "0003"
+    with ATSRawDataTransformer2023WelshCommon {
   override protected def tliSlpAtsData: Map[String, BigDecimal]             = super.tliSlpAtsData ++ Map(
     "taxExcluded"         -> BigDecimal(630.00),
     "taxOnNonExcludedInc" -> BigDecimal(640.00)
@@ -76,29 +73,31 @@ class ATSRawDataTransformer2023WelshExclNonExclMinSpec
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
-      expResultCapitalGainsData = expectedResultCGData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultAllowanceData = expectedResultAllowanceData,
       expResultSummaryData = expectedResultSummaryData
     )
   }
 }
 
-class ATSRawDataTransformer2023WelshCapGainsSpec extends ATSRawDataTransformer2023Spec {
-  override protected val incomeTaxStatus: String                         = "0003"
-  override protected def tliSlpAtsData: Map[String, BigDecimal]          = super.tliSlpAtsData ++ Map(
+class ATSRawDataTransformer2023WelshCapGainsSpec
+    extends ATSRawDataTransformer2023Spec
+    with ATSRawDataTransformer2023WelshCommon {
+  override protected def tliSlpAtsData: Map[String, BigDecimal]                    = super.tliSlpAtsData ++ Map(
     "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  override protected def expectedResultCGData: Map[LiabilityKey, Amount] = super.expectedResultCGData ++ Map(
-    PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")),
-    LessTaxFreeAmount -> calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")
-  )
+  override protected def expectedResultCapitalGainsData: Map[LiabilityKey, Amount] =
+    super.expectedResultCapitalGainsData ++ Map(
+      PayCgTaxOn        -> (expTaxableGains - calcExp("atsCgAnnualExemptAmt")),
+      LessTaxFreeAmount -> calcExp("atsCgAnnualExemptAmt")
+    )
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     behave like atsRawDataTransformerWithCalculations(
       description = "capital gains exempt",
       transformedData = transformedData,
-      expResultCapitalGainsData = expectedResultCGData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultSummaryData = expectedResultSummaryData
     )
   }
@@ -106,9 +105,7 @@ class ATSRawDataTransformer2023WelshCapGainsSpec extends ATSRawDataTransformer20
 
 class ATSRawDataTransformer2023WelshDefaultAmountsSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023WelshExpectedResults {
-
-  override protected val incomeTaxStatus: String = "0003"
+    with ATSRawDataTransformer2023WelshCommon {
 
   override protected def tliSlpAtsData: Map[String, BigDecimal] =
     super.tliSlpAtsData -- Seq(
@@ -147,15 +144,16 @@ class ATSRawDataTransformer2023WelshDefaultAmountsSpec
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
-      expResultCapitalGainsData = expectedResultCGData,
+      expResultCapitalGainsData = expectedResultCapitalGainsData,
       expResultAllowanceData = expectedResultAllowanceData,
       expResultSummaryData = expectedResultSummaryData
     )
   }
 }
 
-protected trait ATSRawDataTransformer2023WelshExpectedResults extends ATSRawDataTransformer2023Spec {
-  private def welshRate: Double = 0.1d
+protected trait ATSRawDataTransformer2023WelshCommon extends ATSRawDataTransformer2023Spec {
+  override protected val incomeTaxStatus: String = "0003"
+  private def welshRate: Double                  = 0.1d
 
   override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++
     Map(
