@@ -29,7 +29,7 @@ class ATSRawDataTransformer2023ScottishSpec
     behave like atsRawDataTransformerWithTaxRatesAndYear()
 
     behave like atsRawDataTransformerWithCalculations(
-      description = "main",
+      description = "tax excluded/ tax on non-excluded income > taxable amount",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
@@ -43,30 +43,30 @@ class ATSRawDataTransformer2023ScottishSpec
 class ATSRawDataTransformer2023ScottishExclNonExclMinSpec
     extends ATSRawDataTransformer2023Spec
     with ATSRawDataTransformer2023ScottishExpectedResults {
-  override protected val incomeTaxStatus: String                            = "0002"
-  override protected def tliSlpAtsData: Map[String, BigDecimal]             = super.tliSlpAtsData ++ Map(
-    "taxExcluded"         -> BigDecimal(630.00),
-    "taxOnNonExcludedInc" -> BigDecimal(640.00)
+  override protected val incomeTaxStatus: String                = "0002"
+  override protected def tliSlpAtsData: Map[String, BigDecimal] = super.tliSlpAtsData ++ Map(
+    "taxExcluded"           -> BigDecimal(630.00),
+    "taxOnNonExcludedInc"   -> BigDecimal(640.00),
+    "ctnDividendTaxLowRate" -> BigDecimal(9000.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
+  override protected def expTotalIncomeTax: Amount              =
+    calcExp(
+      "taxExcluded",
+      "taxOnNonExcludedInc"
+    ) + expScottishTotalTax + expSavingsTotalTax
+
   override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
-    TotalIncomeTax -> calcExp("taxExcluded", "taxOnNonExcludedInc")
+    TotalIncomeTax -> expTotalIncomeTax
   )
 
   override protected def expectedResultSummaryData: Map[LiabilityKey, Amount] =
     super.expectedResultSummaryData ++ Map(
-      TotalIncomeTaxAndNics     -> (expEmployeeNicAmount + calcExp(
-        "taxExcluded",
-        "taxOnNonExcludedInc"
-      )),
-      YourTotalTax              -> (expEmployeeNicAmount +
-        calcExp(
-          "taxExcluded",
-          "taxOnNonExcludedInc"
-        ) +
-        expTotalCgTax.max(0)),
-      TotalIncomeTax            -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
-      NicsAndTaxPerCurrencyUnit -> expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
+      TotalIncomeTaxAndNics     -> (expEmployeeNicAmount + expTotalIncomeTax),
+      YourTotalTax              -> (expEmployeeNicAmount + expTotalIncomeTax + expTotalCgTax.max(0)),
+      TotalIncomeTax            -> expTotalIncomeTax,
+      NicsAndTaxPerCurrencyUnit -> (expEmployeeNicAmount + expTotalIncomeTax)
+        .divideWithPrecision(expTotalIncomeBeforeTax, 4)
     )
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
@@ -260,7 +260,7 @@ protected trait ATSRawDataTransformer2023ScottishExpectedResults extends ATSRawD
     "ctnPensionLsumTaxDueAmt:null"
   )
 
-  private def expSavingsTotalTax: Amount = calcExp(
+  protected def expSavingsTotalTax: Amount = calcExp(
     "ctnSavingsTaxLowerRate",
     "ctnSavingsTaxHigherRate",
     "ctnSavingsTaxAddHighRate",
