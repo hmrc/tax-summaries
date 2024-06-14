@@ -188,7 +188,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     ).foreach { case (section, actualOptDataHolder, exp) =>
       val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
       if (act.exists(a => exp.exists(_._1 == a._1))) {
-        s"calculate $description field values correctly for $section" when {
+        s"(for $section section) calculate $description" when {
           act.foreach { item =>
             exp.find(_._1 == item._1).map { actItem =>
               s"field ${item._1} calculated (act ${actItem._2.amount}, exp ${item._2.amount})" in {

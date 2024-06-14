@@ -137,7 +137,7 @@ class ATSRawDataTransformer2023EnglishDefaultAmountsSpec
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     behave like atsRawDataTransformerWithCalculations(
-      description = "default amounts",
+      description = "using default amounts where applicable",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
