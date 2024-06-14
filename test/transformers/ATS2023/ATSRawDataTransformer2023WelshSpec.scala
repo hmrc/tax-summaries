@@ -19,7 +19,9 @@ package transformers.ATS2023
 import models.LiabilityKey._
 import models._
 
-class ATSRawDataTransformer2023WelshSpec extends ATSRawDataTransformer2023Spec {
+class ATSRawDataTransformer2023WelshSpec
+    extends ATSRawDataTransformer2023Spec
+    with ATSRawDataTransformer2023WelshCalculations {
 
   override protected val incomeTaxStatus: String = "0003"
 
