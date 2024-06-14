@@ -95,7 +95,7 @@ class ATSRawDataTransformer2023ScottishCapGainsSpec
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     behave like atsRawDataTransformerWithCalculations(
-      description = "capital gains exempt",
+      description = "subtracting capital gains exempt amount when < taxable gains",
       transformedData = transformedData,
       expResultCapitalGainsData = expectedResultCapitalGainsData
     )
