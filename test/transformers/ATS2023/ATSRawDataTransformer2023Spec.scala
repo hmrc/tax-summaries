@@ -141,7 +141,7 @@ trait ATSRawDataTransformer2023Spec
       "taxOnNonExcludedInc"
     )),
     YourTotalTax              -> expYourTotalTax,
-    PersonalTaxFreeAmount     -> amt(BigDecimal(12570.00), "12570.00(ctnPersonalAllowance)"),
+    PersonalTaxFreeAmount     -> calcExp("ctnPersonalAllowance"),
     TotalTaxFreeAmount        -> expTotalTaxFreeAmount,
     TotalIncomeBeforeTax      -> expTotalIncomeBeforeTax,
     TotalIncomeTax            -> calcExp("taxExcluded", "taxOnNonExcludedInc"),

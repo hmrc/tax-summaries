@@ -210,8 +210,6 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       }
     }
 
-  protected def amt(value: BigDecimal, calculus: String): Amount = Amount(value, "GBP", Some(calculus))
-
   protected def calcExp(tliSlpAtsData: Map[String, BigDecimal], fieldNames: String*): Amount = {
     val retrieveAmount: String => Amount = fieldName => {
       val (name, isNull) = {
