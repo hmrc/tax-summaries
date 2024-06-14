@@ -21,7 +21,6 @@ import models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, 
 import models._
 import utils.{AtsJsonDataUpdate, AtsRawDataTransformerBaseSpec, AtsRawDataTransformerTestHelper}
 
-//scalastyle:off number.of.methods
 trait ATSRawDataTransformer2023Spec
     extends AtsRawDataTransformerTestHelper
     with AtsRawDataTransformerBaseSpec

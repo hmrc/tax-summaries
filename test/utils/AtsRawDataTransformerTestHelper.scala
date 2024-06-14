@@ -24,7 +24,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
   protected val taxYear: Int
   protected val incomeTaxStatus: String
 
-  protected def tliSlpAtsData: Map[String, BigDecimal]            = Map(
+  protected def tliSlpAtsData: Map[String, BigDecimal]               = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(10.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(20.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(30.00),
@@ -161,13 +161,13 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def saPayeNicDetails: Map[String, BigDecimal]         = Map(
+  protected def saPayeNicDetails: Map[String, BigDecimal]            = Map(
     "employeeClass1Nic" -> BigDecimal(1080.00),
     "employeeClass2Nic" -> BigDecimal(200.00),
     "employerNic"       -> BigDecimal(0.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def parsedTaxpayerDetailsJson: JsValue                = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
+  protected def parsedTaxpayerDetailsJson: JsValue                   = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
   protected def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]

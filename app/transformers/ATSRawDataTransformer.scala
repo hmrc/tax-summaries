@@ -39,7 +39,6 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
   ec: ExecutionContext
 ) extends Logging {
 
-  // scalastyle:off method.length
   def atsDataDTO(
     rawPayloadJson: JsValue,
     rawTaxPayerJson: JsValue,
