@@ -97,8 +97,7 @@ class ATSRawDataTransformer2023WelshCapGainsSpec
     behave like atsRawDataTransformerWithCalculations(
       description = "capital gains exempt",
       transformedData = transformedData,
-      expResultCapitalGainsData = expectedResultCapitalGainsData,
-      expResultSummaryData = expectedResultSummaryData
+      expResultCapitalGainsData = expectedResultCapitalGainsData
     )
   }
 }
