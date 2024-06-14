@@ -72,7 +72,7 @@ trait ATSRawDataTransformer2023Spec
     OtherAdjustmentsIncreasing      -> expOtherAdjustmentsIncreasing,
     MarriageAllowanceReceivedAmount -> calcExp("ctnMarriageAllceInAmt"),
     OtherAdjustmentsReducing        -> expOtherAdjustmentsReducing,
-    TotalIncomeTax                  -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
+    TotalIncomeTax                  -> expTotalIncomeTax,
     ScottishIncomeTax               -> calcExp("scottishIncomeTaxUK2023:null"),
     WelshIncomeTax                  -> calcExp("welshIncomeTax:null"),
     ScottishStarterRateTax          -> calcExp("scottishStarterRateTax:null"),
@@ -136,38 +136,28 @@ trait ATSRawDataTransformer2023Spec
 
   protected def expectedResultSummaryData: Map[LiabilityKey, Amount] = Map(
     EmployeeNicAmount         -> expEmployeeNicAmount,
-    TotalIncomeTaxAndNics     -> (expEmployeeNicAmount + calcExp(
-      "taxExcluded",
-      "taxOnNonExcludedInc"
-    )),
-    YourTotalTax              -> expYourTotalTax,
+    TotalIncomeTaxAndNics     -> expTotalIncomeTaxAndNics,
+    YourTotalTax              -> (expTotalIncomeTaxAndNics + expTotalCgTax.max(0)),
     PersonalTaxFreeAmount     -> calcExp("ctnPersonalAllowance"),
     TotalTaxFreeAmount        -> expTotalTaxFreeAmount,
     TotalIncomeBeforeTax      -> expTotalIncomeBeforeTax,
-    TotalIncomeTax            -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
+    TotalIncomeTax            -> expTotalIncomeTax,
     TotalCgTax                -> expTotalCgTax.max(0),
     TaxableGains              -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt"),
     CgTaxPerCurrencyUnit      -> taxPerTaxableCurrencyUnit(
       expTotalCgTax.max(0),
       expTaxableGains
     ),
-    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMin
+    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMax
   )
 
   protected def expectedResultSummaryDataNonExcluded: Map[LiabilityKey, Amount] = Map(
-    TotalIncomeTaxAndNics     -> expTotalIncomeTaxAndNics,
-    NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMax,
-    CgTaxPerCurrencyUnit      -> taxPerTaxableCurrencyUnit(
-      expTotalCgTax.max(0),
-      expTaxableGains
-    ),
-    TotalIncomeBeforeTax      -> expTotalIncomeBeforeTax,
-    TotalCgTax                -> expTotalCgTax.max(0),
+    TotalIncomeTaxAndNics     -> (expEmployeeNicAmount + calcExp(
+      "taxExcluded",
+      "taxOnNonExcludedInc"
+    )),
     YourTotalTax              -> (expTotalIncomeTaxAndNics + expTotalCgTax.max(0)),
-    TotalTaxFreeAmount        -> expTotalTaxFreeAmount,
-    TotalIncomeTax            -> expTotalIncomeTax,
-    PersonalTaxFreeAmount     -> calcExp("ctnPersonalAllowance"),
-    EmployeeNicAmount         -> expEmployeeNicAmount,
-    TaxableGains              -> calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
+    TotalIncomeTax            -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
+    NicsAndTaxPerCurrencyUnit -> expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
   )
 }

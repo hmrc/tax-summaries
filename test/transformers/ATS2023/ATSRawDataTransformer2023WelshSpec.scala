@@ -30,7 +30,7 @@ class ATSRawDataTransformer2023WelshSpec
     behave like atsRawDataTransformerWithTaxRatesAndYear()
 
     behave like atsRawDataTransformerWithCalculations(
-      description = "main",
+      description = "tax excluded/ tax on non-excluded income > taxable amount",
       transformedData = transformedData,
       expResultIncomeTax = expectedResultIncomeTax,
       expResultIncomeData = expectedResultIncomeData,
@@ -38,17 +38,68 @@ class ATSRawDataTransformer2023WelshSpec
       expResultAllowanceData = expectedResultAllowanceData,
       expResultSummaryData = expectedResultSummaryData
     )
+  }
+}
 
+class ATSRawDataTransformer2023WelshExclNonExclMinSpec
+    extends ATSRawDataTransformer2023Spec
+    with ATSRawDataTransformer2023WelshExpectedResults {
+  override protected val incomeTaxStatus: String                            = "0003"
+  override protected def tliSlpAtsData: Map[String, BigDecimal]             = super.tliSlpAtsData ++ Map(
+    "taxExcluded"         -> BigDecimal(630.00),
+    "taxOnNonExcludedInc" -> BigDecimal(640.00)
+  ).map(item => item._1 -> item._2.setScale(2))
+
+  override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
+    TotalIncomeTax -> calcExp("taxExcluded", "taxOnNonExcludedInc")
+  )
+
+  override protected def expectedResultSummaryData: Map[LiabilityKey, Amount] =
+    super.expectedResultSummaryData ++ Map(
+      TotalIncomeTaxAndNics     -> (expEmployeeNicAmount + calcExp(
+        "taxExcluded",
+        "taxOnNonExcludedInc"
+      )),
+      YourTotalTax              -> (expEmployeeNicAmount +
+        calcExp(
+          "taxExcluded",
+          "taxOnNonExcludedInc"
+        ) +
+        expTotalCgTax.max(0)),
+      TotalIncomeTax            -> calcExp("taxExcluded", "taxOnNonExcludedInc"),
+      NicsAndTaxPerCurrencyUnit -> expTotalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
+    )
+
+  s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
     behave like atsRawDataTransformerWithCalculations(
-      description = "tax excluded/ tax on non-excluded income/gains>cg exempt amount",
-      transformedData = doTest(
-        buildJsonPayload(tliSlpAtsData = tliSlpAtsDataTaxExclNonExcl)
-      ),
-      expResultCapitalGainsData = expectedResultCGData ++ Map(
-        PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")),
-        LessTaxFreeAmount -> calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")
-      ),
-      expResultSummaryData = expectedResultSummaryDataNonExcluded
+      description = "tax excluded/ tax on non-excluded income < taxable amount",
+      transformedData = transformedData,
+      expResultIncomeTax = expectedResultIncomeTax,
+      expResultIncomeData = expectedResultIncomeData,
+      expResultCapitalGainsData = expectedResultCGData,
+      expResultAllowanceData = expectedResultAllowanceData,
+      expResultSummaryData = expectedResultSummaryData
+    )
+  }
+}
+
+class ATSRawDataTransformer2023WelshCapGainsSpec extends ATSRawDataTransformer2023Spec {
+  override protected val incomeTaxStatus: String                         = "0003"
+  override protected def tliSlpAtsData: Map[String, BigDecimal]          = super.tliSlpAtsData ++ Map(
+    "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
+  ).map(item => item._1 -> item._2.setScale(2))
+
+  override protected def expectedResultCGData: Map[LiabilityKey, Amount] = super.expectedResultCGData ++ Map(
+    PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")),
+    LessTaxFreeAmount -> calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")
+  )
+
+  s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
+    behave like atsRawDataTransformerWithCalculations(
+      description = "capital gains exempt",
+      transformedData = transformedData,
+      expResultCapitalGainsData = expectedResultCGData,
+      expResultSummaryData = expectedResultSummaryData
     )
   }
 }

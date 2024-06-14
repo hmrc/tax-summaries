@@ -102,8 +102,8 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "ctnTaxableCegAhr"           -> BigDecimal(600.00),
     "ctnTaxOnCegAhr"             -> BigDecimal(610.00),
     "nonDomChargeAmount"         -> BigDecimal(620.00),
-    "taxExcluded"                -> BigDecimal(630.00),
-    "taxOnNonExcludedInc"        -> BigDecimal(640.00),
+    "taxExcluded"                -> BigDecimal(40000.00),
+    "taxOnNonExcludedInc"        -> BigDecimal(60000.00),
     "incomeTaxDue"               -> BigDecimal(6162.58),
     "ctn4TaxDueAfterAllceRlf"    -> BigDecimal(6162.58),
     "netAnnuityPaytsTaxDue"      -> BigDecimal(650.00),
@@ -155,9 +155,9 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "ctnTaxableRedundancySsr"    -> BigDecimal(1070.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected val tliSlpAtsDataTaxExclNonExcl: Map[String, BigDecimal] = tliSlpAtsData ++ Map(
-    "taxExcluded"          -> BigDecimal(0.00),
-    "taxOnNonExcludedInc"  -> BigDecimal(0.00),
+  protected def tliSlpAtsDataTaxExclNonExcl: Map[String, BigDecimal] = tliSlpAtsData ++ Map(
+    "taxExcluded"          -> BigDecimal(630.00),
+    "taxOnNonExcludedInc"  -> BigDecimal(640.00),
     "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
   ).map(item => item._1 -> item._2.setScale(2))
 
