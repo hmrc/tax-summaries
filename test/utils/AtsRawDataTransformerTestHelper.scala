@@ -155,7 +155,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "ctnTaxableRedundancySsr"    -> BigDecimal(1070.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected val tliSlpAtsDataAlternative: Map[String, BigDecimal] = tliSlpAtsData ++ Map(
+  protected val tliSlpAtsDataTaxExclNonExcl: Map[String, BigDecimal] = tliSlpAtsData ++ Map(
     "taxExcluded"          -> BigDecimal(0.00),
     "taxOnNonExcludedInc"  -> BigDecimal(0.00),
     "atsCgAnnualExemptAmt" -> BigDecimal(100.0)

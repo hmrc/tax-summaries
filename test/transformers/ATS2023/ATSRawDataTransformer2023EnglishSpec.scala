@@ -39,11 +39,11 @@ class ATSRawDataTransformer2023EnglishSpec extends ATSRawDataTransformer2023Spec
     behave like atsRawDataTransformerWithCalculations(
       description = "tax excluded/ tax on non-excluded income/gains>cg exempt amount",
       transformedData = doTest(
-        buildJsonPayload(tliSlpAtsData = tliSlpAtsDataAlternative)
+        buildJsonPayload(tliSlpAtsData = tliSlpAtsDataTaxExclNonExcl)
       ),
       expResultCapitalGainsData = expectedResultCGData ++ Map(
-        PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")),
-        LessTaxFreeAmount -> calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")
+        PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")),
+        LessTaxFreeAmount -> calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")
       ),
       expResultSummaryData = expectedResultSummaryDataNonExcluded
     )

@@ -21,7 +21,7 @@ import models._
 
 class ATSRawDataTransformer2023ScottishSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023ScottishCalculations {
+    with ATSRawDataTransformer2023ScottishExpectedResults {
   override protected val incomeTaxStatus: String = "0002"
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
@@ -41,11 +41,11 @@ class ATSRawDataTransformer2023ScottishSpec
     behave like atsRawDataTransformerWithCalculations(
       description = "tax excluded/ tax on non-excluded income/gains>cg exempt amount",
       transformedData = doTest(
-        buildJsonPayload(tliSlpAtsData = tliSlpAtsDataAlternative)
+        buildJsonPayload(tliSlpAtsData = tliSlpAtsDataTaxExclNonExcl)
       ),
       expResultCapitalGainsData = expectedResultCGData ++ Map(
-        PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")),
-        LessTaxFreeAmount -> calcExp(tliSlpAtsDataAlternative, "atsCgAnnualExemptAmt")
+        PayCgTaxOn        -> (expTaxableGains - calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")),
+        LessTaxFreeAmount -> calcExp(tliSlpAtsDataTaxExclNonExcl, "atsCgAnnualExemptAmt")
       ),
       expResultSummaryData = expectedResultSummaryDataNonExcluded ++ Map(
         NicsAndTaxPerCurrencyUnit -> expNicsAndTaxPerCurrencyUnitExclNonExclMin
@@ -57,7 +57,7 @@ class ATSRawDataTransformer2023ScottishSpec
 
 class ATSRawDataTransformer2023ScottishDefaultAmountsSpec
     extends ATSRawDataTransformer2023Spec
-    with ATSRawDataTransformer2023ScottishCalculations {
+    with ATSRawDataTransformer2023ScottishExpectedResults {
   override protected val incomeTaxStatus: String = "0002"
 
   override protected def tliSlpAtsData: Map[String, BigDecimal] =
@@ -129,7 +129,7 @@ class ATSRawDataTransformer2023ScottishDefaultAmountsSpec
 
 }
 
-protected trait ATSRawDataTransformer2023ScottishCalculations extends ATSRawDataTransformer2023Spec {
+protected trait ATSRawDataTransformer2023ScottishExpectedResults extends ATSRawDataTransformer2023Spec {
   override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
     StartingRateForSavingsAmount  -> calcExp("savingsRateAmountScottish2023:null"),
     SavingsLowerIncome            -> calcExp("ctnSavingsChgbleLowerRate"),
