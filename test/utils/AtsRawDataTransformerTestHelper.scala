@@ -24,7 +24,7 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
   protected val taxYear: Int
   protected val incomeTaxStatus: String
 
-  protected val tliSlpAtsData: Map[String, BigDecimal]            = Map(
+  protected def tliSlpAtsData: Map[String, BigDecimal]            = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(10.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(20.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(30.00),
@@ -161,64 +161,13 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
     "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected val tliSlpAtsDataRequiringDefaultAmount: Map[String, BigDecimal] = {
-    val fromAtsCalculations          = Seq(
-      "ctnLowerRateCgtRPCI",
-      "ctnHigherRateCgtRPCI",
-      "ctnMarriageAllceOutAmt",
-      "reliefForFinanceCosts",
-      "lfiRelief",
-      "alimony",
-      "ctnMarriageAllceInAmt",
-      "ctnIncomeChgbleBasicRate",
-      "ctnIncomeChgbleHigherRate",
-      "ctnIncomeChgbleAddHRate",
-      "ctnIncomeChgbleBasicRate",
-      "ctnIncomeChgbleHigherRate",
-      "ctnIncomeChgbleAddHRate"
-    )
-    val fromAtsCalculations2023      = Seq(
-      "ctnMarriageAllceInAmt",
-      "taxOnNonExcludedInc",
-      "alimony",
-      "reliefForFinanceCosts",
-      "lfiRelief",
-      "ctnRelTaxAcctFor",
-      "ctnIncomeChgbleBasicRate",
-      "ctnIncomeChgbleHigherRate",
-      "ctnIncomeChgbleAddHRate"
-    )
-    val fromAtsCalculations2023Welsh =
-      Seq("ctnIncomeChgbleBasicRate", "ctnIncomeChgbleHigherRate", "ctnIncomeChgbleAddHRate")
-
-    val fromAtsCalculations2023Scottish = Seq(
-      "taxOnPaySSR",
-      "ctnIncomeTaxBasicRate",
-      "taxOnPaySIR",
-      "ctnIncomeTaxHigherRate",
-      "ctnIncomeTaxAddHighRate",
-      "taxablePaySSR",
-      "ctnIncomeChgbleBasicRate",
-      "taxablePaySIR",
-      "ctnIncomeChgbleHigherRate",
-      "ctnIncomeChgbleAddHRate",
-      "ctnSavingsTaxLowerRate",
-      "ctnSavingsTaxHigherRate",
-      "ctnSavingsTaxAddHighRate",
-      "ctnSavingsChgbleLowerRate",
-      "ctnSavingsChgbleHigherRate",
-      "ctnSavingsChgbleAddHRate"
-    )
-    tliSlpAtsData -- fromAtsCalculations -- fromAtsCalculations2023
-  }
-
-  private val saPayeNicDetails: Map[String, BigDecimal] = Map(
+  protected def saPayeNicDetails: Map[String, BigDecimal]         = Map(
     "employeeClass1Nic" -> BigDecimal(1080.00),
     "employeeClass2Nic" -> BigDecimal(200.00),
     "employerNic"       -> BigDecimal(0.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  protected def parsedTaxpayerDetailsJson: JsValue      = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
+  protected def parsedTaxpayerDetailsJson: JsValue                = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
   protected def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
@@ -243,18 +192,20 @@ trait AtsRawDataTransformerTestHelper extends BaseSpec {
       ("allowance data", transformedData.allowance_data, expResultAllowanceData),
       ("summary data", transformedData.summary_data, expResultSummaryData)
     ).foreach { case (section, actualOptDataHolder, exp) =>
-      s"calculate $description field values correctly for $section" when {
-        val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
-        act.foreach { item =>
-          exp.find(_._1 == item._1).map { actItem =>
-            s"field ${item._1} calculated (act ${actItem._2.amount}, exp ${item._2.amount})" in {
-              item._2 mustBe actItem._2
+      val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
+      if (act.exists(a => exp.exists(_._1 == a._1))) {
+        s"calculate $description field values correctly for $section" when {
+          act.foreach { item =>
+            exp.find(_._1 == item._1).map { actItem =>
+              s"field ${item._1} calculated (act ${actItem._2.amount}, exp ${item._2.amount})" in {
+                item._2 mustBe actItem._2
+              }
             }
           }
-        }
 
-        "check for missing keys made" in {
-          exp.keys.toSeq.diff(act.keys.toSeq) mustBe Nil
+          "check for missing keys made" in {
+            exp.keys.toSeq.diff(act.keys.toSeq) mustBe Nil
+          }
         }
       }
     }

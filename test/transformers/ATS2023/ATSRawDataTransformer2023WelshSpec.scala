@@ -49,7 +49,59 @@ class ATSRawDataTransformer2023WelshSpec extends ATSRawDataTransformer2023Spec {
       expResultSummaryData = expectedResultSummaryDataNonExcluded
     )
   }
+}
 
+class ATSRawDataTransformer2023WelshDefaultAmountsSpec
+    extends ATSRawDataTransformer2023Spec
+    with ATSRawDataTransformer2023WelshCalculations {
+
+  override protected val incomeTaxStatus: String = "0003"
+
+  override protected def tliSlpAtsData: Map[String, BigDecimal] =
+    super.tliSlpAtsData -- Seq(
+      "ctnLowerRateCgtRPCI",
+      "ctnHigherRateCgtRPCI",
+      "ctnMarriageAllceOutAmt",
+      "reliefForFinanceCosts",
+      "lfiRelief",
+      "alimony",
+      "ctnMarriageAllceInAmt",
+      "ctnIncomeChgbleBasicRate",
+      "ctnIncomeChgbleHigherRate",
+      "ctnIncomeChgbleAddHRate",
+      "taxOnNonExcludedInc",
+      "ctnRelTaxAcctFor"
+    )
+
+  override protected def saPayeNicDetails: Map[String, BigDecimal] = super.saPayeNicDetails ++ Map(
+    "ctnIncomeChgbleBasicRate"  -> BigDecimal(17420.00),
+    "ctnIncomeChgbleHigherRate" -> BigDecimal(342.00),
+    "ctnIncomeChgbleAddHRate"   -> BigDecimal(381.00),
+    "taxOnNonExcludedInc"       -> BigDecimal(641.00),
+    "alimony"                   -> BigDecimal(751.00),
+    "reliefForFinanceCosts"     -> BigDecimal(501.00),
+    "lfiRelief"                 -> BigDecimal(791.00),
+    "ctnRelTaxAcctFor"          -> BigDecimal(11.00),
+    "ctnLowerRateCgtRPCI"       -> BigDecimal(941.00),
+    "ctnHigherRateCgtRPCI"      -> BigDecimal(961.00),
+    "ctnMarriageAllceInAmt"     -> BigDecimal(991.00),
+    "ctnMarriageAllceOutAmt"    -> BigDecimal(1001.00)
+  ).map(item => item._1 -> item._2.setScale(2))
+
+  s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
+    behave like atsRawDataTransformerWithCalculations(
+      description = "default amounts",
+      transformedData = transformedData,
+      expResultIncomeTax = expectedResultIncomeTax,
+      expResultIncomeData = expectedResultIncomeData,
+      expResultCapitalGainsData = expectedResultCGData,
+      expResultAllowanceData = expectedResultAllowanceData,
+      expResultSummaryData = expectedResultSummaryData
+    )
+  }
+}
+
+protected trait ATSRawDataTransformer2023WelshCalculations extends ATSRawDataTransformer2023Spec {
   private def welshRate: Double = 0.1d
 
   override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++

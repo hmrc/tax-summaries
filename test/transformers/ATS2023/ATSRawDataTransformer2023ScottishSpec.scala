@@ -19,7 +19,9 @@ package transformers.ATS2023
 import models.LiabilityKey._
 import models._
 
-class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spec {
+class ATSRawDataTransformer2023ScottishSpec
+    extends ATSRawDataTransformer2023Spec
+    with ATSRawDataTransformer2023ScottishCalculations {
   override protected val incomeTaxStatus: String = "0002"
 
   s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
@@ -51,6 +53,83 @@ class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spe
     )
   }
 
+}
+
+class ATSRawDataTransformer2023ScottishDefaultAmountsSpec
+    extends ATSRawDataTransformer2023Spec
+    with ATSRawDataTransformer2023ScottishCalculations {
+  override protected val incomeTaxStatus: String = "0002"
+
+  override protected def tliSlpAtsData: Map[String, BigDecimal] =
+    super.tliSlpAtsData -- Seq(
+      "ctnLowerRateCgtRPCI",
+      "ctnHigherRateCgtRPCI",
+      "ctnMarriageAllceOutAmt",
+      "reliefForFinanceCosts",
+      "lfiRelief",
+      "alimony",
+      "ctnMarriageAllceInAmt",
+      "ctnIncomeChgbleBasicRate",
+      "ctnIncomeChgbleHigherRate",
+      "ctnIncomeChgbleAddHRate",
+      "taxOnNonExcludedInc",
+      "ctnRelTaxAcctFor",
+      "taxOnPaySSR",
+      "ctnIncomeTaxBasicRate",
+      "taxOnPaySIR",
+      "ctnIncomeTaxHigherRate",
+      "ctnIncomeTaxAddHighRate",
+      "taxablePaySSR",
+      "taxablePaySIR",
+      "ctnSavingsTaxLowerRate",
+      "ctnSavingsTaxHigherRate",
+      "ctnSavingsChgbleLowerRate",
+      "ctnSavingsChgbleHigherRate",
+      "ctnSavingsChgbleAddHRate"
+    )
+
+  override protected def saPayeNicDetails: Map[String, BigDecimal] = super.saPayeNicDetails ++ Map(
+    "ctnIncomeChgbleBasicRate"   -> BigDecimal(17421.00),
+    "ctnIncomeChgbleHigherRate"  -> BigDecimal(343.00),
+    "ctnIncomeChgbleAddHRate"    -> BigDecimal(382.00),
+    "taxOnNonExcludedInc"        -> BigDecimal(642.00),
+    "alimony"                    -> BigDecimal(752.00),
+    "reliefForFinanceCosts"      -> BigDecimal(502.00),
+    "lfiRelief"                  -> BigDecimal(792.00),
+    "ctnRelTaxAcctFor"           -> BigDecimal(12.00),
+    "ctnLowerRateCgtRPCI"        -> BigDecimal(942.00),
+    "ctnHigherRateCgtRPCI"       -> BigDecimal(962.00),
+    "ctnMarriageAllceInAmt"      -> BigDecimal(992.00),
+    "ctnMarriageAllceOutAmt"     -> BigDecimal(1002.00),
+    "taxOnPaySSR"                -> BigDecimal(399.43),
+    "ctnIncomeTaxBasicRate"      -> BigDecimal(3484.80),
+    "taxOnPaySIR"                -> BigDecimal(1439.50),
+    "ctnIncomeTaxHigherRate"     -> BigDecimal(361.00),
+    "ctnIncomeTaxAddHighRate"    -> BigDecimal(401.00),
+    "taxablePaySSR"              -> BigDecimal(2098.00),
+    "taxablePaySIR"              -> BigDecimal(6851.00),
+    "ctnSavingsTaxLowerRate"     -> BigDecimal(536.60),
+    "ctnSavingsTaxHigherRate"    -> BigDecimal(371.00),
+    "ctnSavingsChgbleLowerRate"  -> BigDecimal(2679.00),
+    "ctnSavingsChgbleHigherRate" -> BigDecimal(351.00),
+    "ctnSavingsChgbleAddHRate"   -> BigDecimal(391.00)
+  ).map(item => item._1 -> item._2.setScale(2))
+
+  s"atsDataDTO for incomeTaxStatus (i.e. country) $incomeTaxStatus and tax year $taxYear" must {
+    behave like atsRawDataTransformerWithCalculations(
+      description = "default amounts",
+      transformedData = transformedData,
+      expResultIncomeTax = expectedResultIncomeTax,
+      expResultIncomeData = expectedResultIncomeData,
+      expResultCapitalGainsData = expectedResultCGData,
+      expResultAllowanceData = expectedResultAllowanceData,
+      expResultSummaryData = expectedResultSummaryData
+    )
+  }
+
+}
+
+protected trait ATSRawDataTransformer2023ScottishCalculations extends ATSRawDataTransformer2023Spec {
   override protected def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
     StartingRateForSavingsAmount  -> calcExp("savingsRateAmountScottish2023:null"),
     SavingsLowerIncome            -> calcExp("ctnSavingsChgbleLowerRate"),
@@ -161,4 +240,5 @@ class ATSRawDataTransformer2023ScottishSpec extends ATSRawDataTransformer2023Spe
   )
 
   override protected def expTotalAmountTaxAndNics: Amount = expEmployeeNicAmount + expTotalIncomeTax
+
 }
