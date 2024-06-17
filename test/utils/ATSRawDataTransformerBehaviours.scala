@@ -32,7 +32,7 @@ trait ATSRawDataTransformerBehaviours extends BaseSpec {
       ("summary data", testFixture.transformedData.summary_data, testFixture.expectedResultSummaryData)
     ).foreach { case (section, actualOptDataHolder, exp) =>
       val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
-      if (act.exists(a => exp.exists(_._1 == a._1))) {
+      if (act.exists(liabilityKey => exp.exists(_._1 == liabilityKey._1))) {
         s"(for $section section) calculate for $description" when {
           act.foreach { item =>
             exp.find(_._1 == item._1).map { actItem =>
