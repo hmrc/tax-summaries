@@ -16,9 +16,6 @@
 
 package utils
 
-import models.ApiRate
-import models.RateKey._
-
 trait ATSRawDataTransformerBehaviours extends BaseSpec {
   protected def atsRawDataTransformerWithCalculations(
     description: String,
