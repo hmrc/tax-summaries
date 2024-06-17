@@ -19,13 +19,12 @@ package transformers.ATS2023
 import models.LiabilityKey._
 import models.RateKey._
 import models.{Amount, ApiRate, LiabilityKey}
-import utils.{ATSRawDataTransformerBehaviours, AtsRawDataTransformerTestFixture, BaseSpec}
+import utils.{ATSRawDataTransformerBehaviours, BaseSpec}
 
 class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransformerBehaviours {
   s"atsDataDTO for England" must {
-    "use the correct tax rates" in {
-      val testFixture = new ATSRawDataTransformerTestFixtureEngland {}
-      testFixture.transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
+    "use the correct tax rates" in new ATSRawDataTransformerTestFixtureEngland {
+      transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
         Set(
           Additional               -> ApiRate("39.35%"),
           Ordinary                 -> ApiRate("8.75%"),

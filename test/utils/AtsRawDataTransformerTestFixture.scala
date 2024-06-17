@@ -17,10 +17,11 @@
 package utils
 
 import models.{Amount, AtsMiddleTierData, LiabilityKey}
+import org.scalatest.Assertions
 import play.api.libs.json.{JsObject, JsValue, Json}
 import transformers.ATSRawDataTransformer
 
-trait AtsRawDataTransformerTestFixture extends BaseSpec {
+trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
   protected val taxYear: Int
   protected val incomeTaxStatus: String
 
@@ -42,6 +43,31 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
     atsRawDataTransformer.atsDataDTO(jsonPayload, parsedTaxpayerDetailsJson, "", taxYear)
   }
+//  protected def atsRawDataTransformerWithCalculationsTwo(): Unit =
+//    Seq(
+//      ("income tax", transformedData.income_tax, expectedResultIncomeTax),
+//      ("income data", transformedData.income_data, expectedResultIncomeData),
+//      ("cap gains data", transformedData.capital_gains_data, expectedResultCapitalGainsData),
+//      ("allowance data", transformedData.allowance_data, expectedResultAllowanceData),
+//      ("summary data", transformedData.summary_data, expectedResultSummaryData)
+//    ).foreach { case (section, actualOptDataHolder, exp) =>
+//      val act = actualOptDataHolder.flatMap(_.payload).getOrElse(Map.empty)
+//      if (act.exists(a => exp.exists(_._1 == a._1))) {
+//        act.foreach { item =>
+//          exp.find(_._1 == item._1).map { actItem =>
+//            assert(
+//              item._2 == actItem._2,
+//              s"(for $section section) field ${item._1} calculated (act ${actItem._2.amount}, exp ${item._2.amount})"
+//            )
+//          }
+//        }
+//
+////          "check for missing keys made" in {
+////            exp.keys.toSeq.diff(act.keys.toSeq) mustBe Nil
+////          }
+//
+//      }
+//    }
 
   protected def calcExp(fieldNames: String*): Amount = {
     val retrieveAmount: String => Amount = fieldName => {

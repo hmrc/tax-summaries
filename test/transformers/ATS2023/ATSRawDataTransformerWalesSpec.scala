@@ -23,9 +23,8 @@ import utils.{ATSRawDataTransformerBehaviours, BaseSpec}
 
 class ATSRawDataTransformerWalesSpec extends BaseSpec with ATSRawDataTransformerBehaviours {
   s"atsDataDTO for Wales" must {
-    "use the correct tax rates" in {
-      val testFixture = new ATSRawDataTransformerTestFixtureWales {}
-      testFixture.transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
+    "use the correct tax rates" in new ATSRawDataTransformerTestFixtureWales {
+      transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
         Set(
           Additional               -> ApiRate("39.35%"),
           Ordinary                 -> ApiRate("8.75%"),

@@ -21,9 +21,9 @@ import models.LiabilityKey._
 import utils.AtsRawDataTransformerTestFixture
 
 trait ATSRawDataTransformerTestFixtureBase
-  extends AtsRawDataTransformerTestFixture
+    extends AtsRawDataTransformerTestFixture
     with AtsRawDataTransformerTestFixtureBaseCalculations {
-  override protected val taxYear: Int            = 2023
+  override protected val taxYear: Int = 2023
 
   // scalastyle:off method.length
   override protected def tliSlpAtsData: Map[String, BigDecimal]    = Map(
@@ -344,8 +344,8 @@ trait AtsRawDataTransformerTestFixtureBaseCalculations {
   protected def expNicsAndTaxPerCurrencyUnitExclNonExclMax: Amount = {
     val totalAmountTaxAndNics = expEmployeeNicAmount +
       expSavingsIncomeTaxDivs + expOtherAdjustmentsIncreasing - expOtherAdjustmentsReducing - calcExp(
-      "ctnMarriageAllceInAmt"
-    )
+        "ctnMarriageAllceInAmt"
+      )
     totalAmountTaxAndNics.divideWithPrecision(expTotalIncomeBeforeTax, 4)
   }
 
