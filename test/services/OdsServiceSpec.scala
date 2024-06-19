@@ -137,7 +137,7 @@ class OdsServiceSpec extends BaseSpec {
         when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(true))(any()))
           .thenReturn(mock[JsValue])
 
-        val result = service.getPayload(testUtr, taxYear, true)(mock[HeaderCarrier], mock[Request[_]]).value
+        val result = service.getPayload(testUtr, taxYear, withCalculus = true)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res.isRight mustBe true
