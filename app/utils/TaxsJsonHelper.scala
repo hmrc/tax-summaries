@@ -25,9 +25,15 @@ import transformers.{ATSCalculations, ATSRawDataTransformer, ATSTaxpayerDataTran
 import uk.gov.hmrc.http.HeaderCarrier
 
 class TaxsJsonHelper @Inject()(applicationConfig: ApplicationConfig, aTSRawDataTransformer: ATSRawDataTransformer) {
-  def getAllATSData(rawTaxpayerJson: JsValue, rawPayloadJson: JsValue, UTR: String, taxYear: Int, withCalculus: Boolean = false)(implicit
-                                                                                                                                 hc: HeaderCarrier
-  ): JsValue = {
+  def getAllATSData(
+                     rawTaxpayerJson: JsValue,
+                     rawPayloadJson: JsValue,
+                     UTR: String,
+                     taxYear: Int,
+                     withCalculus: Boolean = false
+                   )(implicit
+                     hc: HeaderCarrier
+                   ): JsValue = {
     val middleTierData = aTSRawDataTransformer.atsDataDTO(rawPayloadJson, rawTaxpayerJson, UTR, taxYear)
     if (withCalculus) {
       val incomeTaxDataPoint: Option[List[DataHolderWithCalculus]] = if (middleTierData.income_tax.nonEmpty) {
@@ -81,7 +87,6 @@ class TaxsJsonHelper @Inject()(applicationConfig: ApplicationConfig, aTSRawDataT
     val taxPayer = ATSTaxpayerDataTransformer(rawTaxpayerJson).atsTaxpayerDataDTO
     Json.toJson(AtsYearList(utr, Some(taxPayer), Some(atsYearList)))
   }
-
 
   private def createDataPointList(dataPoint: DataHolder): List[DataHolderWithCalculus] = {
     val dataHolderWithCalculusList =
