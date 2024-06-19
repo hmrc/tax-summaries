@@ -453,24 +453,84 @@ class TaxsJsonHelperTest extends BaseSpec {
           |  ],
           |  "capital_gains_data": [
           |    {
-          |      "fieldName": "personal_tax_free_amount",
+          |      "fieldName": "amount_at_ordinary_rate",
           |      "amount": 0,
-          |      "calculus": "0.00(ctnPersonalAllowance)"
+          |      "calculus": "0.00(ctnCgAtLowerRate)"
           |    },
           |    {
-          |      "fieldName": "marriage_allowance_transferred_amount",
+          |      "fieldName": "amount_due_at_higher_rate",
           |      "amount": 0,
-          |      "calculus": "0.00(ctnMarriageAllceOutAmt)"
+          |      "calculus": "0.00(ctnCgDueHigherRate)"
           |    },
           |    {
-          |      "fieldName": "other_allowances_amount",
-          |      "amount": 15451,
-          |      "calculus": "2235.00(ctnEmploymentExpensesAmt) + 681.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 12535.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount)"
+          |      "fieldName": "cg_tax_per_currency_unit",
+          |      "amount": 0.1107,
+          |      "calculus": "max(0, Some(0.00(ctnLowerRateCgtRPCI) + 3340.00(ctnHigherRateCgtRPCI) + 1200.00(ctnCgDueEntrepreneursRate) + 0.00(ctnCgDueLowerRate) + 0.00(ctnCgDueHigherRate) + 0.00(capAdjustmentAmt)))"
           |    },
           |    {
-          |      "fieldName": "total_tax_free_amount",
-          |      "amount": 15451,
-          |      "calculus": "2235.00(ctnEmploymentExpensesAmt) + 681.00(ctnSummaryTotalDedPpr) + 0.00(ctnSumTotForeignTaxRelief) + 12535.00(ctnSumTotLossRestricted) + 0.00(grossAnnuityPayts) + 0.00(itf4GiftsInvCharitiesAmo) + 0.00(ctnBpaAllowanceAmt) + 0.00(itfBpaAmount) + 0.00(ctnPersonalAllowance) - 0.00(ctnMarriageAllceOutAmt)"
+          |      "fieldName": "amount_at_entrepreneurs_rate",
+          |      "amount": 12000,
+          |      "calculus": "12000.00(ctnCgAtEntrepreneursRate)"
+          |    },
+          |    {
+          |      "fieldName": "amount_due_at_entrepreneurs_rate",
+          |      "amount": 1200,
+          |      "calculus": "1200.00(ctnCgDueEntrepreneursRate)"
+          |    },
+          |    {
+          |      "fieldName": "adjustments",
+          |      "amount": 0,
+          |      "calculus": "0.00(capAdjustmentAmt)"
+          |    },
+          |    {
+          |      "fieldName": "pay_cg_tax_on",
+          |      "amount": 28700,
+          |      "calculus": "2000.00(atsCgTotGainsAfterLosses) + 39000.00(atsCgGainsAfterLossesAmt) - 12300.00(atsCgAnnualExemptAmt)"
+          |    },
+          |    {
+          |      "fieldName": "amount_due_at_ordinary_rate",
+          |      "amount": 0,
+          |      "calculus": "0.00(ctnCgDueLowerRate)"
+          |    },
+          |    {
+          |      "fieldName": "taxable_gains",
+          |      "amount": 41000,
+          |      "calculus": "2000.00(atsCgTotGainsAfterLosses) + 39000.00(atsCgGainsAfterLossesAmt)"
+          |    },
+          |    {
+          |      "fieldName": "amount_at_higher_rate",
+          |      "amount": 0,
+          |      "calculus": "0.00(ctnCgAtHigherRate)"
+          |    },
+          |    {
+          |      "fieldName": "total_cg_tax",
+          |      "amount": 4540,
+          |      "calculus": "max(0, Some(0.00(ctnLowerRateCgtRPCI) + 3340.00(ctnHigherRateCgtRPCI) + 1200.00(ctnCgDueEntrepreneursRate) + 0.00(ctnCgDueLowerRate) + 0.00(ctnCgDueHigherRate) + 0.00(capAdjustmentAmt)))"
+          |    },
+          |    {
+          |      "fieldName": "amount_at_rpci_higher_rate",
+          |      "amount": 16700,
+          |      "calculus": "16700.00(ctnCGAtHigherRateRPCI)"
+          |    },
+          |    {
+          |      "fieldName": "amount_due_rpci_higher_rate",
+          |      "amount": 3340,
+          |      "calculus": "3340.00(ctnHigherRateCgtRPCI)"
+          |    },
+          |    {
+          |      "fieldName": "less_tax_free_amount",
+          |      "amount": 12300,
+          |      "calculus": "12300.00(atsCgAnnualExemptAmt)"
+          |    },
+          |    {
+          |      "fieldName": "amount_due_rpci_lower_rate",
+          |      "amount": 0,
+          |      "calculus": "0.00(ctnLowerRateCgtRPCI)"
+          |    },
+          |    {
+          |      "fieldName": "amount_at_rpci_lower_rate",
+          |      "amount": 0,
+          |      "calculus": "0.00(ctnCGAtLowerRateRPCI)"
           |    }
           |  ]
           |}

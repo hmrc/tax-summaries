@@ -58,7 +58,7 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
       }
       val capitalGainsDataPoint: Option[List[DataHolderWithCalculus]] =
         if (middleTierData.capital_gains_data.nonEmpty) {
-          Some(createDataPointList(middleTierData.allowance_data.get))
+          Some(createDataPointList(middleTierData.capital_gains_data.get))
         } else {
           None
         }
