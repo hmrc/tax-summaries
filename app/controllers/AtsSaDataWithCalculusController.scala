@@ -25,7 +25,7 @@ import utils.ATSErrorHandler
 
 import scala.concurrent.ExecutionContext
 
-class AtsSaWithCalculusDataController @Inject() (
+class AtsSaDataWithCalculusController @Inject() (
   odsService: OdsService,
   atsErrorHandler: ATSErrorHandler,
   cc: ControllerComponents
@@ -35,7 +35,7 @@ class AtsSaWithCalculusDataController @Inject() (
 
   def getAtsSaDataWithCalculus(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
     odsService
-      .getPayload(utr, tax_year, true)
+      .getPayload(utr, tax_year, withCalculus = true)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)

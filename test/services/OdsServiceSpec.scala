@@ -127,6 +127,27 @@ class OdsServiceSpec extends BaseSpec {
       }
     }
 
+    "return json" when {
+      "the call is successful and the calculus data is needed" in {
+
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
+          .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
+          .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
+        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(true))(any()))
+          .thenReturn(mock[JsValue])
+
+        val result = service.getPayload(testUtr, taxYear, true)(mock[HeaderCarrier], mock[Request[_]]).value
+
+        whenReady(result) { res =>
+          res.isRight mustBe true
+
+          verify(jsonHelper, times(1))
+            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(true))(any())
+        }
+      }
+    }
+
     "return a UpstreamErrorResponse" when {
       "Not found response is received from self assessment" in {
         when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
