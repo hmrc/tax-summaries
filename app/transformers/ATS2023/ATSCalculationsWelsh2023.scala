@@ -23,7 +23,7 @@ import services.TaxRateService
 class ATSCalculationsWelsh2023(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations2023 {
   override def welshIncomeTax: Amount = {
-    val welshRate = 0.1
+    val welshRate: Double = 0.1
     (
       getWithDefaultAmount(IncomeChargeableBasicRate) +
         get(TaxableRedundancyBr) +
