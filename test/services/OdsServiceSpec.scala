@@ -113,7 +113,7 @@ class OdsServiceSpec extends BaseSpec {
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
         when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any()))
+        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(false))(any()))
           .thenReturn(mock[JsValue])
 
         val result = service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
@@ -121,7 +121,30 @@ class OdsServiceSpec extends BaseSpec {
         whenReady(result) { res =>
           res.isRight mustBe true
 
-          verify(jsonHelper, times(1)).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
+          verify(jsonHelper, times(1))
+            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(false))(any())
+        }
+      }
+    }
+
+    "return json" when {
+      "the call is successful and the calculus data is needed" in {
+
+        when(odsConnector.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
+          .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
+        when(odsConnector.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
+          .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
+        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(true))(any()))
+          .thenReturn(mock[JsValue])
+
+        val result =
+          service.getPayload(testUtr, taxYear, withCalculus = true)(mock[HeaderCarrier], mock[Request[_]]).value
+
+        whenReady(result) { res =>
+          res.isRight mustBe true
+
+          verify(jsonHelper, times(1))
+            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(true))(any())
         }
       }
     }
@@ -140,7 +163,8 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
+          verify(jsonHelper, never)
+            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(false))(any())
         }
       }
 
@@ -158,7 +182,8 @@ class OdsServiceSpec extends BaseSpec {
           verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector, times(0))
             .connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
+          verify(jsonHelper, never)
+            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(false))(any())
         }
       }
 
@@ -178,7 +203,8 @@ class OdsServiceSpec extends BaseSpec {
 
             verify(odsConnector).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
             verify(odsConnector).connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any())
-            verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
+            verify(jsonHelper, never)
+              .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(false))(any())
           }
         }
       }
@@ -220,7 +246,8 @@ class OdsServiceSpec extends BaseSpec {
 
           verify(odsConnector, times(0)).connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any())
           verify(odsConnector).connectToSelfAssessmentList(eqTo(testUtr))(any[HeaderCarrier], any())
-          verify(jsonHelper, never).getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
+          verify(jsonHelper, never)
+            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear), eqTo(false))(any())
         }
       }
 

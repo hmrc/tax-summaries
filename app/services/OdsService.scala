@@ -37,7 +37,7 @@ class OdsService @Inject() (
   private val logger = Logger(getClass.getName)
 
   //scalastyle:off cyclomatic.complexity
-  def getPayload(utr: String, TAX_YEAR: Int)(implicit
+  def getPayload(utr: String, TAX_YEAR: Int, withCalculus: Boolean = false)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
@@ -58,7 +58,7 @@ class OdsService @Inject() (
                         case Right(response)                                 => Right(response.json.as[JsValue])
                         case Left(error)                                     => Left(error)
                       }
-    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
+    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR, withCalculus)
 
   private def findAllYears(utr: String, range: Range)(implicit
     hc: HeaderCarrier,
