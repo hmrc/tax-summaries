@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.testOnly
 
 import cats.data.EitherT
 import org.mockito.ArgumentMatchers.{eq => eqTo, _}
