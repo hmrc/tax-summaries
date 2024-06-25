@@ -12,5 +12,6 @@
 # Add all the application prod.routes to the prod.prod.routes file
 ->         /                      prod.Routes
 ->         /taxs                  mongoFeatureTogglesTestOnly.Routes
-GET        /test-only/taxs/:UTR/:TAX_YEAR/ats-sa-data-plus-calculus  controllers.AtsSaDataWithCalculusController.getAtsSaDataWithCalculus(UTR: String, TAX_YEAR: Int)
+GET        /test-only/taxs/:utr/:taxYear/ats-sa-data-plus-calculus  controllers.testOnly.AtsSaDataWithCalculusController.getAtsSaDataWithCalculus(utr: String, taxYear: Int)
+GET        /test-only/taxs/:taxYear/ats-sa-fields                   controllers.testOnly.AtsSaFieldListController.getFieldList(taxYear: Int)
 

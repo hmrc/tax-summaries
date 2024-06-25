@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.testOnly
 
 import com.google.inject.Inject
 import play.api.Logging
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.OdsService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import utils.ATSErrorHandler
 
 import scala.concurrent.ExecutionContext
 
-class AtsSaDataWithCalculusController @Inject() (
-  odsService: OdsService,
-  atsErrorHandler: ATSErrorHandler,
+class AtsSaFieldListController @Inject() (
   cc: ControllerComponents
 )(implicit val ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
-  def getAtsSaDataWithCalculus(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
-    odsService
-      .getPayload(utr, tax_year, withCalculus = true)
-      .fold(
-        error => atsErrorHandler.errorToResponse(error),
-        result => Ok(result)
-      )
+  def getFieldList(tax_year: Int): Action[AnyContent] = Action {
+    if (tax_year == 2023) {
+      Ok(Json.arr())
+    } else {
+      Ok(Json.arr())
+    }
   }
 }
