@@ -31,7 +31,6 @@ class AtsSaFieldListController @Inject() (
     with Logging {
 
   private val fields2023: Seq[String] = Seq(
-    "ctnPensionLumpSumTaxRate",
     "ctnEmploymentBenefitsAmt",
     "ctnSummaryTotalScheduleD",
     "ctnSummaryTotalPartnership",
