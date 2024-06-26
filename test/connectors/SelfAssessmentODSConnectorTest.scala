@@ -48,6 +48,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
       )
       .overrides(
         bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector],
+        bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
         bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .build()

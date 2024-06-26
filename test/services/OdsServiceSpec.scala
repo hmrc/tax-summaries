@@ -39,7 +39,7 @@ class OdsServiceSpec extends BaseSpec {
   private val odsConnector: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
   private val jsonHelper: TaxsJsonHelper               = mock[TaxsJsonHelper]
 
-  private val service = new OdsService(jsonHelper, odsConnector)
+  private val service = new OdsService(jsonHelper, odsConnector, odsConnector)
 
   private val currentTaxYear = fakeTaxYear
 
