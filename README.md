@@ -29,6 +29,7 @@ Each year we have to update the tax rules used for ATS for SA users. The process
 <li>Run the unit tests for the new tax year (testOnly test.transformers.ATSyyyy.AtsRawDataTransformerSpec) - they should all pass.</li>
 <li>Now follow the usual TDD process to update tests and code. 
 <li>Update the tax year in app config staging, raise a PR and get it merged. 
+<li>Edit the app/controllers/testOnly/AtsSaFieldListController.getFieldList method and add a new case for the new tax year, adding any new ODS fields and removing any no longer valid. This needs to be up-to-date with the correct ODS field list for the new tax year otherwise the frontend validation on the SME test tool will fail for that tax year.</li>
 <li>Raise a PR for the code changes and get it merged into staging.</li>
 <li>Test that the calculations appear using the SME test tool (https://www.staging.tax.service.gov.uk/annual-tax-summary/test-only/enterSearch).
 <li>Hand over to SME to test the different test scenarios in matrix spreadsheet.

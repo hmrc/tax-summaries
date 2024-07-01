@@ -21,7 +21,7 @@
     }
   },
   "tliSlpAtsData": {
-    "ctnPensionLumpSumTaxRate": 0,
+    ""ctnPensionLumpSumTaxRate": 0,
     "tliLastUpdated": "2021-11-30",
     "ctnSummaryTotalScheduleD": {
       "amount": 0,
