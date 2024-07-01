@@ -17,6 +17,22 @@ Requirements
 This service is written in [Scala] and [Play], so needs the latest [JRE] to run.
 
 
+Annual SA uprating
+------------------
+Each year we have to update the tax rules used for ATS for SA users. The process for doing this is described below.
+
+<ol>
+<li>Copy the previous year's test folder (in test/ transformers/ATSyyyy) to a new folder for new tax year.</li>
+<li>Amend the tax year within the class ATSRawDataTransformerTestFixtureBase in the new folder.</li>
+<li>Copy the previous year's code folder (in app/ transformers/ATSyyyy) to a new folder for new tax year.</li>
+<li>Rename the classes to the new tax year (e.g. ATSCalculations2023 -> ATSCalculations2024).</li>
+<li>Run the unit tests for the new tax year (testOnly test.transformers.ATSyyyy.AtsRawDataTransformerSpec) - they should all pass.</li>
+<li>Now follow the usual TDD process to update tests and code. 
+<li>Update the tax year in app config staging, raise a PR and get it merged. 
+<li>Raise a PR for the code changes and get it merged into staging.</li>
+<li>Test that the calculations appear using the SME test tool (https://www.staging.tax.service.gov.uk/annual-tax-summary/test-only/enterSearch).
+<li>Hand over to SME to test the different test scenarios in matrix spreadsheet.
+</ol>
 
 ### License
 
