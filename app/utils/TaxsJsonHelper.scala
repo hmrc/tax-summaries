@@ -34,7 +34,7 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
   )(implicit
     hc: HeaderCarrier
   ): JsValue = {
-    val middleTierData = aTSRawDataTransformer.atsDataDTO(
+    val middleTierData: AtsMiddleTierData = aTSRawDataTransformer.atsDataDTO(
       rawPayloadJson = rawPayloadJson,
       rawTaxPayerJson = rawTaxpayerJson,
       UTR = UTR,
@@ -42,35 +42,47 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
       includeDataWhenNoLiability = includeCalculus
     )
     if (includeCalculus) {
-      val incomeTaxDataPoint: Option[List[DataHolderWithCalculus]]    = if (middleTierData.income_tax.nonEmpty) {
+      val incomeTaxDataPoint: Option[List[DataHolderWithCalculus]] = if (middleTierData.income_tax.nonEmpty) {
         Some(createDataPointList(middleTierData.income_tax.get))
       } else {
         None
       }
-      val incomeDataPoint: Option[List[DataHolderWithCalculus]]       = if (middleTierData.income_data.nonEmpty) {
+      val incomeDataPoint: Option[List[DataHolderWithCalculus]]    = if (middleTierData.income_data.nonEmpty) {
         Some(createDataPointList(middleTierData.income_data.get))
       } else {
         None
       }
-      val summaryDataPoint: Option[List[DataHolderWithCalculus]]      = if (middleTierData.summary_data.nonEmpty) {
+      val summaryDataPoint: Option[List[DataHolderWithCalculus]]   = if (middleTierData.summary_data.nonEmpty) {
         Some(createDataPointList(middleTierData.summary_data.get))
       } else {
         None
       }
-      val allowanceDataPoint: Option[List[DataHolderWithCalculus]]    = if (middleTierData.allowance_data.nonEmpty) {
+      val allowanceDataPoint: Option[List[DataHolderWithCalculus]] = if (middleTierData.allowance_data.nonEmpty) {
         Some(createDataPointList(middleTierData.allowance_data.get))
       } else {
         None
       }
-      val capitalGainsDataPoint: Option[List[DataHolderWithCalculus]] =
+      val capitalGainsDataPoint: Option[List[DataHolderWithCalculus]] = {
         if (middleTierData.capital_gains_data.nonEmpty) {
           Some(createDataPointList(middleTierData.capital_gains_data.get))
         } else {
           None
         }
-      val odsValues                                                   =
-        OdsValues(incomeTaxDataPoint, summaryDataPoint, incomeDataPoint, allowanceDataPoint, capitalGainsDataPoint)
-      val dataWithCalculus                                            = new AtsMiddleTierDataWithCalculus(middleTierData.taxYear, middleTierData.utr, odsValues)
+      }
+      val totalLiabilityDataHolderWithCalculus                     = middleTierData.taxLiability.map { amount =>
+        DataHolderWithCalculus(None, Some(amount.amount), amount.calculus)
+      }
+      val odsValues                                                =
+        OdsValues(
+          incomeTaxDataPoint,
+          summaryDataPoint,
+          incomeDataPoint,
+          allowanceDataPoint,
+          capitalGainsDataPoint,
+          totalLiabilityDataHolderWithCalculus
+        )
+
+      val dataWithCalculus = new AtsMiddleTierDataWithCalculus(middleTierData.taxYear, middleTierData.utr, odsValues)
       Json.toJson(dataWithCalculus)
     } else {
       Json.toJson(middleTierData)

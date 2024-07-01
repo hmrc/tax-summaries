@@ -76,21 +76,25 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
         )
         initiateAudit(UTR, taxYear, calculations)
         // Careful below: hasLiability is overridden depending on Nationality and tax year
-        try if (includeDataWhenNoLiability || calculations.hasLiability) {
-          AtsMiddleTierData.make(
-            taxYear,
-            UTR,
-            createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
-            createSummaryData(calculations: ATSCalculations),
-            createIncomeData(calculations: ATSCalculations),
-            createAllowanceData(calculations: ATSCalculations),
-            createCapitalGainsData(calculations, taxRate),
-            createGovSpendData(calculations.totalTax, taxYear),
-            createTaxPayerData(rawTaxPayerJson)
-          )
-        } else {
-          logger.warn(s"There is no liability for the year $taxYear")
-          AtsMiddleTierData.noAtsResult(taxYear)
+        def makeMiddleTierData(taxLiability: Option[Amount]): AtsMiddleTierData = AtsMiddleTierData.make(
+          taxYear = taxYear,
+          utr = UTR,
+          incomeTax = createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
+          summary = createSummaryData(calculations: ATSCalculations),
+          income = createIncomeData(calculations: ATSCalculations),
+          allowance = createAllowanceData(calculations: ATSCalculations),
+          capitalGains = createCapitalGainsData(calculations, taxRate),
+          govSpending = createGovSpendData(calculations.totalTax, taxYear),
+          taxPayer = createTaxPayerData(rawTaxPayerJson),
+          taxLiability = taxLiability
+        )
+
+        try (includeDataWhenNoLiability, calculations.hasLiability) match {
+          case (true, _)      => makeMiddleTierData(Some(calculations.taxLiability))
+          case (false, true)  => makeMiddleTierData(None)
+          case (false, false) =>
+            logger.warn(s"There is no liability for the year $taxYear")
+            AtsMiddleTierData.noAtsResult(taxYear)
         } catch {
           case ATSParsingException(message) =>
             AtsMiddleTierData.error(taxYear, message)
@@ -98,7 +102,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
             logger.error("Unexpected error has occurred", otherError)
             AtsMiddleTierData.error(taxYear, "Other Error")
         }
-      case _                  => noAtsResult(taxYear)
+
+      case _ => noAtsResult(taxYear)
     }
   }
 

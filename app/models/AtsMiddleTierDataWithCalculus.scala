@@ -33,7 +33,8 @@ case class OdsValues(
   summary_data: Option[List[DataHolderWithCalculus]],
   income_data: Option[List[DataHolderWithCalculus]],
   allowance_data: Option[List[DataHolderWithCalculus]],
-  capital_gains_data: Option[List[DataHolderWithCalculus]]
+  capital_gains_data: Option[List[DataHolderWithCalculus]],
+  tax_liability: Option[DataHolderWithCalculus]
 )
 
 object OdsValues {
