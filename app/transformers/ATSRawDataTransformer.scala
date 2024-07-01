@@ -43,7 +43,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     UTR: String,
     taxYear: Int,
     calculations: ATSCalculations
-  )(implicit hc: HeaderCarrier): Future[AuditResult] = auditConnector.sendEvent(
+  )(implicit hc: HeaderCarrier): Future[Unit] = auditConnector.sendEvent(
     DataEvent(
       auditSource = applicationConfig.appName,
       auditType = "TaxLiability",
@@ -56,7 +56,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
         )
       )
     )
-  )
+  ).map(_ => ():Unit)
 
   def atsDataDTO(
     rawPayloadJson: JsValue,

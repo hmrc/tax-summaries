@@ -101,7 +101,6 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
           dataInDataHolder.map(liabilityAmountMap =>
             new DataHolderWithCalculus(
               Some(liabilityAmountMap._1.toString),
-//              Some(liabilityAmountMap._1.apiValue),
               Some(liabilityAmountMap._2.amount),
               liabilityAmountMap._2.calculus
             )
