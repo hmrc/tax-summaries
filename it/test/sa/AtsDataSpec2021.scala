@@ -16,14 +16,17 @@
 
 package sa
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
 import models.AtsMiddleTierData
 import models.LiabilityKey._
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import utils.FileHelper
+
+import scala.concurrent.Future
 
 class AtsDataSpec2021 extends SaTestHelper {
 
@@ -824,7 +827,6 @@ class AtsDataSpec2021 extends SaTestHelper {
     }
   }
 
-  // TODO: FAILING
   "HasSummary (SIT016)" must {
     val expected = Map(
       SelfEmploymentIncome               -> 0.0, // LS1a
