@@ -18,7 +18,7 @@ package utils
 
 import com.google.inject.Inject
 import config.ApplicationConfig
-import models.{AtsMiddleTierDataWithCalculus, AtsYearList, DataHolder, DataHolderWithCalculus, OdsValues, TaxSummaryLiability}
+import models._
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import services.TaxRateService
 import transformers.{ATSCalculations, ATSRawDataTransformer, ATSTaxpayerDataTransformer}
@@ -30,12 +30,18 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
     rawPayloadJson: JsValue,
     UTR: String,
     taxYear: Int,
-    withCalculus: Boolean = false
+    includeCalculus: Boolean = false
   )(implicit
     hc: HeaderCarrier
   ): JsValue = {
-    val middleTierData = aTSRawDataTransformer.atsDataDTO(rawPayloadJson, rawTaxpayerJson, UTR, taxYear)
-    if (withCalculus) {
+    val middleTierData = aTSRawDataTransformer.atsDataDTO(
+      rawPayloadJson = rawPayloadJson,
+      rawTaxPayerJson = rawTaxpayerJson,
+      UTR = UTR,
+      taxYear = taxYear,
+      includeDataWhenNoLiability = includeCalculus
+    )
+    if (includeCalculus) {
       val incomeTaxDataPoint: Option[List[DataHolderWithCalculus]]    = if (middleTierData.income_tax.nonEmpty) {
         Some(createDataPointList(middleTierData.income_tax.get))
       } else {
@@ -94,7 +100,8 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
         case Some(dataInDataHolder) =>
           dataInDataHolder.map(liabilityAmountMap =>
             new DataHolderWithCalculus(
-              Some(liabilityAmountMap._1.apiValue),
+              Some(liabilityAmountMap._1.toString),
+//              Some(liabilityAmountMap._1.apiValue),
               Some(liabilityAmountMap._2.amount),
               liabilityAmountMap._2.calculus
             )

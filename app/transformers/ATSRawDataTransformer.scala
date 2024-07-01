@@ -27,10 +27,10 @@ import play.api.libs.json._
 import play.api.{Logger, Logging}
 import services.TaxRateService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 case class ATSParsingException(s: String) extends Exception(s)
 
@@ -39,11 +39,31 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
   ec: ExecutionContext
 ) extends Logging {
 
+  private def initiateAudit(
+    UTR: String,
+    taxYear: Int,
+    calculations: ATSCalculations
+  )(implicit hc: HeaderCarrier): Future[AuditResult] = auditConnector.sendEvent(
+    DataEvent(
+      auditSource = applicationConfig.appName,
+      auditType = "TaxLiability",
+      detail = Map(
+        "utr"                      -> UTR,
+        "taxYear"                  -> taxYear.toString,
+        "liabilityAmount"          -> calculations.taxLiability.amount.toString,
+        "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse(
+          "No calculation details present"
+        )
+      )
+    )
+  )
+
   def atsDataDTO(
     rawPayloadJson: JsValue,
     rawTaxPayerJson: JsValue,
     UTR: String,
-    taxYear: Int
+    taxYear: Int,
+    includeDataWhenNoLiability: Boolean = false
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
     val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
     val logger  = Logger(getClass.getName)
@@ -52,21 +72,9 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
         logger.debug(
           s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"
         )
-        auditConnector.sendEvent(
-          DataEvent(
-            auditSource = applicationConfig.appName,
-            auditType = "TaxLiability",
-            detail = Map(
-              "utr"                      -> UTR,
-              "taxYear"                  -> taxYear.toString,
-              "liabilityAmount"          -> calculations.taxLiability.amount.toString,
-              "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse(
-                "No calculation details present"
-              )
-            )
-          )
-        )
-        try if (calculations.hasLiability) { // Careful hasLiability is overridden depending on Nationality and tax year
+        initiateAudit(UTR, taxYear, calculations)
+        // Careful below: hasLiability is overridden depending on Nationality and tax year
+        try if (includeDataWhenNoLiability || calculations.hasLiability) {
           AtsMiddleTierData.make(
             taxYear,
             UTR,
