@@ -27,7 +27,7 @@ import play.api.libs.json._
 import play.api.{Logger, Logging}
 import services.TaxRateService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,20 +43,22 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     UTR: String,
     taxYear: Int,
     calculations: ATSCalculations
-  )(implicit hc: HeaderCarrier): Future[Unit] = auditConnector.sendEvent(
-    DataEvent(
-      auditSource = applicationConfig.appName,
-      auditType = "TaxLiability",
-      detail = Map(
-        "utr"                      -> UTR,
-        "taxYear"                  -> taxYear.toString,
-        "liabilityAmount"          -> calculations.taxLiability.amount.toString,
-        "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse(
-          "No calculation details present"
+  )(implicit hc: HeaderCarrier): Future[Unit] = auditConnector
+    .sendEvent(
+      DataEvent(
+        auditSource = applicationConfig.appName,
+        auditType = "TaxLiability",
+        detail = Map(
+          "utr"                      -> UTR,
+          "taxYear"                  -> taxYear.toString,
+          "liabilityAmount"          -> calculations.taxLiability.amount.toString,
+          "LiabilityCalculationUsed" -> calculations.taxLiability.calculus.getOrElse(
+            "No calculation details present"
+          )
         )
       )
     )
-  ).map(_ => ():Unit)
+    .map(_ => (): Unit)
 
   def atsDataDTO(
     rawPayloadJson: JsValue,
