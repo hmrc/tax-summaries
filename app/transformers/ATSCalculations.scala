@@ -251,7 +251,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
       getWithDefaultAmount(IncomeChargeableAddHRate)) * scottishRate
   }
 
-  def taxLiability: Amount = totalCapitalGainsTax + totalIncomeTaxAmount
+  def taxLiability: Amount =
+    totalCapitalGainsTax + totalIncomeTaxAmount
 
   def hasLiability: Boolean =
     !taxLiability.isZeroOrLess
@@ -280,6 +281,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
     if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(PensionLsumTaxDue)
     else Amount.empty(PensionLsumTaxDue.apiValue)
 
+  // TODO: ctnPensionLumpSumTaxRate - is picking this up? It should be zero
   def includePensionIncomeForRate(taxRate: Rate): Amount =
     if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(StatePensionGross)
     else Amount.empty(StatePensionGross.apiValue)
