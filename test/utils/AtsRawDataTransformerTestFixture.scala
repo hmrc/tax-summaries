@@ -34,7 +34,7 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
   def expectedResultCapitalGainsData: Map[LiabilityKey, Amount]
   def expectedResultAllowanceData: Map[LiabilityKey, Amount]
   def expectedResultSummaryData: Map[LiabilityKey, Amount]
-  def transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
+  lazy val transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
 
   protected def parsedTaxpayerDetailsJson: JsValue = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
