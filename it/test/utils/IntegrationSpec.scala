@@ -105,6 +105,7 @@ trait IntegrationSpec
       .disable[config.ATSModule]
       .overrides(
         bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector],
+        bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
         bind[AsyncCacheApi].toInstance(mockCacheApi)
       )
       .configure(
