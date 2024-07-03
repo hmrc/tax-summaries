@@ -40,3 +40,13 @@ object DataHolder {
   ): DataHolder =
     DataHolder(Some(payload), Some(rates), incomeTaxStatus)
 }
+
+case class DataHolderWithCalculus(
+  fieldName: Option[String],
+  amount: Option[BigDecimal],
+  calculus: Option[String]
+)
+
+object DataHolderWithCalculus {
+  implicit val formats: Format[DataHolderWithCalculus] = Json.format[DataHolderWithCalculus]
+}

@@ -80,3 +80,26 @@ object AtsMiddleTierData {
 
   def noAtsResult(taxYear: Int): AtsMiddleTierData = error(taxYear, "NoAtsError")
 }
+
+case class AtsMiddleTierDataWithCalculus(
+  taxYear: Int,
+  utr: Option[String],
+  odsValues: OdsValues
+)
+
+object AtsMiddleTierDataWithCalculus {
+  implicit val formats: Format[AtsMiddleTierDataWithCalculus] = Json.format[AtsMiddleTierDataWithCalculus]
+}
+
+case class OdsValues(
+  income_tax: Option[List[DataHolderWithCalculus]],
+  summary_data: Option[List[DataHolderWithCalculus]],
+  income_data: Option[List[DataHolderWithCalculus]],
+  allowance_data: Option[List[DataHolderWithCalculus]],
+  capital_gains_data: Option[List[DataHolderWithCalculus]],
+  tax_liability: Option[DataHolderWithCalculus]
+)
+
+object OdsValues {
+  implicit val formats: Format[OdsValues] = Json.format[OdsValues]
+}
