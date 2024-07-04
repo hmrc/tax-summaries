@@ -77,7 +77,7 @@ class AtsSaDataWithoutAuthControllerSpec extends BaseSpec {
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("ignoreSAODSCache" -> "true")
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.rightT(json))
-        val result = controller.getAtsSaData(testUtr, taxYear)(request)
+        val result                                       = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe json
