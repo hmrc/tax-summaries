@@ -60,15 +60,38 @@ class AtsSaDataControllerSpec extends BaseSpec {
   val taxYear        = 2021
   val json: JsString = JsString("success")
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(odsService)
+  }
+
   "getAtsData" must {
 
     "return 200" when {
-
-      "the service returns a right" in {
-
+      "the service calls ods service with false and returns a right when ignoreSAODSCache not present in headers" in {
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.rightT(json))
         val result = controller.getAtsSaData(testUtr, taxYear)(request)
+
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
+      }
+
+      "the service calls ods service with false and returns a right when ignoreSAODSCache present in headers + as false" in {
+        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("ignoreSAODSCache" -> "false")
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
+          .thenReturn(EitherT.rightT(json))
+        val result                                       = controller.getAtsSaData(testUtr, taxYear)(request)
+
+        status(result) mustBe OK
+        contentAsJson(result) mustBe json
+      }
+
+      "the service calls ods service with true and returns a right when ignoreSAODSCache present in headers as true" in {
+        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("ignoreSAODSCache" -> "true")
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
+          .thenReturn(EitherT.rightT(json))
+        val result                                       = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe json

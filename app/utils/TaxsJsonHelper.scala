@@ -29,8 +29,7 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
     rawTaxpayerJson: JsValue,
     rawPayloadJson: JsValue,
     UTR: String,
-    taxYear: Int,
-    includeCalculus: Boolean = false
+    taxYear: Int
   )(implicit
     hc: HeaderCarrier
   ): JsValue = {
@@ -38,32 +37,9 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
       rawPayloadJson = rawPayloadJson,
       rawTaxPayerJson = rawTaxpayerJson,
       UTR = UTR,
-      taxYear = taxYear,
-      includeDataWhenNoLiability = includeCalculus
+      taxYear = taxYear
     )
-    if (includeCalculus) {
-      val incomeTaxDataPoint: Option[List[DataHolderWithCalculus]] = middleTierData.income_tax.map(createDataPointList)
-      val incomeDataPoint                                          = middleTierData.income_data.map(createDataPointList)
-      val summaryDataPoint                                         = middleTierData.summary_data.map(createDataPointList)
-      val allowanceDataPoint                                       = middleTierData.allowance_data.map(createDataPointList)
-      val capitalGainsDataPoint                                    = middleTierData.capital_gains_data.map(createDataPointList)
-      val totalLiabilityDataHolderWithCalculus                     =
-        middleTierData.taxLiability.map(amount => DataHolderWithCalculus(None, Some(amount.amount), amount.calculus))
-      val odsValues                                                =
-        OdsValues(
-          incomeTaxDataPoint,
-          summaryDataPoint,
-          incomeDataPoint,
-          allowanceDataPoint,
-          capitalGainsDataPoint,
-          totalLiabilityDataHolderWithCalculus
-        )
-
-      val dataWithCalculus = new AtsMiddleTierDataWithCalculus(middleTierData.taxYear, middleTierData.utr, odsValues)
-      Json.toJson(dataWithCalculus)
-    } else {
-      Json.toJson(middleTierData)
-    }
+    Json.toJson(middleTierData)
   }
 
   def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] = {
@@ -81,22 +57,5 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
     val atsYearList                           = annualTaxSummariesList.map(item => (item \ "taxYearEnd").as[JsNumber])
     val taxPayer                              = ATSTaxpayerDataTransformer(rawTaxpayerJson).atsTaxpayerDataDTO
     Json.toJson(AtsYearList(utr, Some(taxPayer), Some(atsYearList)))
-  }
-
-  private def createDataPointList(dataPoint: DataHolder): List[DataHolderWithCalculus] = {
-    val dataHolderWithCalculusList =
-      dataPoint.payload match {
-        case Some(dataInDataHolder) =>
-          dataInDataHolder.map(liabilityAmountMap =>
-            new DataHolderWithCalculus(
-              Some(liabilityAmountMap._1.toString),
-              Some(liabilityAmountMap._2.amount),
-              liabilityAmountMap._2.calculus
-            )
-          )
-
-        case _ => List.empty
-      }
-    dataHolderWithCalculusList.toList
   }
 }

@@ -51,16 +51,10 @@ trait ATSRawDataTransformerBehaviours extends BaseSpec {
   protected def atsRawDataTransformerWithTotalTaxLiabilityChecks(
     expTotalTaxLiabilityValue: BigDecimal,
     testFixture: AtsRawDataTransformerTestFixture
-  ): Unit = {
-    "have no total tax liability when not requested" in {
-      val transformedData: AtsMiddleTierData = testFixture.doTest(testFixture.buildJsonPayload())
-      transformedData.taxLiability mustBe None
-    }
-
-    "have total tax liability when requested" in {
+  ): Unit =
+    "have total tax liability" in {
       val transformedData: AtsMiddleTierData =
-        testFixture.doTest(testFixture.buildJsonPayload(), includeDataWhenNoLiability = true)
+        testFixture.doTest(testFixture.buildJsonPayload())
       transformedData.taxLiability.map(_.amount) mustBe Some(expTotalTaxLiabilityValue)
     }
-  }
 }

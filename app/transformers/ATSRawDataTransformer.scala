@@ -64,8 +64,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     rawPayloadJson: JsValue,
     rawTaxPayerJson: JsValue,
     UTR: String,
-    taxYear: Int,
-    includeDataWhenNoLiability: Boolean = false
+    taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
     val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
     val logger  = Logger(getClass.getName)
@@ -75,8 +74,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
           s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"
         )
         initiateAudit(UTR, taxYear, calculations)
-        // Careful below: hasLiability is overridden depending on Nationality and tax year
-        def makeMiddleTierData(taxLiability: Option[Amount]): AtsMiddleTierData = AtsMiddleTierData.make(
+        // Careful below: taxLiability is overridden depending on Nationality and tax year
+        try AtsMiddleTierData.make(
           taxYear = taxYear,
           utr = UTR,
           incomeTax = createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
@@ -86,16 +85,9 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
           capitalGains = createCapitalGainsData(calculations, taxRate),
           govSpending = createGovSpendData(calculations.totalTax, taxYear),
           taxPayer = createTaxPayerData(rawTaxPayerJson),
-          taxLiability = taxLiability
+          taxLiability = Some(calculations.taxLiability)
         )
-
-        try (includeDataWhenNoLiability, calculations.hasLiability) match {
-          case (true, _)      => makeMiddleTierData(Some(calculations.taxLiability))
-          case (false, true)  => makeMiddleTierData(None)
-          case (false, false) =>
-            logger.warn(s"There is no liability for the year $taxYear")
-            AtsMiddleTierData.noAtsResult(taxYear)
-        } catch {
+        catch {
           case ATSParsingException(message) =>
             AtsMiddleTierData.error(taxYear, message)
           case otherError: Throwable        =>

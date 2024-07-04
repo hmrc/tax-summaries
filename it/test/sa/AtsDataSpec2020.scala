@@ -186,7 +186,14 @@ class AtsDataSpec2020 extends SaTestHelper {
       )
 
       val result: AtsMiddleTierData = resultToAtsData(route(app, request))
-      result.gov_spending.get mustBe expectedValue
+
+      val actualWrapper: GovernmentSpendingOutputWrapper = result.gov_spending.get
+      actualWrapper.taxYear mustBe taxYear
+      actualWrapper.govSpendAmountData.foreach { goodsAndService =>
+        val expSpendData = expectedValue.govSpendAmountData(goodsAndService._1)
+        goodsAndService._2.amount.amount mustBe expSpendData.amount.amount
+        goodsAndService._2.amount.currency mustBe expSpendData.amount.currency
+      }
     }
   }
 

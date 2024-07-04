@@ -96,17 +96,25 @@ case class Amount(amount: BigDecimal, currency: String, calculus: Option[String]
 }
 
 object Amount {
-  implicit val writes: Writes[Amount] = (o: Amount) =>
-    Json.obj(
+  implicit val writes: Writes[Amount] = (o: Amount) => {
+    val mandatoryFields = Json.obj(
       "amount"   -> o.amount,
       "currency" -> o.currency
     )
 
+    o.calculus match {
+      case None    => mandatoryFields
+      case Some(c) => mandatoryFields ++ Json.obj("calculus" -> c)
+    }
+
+  }
+
   implicit val reads: Reads[Amount] =
     (
       (JsPath \ "amount").read[BigDecimal] and
-        (JsPath \ "currency").read[String]
-    )((amount, currency) => Amount.apply(amount, currency))
+        (JsPath \ "currency").read[String] and
+        (JsPath \ "calculus").readNullable[String]
+    )((amount, currency, calculus) => Amount.apply(amount, currency, calculus))
 
   def empty(calculus: String): Amount = Amount(0, "GBP", Some(s"null ($calculus)"))
 

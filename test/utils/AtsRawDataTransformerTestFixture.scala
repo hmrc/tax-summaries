@@ -38,14 +38,13 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
 
   protected def parsedTaxpayerDetailsJson: JsValue = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
-  def doTest(jsonPayload: JsObject, includeDataWhenNoLiability: Boolean = false): AtsMiddleTierData = {
+  def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
     atsRawDataTransformer.atsDataDTO(
       rawPayloadJson = jsonPayload,
       rawTaxPayerJson = parsedTaxpayerDetailsJson,
       UTR = "",
-      taxYear = taxYear,
-      includeDataWhenNoLiability = includeDataWhenNoLiability
+      taxYear = taxYear
     )
   }
 
