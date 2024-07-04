@@ -872,7 +872,7 @@ class AtsDataSpec2021 extends SaTestHelper {
             .get(urlEqualTo(odsUrl(taxYear)))
             .willReturn(ok(FileHelper.loadFile("sa/2020-21/utr_7957650973.json")))
         )
-        
+
         val result: AtsMiddleTierData = resultToAtsData(route(app, request))
         checkResult(result, key, expectedValue)
       }
