@@ -33,6 +33,7 @@ class AtsSaDataWithoutAuthController @Inject() (
     extends BackendController(cc)
     with Logging {
 
+  // This does exactly the same as MiddleConnector method of same name but without authentication.
   def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
     val ignoreCache: Boolean = request.headers.get("ignoreSAODSCache").contains("true")
     odsService
