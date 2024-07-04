@@ -60,7 +60,7 @@ class AtsSaDataWithoutAuthControllerSpec extends BaseSpec {
 
     "return 200" when {
 
-      "the service returns a right when ignoreSAODSCache not present in headers" in {
+      "ignoreSAODSCache not present in headers as false (service calls ods service with ignoreCache false)" in {
 
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.rightT(json))
@@ -73,7 +73,7 @@ class AtsSaDataWithoutAuthControllerSpec extends BaseSpec {
 
     "return 200" when {
 
-      "the service returns a right when ignoreSAODSCache present in headers" in {
+      "ignoreSAODSCache present in headers as true ((service calls ods service with ignoreCache true))" in {
         val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("ignoreSAODSCache" -> "true")
         when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.rightT(json))
