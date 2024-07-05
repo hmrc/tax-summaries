@@ -87,10 +87,7 @@ class CachingSelfAssessmentODSConnector @Inject() (
   }
 
   private def ignoreCacheForSelfAssessment(utr: String): Boolean = {
-    val isStubbedEnvironment: Boolean = applicationConfig.environment match {
-      case "live" | "ist0" => false
-      case _               => true
-    }
+    val isStubbedEnvironment: Boolean = applicationConfig.environment == "local"
     isStubbedEnvironment && utr >= "0000000010" && utr <= "0000000020"
   }
 
