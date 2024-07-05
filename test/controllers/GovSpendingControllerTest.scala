@@ -57,7 +57,7 @@ class GovSpendingControllerTest extends BaseSpec {
     when(odsc.connectToSATaxpayerDetails(any())(any(), any()))
       .thenReturn(EitherT.rightT(HttpResponse(OK, taxPayerDataPath)))
 
-    val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc, odsc)
+    val odsService = new OdsService(app.injector.instanceOf[TaxsJsonHelper], odsc)
     new AtsSaDataController(
       odsService,
       atsErrorHandler,

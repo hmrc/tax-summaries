@@ -47,9 +47,8 @@ class AtsSaDataController @Inject() (
   }
 
   def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
-    val ignoreCache: Boolean = request.headers.get("ignoreSAODSCache").contains("true")
     odsService
-      .getPayload(utr, tax_year, ignoreCache)
+      .getPayload(utr, tax_year)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)

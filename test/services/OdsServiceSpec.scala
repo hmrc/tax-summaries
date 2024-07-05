@@ -36,11 +36,10 @@ class OdsServiceSpec extends BaseSpec {
   private val taxYear                            = fakeTaxYear
   private implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
-  private val odsConnectorCaching: SelfAssessmentODSConnector    = mock[SelfAssessmentODSConnector]
-  private val odsConnectorNonCaching: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
-  private val jsonHelper: TaxsJsonHelper                         = mock[TaxsJsonHelper]
+  private val odsConnectorCaching: SelfAssessmentODSConnector = mock[SelfAssessmentODSConnector]
+  private val jsonHelper: TaxsJsonHelper                      = mock[TaxsJsonHelper]
 
-  private val service = new OdsService(jsonHelper, odsConnectorCaching, odsConnectorNonCaching)
+  private val service = new OdsService(jsonHelper, odsConnectorCaching)
 
   private val currentTaxYear = fakeTaxYear
 
@@ -64,7 +63,10 @@ class OdsServiceSpec extends BaseSpec {
 
   private implicit def convertIntToSeqInt(i: Int): Seq[Int] = Seq(i)
 
-  private def whenClausesForSA(endTaxYear: Int, responseStatusesToMockForSA: Seq[Seq[Int]]): Unit =
+  private def whenClausesForSA(
+    endTaxYear: Int,
+    responseStatusesToMockForSA: Seq[Seq[Int]]
+  ): Unit =
     responseStatusesToMockForSA.reverse.zipWithIndex.foreach { case (seqInt, i) =>
       val seqEither = seqInt.map {
         case OK           => Right(HttpResponse(OK, saResponse(endTaxYear - i), Map.empty))
@@ -105,14 +107,14 @@ class OdsServiceSpec extends BaseSpec {
     }
 
   override def beforeEach(): Unit = {
-    reset(odsConnectorCaching, jsonHelper, odsConnectorNonCaching)
+    reset(odsConnectorCaching, jsonHelper)
     super.beforeEach()
   }
 
   "getPayload" must {
 
     "return json" when {
-      "the call is successful and with ignoreCache false the cache is used" in {
+      "the call is successful and the cache is used" in {
         when(odsConnectorCaching.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
         when(odsConnectorCaching.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
@@ -121,26 +123,7 @@ class OdsServiceSpec extends BaseSpec {
           .thenReturn(mock[JsValue])
 
         val result =
-          service.getPayload(testUtr, taxYear, ignoreCache = false)(mock[HeaderCarrier], mock[Request[_]]).value
-
-        whenReady(result) { res =>
-          res.isRight mustBe true
-
-          verify(jsonHelper, times(1))
-            .getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any())
-        }
-      }
-
-      "the call is successful and with ignoreCache true the cache is not used" in {
-        when(odsConnectorCaching.connectToSATaxpayerDetails(eqTo(testUtr))(any[HeaderCarrier], any()))
-          .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(odsConnectorNonCaching.connectToSelfAssessment(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any()))
-          .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
-        when(jsonHelper.getAllATSData(any[JsValue], any[JsValue], eqTo(testUtr), eqTo(taxYear))(any()))
-          .thenReturn(mock[JsValue])
-
-        val result =
-          service.getPayload(testUtr, taxYear, ignoreCache = true)(mock[HeaderCarrier], mock[Request[_]]).value
+          service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res.isRight mustBe true
@@ -159,7 +142,7 @@ class OdsServiceSpec extends BaseSpec {
           .thenReturn(EitherT.rightT(HttpResponse(NOT_FOUND, "")))
 
         val result =
-          service.getPayload(testUtr, taxYear, ignoreCache = false)(mock[HeaderCarrier], mock[Request[_]]).value
+          service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res mustBe a[Left[UpstreamErrorResponse, _]]
@@ -178,7 +161,7 @@ class OdsServiceSpec extends BaseSpec {
           .thenReturn(EitherT.rightT(HttpResponse(OK, "{}")))
 
         val result =
-          service.getPayload(testUtr, taxYear, ignoreCache = false)(mock[HeaderCarrier], mock[Request[_]]).value
+          service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
         whenReady(result) { res =>
           res mustBe a[Left[UpstreamErrorResponse, _]]
@@ -201,7 +184,7 @@ class OdsServiceSpec extends BaseSpec {
             .thenReturn(EitherT.leftT(response))
 
           val result =
-            service.getPayload(testUtr, taxYear, ignoreCache = false)(mock[HeaderCarrier], mock[Request[_]]).value
+            service.getPayload(testUtr, taxYear)(mock[HeaderCarrier], mock[Request[_]]).value
 
           whenReady(result) { res =>
             res mustBe a[Left[UpstreamErrorResponse, _]]
@@ -287,7 +270,12 @@ class OdsServiceSpec extends BaseSpec {
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(0), BigDecimal(0)))
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe Right(Nil)
 
@@ -309,7 +297,12 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
@@ -330,7 +323,12 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
@@ -354,7 +352,12 @@ class OdsServiceSpec extends BaseSpec {
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe Right(Seq(currentTaxYear - 3, currentTaxYear))
 
@@ -379,7 +382,12 @@ class OdsServiceSpec extends BaseSpec {
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe Right(Seq(currentTaxYear - 3, currentTaxYear))
 
@@ -403,7 +411,12 @@ class OdsServiceSpec extends BaseSpec {
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1), BigDecimal(2)))
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe Left(UpstreamErrorResponse("", BAD_GATEWAY))
 
@@ -430,7 +443,12 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe
           Right(Seq(currentTaxYear - 3, currentTaxYear - 2, currentTaxYear - 1, currentTaxYear))
@@ -463,7 +481,12 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
+        service
+          .getATSList(testUtr, currentTaxYear - 4, currentTaxYear)(
+            mock[HeaderCarrier],
+            mock[Request[_]]
+          )
+          .value
       ) { result =>
         result mustBe
           Left(UpstreamErrorResponse("Multiple upstream failures", INTERNAL_SERVER_ERROR))

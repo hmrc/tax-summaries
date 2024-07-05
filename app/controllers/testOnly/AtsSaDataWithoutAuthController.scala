@@ -35,7 +35,7 @@ class AtsSaDataWithoutAuthController @Inject() (
 
   def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
     odsService
-      .getPayload(utr, tax_year, ignoreCache = true)
+      .getPayload(utr, tax_year)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)

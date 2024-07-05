@@ -68,30 +68,10 @@ class AtsSaDataControllerSpec extends BaseSpec {
   "getAtsData" must {
 
     "return 200" when {
-      "ignoreSAODSCache not present in headers (service calls ods service with ignoreCache false)" in {
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
+      "service calls ods service" in {
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.rightT(json))
         val result = controller.getAtsSaData(testUtr, taxYear)(request)
-
-        status(result) mustBe OK
-        contentAsJson(result) mustBe json
-      }
-
-      "ignoreSAODSCache present in headers as false (service calls ods service with ignoreCache false)" in {
-        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("ignoreSAODSCache" -> "false")
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
-          .thenReturn(EitherT.rightT(json))
-        val result                                       = controller.getAtsSaData(testUtr, taxYear)(request)
-
-        status(result) mustBe OK
-        contentAsJson(result) mustBe json
-      }
-
-      "ignoreSAODSCache present in headers as true (service calls ods service with ignoreCache true)" in {
-        val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("ignoreSAODSCache" -> "true")
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
-          .thenReturn(EitherT.rightT(json))
-        val result                                       = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe json
@@ -104,7 +84,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val msg = "Record not found"
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.leftT(UpstreamErrorResponse(msg, NOT_FOUND, INTERNAL_SERVER_ERROR)))
 
         val result = controller.getAtsSaData(testUtr, taxYear)(request)
@@ -120,7 +100,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
         val msg = "Record not found"
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.leftT(UpstreamErrorResponse(msg, BAD_REQUEST, INTERNAL_SERVER_ERROR)))
 
         val result = controller.getAtsSaData(testUtr, taxYear)(request)
@@ -136,7 +116,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
+          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
             .thenReturn(EitherT.leftT(upstreamError))
 
           val result = controller.getAtsSaData(testUtr, taxYear)(request)
@@ -154,7 +134,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, BAD_GATEWAY)
 
-          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(false))(any[HeaderCarrier], any[Request[_]]))
+          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
             .thenReturn(EitherT.leftT(upstreamError))
 
           val result = controller.getAtsSaData(testUtr, taxYear)(request)
@@ -249,7 +229,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
 
     "return 200" when {
 
-      "connector returns a right" in {
+      "service returns a right" in {
         val taxPayerSource = Source.fromURL(getClass.getResource("/taxpayer/sa_taxpayer-valid.json"))
         val taxPayer       = taxPayerSource.mkString
         taxPayerSource.close()

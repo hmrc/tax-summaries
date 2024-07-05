@@ -18,7 +18,6 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Inject
-import com.google.inject.name.Named
 import connectors.SelfAssessmentODSConnector
 import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
@@ -33,18 +32,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class OdsService @Inject() (
   jsonHelper: TaxsJsonHelper,
-  selfAssessmentOdsConnector: SelfAssessmentODSConnector,
-  @Named("default") nonCachingSelfAssessmentOdsConnector: SelfAssessmentODSConnector
+  selfAssessmentOdsConnector: SelfAssessmentODSConnector
 )(implicit ec: ExecutionContext) {
   private val logger = Logger(getClass.getName)
 
   //scalastyle:off cyclomatic.complexity
-  def getPayload(utr: String, TAX_YEAR: Int, ignoreCache: Boolean)(implicit
+  def getPayload(utr: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, JsValue] = {
-    val odsConnector: SelfAssessmentODSConnector =
-      if (ignoreCache) nonCachingSelfAssessmentOdsConnector else selfAssessmentOdsConnector
+  ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
       taxpayer     <- selfAssessmentOdsConnector
                         .connectToSATaxpayerDetails(utr)
@@ -54,7 +50,7 @@ class OdsService @Inject() (
                           case Right(response)                                 => Right(response.json.as[JsValue])
                           case Left(error)                                     => Left(error)
                         }
-      taxSummaries <- odsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
+      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
                         case Right(response) if response.status == NOT_FOUND =>
                           Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
                         case Left(error) if error.statusCode == BAD_REQUEST  =>
@@ -63,7 +59,6 @@ class OdsService @Inject() (
                         case Left(error)                                     => Left(error)
                       }
     } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
-  }
 
   private def findAllYears(utr: String, range: Range)(implicit
     hc: HeaderCarrier,
