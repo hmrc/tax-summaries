@@ -24,14 +24,13 @@ import config.ApplicationConfig
 import models.admin.SelfAssessmentDetailsFromIfToggle
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
-import play.api.libs.json.{Format, OFormat}
+import play.api.libs.json.{Format, Json, OFormat}
 import play.api.mvc.Request
 import repositories.TaxSummariesSessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpReads, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
-import play.api.libs.json.Json
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.util.UUID
@@ -56,7 +55,8 @@ trait SelfAssessmentODSConnector {
 
 class CachingSelfAssessmentODSConnector @Inject() (
   @Named("default") underlying: SelfAssessmentODSConnector,
-  sessionCacheRepository: TaxSummariesSessionCacheRepository
+  sessionCacheRepository: TaxSummariesSessionCacheRepository,
+  applicationConfig: ApplicationConfig
 )(implicit ec: ExecutionContext)
     extends SelfAssessmentODSConnector {
 
@@ -86,25 +86,39 @@ class CachingSelfAssessmentODSConnector @Inject() (
     )
   }
 
+  private def ignoreCacheForSelfAssessment(utr: String): Boolean = {
+    val isStubbedEnvironment: Boolean = applicationConfig.environment match {
+      case "live" | "ist0" => false
+      case _               => true
+    }
+    isStubbedEnvironment && utr >= "0000000010" && utr <= "0000000020"
+  }
+
   override def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-    implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
-    cache(utr + "/" + taxYear) {
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    if (ignoreCacheForSelfAssessment(utr)) {
       underlying.connectToSelfAssessment(utr, taxYear)
+    } else {
+      implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
+      cache(utr + "/" + taxYear) {
+        underlying.connectToSelfAssessment(utr, taxYear)
+      }
     }
-  }
 
   override def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-    implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
-    cache(utr) {
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    if (ignoreCacheForSelfAssessment(utr)) {
       underlying.connectToSelfAssessmentList(utr)
+    } else {
+      implicit val formats: OFormat[HttpResponse] = Json.format[HttpResponse]
+      cache(utr) {
+        underlying.connectToSelfAssessmentList(utr)
+      }
     }
-  }
 
   override def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
