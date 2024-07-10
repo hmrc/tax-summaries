@@ -16,6 +16,8 @@
 
 package utils
 
+import models.AtsMiddleTierData
+
 trait ATSRawDataTransformerBehaviours extends BaseSpec {
   protected def atsRawDataTransformerWithCalculations(
     description: String,
@@ -46,4 +48,13 @@ trait ATSRawDataTransformerBehaviours extends BaseSpec {
       }
     }
 
+  protected def atsRawDataTransformerWithTotalTaxLiabilityChecks(
+    expTotalTaxLiabilityValue: BigDecimal,
+    testFixture: AtsRawDataTransformerTestFixture
+  ): Unit =
+    "have total tax liability" in {
+      val transformedData: AtsMiddleTierData =
+        testFixture.doTest(testFixture.buildJsonPayload())
+      transformedData.taxLiability.map(_.amount) mustBe Some(expTotalTaxLiabilityValue)
+    }
 }

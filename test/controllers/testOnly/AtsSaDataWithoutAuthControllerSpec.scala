@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import utils.{ATSErrorHandler, BaseSpec, TaxsJsonHelper}
 
 import scala.concurrent.ExecutionContext
 
-class AtsSaDataWithCalculusControllerSpec extends BaseSpec {
+class AtsSaDataWithoutAuthControllerSpec extends BaseSpec {
 
   lazy val cc: ControllerComponents = stubControllerComponents()
 
@@ -47,7 +47,7 @@ class AtsSaDataWithCalculusControllerSpec extends BaseSpec {
   val odsService: OdsService     = mock[OdsService]
   val jsonHelper: TaxsJsonHelper = inject[TaxsJsonHelper]
 
-  val controller = new AtsSaDataWithCalculusController(
+  val controller = new AtsSaDataWithoutAuthController(
     odsService,
     atsErrorHandler,
     cc
@@ -60,11 +60,11 @@ class AtsSaDataWithCalculusControllerSpec extends BaseSpec {
 
     "return 200" when {
 
-      "the service returns a right" in {
+      "called - service calls ods service" in {
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.rightT(json))
-        val result = controller.getAtsSaDataWithCalculus(testUtr, taxYear)(request)
+        val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe OK
         contentAsJson(result) mustBe json
@@ -77,10 +77,10 @@ class AtsSaDataWithCalculusControllerSpec extends BaseSpec {
 
         val msg = "Record not found"
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.leftT(UpstreamErrorResponse(msg, NOT_FOUND, INTERNAL_SERVER_ERROR)))
 
-        val result = controller.getAtsSaDataWithCalculus(testUtr, taxYear)(request)
+        val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe NOT_FOUND
         contentAsString(result) mustBe msg
@@ -93,10 +93,10 @@ class AtsSaDataWithCalculusControllerSpec extends BaseSpec {
 
         val msg = "Record not found"
 
-        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
+        when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
           .thenReturn(EitherT.leftT(UpstreamErrorResponse(msg, BAD_REQUEST, INTERNAL_SERVER_ERROR)))
 
-        val result = controller.getAtsSaDataWithCalculus(testUtr, taxYear)(request)
+        val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
         status(result) mustBe INTERNAL_SERVER_ERROR
         contentAsString(result) mustBe msg
@@ -109,10 +109,10 @@ class AtsSaDataWithCalculusControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, INTERNAL_SERVER_ERROR)
 
-          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
+          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
             .thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getAtsSaDataWithCalculus(testUtr, taxYear)(request)
+          val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
           status(result) mustBe INTERNAL_SERVER_ERROR
           contentAsString(result) mustBe upstreamError.getMessage
@@ -127,10 +127,10 @@ class AtsSaDataWithCalculusControllerSpec extends BaseSpec {
 
           val upstreamError = UpstreamErrorResponse("Something went wrong", statusCode, BAD_GATEWAY)
 
-          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear), eqTo(true))(any[HeaderCarrier], any[Request[_]]))
+          when(odsService.getPayload(eqTo(testUtr), eqTo(taxYear))(any[HeaderCarrier], any[Request[_]]))
             .thenReturn(EitherT.leftT(upstreamError))
 
-          val result = controller.getAtsSaDataWithCalculus(testUtr, taxYear)(request)
+          val result = controller.getAtsSaData(testUtr, taxYear)(request)
 
           status(result) mustBe BAD_GATEWAY
           contentAsString(result) mustBe upstreamError.getMessage

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import utils.ATSErrorHandler
 
 import scala.concurrent.ExecutionContext
 
-class AtsSaDataWithCalculusController @Inject() (
+class AtsSaDataWithoutAuthController @Inject() (
   odsService: OdsService,
   atsErrorHandler: ATSErrorHandler,
   cc: ControllerComponents
@@ -33,9 +33,9 @@ class AtsSaDataWithCalculusController @Inject() (
     extends BackendController(cc)
     with Logging {
 
-  def getAtsSaDataWithCalculus(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
+  def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
     odsService
-      .getPayload(utr, tax_year, withCalculus = true)
+      .getPayload(utr, tax_year)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
         result => Ok(result)

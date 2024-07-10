@@ -34,13 +34,18 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
   def expectedResultCapitalGainsData: Map[LiabilityKey, Amount]
   def expectedResultAllowanceData: Map[LiabilityKey, Amount]
   def expectedResultSummaryData: Map[LiabilityKey, Amount]
-  def transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
+  lazy val transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
 
   protected def parsedTaxpayerDetailsJson: JsValue = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
-  protected def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
+  def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
-    atsRawDataTransformer.atsDataDTO(jsonPayload, parsedTaxpayerDetailsJson, "", taxYear)
+    atsRawDataTransformer.atsDataDTO(
+      rawPayloadJson = jsonPayload,
+      rawTaxPayerJson = parsedTaxpayerDetailsJson,
+      UTR = "",
+      taxYear = taxYear
+    )
   }
 
   protected def calcExp(fieldNames: String*): Amount = {
@@ -73,7 +78,7 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
     }
   }
 
-  protected def buildJsonPayload(
+  def buildJsonPayload(
     tliSlpAtsData: Map[String, BigDecimal] = tliSlpAtsData,
     saPayeNicDetails: Map[String, BigDecimal] = saPayeNicDetails
   ): JsObject = {

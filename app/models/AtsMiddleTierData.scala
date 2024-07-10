@@ -29,12 +29,14 @@ case class AtsMiddleTierData(
   capital_gains_data: Option[DataHolder],
   gov_spending: Option[GovernmentSpendingOutputWrapper],
   taxPayerData: Option[AtsMiddleTierTaxpayerData],
-  errors: Option[AtsError]
+  errors: Option[AtsError],
+  taxLiability: Option[Amount]
 )
 
 object AtsMiddleTierData {
   implicit val formats: Format[AtsMiddleTierData] = Json.format[AtsMiddleTierData]
 
+  //scalastyle:off parameter.number
   def make(
     taxYear: Int,
     utr: String,
@@ -44,23 +46,37 @@ object AtsMiddleTierData {
     allowance: DataHolder,
     capitalGains: DataHolder,
     govSpending: GovernmentSpendingOutputWrapper,
-    taxPayer: AtsMiddleTierTaxpayerData
+    taxPayer: AtsMiddleTierTaxpayerData,
+    taxLiability: Option[Amount]
   ): AtsMiddleTierData =
     AtsMiddleTierData(
-      taxYear,
-      Some(utr),
-      Some(incomeTax),
-      Some(summary),
-      Some(income),
-      Some(allowance),
-      Some(capitalGains),
-      Some(govSpending),
-      Some(taxPayer),
-      None
+      taxYear = taxYear,
+      utr = Some(utr),
+      income_tax = Some(incomeTax),
+      summary_data = Some(summary),
+      income_data = Some(income),
+      allowance_data = Some(allowance),
+      capital_gains_data = Some(capitalGains),
+      gov_spending = Some(govSpending),
+      taxPayerData = Some(taxPayer),
+      errors = None,
+      taxLiability = taxLiability
     )
 
   def error(taxYear: Int, message: String): AtsMiddleTierData =
-    AtsMiddleTierData(taxYear, None, None, None, None, None, None, None, None, Option(AtsError(message)))
+    AtsMiddleTierData(
+      taxYear = taxYear,
+      utr = None,
+      income_tax = None,
+      summary_data = None,
+      income_data = None,
+      allowance_data = None,
+      capital_gains_data = None,
+      gov_spending = None,
+      taxPayerData = None,
+      errors = Option(AtsError(message)),
+      taxLiability = None
+    )
 
   def noAtsResult(taxYear: Int): AtsMiddleTierData = error(taxYear, "NoAtsError")
 }

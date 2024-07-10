@@ -78,10 +78,18 @@ class AmountTest extends BaseSpec {
       }
     }
 
-    "transform to JSON" in {
+    "transform to JSON where there is no calculus" in {
       val amountText     = """{"amount":1.0,"currency":"GBP"}"""
       val jsonFromText   = Json.parse(amountText)
       val amountObject   = Amount(1.0, "GBP")
+      val jsonFromObject = Json.toJson(amountObject)
+      jsonFromText mustEqual jsonFromObject
+    }
+
+    "transform to JSON where there is a calculus" in {
+      val amountText     = """{"amount":1.0,"currency":"GBP","calculus":"calculus"}"""
+      val jsonFromText   = Json.parse(amountText)
+      val amountObject   = Amount(1.0, "GBP", Some("calculus"))
       val jsonFromObject = Json.toJson(amountObject)
       jsonFromText mustEqual jsonFromObject
     }
