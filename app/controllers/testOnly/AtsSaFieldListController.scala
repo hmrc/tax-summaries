@@ -159,7 +159,10 @@ class AtsSaFieldListController @Inject() (
     "giftAidTaxReduced",
     "ctnTaxableCegSr",
     "ctnTaxOnCegSr",
-    "ctnTaxableRedundancySsr"
+    "ctnTaxableRedundancySsr",
+    "employeeClass1Nic",
+    "employeeClass2Nic",
+    "employerNic"
   )
 
   def getFieldList(tax_year: Int): Action[AnyContent] = Action {
