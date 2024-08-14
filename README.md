@@ -26,6 +26,7 @@ Each year we have to update the tax rules used for ATS for SA users. The process
 <li>Amend the tax year within the class ATSRawDataTransformerTestFixtureBase in the new folder.</li>
 <li>Copy the previous year's code folder (in app/ transformers/ATSyyyy) to a new folder for new tax year.</li>
 <li>Rename the classes to the new tax year (e.g. ATSCalculations2023 -> ATSCalculations2024).</li>
+<li>Copy the previous years's tax rates to the current year in application.conf.</li>
 <li>Run the unit tests for the new tax year (testOnly test.transformers.ATSyyyy.AtsRawDataTransformerSpec) - they should all pass.</li>
 <li>Now follow the usual TDD process to update tests and code. 
 <li>Update the tax year in app config staging, raise a PR and get it merged. 
