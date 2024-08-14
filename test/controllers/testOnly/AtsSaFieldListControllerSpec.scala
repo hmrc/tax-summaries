@@ -52,6 +52,13 @@ class AtsSaFieldListControllerSpec extends BaseSpec {
       val actualArray = (actual \ "items").as[JsArray]
       actualArray.value.size mustBe 132
     }
+    "return 200 + correct no of fields for 2024" in {
+      val result      = controller.getFieldList(2024)(request)
+      status(result) mustBe OK
+      val actual      = contentAsJson(result).as[JsObject]
+      val actualArray = (actual \ "items").as[JsArray]
+      actualArray.value.size mustBe 133
+    }
 
   }
 }
