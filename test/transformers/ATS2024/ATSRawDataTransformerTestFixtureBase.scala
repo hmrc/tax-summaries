@@ -154,7 +154,8 @@ trait ATSRawDataTransformerTestFixtureBase
     "giftAidTaxReduced"          -> BigDecimal(1040.00),
     "ctnTaxableCegSr"            -> BigDecimal(1050.00),
     "ctnTaxOnCegSr"              -> BigDecimal(1060.00),
-    "ctnTaxableRedundancySsr"    -> BigDecimal(1070.00)
+    "ctnTaxableRedundancySsr"    -> BigDecimal(1070.00),
+    "taxOnTransitionPrft"        -> BigDecimal(1080.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
   override protected def saPayeNicDetails: Map[String, BigDecimal] = Map(
@@ -182,7 +183,7 @@ trait ATSRawDataTransformerTestFixtureBase
     MarriageAllowanceReceivedAmount -> calcExp("ctnMarriageAllceInAmt"),
     OtherAdjustmentsReducing        -> expOtherAdjustmentsReducing,
     TotalIncomeTax                  -> expTotalIncomeTax,
-    ScottishIncomeTax               -> calcExp("scottishIncomeTaxUK2023:null"),
+    ScottishIncomeTax               -> calcExp("scottishIncomeTaxUK2024:null"),
     WelshIncomeTax                  -> calcExp("welshIncomeTax:null"),
     ScottishStarterRateTax          -> calcExp("scottishStarterRateTax:null"),
     ScottishBasicRateTax            -> calcExp("scottishBasicRateTax:null"),
@@ -295,7 +296,8 @@ trait AtsRawDataTransformerTestFixtureBaseCalculations {
     "giftAidTaxReduced",
     "netAnnuityPaytsTaxDue",
     "ctnChildBenefitChrgAmt",
-    "ctnPensionSavingChrgbleAmt"
+    "ctnPensionSavingChrgbleAmt",
+    "taxOnTransitionPrft"
   )
 
   protected def expOtherAdjustmentsReducing: Amount = calcExp(

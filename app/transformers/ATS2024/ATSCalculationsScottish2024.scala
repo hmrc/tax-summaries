@@ -23,23 +23,23 @@ import services.TaxRateService
 class ATSCalculationsScottish2024(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations2024 {
 
-  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxScottish2023")
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxScottish2024")
 
-  override def savingsRate: Amount = Amount.empty("savingsRateScottish2023")
+  override def savingsRate: Amount = Amount.empty("savingsRateScottish2024")
 
-  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountScottish2023")
+  override def savingsRateAmount: Amount = Amount.empty("savingsRateAmountScottish2024")
 
-  override def basicRateIncomeTaxAmount: Amount = Amount.empty("basicRateIncomeTaxAmountScottish2023")
+  override def basicRateIncomeTaxAmount: Amount = Amount.empty("basicRateIncomeTaxAmountScottish2024")
 
-  override def higherRateIncomeTaxAmount: Amount = Amount.empty("higherRateIncomeTaxAmountScottish2023")
+  override def higherRateIncomeTaxAmount: Amount = Amount.empty("higherRateIncomeTaxAmountScottish2024")
 
-  override def additionalRateIncomeTaxAmount: Amount = Amount.empty("additionalRateIncomeTaxAmountScottish2023")
+  override def additionalRateIncomeTaxAmount: Amount = Amount.empty("additionalRateIncomeTaxAmountScottish2024")
 
-  override def basicRateIncomeTax: Amount = Amount.empty("basicRateIncomeTaxScottish2023")
+  override def basicRateIncomeTax: Amount = Amount.empty("basicRateIncomeTaxScottish2024")
 
-  override def higherRateIncomeTax: Amount = Amount.empty("higherRateIncomeTaxScottish2023")
+  override def higherRateIncomeTax: Amount = Amount.empty("higherRateIncomeTaxScottish2024")
 
-  override def additionalRateIncomeTax: Amount = Amount.empty("additionalRateIncomeTaxScottish2023")
+  override def additionalRateIncomeTax: Amount = Amount.empty("additionalRateIncomeTaxScottish2024")
 
   override def scottishStarterRateTax: Amount =
     getWithDefaultAmount(TaxOnPayScottishStarterRate) + get(TaxOnRedundancySsr) + includePensionTaxForRate(

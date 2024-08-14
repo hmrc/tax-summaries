@@ -21,5 +21,5 @@ import services.TaxRateService
 
 class ATSCalculationsUK2024(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
     extends ATSCalculations2024 {
-  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2023")
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2024")
 }

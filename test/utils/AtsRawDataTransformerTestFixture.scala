@@ -26,7 +26,6 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
   protected val incomeTaxStatus: String
 
   protected def tliSlpAtsData: Map[String, BigDecimal]
-
   protected def saPayeNicDetails: Map[String, BigDecimal]
 
   def expectedResultIncomeTax: Map[LiabilityKey, Amount]
@@ -34,7 +33,7 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
   def expectedResultCapitalGainsData: Map[LiabilityKey, Amount]
   def expectedResultAllowanceData: Map[LiabilityKey, Amount]
   def expectedResultSummaryData: Map[LiabilityKey, Amount]
-  lazy val transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
+  def transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
 
   protected def parsedTaxpayerDetailsJson: JsValue = Json.parse(JsonUtil.load("/taxpayer/sa_taxpayer-valid.json"))
 
@@ -82,6 +81,7 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
     tliSlpAtsData: Map[String, BigDecimal] = tliSlpAtsData,
     saPayeNicDetails: Map[String, BigDecimal] = saPayeNicDetails
   ): JsObject = {
+
     val tliSlpAtsDataAsJsObject    = tliSlpAtsData.foldLeft[JsObject](
       Json.obj(
         "incomeTaxStatus"          -> incomeTaxStatus,

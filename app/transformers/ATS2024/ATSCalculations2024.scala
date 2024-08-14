@@ -63,7 +63,8 @@ trait ATSCalculations2024 extends ATSCalculations {
       get(GiftAidTaxReduced) +
       get(NetAnnuityPaytsTaxDue) +
       get(ChildBenefitCharge) +
-      get(PensionSavingChargeable)
+      get(PensionSavingChargeable) +
+      get(TaxOnTransitionProfits)
 
   override def totalIncomeTaxAmount: Amount = {
     val rateDividendAdjustmentTax = savingsRateAmount + // LS12.1
