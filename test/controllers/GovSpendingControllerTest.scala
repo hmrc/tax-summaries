@@ -70,57 +70,73 @@ class GovSpendingControllerTest extends BaseSpec {
   "Calling Government Spend with no session"                                must {
     "return a 200 response" in {
       val controllerUnderTest = makeController(summaryJson)
-      val result2022          = Future.successful(controllerUnderTest.getAtsSaData("user", 2023)(request))
-      val result2023          = Future.successful(controllerUnderTest.getAtsSaData("user", 2024)(request))
+      val resultPrevYear      = Future.successful(controllerUnderTest.getAtsSaData("user", 2023)(request))
+      val resultLatestYear    = Future.successful(controllerUnderTest.getAtsSaData("user", 2024)(request))
 
-      status(result2022.futureValue) mustBe 200
-      status(result2023.futureValue) mustBe 200
+      status(resultPrevYear.futureValue) mustBe 200
+      status(resultLatestYear.futureValue) mustBe 200
     }
     "have the right data in the output Json" in {
 
       val controllerUnderTest = makeController(summaryJson)
-      val result2022          = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2023)(request))
-      val result2023          = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2024)(request))
+      val resultPrevYear      = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2023)(request))
+      val resultLatestYear    = Future.successful(controllerUnderTest.getAtsSaData(testUtr, 2024)(request))
 
-      val rawJsonString2022 = contentAsString(result2022.futureValue)
-      val rawJson2022       = Json.parse(rawJsonString2022)
+      val rawJsonStringPrevYear = contentAsString(resultPrevYear.futureValue)
+      val rawJsonPrevYear       = Json.parse(rawJsonStringPrevYear)
 
-      val rawJsonString2023 = contentAsString(result2023.futureValue)
-      val rawJson2023       = Json.parse(rawJsonString2023)
+      val rawJsonStringLatestYear = contentAsString(resultLatestYear.futureValue)
+      val rawJsonLatestYear       = Json.parse(rawJsonStringLatestYear)
 
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "Health")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "33605.46"
       )
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "Education")
+        .as[SpendData]
+        .percentage mustBe BigDecimal(
         "9.9"
       )
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
         .as[SpendData]
         .amount
         .amount mustBe BigDecimal("12899.07")
 
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "Culture")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "2206.42"
       )
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
         .as[SpendData]
         .percentage mustBe BigDecimal("0.5")
 
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "Health")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "34284.36"
       )
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "Education")
+        .as[SpendData]
+        .percentage mustBe BigDecimal(
         "10.2"
       )
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
         .as[SpendData]
         .amount
         .amount mustBe BigDecimal("7128.43")
 
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "Culture")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "2036.69"
       )
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
         .as[SpendData]
         .percentage mustBe BigDecimal("0.7")
 
@@ -130,46 +146,62 @@ class GovSpendingControllerTest extends BaseSpec {
     "show the correct figures in the government spend screen" in {
 
       val controllerUnderTest = makeController(capitalGainsOnlyJson)
-      val result2022          = Future.successful(controllerUnderTest.getAtsSaData("user", 2023)(request))
-      val result2023          = Future.successful(controllerUnderTest.getAtsSaData("user", 2024)(request))
+      val resultPrevYear      = Future.successful(controllerUnderTest.getAtsSaData("user", 2023)(request))
+      val resultLatestYear    = Future.successful(controllerUnderTest.getAtsSaData("user", 2024)(request))
 
-      val rawJsonString2022 = contentAsString(result2022.futureValue)
-      val rawJson2022       = Json.parse(rawJsonString2022)
+      val rawJsonStringPrevYear = contentAsString(resultPrevYear.futureValue)
+      val rawJsonPrevYear       = Json.parse(rawJsonStringPrevYear)
 
-      val rawJsonString2023 = contentAsString(result2023.futureValue)
-      val rawJson2023       = Json.parse(rawJsonString2023)
+      val rawJsonStringLatestYear = contentAsString(resultLatestYear.futureValue)
+      val rawJsonLatestYear       = Json.parse(rawJsonStringLatestYear)
 
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "Health")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "35.64"
       )
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "Education")
+        .as[SpendData]
+        .percentage mustBe BigDecimal(
         "9.9"
       )
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
         .as[SpendData]
         .amount
         .amount mustBe BigDecimal("13.68")
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "Culture")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "2.34"
       )
-      (rawJson2022 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
+      (rawJsonPrevYear \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
         .as[SpendData]
         .percentage mustBe BigDecimal("0.5")
 
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Health").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "Health")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "36.36"
       )
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Education").as[SpendData].percentage mustBe BigDecimal(
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "Education")
+        .as[SpendData]
+        .percentage mustBe BigDecimal(
         "10.2"
       )
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "BusinessAndIndustry")
         .as[SpendData]
         .amount
         .amount mustBe BigDecimal("7.56")
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "Culture").as[SpendData].amount.amount mustBe BigDecimal(
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "Culture")
+        .as[SpendData]
+        .amount
+        .amount mustBe BigDecimal(
         "2.16"
       )
-      (rawJson2023 \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
+      (rawJsonLatestYear \ "gov_spending" \ "govSpendAmountData" \ "OverseasAid")
         .as[SpendData]
         .percentage mustBe BigDecimal("0.7")
     }
