@@ -198,6 +198,8 @@ object LiabilityKey extends DefaultReads {
 
   case object SavingsAdditionalIncome extends LiabilityKey("savings_additional_income")
 
+  case object TaxOnTransitionProfitsB extends LiabilityKey("tax_on_transition_prft")
+
   // format: off
   val allItems: List[LiabilityKey] = List(
     AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments,

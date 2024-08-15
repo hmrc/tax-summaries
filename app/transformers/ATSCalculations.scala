@@ -40,9 +40,6 @@ trait ATSCalculations extends DoubleUtils with Logging {
       summaryData.nationalInsuranceData.getOrElse(
         liability, {
           val ex = ATSParsingException(liability.apiValue)
-
-          println(s"\nUNABLE TO RETRIEVE $liability from ${summaryData.atsData}")
-
           logger.error(s"Unable to retrieve $liability", ex)
           throw ex
         }
