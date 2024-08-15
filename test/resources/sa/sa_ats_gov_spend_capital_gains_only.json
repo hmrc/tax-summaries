@@ -32,6 +32,10 @@
       "amount": 0.00,
       "currency": "GBP"
     },
+    "taxOnTransitionPrft": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },    
     "ctnSummaryTotalPartnership": {
       "amount": 0.00,
       "currency": "GBP"

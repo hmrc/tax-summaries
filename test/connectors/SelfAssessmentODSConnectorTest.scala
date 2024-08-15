@@ -33,7 +33,7 @@ import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with WireMockHelper {
 
-  private val taxYear = 2023
+  private val taxYear = 2024
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

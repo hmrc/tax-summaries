@@ -26,8 +26,8 @@ import services.GoodsAndServices._
 import utils._
 
 class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdate with ScalaCheckPropertyChecks {
-  private val taxYear                                                              = 2023
-  private val previousTaxYear                                                      = 2022
+  private val taxYear                                                              = 2024
+  private val previousTaxYear                                                      = 2023
   private val mockAppConfig                                                        = mock[ApplicationConfig]
   private val randomPercentagesForTaxYear: Seq[(GoodsAndServices, Double)]         =
     Seq[(GoodsAndServices, Double)](
