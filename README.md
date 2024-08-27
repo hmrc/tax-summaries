@@ -15,7 +15,7 @@ Requirements
 ------------
 
 This service is written in [Scala] and [Play], so needs the latest [JRE] to run.
-
+ 
 
 Annual SA uprating
 ------------------
