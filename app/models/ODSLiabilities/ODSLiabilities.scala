@@ -138,6 +138,8 @@ object ODSLiabilities {
 
   case object PensionSavingChargeable extends ODSLiabilities("ctnPensionSavingChrgbleAmt")
 
+  case object TaxOnTransitionProfits extends ODSLiabilities("taxOnTransitionPrft")
+
   case object PersonalAllowance extends ODSLiabilities("ctnPersonalAllowance")
 
   case object QualDistnRelief extends ODSLiabilities("ctnQualDistnReliefAmt")
@@ -322,7 +324,8 @@ object ODSLiabilities {
     ))
     Map(
       2022 -> allLiabilities2022,
-      2023 -> (allLiabilities2022 :+ RelTaxAcctFor)
+      2023 -> (allLiabilities2022 :+ RelTaxAcctFor),
+      2024 -> (allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits),
     )
   }
   // format: on

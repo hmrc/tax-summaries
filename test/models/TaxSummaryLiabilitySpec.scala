@@ -21,7 +21,7 @@ import utils.{BaseSpec, JsonUtil}
 
 class TaxSummaryLiabilitySpec extends BaseSpec {
 
-  private val taxYear = 2023
+  private val taxYear = 2024
 
   "TaxSummaryLiability Reads" must {
     "correctly parse the data" in {
@@ -32,7 +32,7 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())
       result.nationalInsuranceData.size mustBe 3
-      result.atsData.size mustBe 126
+      result.atsData.size mustBe 127
     }
 
     "correctly parse the data where incomeTaxStatus is Null" in {

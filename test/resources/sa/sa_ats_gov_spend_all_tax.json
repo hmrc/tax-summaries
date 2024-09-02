@@ -28,6 +28,10 @@
       "amount": 0.00,
       "currency": "GBP"
     },
+    "taxOnTransitionPrft": {
+      "amount": 0.00,
+      "currency": "GBP"
+    },
     "ctnSummaryTotalScheduleD": {
       "amount": 1100.00,
       "currency": "GBP"

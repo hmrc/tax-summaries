@@ -165,10 +165,15 @@ class AtsSaFieldListController @Inject() (
     "employerNic"
   )
 
+  private val fields2024: Seq[String] = fields2023 :+ "taxOnTransitionPrft"
+
   def getFieldList(tax_year: Int): Action[AnyContent] = Action {
     val items = tax_year match {
+      case 2021 => fields2023
+      case 2022 => fields2023
       case 2023 => fields2023
-      case _    => fields2023
+      case 2024 => fields2024
+      case _    => fields2024
     }
     Ok(
       Json.obj(

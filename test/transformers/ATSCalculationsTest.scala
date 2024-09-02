@@ -23,7 +23,7 @@ import models._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import services.TaxRateService
 import transformers.ATS2021.ATSCalculationsUK2021
-import transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
+import transformers.ATS2024.{ATSCalculationsScottish2024, ATSCalculationsUK2024, ATSCalculationsWelsh2024}
 import utils.{BaseSpec, DoubleUtils}
 
 import scala.util.Random
@@ -119,17 +119,17 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       "country is UK" in {
         val calculation = new Fixture(9999, UK())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsUK2023])
+        calculation.map(_ mustBe a[ATSCalculationsUK2024])
       }
       "country is Scotland" in {
         val calculation = new Fixture(9999, Scottish())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsScottish2023])
+        calculation.map(_ mustBe a[ATSCalculationsScottish2024])
       }
       "country is Wales" in {
         val calculation = new Fixture(9999, Welsh())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsWelsh2023])
+        calculation.map(_ mustBe a[ATSCalculationsWelsh2024])
       }
     }
 

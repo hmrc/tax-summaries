@@ -21,8 +21,8 @@ import transformers.{ATSParsingException, ATSRawDataTransformer}
 import utils.TestConstants._
 
 class TaxsJsonHelperTest extends BaseSpec {
-  private val prevTaxYear = 2022
-  private val taxYear     = 2023
+  private val prevTaxYear = 2023
+  private val taxYear     = 2024
 
   val aTSRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
 
