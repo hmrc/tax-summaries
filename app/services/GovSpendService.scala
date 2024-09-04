@@ -22,7 +22,6 @@ import models.ApiValue
 import play.api.libs.json.{Format, JsString, Writes}
 
 import scala.collection.immutable.ListMap
-import scala.math.Ordering.DeprecatedDoubleOrdering
 
 sealed trait GoodsAndServices extends ApiValue
 
@@ -84,15 +83,10 @@ class GovSpendService @Inject() (applicationConfig: ApplicationConfig) {
     val govList = applicationConfig
       .governmentSpend(taxYear)
 
-    val governmentSpendUnsorted = govList
+    val governmentSpend = govList
       .map(item => allItems.find(_.apiValue == item.name).map(k => (k, item.value)))
       .collect { case Some(v) =>
         v
-      }
-    val governmentSpend         =
-      taxYear match {
-        case 2024 => governmentSpendUnsorted.sortBy(_._2)(DeprecatedDoubleOrdering.reverse)
-        case _    => governmentSpendUnsorted
       }
 
     val listMap = ListMap(governmentSpend: _*)
