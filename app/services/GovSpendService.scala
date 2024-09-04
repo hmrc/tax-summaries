@@ -88,7 +88,8 @@ class GovSpendService @Inject() (applicationConfig: ApplicationConfig) {
       .collect { case Some(v) =>
         v
       }
-    val listMap         = ListMap(governmentSpend: _*)
+
+    val listMap = ListMap(governmentSpend: _*)
     listMap
   }
 }
