@@ -67,12 +67,15 @@ object RateKey {
 
   case object PayeDividendOrdinaryRate extends RateKey("paye_ordinary_rate")
   case object PayeHigherRateIncomeTax extends RateKey("paye_higher_rate_income_tax")
+  case object PayeAdditionalRateIncomeTax extends RateKey("paye_additional_rate_income_tax")
   case object PayeBasicRateIncomeTax extends RateKey("paye_basic_rate_income_tax")
   case object PayeDividendUpperRate extends RateKey("paye_upper_rate")
+  case object PayeDividendAdditionalRate extends RateKey("paye_dividend_additional_rate")
   case object PayeScottishStarterRate extends RateKey("paye_scottish_starter_rate")
   case object PayeScottishBasicRate extends RateKey("paye_scottish_basic_rate")
   case object PayeScottishIntermediateRate extends RateKey("paye_scottish_intermediate_rate")
   case object PayeScottishHigherRate extends RateKey("paye_scottish_higher_rate")
+  case object PayeScottishTopRate extends RateKey("paye_scottish_top_rate")
   case object ScottishStarterRate extends RateKey("scottish_starter_rate")
   case object ScottishBasicRate extends RateKey("scottish_basic_rate")
   case object ScottishIntermediateRate extends RateKey("scottish_intermediate_rate")
@@ -87,8 +90,8 @@ object RateKey {
     List(
       Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic,
       IncomeHigher, InterestHigher, InterestLower, NICS, Ordinary, Savings, TotalCapitalGains, Upper,
-      PayeDividendOrdinaryRate, PayeHigherRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendUpperRate,
-      PayeScottishStarterRate, PayeScottishBasicRate, PayeScottishIntermediateRate, PayeScottishHigherRate,
+      PayeDividendOrdinaryRate, PayeDividendAdditionalRate, PayeHigherRateIncomeTax, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendUpperRate,
+      PayeScottishStarterRate, PayeScottishBasicRate, PayeScottishIntermediateRate, PayeScottishHigherRate, PayeScottishTopRate,
       ScottishStarterRate, ScottishBasicRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate,
       SavingsLowerRate, SavingsHigherRate, SavingsAdditionalRate
     )

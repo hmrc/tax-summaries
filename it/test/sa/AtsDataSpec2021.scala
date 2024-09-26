@@ -61,8 +61,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 20532.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -114,8 +114,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 37500.0, //lS12.2
       HigherRateIncomeTax                -> 12732.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -168,8 +168,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 0.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 450.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -221,8 +221,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 40374.0, //lS12.2
       HigherRateIncomeTax                -> 112500.0, //LS12.3
       AdditionalRateIncomeTax            -> 596.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 403.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 234.0,
@@ -273,8 +273,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 37500.0, //lS12.2
       HigherRateIncomeTax                -> 729.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 6500.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 6500.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -325,8 +325,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 37500.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 147874.0, //LS13.1
-      UpperRate                          -> 10126.0, //LS13.2
+      DividendOrdinaryRate               -> 147874.0, //LS13.1
+      DividendUpperRate                  -> 10126.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 10106.5,
       OtherAdjustmentsReducing           -> 0.0,
@@ -377,8 +377,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 0.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 3202.0, //LS13.1
-      UpperRate                          -> 298.0, //LS13.2
+      DividendOrdinaryRate               -> 3202.0, //LS13.1
+      DividendUpperRate                  -> 298.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -429,8 +429,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 19562.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 2279.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 2279.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 394.0,
@@ -481,8 +481,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 0.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 4887.0,
@@ -533,8 +533,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 37500.0, //lS12.2
       HigherRateIncomeTax                -> 61823.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 48677.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 48677.0, //LS13.2
       AdditionalRate                     -> 777642.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 322.0,
@@ -585,8 +585,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 0.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 2977.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 2977.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 692.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -637,8 +637,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 6058.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 3680.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 3680.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 70.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -689,8 +689,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 9000.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 20500.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 20500.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -741,8 +741,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 0.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 600.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -793,8 +793,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 27760.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 6870.0, //LS13.1
-      UpperRate                          -> 11130.0, //LS13.2
+      DividendOrdinaryRate               -> 6870.0, //LS13.1
+      DividendUpperRate                  -> 11130.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -845,8 +845,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 37500.0, //lS12.2
       HigherRateIncomeTax                -> 35595.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 11499.4,
       OtherAdjustmentsReducing           -> 3727.0,
@@ -897,8 +897,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 37500.0, //lS12.2
       HigherRateIncomeTax                -> 112500.0, //LS12.3
       AdditionalRateIncomeTax            -> 17822.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 9775.0,
@@ -949,8 +949,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 37500.0, //lS12.2
       HigherRateIncomeTax                -> 6500.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 20000.0,
       OtherAdjustmentsReducing           -> 0.0,
@@ -1001,8 +1001,8 @@ class AtsDataSpec2021 extends SaTestHelper {
       BasicRateIncomeTax                 -> 26000.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //LS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 0.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 0.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       OtherAdjustmentsIncreasing         -> 0.0,
       OtherAdjustmentsReducing           -> 0.0,

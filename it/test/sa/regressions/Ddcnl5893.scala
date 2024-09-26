@@ -64,8 +64,8 @@ class Ddcnl5893 extends SaTestHelper {
           BasicRateIncomeTax                 -> 37500.0, //lS12.2
           HigherRateIncomeTax                -> 112500.0, //LS12.3
           AdditionalRateIncomeTax            -> 21192.0, //LS12.4
-          OrdinaryRate                       -> 0.0, //LS13.1
-          UpperRate                          -> 0.0, //LS13.2
+          DividendOrdinaryRate               -> 0.0, //LS13.1
+          DividendUpperRate                  -> 0.0, //LS13.2
           AdditionalRate                     -> 0.0, //LS13.3
           OtherAdjustmentsIncreasing         -> 0.0,
           OtherAdjustmentsReducing           -> 0.0,
@@ -120,8 +120,8 @@ class Ddcnl5893 extends SaTestHelper {
           BasicRateIncomeTax                 -> 37500.0, //lS12.2
           HigherRateIncomeTax                -> 112500.0, //LS12.3
           AdditionalRateIncomeTax            -> 21192.0, //LS12.4
-          OrdinaryRate                       -> 0.0, //LS13.1
-          UpperRate                          -> 0.0, //LS13.2
+          DividendOrdinaryRate               -> 0.0, //LS13.1
+          DividendUpperRate                  -> 0.0, //LS13.2
           AdditionalRate                     -> 0.0, //LS13.3
           OtherAdjustmentsIncreasing         -> 0.0,
           OtherAdjustmentsReducing           -> 0.0,
@@ -179,8 +179,8 @@ class Ddcnl5893 extends SaTestHelper {
           BasicRateIncomeTax                 -> 27917.0, //lS12.2
           HigherRateIncomeTax                -> 0.0, //LS12.3
           AdditionalRateIncomeTax            -> 0.0, //LS12.4
-          OrdinaryRate                       -> 1525.0, //LS13.1
-          UpperRate                          -> 0.0, //LS13.2
+          DividendOrdinaryRate               -> 1525.0, //LS13.1
+          DividendUpperRate                  -> 0.0, //LS13.2
           AdditionalRate                     -> 0.0, //LS13.3
           OtherAdjustmentsIncreasing         -> 0.0,
           OtherAdjustmentsReducing           -> 0.0,

@@ -155,6 +155,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   def scottishAdditionalRateTax: Amount = Amount.empty("scottishAdditionalRateTax")
 
+  def scottishTopRateTax: Amount = Amount.empty("scottishTopRateTax")
+
   def scottishTotalTax: Amount =
     scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdditionalRateTax
 
@@ -167,6 +169,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def scottishHigherRateIncome: Amount = Amount.empty("scottishHigherRateIncome")
 
   def scottishAdditionalRateIncome: Amount = Amount.empty("scottishAdditionalRateIncome")
+
+  def scottishTopRateIncome: Amount = Amount.empty("scottishTopRateIncome")
 
   def savingsBasicRateTax: Amount = Amount.empty("savingsBasicRateTax")
 

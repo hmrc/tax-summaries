@@ -63,10 +63,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       HigherRateIncomeTaxAmount          -> 44920.0, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 206995.00, //LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 93147.75, // LS12.4 (tax amount - right column)
-      OrdinaryRate                       -> 0.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 0.0, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 0.00, //LS13.2 e
-      UpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
+      DividendOrdinaryRate                       -> 0.00, //LS13.1 e
+      DividendOrdinaryRateAmount                 -> 0.0, // LS13.1 (tax amount - right column)
+      DividendUpperRate                          -> 0.00, //LS13.2 e
+      DividendUpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
       AdditionalRate                     -> 58632.00, //LS13.3 e,
       AdditionalRateAmount               -> 23071.69, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
@@ -138,10 +138,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       HigherRateIncomeTaxAmount          -> 811.20, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      OrdinaryRate                       -> 30139.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 2637.16, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 0.00, //LS13.2 e
-      UpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
+      DividendOrdinaryRate                       -> 30139.00, //LS13.1 e
+      DividendOrdinaryRateAmount                 -> 2637.16, // LS13.1 (tax amount - right column)
+      DividendUpperRate                          -> 0.00, //LS13.2 e
+      DividendUpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
       AdditionalRate                     -> 0.00, //LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
@@ -213,10 +213,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       HigherRateIncomeTaxAmount          -> 19964.00, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      OrdinaryRate                       -> 0.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 0.00, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 0.00, //LS13.2 e
-      UpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
+      DividendOrdinaryRate                       -> 0.00, //LS13.1 e
+      DividendOrdinaryRateAmount                 -> 0.00, // LS13.1 (tax amount - right column)
+      DividendUpperRate                          -> 0.00, //LS13.2 e
+      DividendUpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
       AdditionalRate                     -> 0.00, //LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
@@ -282,10 +282,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       TotalTaxFreeAmount                 -> 33151.00, //LS10 e
       StartingRateForSavings             -> 0.00, //LS12.1
       StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      OrdinaryRate                       -> 0.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 0.00, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 3233.00, //LS13.2 e
-      UpperRateAmount                    -> 1091.13, // LS13.2 (tax amount - right column)
+      DividendOrdinaryRate                       -> 0.00, //LS13.1 e
+      DividendOrdinaryRateAmount                 -> 0.00, // LS13.1 (tax amount - right column)
+      DividendUpperRate                          -> 3233.00, //LS13.2 e
+      DividendUpperRateAmount                    -> 1091.13, // LS13.2 (tax amount - right column)
       AdditionalRate                     -> 0.00, //LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
@@ -355,10 +355,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       HigherRateIncomeTaxAmount          -> 44920.00, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 11243.00, //LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 5059.35, // LS12.4 (tax amount - right column)
-      OrdinaryRate                       -> 10000.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 875.00, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 0.00, //LS13.2 e
-      UpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
+      DividendOrdinaryRate                       -> 10000.00, //LS13.1 e
+      DividendOrdinaryRateAmount                 -> 875.00, // LS13.1 (tax amount - right column)
+      DividendUpperRate                          -> 0.00, //LS13.2 e
+      DividendUpperRateAmount                    -> 0.0, // LS13.2 (tax amount - right column)
       AdditionalRate                     -> 0.00, //LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
@@ -429,10 +429,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      OrdinaryRate                       -> 3310.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 289.62, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 190.00, //LS13.2 e
-      UpperRateAmount                    -> 64.12, // LS13.2 (tax amount - right column)
+      DividendOrdinaryRate                       -> 3310.00, //LS13.1 e
+      DividendOrdinaryRateAmount                 -> 289.62, // LS13.1 (tax amount - right column)
+      DividendUpperRate                          -> 190.00, //LS13.2 e
+      DividendUpperRateAmount                    -> 64.12, // LS13.2 (tax amount - right column)
       AdditionalRate                     -> 0.00, //LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
@@ -504,10 +504,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 (tax amount - right column)
       AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      OrdinaryRate                       -> 0.00, //LS13.1 e
-      OrdinaryRateAmount                 -> 0.00, // LS13.1 (tax amount - right column)
-      UpperRate                          -> 2735.00, //LS13.2 e
-      UpperRateAmount                    -> 923.06, // LS13.2 (tax amount - right column)
+      DividendOrdinaryRate                       -> 0.00, //LS13.1 e
+      DividendOrdinaryRateAmount                 -> 0.00, // LS13.1 (tax amount - right column)
+      DividendUpperRate                          -> 2735.00, //LS13.2 e
+      DividendUpperRateAmount                    -> 923.06, // LS13.2 (tax amount - right column)
       AdditionalRate                     -> 0.00, //LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
       OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
@@ -586,10 +586,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
 
       // Dividends
-      OrdinaryRate       -> 0.00, //LS13.1 Ordinary Rate (income)
-      OrdinaryRateAmount -> 0.00, // LS13.1 Ordinary Rate (tax amount - right column)
-      UpperRate          -> 21568.00, //LS13.2 Upper Rate (income)
-      UpperRateAmount    -> 7279.20, // LS13.2 Upper Rate (tax amount - right column)
+      DividendOrdinaryRate       -> 0.00, //LS13.1 Ordinary Rate (income)
+      DividendOrdinaryRateAmount -> 0.00, // LS13.1 Ordinary Rate (tax amount - right column)
+      DividendUpperRate          -> 21568.00, //LS13.2 Upper Rate (income)
+      DividendUpperRateAmount    -> 7279.20, // LS13.2 Upper Rate (tax amount - right column)
       AdditionalRate     -> 0.00, //LS13.3 Additional Rate (income)
 
       // Adjustments
@@ -659,10 +659,10 @@ class AtsDataSpec2023 extends SaTestHelper {
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
 
       // Dividends
-      OrdinaryRate                 -> 10000.00, //LS13.1 Ordinary Rate (income)
-      OrdinaryRateAmount           -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
-      UpperRate                    -> 0.00, //LS13.2 Upper Rate (income)
-      UpperRateAmount              -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
+      DividendOrdinaryRate                 -> 10000.00, //LS13.1 Ordinary Rate (income)
+      DividendOrdinaryRateAmount           -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
+      DividendUpperRate                    -> 0.00, //LS13.2 Upper Rate (income)
+      DividendUpperRateAmount              -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
       AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
       AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
       // LS13a Total UK Income Tax
