@@ -82,18 +82,26 @@ case class PayeAtsData(
         DividendOrdinaryRateAmount,
         dividendLowerBand.map(_.dividendLowRateTax)
       ),
-      DividendOrdinaryRate                    -> optionToAmount(DividendOrdinaryRate, dividendLowerBand.map(_.dividendLowRateAmount)),
+      DividendOrdinaryRate                    -> optionToAmount(
+        DividendOrdinaryRate,
+        dividendLowerBand.map(_.dividendLowRateAmount)
+      ),
+      //------
       DividendUpperRateAmount                 -> optionToAmount(
         DividendUpperRateAmount,
         dividendHigherBand.map(_.dividendHigherRateTax)
       ),
-      DividendUpperRate                       -> optionToAmount(DividendUpperRate, dividendHigherBand.map(_.dividendHigherRateAmount)),
+      DividendUpperRate                       -> optionToAmount(
+        DividendUpperRate,
+        dividendHigherBand.map(_.dividendHigherRateAmount)
+      ),
+      //------
       DividendAdditionalRateAmount            -> optionToAmount(
-        DividendUpperRateAmount,
+        DividendAdditionalRateAmount,
         dividendAdditionalBand.map(_.dividendAdditionalRateTax)
       ),
       DividendAdditionalRate                  -> optionToAmount(
-        DividendUpperRate,
+        DividendAdditionalRate,
         dividendAdditionalBand.map(_.dividendAdditionalRateAmount)
       ),
       MarriedCouplesAllowance                 -> optionToAmount(

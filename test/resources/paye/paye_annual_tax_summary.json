@@ -45,6 +45,11 @@
     "higherRateTax": 2000.00,
     "higherRate": 40.00
   },
+  "additionalRateBand": {
+    "additionalRateTaxAmount": 12000.00,
+    "additionalRateTax": 2200.00,
+    "additionalRate": 45.00
+  },
   "dividendLowerBand": {
     "dividendLowRateAmount": 2000.00,
     "dividendLowRateTax": 200.00,
@@ -54,6 +59,11 @@
     "dividendHigherRateAmount": 2000.00,
     "dividendHigherRateTax": 200.00,
     "dividendHigherRate": 32.5
+  },
+  "dividendAdditionalBand": {
+    "dividendAdditionalRateAmount": 1100.00,
+    "dividendAdditionalRateTax": 110.00,
+    "dividendAdditionalRate": 38.2
   },
   "scottishStarterBand": {
     "scottishStarterRateTaxAmount": 2000.00,
@@ -74,5 +84,10 @@
     "scottishHigherRateTaxAmount": 31570.00,
     "scottishHigherRateTax": 12943.70,
     "scottishHigherRate": 41.00
+  },
+  "scottishTopBand": {
+    "scottishTopRateTaxAmount": 22570.00,
+    "scottishTopRateTax": 5443.70,
+    "scottishTopRate": 48.00
   }
 }

@@ -598,10 +598,10 @@ class AtsDataSpec2022 extends SaTestHelper {
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
 
       // Dividends
-      DividendOrdinaryRate                 -> 10750.00, //LS13.1 Ordinary Rate (income)
-      DividendOrdinaryRateAmount           -> 806.25, // LS13.1 Ordinary Rate (tax amount - right column)
-      DividendUpperRate                    -> 0.00, //LS13.2 Upper Rate (income)
-      DividendUpperRateAmount              -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
+      DividendOrdinaryRate         -> 10750.00, //LS13.1 Ordinary Rate (income)
+      DividendOrdinaryRateAmount   -> 806.25, // LS13.1 Ordinary Rate (tax amount - right column)
+      DividendUpperRate            -> 0.00, //LS13.2 Upper Rate (income)
+      DividendUpperRateAmount      -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
       AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
       AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
       // LS13a Total UK Income Tax
@@ -693,10 +693,10 @@ class AtsDataSpec2022 extends SaTestHelper {
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
 
       // Dividends
-      DividendOrdinaryRate                 -> 10000.00, //LS13.1 Ordinary Rate (income)
-      DividendOrdinaryRateAmount           -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
-      DividendUpperRate                    -> 0.00, //LS13.2 Upper Rate (income)
-      DividendUpperRateAmount              -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
+      DividendOrdinaryRate         -> 10000.00, //LS13.1 Ordinary Rate (income)
+      DividendOrdinaryRateAmount   -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
+      DividendUpperRate            -> 0.00, //LS13.2 Upper Rate (income)
+      DividendUpperRateAmount      -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
       AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
       AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
       // LS13a Total UK Income Tax
