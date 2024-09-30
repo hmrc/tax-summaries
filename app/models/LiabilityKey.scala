@@ -90,9 +90,9 @@ object LiabilityKey extends DefaultReads {
 
   case object NicsAndTaxRate extends LiabilityKey("nics_and_tax_rate")
 
-  case object OrdinaryRate extends LiabilityKey("ordinary_rate")
+  case object DividendOrdinaryRate extends LiabilityKey("ordinary_rate")
 
-  case object OrdinaryRateAmount extends LiabilityKey("ordinary_rate_amount")
+  case object DividendOrdinaryRateAmount extends LiabilityKey("ordinary_rate_amount")
 
   case object OtherAdjustmentsIncreasing extends LiabilityKey("other_adjustments_increasing")
 
@@ -140,9 +140,13 @@ object LiabilityKey extends DefaultReads {
 
   case object TotalTaxFreeAmount extends LiabilityKey("total_tax_free_amount")
 
-  case object UpperRate extends LiabilityKey("upper_rate")
+  case object DividendUpperRate extends LiabilityKey("upper_rate")
 
-  case object UpperRateAmount extends LiabilityKey("upper_rate_amount")
+  case object DividendUpperRateAmount extends LiabilityKey("upper_rate_amount")
+
+  case object DividendAdditionalRate extends LiabilityKey("dividend_additional_rate")
+
+  case object DividendAdditionalRateAmount extends LiabilityKey("dividend_additional_rate_amount")
 
   case object YourTotalTax extends LiabilityKey("your_total_tax")
 
@@ -157,6 +161,8 @@ object LiabilityKey extends DefaultReads {
   case object ScottishHigherRateTax extends LiabilityKey("scottish_higher_rate_tax")
 
   case object ScottishAdditionalRateTax extends LiabilityKey("scottish_additional_rate_tax")
+
+  case object ScottishTopRateTax extends LiabilityKey("scottish_top_rate_tax")
 
   case object ScottishTotalTax extends LiabilityKey("scottish_total_tax")
 
@@ -174,7 +180,11 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishHigherRateIncomeTaxAmount extends LiabilityKey("scottish_higher_rate_amount")
 
+  case object ScottishTopRateIncomeTaxAmount extends LiabilityKey("scottish_top_rate_amount")
+
   case object ScottishHigherRateIncomeTax extends LiabilityKey("scottish_higher_rate")
+
+  case object ScottishTopRateIncomeTax extends LiabilityKey("scottish_top_rate")
 
   case object ScottishStarterIncome extends LiabilityKey("scottish_starter_income")
 
@@ -185,6 +195,8 @@ object LiabilityKey extends DefaultReads {
   case object ScottishHigherIncome extends LiabilityKey("scottish_higher_income")
 
   case object ScottishAdditionalIncome extends LiabilityKey("scottish_additional_income")
+
+  case object ScottishTopIncome extends LiabilityKey("scottish_top_income")
 
   case object SavingsLowerRateTax extends LiabilityKey("savings_lower_rate_tax")
 
@@ -209,17 +221,17 @@ object LiabilityKey extends DefaultReads {
     EmployeeNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeFromEmployment, LessTaxFreeAmount,
     MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, MarriedCouplesAllowance,
     LessTaxAdjustmentPrevYear, TaxUnderpaidPrevYear, IncomeAfterTaxAndNics, EmployerNicAmount, LiableTaxAmount, NicsAndTaxRate,
-    OrdinaryRate, OrdinaryRateAmount, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome,
+    DividendOrdinaryRate, DividendOrdinaryRateAmount, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome,
     OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, ScottishIncomeTax, SelfEmploymentIncome, StartingRateForSavings,
     StartingRateForSavingsAmount, StatePension, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalCgTaxRate,
     TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2Nics, TotalUKIncomeTax, TotalIncomeTax2, TotalIncomeTaxAndNics,
-    TotalTaxFreeAmount, UpperRate, UpperRateAmount, YourTotalTax, ScottishStarterRateTax, ScottishBasicRateTax,
+    TotalTaxFreeAmount, DividendUpperRate, DividendUpperRateAmount, DividendAdditionalRate, DividendAdditionalRateAmount, YourTotalTax, ScottishStarterRateTax, ScottishBasicRateTax,
     ScottishIntermediateRateTax, ScottishHigherRateTax, ScottishAdditionalRateTax, ScottishTotalTax,
     ScottishStarterRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishBasicRateIncomeTax,
     ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount,
-    ScottishHigherRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
-    ScottishHigherIncome, ScottishAdditionalIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax
+    ScottishHigherRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
+    ScottishHigherIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
+    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax
   )
     // format: on
 

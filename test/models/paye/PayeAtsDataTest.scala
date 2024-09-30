@@ -33,8 +33,9 @@
 package models.paye
 
 import models.LiabilityKey._
-import models.RateKey._
-import models._
+import models.RateKey.{PayeScottishIntermediateRate, _}
+import models.{ApiRate, _}
+import org.scalatest.AppendedClues.convertToClueful
 import play.api.Configuration
 import services.GoodsAndServices
 import services.GoodsAndServices._
@@ -121,10 +122,14 @@ class PayeAtsDataTest extends BaseSpec {
         TotalUKIncomeTax                        -> Amount.gbp(2000.0, TotalUKIncomeTax.apiValue),
         HigherRateIncomeTaxAmount               -> Amount.gbp(2000.00, HigherRateIncomeTaxAmount.apiValue),
         HigherRateIncomeTax                     -> Amount.gbp(10000.00, HigherRateIncomeTax.apiValue),
-        OrdinaryRateAmount                      -> Amount.gbp(200.00, OrdinaryRateAmount.apiValue),
-        OrdinaryRate                            -> Amount.gbp(2000.00, OrdinaryRate.apiValue),
-        UpperRateAmount                         -> Amount.gbp(200.00, UpperRateAmount.apiValue),
-        UpperRate                               -> Amount.gbp(2000.00, UpperRate.apiValue),
+        AdditionalRateIncomeTaxAmount           -> Amount.gbp(2200.00, AdditionalRateIncomeTaxAmount.apiValue),
+        AdditionalRateIncomeTax                 -> Amount.gbp(12000.00, AdditionalRateIncomeTax.apiValue),
+        DividendOrdinaryRateAmount              -> Amount.gbp(200.00, DividendOrdinaryRateAmount.apiValue),
+        DividendOrdinaryRate                    -> Amount.gbp(2000.00, DividendOrdinaryRate.apiValue),
+        DividendUpperRateAmount                 -> Amount.gbp(200.00, DividendUpperRateAmount.apiValue),
+        DividendUpperRate                       -> Amount.gbp(2000.00, DividendUpperRate.apiValue),
+        DividendAdditionalRateAmount            -> Amount.gbp(110.00, DividendAdditionalRateAmount.apiValue),
+        DividendAdditionalRate                  -> Amount.gbp(1100.00, DividendAdditionalRate.apiValue),
         MarriedCouplesAllowance                 -> Amount.gbp(500.00, MarriedCouplesAllowance.apiValue),
         MarriageAllowanceReceivedAmount         -> Amount.gbp(1250.00, MarriageAllowanceReceivedAmount.apiValue),
         LessTaxAdjustmentPrevYear               -> Amount.gbp(200.00, LessTaxAdjustmentPrevYear.apiValue),
@@ -139,21 +144,44 @@ class PayeAtsDataTest extends BaseSpec {
         ScottishIntermediateRateIncomeTaxAmount -> Amount.gbp(4080.3, ScottishIntermediateRateIncomeTaxAmount.apiValue),
         ScottishIntermediateRateIncomeTax       -> Amount.gbp(19430.0, ScottishIntermediateRateIncomeTax.apiValue),
         ScottishHigherRateIncomeTaxAmount       -> Amount.gbp(12943.7, ScottishHigherRateIncomeTaxAmount.apiValue),
-        ScottishHigherRateIncomeTax             -> Amount.gbp(31570.0, ScottishHigherRateIncomeTax.apiValue)
+        ScottishHigherRateIncomeTax             -> Amount.gbp(31570.0, ScottishHigherRateIncomeTax.apiValue),
+        ScottishTopRateIncomeTaxAmount          -> Amount.gbp(5443.7, ScottishTopRateIncomeTaxAmount.apiValue),
+        ScottishTopRateIncomeTax                -> Amount.gbp(22570.00, ScottishTopRateIncomeTax.apiValue)
       )
 
       val expectedRatesValues: Map[RateKey, ApiRate] = Map(
         PayeDividendOrdinaryRate     -> ApiRate("7.5%"),
         PayeHigherRateIncomeTax      -> ApiRate("40%"),
+        PayeAdditionalRateIncomeTax  -> ApiRate("45%"),
         PayeBasicRateIncomeTax       -> ApiRate("20%"),
         PayeDividendUpperRate        -> ApiRate("32.5%"),
+        PayeDividendAdditionalRate   -> ApiRate("38.2%"),
         PayeScottishStarterRate      -> ApiRate("19%"),
         PayeScottishBasicRate        -> ApiRate("20%"),
         PayeScottishIntermediateRate -> ApiRate("21%"),
-        PayeScottishHigherRate       -> ApiRate("41%")
+        PayeScottishHigherRate       -> ApiRate("41%"),
+        PayeScottishTopRate          -> ApiRate("48%")
       )
 
-      incomeTax mustBe DataHolder(Some(expectedPayloadValues), Some(expectedRatesValues), None)
+      val diff1 = incomeTax.payload.get.keySet.diff(expectedPayloadValues.keySet)
+      diff1 mustBe empty
+
+      val diff2 = expectedPayloadValues.keySet.diff(incomeTax.payload.get.keySet)
+      diff2 mustBe empty
+
+      incomeTax.payload.get.foreach { liability: (LiabilityKey, Amount) =>
+        val expected = expectedPayloadValues.get(liability._1)
+        liability._2 mustBe expected.getOrElse(
+          Amount(0.0, "missing", Some("expected missing"))
+        ) withClue (s"clue: `$liability must be $expected``")
+      }
+
+      incomeTax.rates.get.foreach { liability: (RateKey, ApiRate) =>
+        val expected = expectedRatesValues.get(liability._1)
+        liability._2 mustBe expected.getOrElse(
+          ApiRate("expected missing")
+        ) withClue (s"clue: `$liability must be $expected``")
+      }
     }
 
     "create gov spend data" must {

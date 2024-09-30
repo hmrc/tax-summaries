@@ -62,8 +62,8 @@ class AtsDataSpec2020 extends SaTestHelper {
       BasicRateIncomeTax                 -> 5818.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //lS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 443.25, //LS13.1
-      UpperRate                          -> 191.75, //LS13.2
+      DividendOrdinaryRate               -> 443.25, //LS13.1
+      DividendUpperRate                  -> 191.75, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       //WelshIncomeTax -> 2909.0, //LS20a
       OtherAdjustmentsIncreasing         -> 0.0, //LS15a
@@ -117,8 +117,8 @@ class AtsDataSpec2020 extends SaTestHelper {
       BasicRateIncomeTax                 -> 0.0, //lS12.2
       HigherRateIncomeTax                -> 0.0, //lS12.3
       AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      OrdinaryRate                       -> 27000.0, //LS13.1
-      UpperRate                          -> 0.0, //LS13.2
+      DividendOrdinaryRate               -> 27000.0, //LS13.1
+      DividendUpperRate                  -> 0.0, //LS13.2
       AdditionalRate                     -> 0.0, //LS13.3
       //WelshIncomeTax -> 2909.0, //LS20a
       OtherAdjustmentsIncreasing         -> 0.0, //LS15a
