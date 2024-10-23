@@ -98,6 +98,11 @@ trait IntegrationSpec
       post(urlEqualTo("/auth/authorise"))
         .willReturn(ok(authResponse))
     )
+
+    server.stubFor(
+      post(urlEqualTo("/pertax/authorise"))
+        .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
+    )
   }
 
   override def fakeApplication(): Application =
@@ -113,6 +118,8 @@ trait IntegrationSpec
         "microservice.services.tax-summaries-hod.host" -> "127.0.0.1",
         "microservice.services.auth.host"              -> "localhost",
         "microservice.services.auth.port"              -> server.port(),
+        "microservice.services.pertax.host"            -> "localhost",
+        "microservice.services.pertax.port"            -> server.port(),
         "play.ws.timeout.request"                      -> "1000ms",
         "play.ws.timeout.connection"                   -> "500ms",
         "mongodb.uri"                                  -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
