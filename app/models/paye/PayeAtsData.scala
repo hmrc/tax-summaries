@@ -57,7 +57,8 @@ case class PayeAtsData(
 
   private def optionToAmount(key: LiabilityKey, opt: Option[Double]): Amount =
     opt.fold(Amount.empty(key.apiValue))(Amount.gbp(_, key.apiValue))
-  private def optionToRate(opt: Option[Double]): ApiRate                     = Rate(opt.getOrElse(0)).apiValue
+
+  private def optionToRate(opt: Option[Double]): ApiRate = Rate(opt.getOrElse(0)).apiValue
 
   private def createIncomeTaxData: DataHolder =
     DataHolder.make(createIncomeTaxPayload, createIncomeTaxRates)
@@ -102,7 +103,7 @@ case class PayeAtsData(
       ),
       DividendAdditionalRate                  -> optionToAmount(
         DividendAdditionalRate,
-        dividendAdditionalBand.map(_.dividendAdditionalRateAmount)
+        dividendAdditionalBand.map(_.dividendAdditionalRateTaxAmoun)
       ),
       MarriedCouplesAllowance                 -> optionToAmount(
         MarriedCouplesAllowance,

@@ -61,7 +61,7 @@
     "dividendHigherRate": 32.5
   },
   "dividendAdditionalBand": {
-    "dividendAdditionalRateAmount": 1100.00,
+    "dividendAdditionalRateTaxAmoun": 1100.00,
     "dividendAdditionalRateTax": 110.00,
     "dividendAdditionalRate": 38.2
   },

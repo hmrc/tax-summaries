@@ -19,7 +19,7 @@ package models.paye
 import play.api.libs.json.{Json, Reads}
 
 case class DividendAdditionalBand(
-  dividendAdditionalRateAmount: Double,
+  dividendAdditionalRateTaxAmoun: Double,
   dividendAdditionalRateTax: Double,
   dividendAdditionalRate: Double
 )
