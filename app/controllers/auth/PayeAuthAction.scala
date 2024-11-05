@@ -19,60 +19,43 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import connectors.PertaxConnector
 import models.PertaxApiResponse
-import models.admin.PertaxBackendToggle
-import play.api.Logger
+import play.api.http.Status.{TOO_MANY_REQUESTS, UNAUTHORIZED}
 import play.api.mvc.Results._
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, ConfidenceLevel}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PayeAuthActionImpl @Inject() (
-  val authConnector: AuthConnector,
   cc: ControllerComponents,
-  featureFlagService: FeatureFlagService,
   pertaxConnector: PertaxConnector
 )(implicit ec: ExecutionContext)
-    extends PayeAuthAction
-    with AuthorisedFunctions {
-
-  private val logger = Logger(getClass.getName)
+    extends PayeAuthAction {
 
   override protected def filter[A](request: Request[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-    authorised(ConfidenceLevel.L50) {
-      featureFlagService.get(PertaxBackendToggle).flatMap { toggle =>
-        if (toggle.isEnabled) {
-          pertaxConnector.pertaxAuth.value.flatMap {
-            case Right(PertaxApiResponse("ACCESS_GRANTED", _, _, _))       =>
-              Future.successful(None)
-            case Right(PertaxApiResponse("INVALID_AFFINITY", _, _, _))     =>
-              Future.successful(None)
-            case Right(PertaxApiResponse("NO_HMRC_PT_ENROLMENT", _, _, _)) =>
-              Future.successful(Some(Unauthorized))
-            case Right(r)                                                  =>
-              logger.warn("auth action received response: " + r)
-              Future.successful(Some(InternalServerError))
-            case Left(ex)                                                  =>
-              logger.warn("Error received from auth", ex)
-              Future.successful(Some(InternalServerError))
-          }
-        } else {
-          Future.successful(None)
-        }
-      }
+    pertaxConnector.pertaxAuth.value.map {
+      case Right(PertaxApiResponse("ACCESS_GRANTED", _))   => None
+      case Right(PertaxApiResponse("INVALID_AFFINITY", _)) => None
+      case Right(PertaxApiResponse(code, message))         =>
+        Some(Unauthorized(s"Unauthorised with error code: `$code` and message: `$message`"))
+      case Left(error)                                     => handleError(error)
     }
-  }.recover {
-    case ae: AuthorisationException =>
-      logger.error(s"Authorisation exception", ae)
-      Some(Unauthorized)
-    case t: Throwable               =>
-      logger.error(s"Authorisation error", t)
-      Some(InternalServerError)
   }
+
+  private def handleError(error: UpstreamErrorResponse): Option[Result] =
+    error.statusCode match {
+      case UNAUTHORIZED            => Some(Unauthorized(""))
+      case TOO_MANY_REQUESTS       => Some(TooManyRequests(""))
+      case status if status >= 499 => Some(BadGateway("Dependant services failing"))
+      case _                       =>
+        Some(
+          InternalServerError(
+            s"Unexpected response from pertax with status ${error.statusCode} and response ${error.message}"
+          )
+        )
+    }
 
   override val parser: BodyParser[AnyContent]               = cc.parsers.defaultBodyParser
   override protected def executionContext: ExecutionContext = ec
