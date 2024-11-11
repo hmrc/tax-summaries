@@ -138,7 +138,7 @@ object ODSLiabilities {
 
   case object PensionSavingChargeable extends ODSLiabilities("ctnPensionSavingChrgbleAmt")
 
-  case object TaxOnTransitionProfits extends ODSLiabilities("taxOnTransitionPrft")
+  case object TaxOnTransitionProfits extends ODSLiabilities("ctnTaxOnTransitionPrft")
 
   case object PersonalAllowance extends ODSLiabilities("ctnPersonalAllowance")
 
