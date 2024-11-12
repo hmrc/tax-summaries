@@ -28,7 +28,7 @@
       "amount": 0.00,
       "currency": "GBP"
     },
-    "taxOnTransitionPrft": {
+    "ctnTaxOnTransitionPrft": {
       "amount": 0.00,
       "currency": "GBP"
     },

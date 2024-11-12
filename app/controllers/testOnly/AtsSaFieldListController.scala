@@ -165,7 +165,7 @@ class AtsSaFieldListController @Inject() (
     "employerNic"
   )
 
-  private val fields2024: Seq[String] = fields2023 :+ "taxOnTransitionPrft"
+  private val fields2024: Seq[String] = fields2023 :+ "ctnTaxOnTransitionPrft"
 
   def getFieldList(tax_year: Int): Action[AnyContent] = Action {
     val items = tax_year match {
