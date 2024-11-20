@@ -18,11 +18,12 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.{AtsMiddleTierData, DataHolder, LiabilityKey}
+import common.models.{DataHolder, LiabilityKey}
+import common.utils.{FileHelper, IntegrationSpec}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout}
-import utils.{FileHelper, IntegrationSpec}
+import sa.models.AtsMiddleTierData
 
 import scala.concurrent.Future
 

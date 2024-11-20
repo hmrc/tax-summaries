@@ -17,10 +17,10 @@
 package paye
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
+import common.utils.IntegrationSpec
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status => getStatus, _}
-import utils.IntegrationSpec
 
 class GetPayeAtsDataErrorSpec extends IntegrationSpec {
   val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"

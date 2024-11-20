@@ -19,10 +19,10 @@ package paye
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import common.utils.{FileHelper, IntegrationSpec}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.{FileHelper, IntegrationSpec}
 
 class HasSummarySpec extends IntegrationSpec {
 

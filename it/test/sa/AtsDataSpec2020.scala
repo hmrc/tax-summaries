@@ -19,13 +19,14 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import models.LiabilityKey.{StatePension, _}
-import models.{Amount, AtsMiddleTierData, GovernmentSpendingOutputWrapper, SpendData}
+import common.models.LiabilityKey._
+import common.models.{Amount, GovernmentSpendingOutputWrapper}
+import common.services.GoodsAndServices._
+import common.utils.FileHelper
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.GoodsAndServices._
-import utils.FileHelper
+import sa.models.{AtsMiddleTierData, SpendData}
 
 import scala.concurrent.Future
 
