@@ -1,7 +1,25 @@
-GET   /:UTR/:TAX_YEAR/ats-data                  sa.controllers.AtsSaDataController.getAtsSaData(UTR: String, TAX_YEAR: Int)
-GET   /:NINO/:TAX_YEAR/paye-ats-data            paye.controllers.AtsPayeDataController.getAtsPayeData(NINO: String, TAX_YEAR: Int)
-GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data  paye.controllers.AtsPayeDataController.getAtsPayeDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
 
-GET   /:UTR/has_summary_for_previous_period     sa.controllers.AtsSaDataController.hasAts(UTR: String)
-GET   /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list    sa.controllers.AtsSaDataController.getAtsSaList(UTR: String, ENDYEAR: Int, NUMBEROFYEARS: Int)
-GET   /government-spend/:TAX_YEAR               common.controllers.GovernmentSpendController.getGovernmentSpend(TAX_YEAR: Int)
+# New Routes with Prefixes
+GET   /sa/:UTR/:TAX_YEAR/ats-data                  sa.controllers.AtsSaDataController.getAtsSaData(UTR: String, TAX_YEAR: Int)
+GET   /paye/:NINO/:TAX_YEAR/ats-data               paye.controllers.AtsPayeDataController.getAtsPayeData(NINO: String, TAX_YEAR: Int)
+GET   /paye/:NINO/:YEAR_FROM/:YEAR_TO/ats-data     paye.controllers.AtsPayeDataController.getAtsPayeDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
+
+GET   /sa/:UTR/has_summary_for_previous_period     sa.controllers.AtsSaDataController.hasAts(UTR: String)
+GET   /sa/:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list    sa.controllers.AtsSaDataController.getAtsSaList(UTR: String, ENDYEAR: Int, NUMBEROFYEARS: Int)
+GET   /common/government-spend/:TAX_YEAR           common.controllers.GovernmentSpendController.getGovernmentSpend(TAX_YEAR: Int)
+
+# Deprecated Routes (to be removed in the future)
+# Deprecated: Use /sa/:UTR/:TAX_YEAR/ats-data
+GET   /:UTR/:TAX_YEAR/ats-data                     sa.controllers.AtsSaDataController.getAtsSaData(UTR: String, TAX_YEAR: Int)
+
+# Deprecated: Use /paye/:NINO/:TAX_YEAR/ats-data
+GET   /:NINO/:TAX_YEAR/paye-ats-data               paye.controllers.AtsPayeDataController.getAtsPayeData(NINO: String, TAX_YEAR: Int)
+
+# Deprecated: Use /paye/:NINO/:YEAR_FROM/:YEAR_TO/ats-data
+GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data     paye.controllers.AtsPayeDataController.getAtsPayeDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
+
+# Deprecated: Use /sa/:UTR/has_summary_for_previous_period
+GET   /:UTR/has_summary_for_previous_period        sa.controllers.AtsSaDataController.hasAts(UTR: String)
+
+# Deprecated: Use /sa/:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list
+GET   /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list       sa.controllers.AtsSaDataController.getAtsSaList(UTR: String, ENDYEAR: Int, NUMBEROFYEARS: Int)
