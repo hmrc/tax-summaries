@@ -18,13 +18,14 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.LiabilityKey._
-import models._
+import common.models.LiabilityKey._
+import common.models.{Amount, GovernmentSpendingOutputWrapper, LiabilityKey}
+import common.services.GoodsAndServices._
+import common.utils.FileHelper
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.GoodsAndServices._
-import utils.FileHelper
+import sa.models._
 
 class AtsDataSpec2023 extends SaTestHelper {
 

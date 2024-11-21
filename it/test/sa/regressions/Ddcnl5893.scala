@@ -18,13 +18,13 @@ package sa.regressions
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import models.AtsMiddleTierData
-import models.LiabilityKey._
+import common.models.LiabilityKey.{AdditionalRate, AdditionalRateIncomeTax, Adjustments, AmountDueAtEntrepreneursRate, AmountDueAtOrdinaryRate, AmountDueRPCIHigherRate, AmountDueRPCILowerRate, BasicRateIncomeTax, BenefitsFromEmployment, DividendOrdinaryRate, DividendUpperRate, EmployeeNicAmount, HigherRateIncomeTax, IncomeFromEmployment, MarriageAllowanceTransferredAmount, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, SelfEmploymentIncome, StartingRateForSavingsAmount, StatePension, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTaxAndNics, TotalTaxFreeAmount, WelshIncomeTax, YourTotalTax}
+import common.utils.FileHelper
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import sa.SaTestHelper
-import utils.FileHelper
+import sa.models.AtsMiddleTierData
 
 import java.time.LocalDate
 

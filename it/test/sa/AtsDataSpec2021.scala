@@ -19,12 +19,12 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import models.AtsMiddleTierData
-import models.LiabilityKey._
+import common.models.LiabilityKey._
+import common.utils.FileHelper
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.FileHelper
+import sa.models.AtsMiddleTierData
 
 import scala.concurrent.Future
 
