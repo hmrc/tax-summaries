@@ -29,7 +29,7 @@ case class AtsMiddleTierData(
   allowance_data: Option[DataHolder],
   capital_gains_data: Option[DataHolder],
   gov_spending: Option[GovernmentSpendingOutputWrapper],
-  taxPayerData: Option[AtsMiddleTierTaxpayerData],
+  taxPayerData: Option[Map[String, String]],
   errors: Option[AtsError],
   taxLiability: Option[Amount]
 )
@@ -47,7 +47,7 @@ object AtsMiddleTierData {
     allowance: DataHolder,
     capitalGains: DataHolder,
     govSpending: GovernmentSpendingOutputWrapper,
-    taxPayer: AtsMiddleTierTaxpayerData,
+    taxPayer: Option[Map[String, String]],
     taxLiability: Option[Amount]
   ): AtsMiddleTierData =
     AtsMiddleTierData(
@@ -59,7 +59,7 @@ object AtsMiddleTierData {
       allowance_data = Some(allowance),
       capital_gains_data = Some(capitalGains),
       gov_spending = Some(govSpending),
-      taxPayerData = Some(taxPayer),
+      taxPayerData = taxPayer,
       errors = None,
       taxLiability = taxLiability
     )

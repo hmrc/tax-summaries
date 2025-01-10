@@ -18,7 +18,6 @@ package sa.transformers
 
 import common.utils.BaseSpec
 import play.api.libs.json.Json
-import sa.models.AtsMiddleTierTaxpayerData
 import sa.utils.AtsJsonDataUpdate
 
 import scala.io.Source
@@ -37,9 +36,9 @@ class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
 
       val parsedJson = Json.parse(sampleJson)
 
-      val returnValue: AtsMiddleTierTaxpayerData = ATSTaxpayerDataTransformer(parsedJson).atsTaxpayerDataDTO
+      val returnValue: Option[Map[String, String]] = ATSTaxpayerDataTransformer(parsedJson).atsTaxpayerDataDTO
 
-      val parsedPayload = returnValue.taxpayer_name.get
+      val parsedPayload = returnValue.get
       val testPayload   =
         Map("title" -> "Miss", "forename" -> "Jane", "surname" -> "Fisher")
       testPayload mustEqual parsedPayload

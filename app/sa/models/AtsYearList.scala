@@ -18,7 +18,7 @@ package sa.models
 
 import play.api.libs.json.{JsNumber, Json, OFormat}
 
-case class AtsYearList(utr: String, taxPayer: Option[AtsMiddleTierTaxpayerData], atsYearList: Option[List[JsNumber]])
+case class AtsYearList(utr: String, taxPayer: Option[Map[String, String]], atsYearList: Option[List[JsNumber]])
 
 object AtsYearList {
   implicit val formats: OFormat[AtsYearList] = Json.format[AtsYearList]
