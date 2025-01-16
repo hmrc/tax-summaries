@@ -27,41 +27,36 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
   def atsTaxpayerDataDTO: AtsMiddleTierTaxpayerData = createATSDataDTO
 
   private def createATSDataDTO =
-    try if (hasTaxpayerName) {
-      AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
+    AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
+
+  private def createTaxpayerDetailsBreakdown: Option[Map[String, String]] = {
+    val mapOfItems = Seq(
+      getTaxpayerNameData("title").toSeq.map(v => "title" -> v),
+      getTaxpayerNameData("forename").toSeq.map(v => "forename" -> v),
+      getTaxpayerNameData("surname").toSeq.map(v => "surname" -> v)
+    ).flatten.toMap
+
+    if (mapOfItems.isEmpty) {
+      None
     } else {
-      throw ATSParsingException("NoAtsTaxpayerDataError")
-    } catch {
-      case ATSParsingException(message) => throw ATSParsingException(message)
-      case otherError: Throwable        =>
-        logger.error("Unexpected error has occurred", otherError)
-        throw ATSParsingException("Other Error")
+      Some(mapOfItems)
     }
+  }
 
-  private def hasTaxpayerName = createTaxpayerDetailsBreakdown.nonEmpty
-
-  private def createTaxpayerDetailsBreakdown =
-    Option(
-      Map(
-        "title"    -> getTaxpayerNameData("title"),
-        "forename" -> getTaxpayerNameData("forename"),
-        "surname"  -> getTaxpayerNameData("surname")
-      )
-    )
-
-  private def getTaxpayerNameData(key: String): String =
+  private def getTaxpayerNameData(key: String): Option[String] =
     jsonValLookupWithErrorHandling[String](key, "name")
 
-  private def jsonValLookupWithErrorHandling[T: Reads](key: String, topLevelContainer: String): T = {
+  private def jsonValLookupWithErrorHandling[T: Reads](key: String, topLevelContainer: String): Option[T] = {
     val theOption = (rawJsonFromStub \ topLevelContainer \ key).validate[T]
 
     theOption match {
-      case s: JsSuccess[T] => s.get
+      case s: JsSuccess[T] => s.asOpt
       case e: JsError      =>
+        println("\nHERE:" + e)
         logger.error(
           "Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer
         )
-        throw ATSParsingException(key)
+        None
     }
   }
 }

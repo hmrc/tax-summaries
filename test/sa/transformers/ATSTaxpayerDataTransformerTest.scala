@@ -17,7 +17,7 @@
 package sa.transformers
 
 import common.utils.BaseSpec
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import sa.models.AtsMiddleTierTaxpayerData
 import sa.utils.AtsJsonDataUpdate
 
@@ -42,6 +42,22 @@ class ATSTaxpayerDataTransformerTest extends BaseSpec with AtsJsonDataUpdate {
       val parsedPayload = returnValue.taxpayer_name.get
       val testPayload   =
         Map("title" -> "Miss", "forename" -> "Jane", "surname" -> "Fisher")
+      testPayload mustEqual parsedPayload
+    }
+
+    "be parsed without error when no name" in {
+      val sampleJson = Using(Source.fromURL(getClass.getResource("/common/taxpayer/sa_taxpayer-valid.json"))) {
+        source =>
+          source.mkString
+      }.getOrElse(throw new RuntimeException("Unable to read the JSON file"))
+
+      val parsedJson = (Json.parse(sampleJson).as[JsObject] - "name") ++ Json.obj("name" -> Json.obj("title" -> "Miss"))
+
+      val returnValue: AtsMiddleTierTaxpayerData = ATSTaxpayerDataTransformer(parsedJson).atsTaxpayerDataDTO
+
+      val parsedPayload = returnValue.taxpayer_name.get
+      val testPayload   =
+        Map("title" -> "Miss")
       testPayload mustEqual parsedPayload
     }
   }
