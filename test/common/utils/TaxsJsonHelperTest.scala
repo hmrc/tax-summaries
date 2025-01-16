@@ -18,7 +18,7 @@ package common.utils
 
 import common.utils.TestConstants.testUtr
 import play.api.libs.json._
-import sa.transformers.{ATSParsingException, ATSRawDataTransformer}
+import sa.transformers.ATSRawDataTransformer
 import sa.utils.TaxsJsonHelper
 
 class TaxsJsonHelperTest extends BaseSpec {
@@ -109,8 +109,7 @@ class TaxsJsonHelperTest extends BaseSpec {
       result \ "atsYearList" mustBe JsDefined(Json.parse(s"[$prevTaxYear, $taxYear]"))
     }
 
-    "return an exception when passed badly formed json" in new SetUp {
-
+    "return a jsvalue when tax payer json missing" in new SetUp {
       val rawJson: JsValue = Json.parse(s"""
            | {
            |   "annualTaxSummaries" : [
@@ -123,15 +122,15 @@ class TaxsJsonHelperTest extends BaseSpec {
           |{
           |  "name": {
           |    "title": "Mr"
-          |  },
-          |  "forename": "forename",
-          |  "surname": "surname"
+          |  }
           |}
         """.stripMargin)
 
-      intercept[ATSParsingException] {
-        createTaxYearJson(rawJson, testUtr, rawTaxpayerJson)
-      }
+      val result: JsValue = createTaxYearJson(rawJson, testUtr, rawTaxpayerJson)
+      result \ "utr" mustBe JsDefined(JsString(testUtr))
+      result \ "taxPayer" mustBe JsDefined(
+        Json.parse("""{"taxpayer_name":{"title":"Mr"}}""")
+      )
     }
 
   }
