@@ -52,7 +52,7 @@ case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
     theOption match {
       case s: JsSuccess[T] => s.asOpt
       case e: JsError      =>
-        logger.error(
+        logger.warn(
           "Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer
         )
         None
