@@ -56,6 +56,6 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
     val annualTaxSummariesList: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]
     val atsYearList                           = annualTaxSummariesList.map(item => (item \ "taxYearEnd").as[JsNumber])
     val taxPayer                              = ATSTaxpayerDataTransformer(rawTaxpayerJson).atsTaxpayerDataDTO
-    Json.toJson(AtsYearList(utr, Some(taxPayer), Some(atsYearList)))
+    Json.toJson(AtsYearList(utr, taxPayer, Some(atsYearList)))
   }
 }

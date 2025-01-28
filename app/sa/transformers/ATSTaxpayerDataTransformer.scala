@@ -16,52 +16,24 @@
 
 package sa.transformers
 
-import play.api.Logger
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Reads}
-import sa.models.AtsMiddleTierTaxpayerData
+import play.api.libs.json.JsValue
 
 case class ATSTaxpayerDataTransformer(rawJsonFromStub: JsValue) {
 
-  private val logger = Logger(getClass.getName)
+  def atsTaxpayerDataDTO: Option[Map[String, String]] = createTaxpayerDetailsBreakdown
 
-  def atsTaxpayerDataDTO: AtsMiddleTierTaxpayerData = createATSDataDTO
-
-  private def createATSDataDTO =
-    try if (hasTaxpayerName) {
-      AtsMiddleTierTaxpayerData(createTaxpayerDetailsBreakdown, None)
-    } else {
-      throw ATSParsingException("NoAtsTaxpayerDataError")
-    } catch {
-      case ATSParsingException(message) => throw ATSParsingException(message)
-      case otherError: Throwable        =>
-        logger.error("Unexpected error has occurred", otherError)
-        throw ATSParsingException("Other Error")
+  private def createTaxpayerDetailsBreakdown: Option[Map[String, String]] = {
+    val taxpayerData = Map(
+      "title"    -> getTaxpayerNameData("title"),
+      "forename" -> getTaxpayerNameData("forename"),
+      "surname"  -> getTaxpayerNameData("surname")
+    ).collect { case (k, Some(v)) =>
+      k -> v
     }
 
-  private def hasTaxpayerName = createTaxpayerDetailsBreakdown.nonEmpty
-
-  private def createTaxpayerDetailsBreakdown =
-    Option(
-      Map(
-        "title"    -> getTaxpayerNameData("title"),
-        "forename" -> getTaxpayerNameData("forename"),
-        "surname"  -> getTaxpayerNameData("surname")
-      )
-    )
-
-  private def getTaxpayerNameData(key: String): String =
-    jsonValLookupWithErrorHandling[String](key, "name")
-
-  private def jsonValLookupWithErrorHandling[T: Reads](key: String, topLevelContainer: String): T = {
-    val theOption = (rawJsonFromStub \ topLevelContainer \ key).validate[T]
-
-    theOption match {
-      case s: JsSuccess[T] => s.get
-      case e: JsError      =>
-        logger.error(
-          "Errors: " + JsError.toJson(e).toString() + " we were looking for " + key + " in " + topLevelContainer
-        )
-        throw ATSParsingException(key)
-    }
+    if (taxpayerData.isEmpty) None else Some(taxpayerData)
   }
+
+  private def getTaxpayerNameData(key: String): Option[String] =
+    (rawJsonFromStub \ "name" \ key).asOpt[String]
 }

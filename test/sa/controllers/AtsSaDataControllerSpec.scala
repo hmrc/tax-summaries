@@ -244,7 +244,7 @@ class AtsSaDataControllerSpec extends BaseSpec {
         status(result) mustBe OK
         contentAsString(
           result
-        ) mustBe s"""{"utr":"$testUtr","taxPayer":{"taxpayer_name":{"title":"Miss","forename":"Jane","surname":"Fisher"}},"atsYearList":[2020]}"""
+        ) mustBe s"""{"utr":"$testUtr","taxPayer":{"title":"Miss","forename":"Jane","surname":"Fisher"},"atsYearList":[2020]}"""
       }
     }
 
