@@ -18,17 +18,18 @@ package common.connectors
 
 import cats.data.EitherT
 import common.utils.{BaseSpec, WireMockHelper}
+import org.mockito.Mockito.{reset, times}
 import org.mockito.{ArgumentMatchers, Mockito}
 import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
-import play.api.http.Status._
-import uk.gov.hmrc.http._
+import play.api.http.Status.*
+import uk.gov.hmrc.http.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class HttpClientResponseSpec
-  extends BaseSpec
+    extends BaseSpec
     with WireMockHelper
     with ScalaFutures
     with IntegrationPatience
@@ -64,12 +65,12 @@ class HttpClientResponseSpec
 
   // scalastyle:off method.length
   private def clientResponseLogger(
-                                    block: Future[Either[UpstreamErrorResponse, HttpResponse]] => EitherT[Future, UpstreamErrorResponse, HttpResponse],
-                                    infoLevel: Set[Int],
-                                    warnLevel: Set[Int],
-                                    errorLevelWithThrowable: Set[Int],
-                                    errorLevelWithoutThrowable: Set[Int]
-                                  ): Unit = {
+    block: Future[Either[UpstreamErrorResponse, HttpResponse]] => EitherT[Future, UpstreamErrorResponse, HttpResponse],
+    infoLevel: Set[Int],
+    warnLevel: Set[Int],
+    errorLevelWithThrowable: Set[Int],
+    errorLevelWithoutThrowable: Set[Int]
+  ): Unit = {
     infoLevel.foreach { httpResponseCode =>
       s"log message: INFO level only when response code is $httpResponseCode" in {
         reset(mockLogger)
@@ -116,14 +117,14 @@ class HttpClientResponseSpec
     }
     "log message: ERROR level only WITHOUT throwable when future failed with HttpException & " +
       "recover to BAD GATEWAY" in {
-      reset(mockLogger)
-      val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-        Future.failed(new HttpException(dummyContent, GATEWAY_TIMEOUT))
-      whenReady(block(response).value) { actual =>
-        actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
-        verifyCalls(errorWithoutThrowable = Some(dummyContent))
+        reset(mockLogger)
+        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+          Future.failed(new HttpException(dummyContent, GATEWAY_TIMEOUT))
+        whenReady(block(response).value) { actual =>
+          actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
+          verifyCalls(errorWithoutThrowable = Some(dummyContent))
+        }
       }
-    }
     "log nothing at all when future failed with non-HTTPException" in {
       reset(mockLogger)
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
@@ -137,11 +138,11 @@ class HttpClientResponseSpec
   }
 
   private def verifyCalls(
-                           info: Option[String] = None,
-                           warn: Option[String] = None,
-                           errorWithThrowable: Option[String] = None,
-                           errorWithoutThrowable: Option[String] = None
-                         ): Unit = {
+    info: Option[String] = None,
+    warn: Option[String] = None,
+    errorWithThrowable: Option[String] = None,
+    errorWithoutThrowable: Option[String] = None
+  ): Unit = {
 
     val infoTimes                  = info.map(_ => 1).getOrElse(0)
     val warnTimes                  = warn.map(_ => 1).getOrElse(0)
@@ -155,16 +156,16 @@ class HttpClientResponseSpec
 
     Mockito
       .verify(mockLogger, times(infoTimes))
-      .info(argumentMatcher(info))(ArgumentMatchers.any())
+      .info(argumentMatcher(info))
     Mockito
       .verify(mockLogger, times(warnTimes))
-      .warn(argumentMatcher(warn))(ArgumentMatchers.any())
+      .warn(argumentMatcher(warn))
     Mockito
       .verify(mockLogger, times(errorWithThrowableTimes))
-      .error(argumentMatcher(errorWithThrowable), ArgumentMatchers.any())(ArgumentMatchers.any())
+      .error(argumentMatcher(errorWithThrowable), ArgumentMatchers.any())
     Mockito
       .verify(mockLogger, times(errorWithoutThrowableTimes))
-      .error(argumentMatcher(errorWithoutThrowable))(ArgumentMatchers.any())
+      .error(argumentMatcher(errorWithoutThrowable))
   }
 
 }
