@@ -221,7 +221,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       higherRateIncomeTaxAmount + // LS12.3
       additionalRateIncomeTaxAmount +
       get(DividendTaxLowRate) +
-      get(DividendTaxHighRate) + //LS13.2
+      get(DividendTaxHighRate) + // LS13.2
       get(DividendTaxAddHighRate) +
       otherAdjustmentsIncreasing -
       otherAdjustmentsReducing -

@@ -17,12 +17,14 @@
 package sa.connectors
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock._
+import cats.instances.future.*
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.ATSModule
 import common.connectors.ConnectorSpec
 import common.models.admin.SelfAssessmentDetailsFromIfToggle
-import common.utils.TestConstants._
+import common.utils.TestConstants.*
 import common.utils.{BaseSpec, WireMockHelper}
+import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -63,6 +65,7 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
     ) thenReturn EitherT.rightT(
       FeatureFlag(SelfAssessmentDetailsFromIfToggle, isEnabled = false)
     )
+    ()
   }
 
   lazy val sut: SelfAssessmentODSConnector = inject[SelfAssessmentODSConnector]

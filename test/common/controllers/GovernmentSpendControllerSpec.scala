@@ -21,7 +21,8 @@ import common.services.GoodsAndServices.Environment
 import common.services.{GoodsAndServices, GovSpendService}
 import common.utils.BaseSpec
 import org.apache.pekko.stream.Materializer
-import org.mockito.ArgumentMatchers.{eq => meq}
+import org.mockito.ArgumentMatchers.eq as meq
+import org.mockito.Mockito.when
 import play.api.http.Status.OK
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status, stubControllerComponents}

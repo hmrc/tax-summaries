@@ -36,7 +36,7 @@ class OdsService @Inject() (
 )(implicit ec: ExecutionContext) {
   private val logger = Logger(getClass.getName)
 
-  //scalastyle:off cyclomatic.complexity
+  // scalastyle:off cyclomatic.complexity
   def getPayload(utr: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -67,7 +67,7 @@ class OdsService @Inject() (
         case Right(HttpResponse(NOT_FOUND, _, _))                    => InterimResult(Nil, Nil, 1)
         case Left(error) if error.statusCode == BAD_REQUEST          => InterimResult(Nil, Nil, 0)
         case Left(error) if error.statusCode < INTERNAL_SERVER_ERROR =>
-          logger.error(error.getMessage(), error)
+          logger.error(error.getMessage, error)
           InterimResult(Nil, Nil, 0)
         case Left(errorResponse)                                     => InterimResult(Nil, Seq(FailureInfo(errorResponse, taxYear)), 0)
         case Right(response)                                         =>

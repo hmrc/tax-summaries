@@ -59,7 +59,7 @@ class ATSRawDataTransformerWalesSpec extends BaseSpec with ATSRawDataTransformer
     behave like atsRawDataTransformerWithCalculations(
       description = "using tax excluded/ tax on non-excluded income when < amount",
       testFixture = new ATSRawDataTransformerTestFixtureWales {
-        override def tliSlpAtsData: Map[String, BigDecimal]             = super.tliSlpAtsData ++ Map(
+        override def tliSlpAtsData: Map[String, BigDecimal] = super.tliSlpAtsData ++ Map(
           "taxExcluded"         -> BigDecimal(630.00),
           "taxOnNonExcludedInc" -> BigDecimal(640.00)
         ).map(item => item._1 -> item._2.setScale(2))
@@ -89,7 +89,7 @@ class ATSRawDataTransformerWalesSpec extends BaseSpec with ATSRawDataTransformer
     behave like atsRawDataTransformerWithCalculations(
       description = "subtracting capital gains exempt amount when < taxable gains",
       testFixture = new ATSRawDataTransformerTestFixtureWales {
-        override def tliSlpAtsData: Map[String, BigDecimal]                    = super.tliSlpAtsData ++ Map(
+        override def tliSlpAtsData: Map[String, BigDecimal] = super.tliSlpAtsData ++ Map(
           "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
         ).map(item => item._1 -> item._2.setScale(2))
 

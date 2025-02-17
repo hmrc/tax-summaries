@@ -37,7 +37,7 @@ case class AtsMiddleTierData(
 object AtsMiddleTierData {
   implicit val formats: Format[AtsMiddleTierData] = Json.format[AtsMiddleTierData]
 
-  //scalastyle:off parameter.number
+  // scalastyle:off parameter.number
   def make(
     taxYear: Int,
     utr: String,

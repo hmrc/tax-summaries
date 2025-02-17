@@ -17,12 +17,13 @@
 package sa.connectors
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.instances.future.*
 import common.config.ApplicationConfig
 import common.connectors.ConnectorSpec
 import common.utils.{BaseSpec, WireMockHelper}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
@@ -55,6 +56,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
     reset(mockSessionCacheRepository)
     reset(mockAppConfig)
     when(mockAppConfig.environment).thenReturn("tax-summaries-hod.env")
+    ()
   }
 
   def connector: CachingSelfAssessmentODSConnector = inject[CachingSelfAssessmentODSConnector]

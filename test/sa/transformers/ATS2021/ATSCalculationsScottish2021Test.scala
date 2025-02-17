@@ -24,7 +24,7 @@ import sa.services.TaxRateService
 
 class ATSCalculationsScottish2021Test extends BaseSpec {
 
-  val taxYear = 2021
+  val taxYear                       = 2021
   def rate2021(key: String): Double = {
     val percentage: Double = applicationConfig.ratePercentages(taxYear).getOrElse(key, 0)
     percentage / 100.0

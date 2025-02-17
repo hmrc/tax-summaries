@@ -19,9 +19,10 @@ package sa.transformers
 import common.config.ApplicationConfig
 import common.models.{Amount, GovernmentSpendingOutputWrapper, Item}
 import common.services.GoodsAndServices
-import common.services.GoodsAndServices._
+import common.services.GoodsAndServices.*
 import common.utils.{BaseSpec, Generators}
 import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.Json
 import sa.utils.AtsJsonDataUpdate
@@ -95,7 +96,9 @@ class GovernmentSpendingOutputWrapperSpec extends BaseSpec with AtsJsonDataUpdat
     reset(mockAppConfig)
     when(mockAppConfig.governmentSpend(ArgumentMatchers.eq(previousTaxYear)))
       .thenReturn(appConfigItemsForPreviousTaxYear)
-    when(mockAppConfig.governmentSpend(ArgumentMatchers.eq(taxYear))).thenReturn(appConfigItemsForTaxYear)
+    when(mockAppConfig.governmentSpend(ArgumentMatchers.eq(taxYear)))
+      .thenReturn(appConfigItemsForTaxYear)
+    ()
   }
 
   private def governmentSpend(

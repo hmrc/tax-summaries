@@ -20,11 +20,12 @@ import cats.data.EitherT
 import common.connectors.PertaxConnector
 import common.models.PertaxApiResponse
 import common.utils.BaseSpec
-import common.utils.TestConstants._
+import common.utils.TestConstants.*
 import org.mockito.ArgumentMatchers.any
-import play.api.mvc._
+import org.mockito.Mockito.{reset, times, verify, when}
+import play.api.mvc.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.{ExecutionContext, Future}

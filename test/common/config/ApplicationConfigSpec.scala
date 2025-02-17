@@ -27,7 +27,7 @@ class ApplicationConfigSpec extends BaseSpec {
     def appWithConfig(config: Map[String, Any]): Application =
       new GuiceApplicationBuilder().configure(Map("taxRates" -> "", "governmentSpend" -> "")).configure(config).build()
 
-    val percentageRates                                      = Map(
+    val percentageRates = Map(
       "taxRates.default.percentages" -> Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30),
       "taxRates.2022.percentages"    -> Map("percentageRate2" -> 60)
     )

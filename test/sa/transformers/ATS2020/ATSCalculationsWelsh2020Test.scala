@@ -23,7 +23,7 @@ import sa.models.{TaxSummaryLiability, Welsh}
 import sa.services.TaxRateService
 
 class ATSCalculationsWelsh2020Test extends BaseSpec {
-  val taxYear = 2020
+  val taxYear                       = 2020
   def rate2021(key: String): Double = {
     val percentage: Double = applicationConfig.ratePercentages(taxYear).getOrElse(key, 0)
     percentage / 100.0

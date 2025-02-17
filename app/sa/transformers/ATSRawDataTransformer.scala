@@ -76,19 +76,20 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
         )
         initiateAudit(UTR, taxYear, calculations)
 
-        try AtsMiddleTierData.make(
-          taxYear = taxYear,
-          utr = UTR,
-          incomeTax = createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
-          summary = createSummaryData(calculations: ATSCalculations),
-          income = createIncomeData(calculations: ATSCalculations),
-          allowance = createAllowanceData(calculations: ATSCalculations),
-          capitalGains = createCapitalGainsData(calculations, taxRate),
-          govSpending = createGovSpendData(calculations.totalTax, taxYear),
-          taxPayer = createTaxPayerData(rawTaxPayerJson),
-          taxLiability =
-            Some(calculations.taxLiability) // Careful: taxLiability overridden based on Nationality/ tax year
-        )
+        try
+          AtsMiddleTierData.make(
+            taxYear = taxYear,
+            utr = UTR,
+            incomeTax = createIncomeTaxData(calculations, taxRate, calculations.incomeTaxStatus),
+            summary = createSummaryData(calculations: ATSCalculations),
+            income = createIncomeData(calculations: ATSCalculations),
+            allowance = createAllowanceData(calculations: ATSCalculations),
+            capitalGains = createCapitalGainsData(calculations, taxRate),
+            govSpending = createGovSpendData(calculations.totalTax, taxYear),
+            taxPayer = createTaxPayerData(rawTaxPayerJson),
+            taxLiability =
+              Some(calculations.taxLiability) // Careful: taxLiability overridden based on Nationality/ tax year
+          )
         catch {
           case ATSParsingException(message) =>
             AtsMiddleTierData.error(taxYear, message)

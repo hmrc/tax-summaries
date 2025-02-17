@@ -28,7 +28,7 @@ import uk.gov.hmrc.http._
 import scala.concurrent.{ExecutionContext, Future}
 
 class HttpClientResponseSpec
-    extends BaseSpec
+  extends BaseSpec
     with WireMockHelper
     with ScalaFutures
     with IntegrationPatience
@@ -64,12 +64,12 @@ class HttpClientResponseSpec
 
   // scalastyle:off method.length
   private def clientResponseLogger(
-    block: Future[Either[UpstreamErrorResponse, HttpResponse]] => EitherT[Future, UpstreamErrorResponse, HttpResponse],
-    infoLevel: Set[Int],
-    warnLevel: Set[Int],
-    errorLevelWithThrowable: Set[Int],
-    errorLevelWithoutThrowable: Set[Int]
-  ): Unit = {
+                                    block: Future[Either[UpstreamErrorResponse, HttpResponse]] => EitherT[Future, UpstreamErrorResponse, HttpResponse],
+                                    infoLevel: Set[Int],
+                                    warnLevel: Set[Int],
+                                    errorLevelWithThrowable: Set[Int],
+                                    errorLevelWithoutThrowable: Set[Int]
+                                  ): Unit = {
     infoLevel.foreach { httpResponseCode =>
       s"log message: INFO level only when response code is $httpResponseCode" in {
         reset(mockLogger)
@@ -116,14 +116,14 @@ class HttpClientResponseSpec
     }
     "log message: ERROR level only WITHOUT throwable when future failed with HttpException & " +
       "recover to BAD GATEWAY" in {
-        reset(mockLogger)
-        val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
-          Future.failed(new HttpException(dummyContent, GATEWAY_TIMEOUT))
-        whenReady(block(response).value) { actual =>
-          actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
-          verifyCalls(errorWithoutThrowable = Some(dummyContent))
-        }
+      reset(mockLogger)
+      val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
+        Future.failed(new HttpException(dummyContent, GATEWAY_TIMEOUT))
+      whenReady(block(response).value) { actual =>
+        actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
+        verifyCalls(errorWithoutThrowable = Some(dummyContent))
       }
+    }
     "log nothing at all when future failed with non-HTTPException" in {
       reset(mockLogger)
       val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
@@ -137,11 +137,11 @@ class HttpClientResponseSpec
   }
 
   private def verifyCalls(
-    info: Option[String] = None,
-    warn: Option[String] = None,
-    errorWithThrowable: Option[String] = None,
-    errorWithoutThrowable: Option[String] = None
-  ): Unit = {
+                           info: Option[String] = None,
+                           warn: Option[String] = None,
+                           errorWithThrowable: Option[String] = None,
+                           errorWithoutThrowable: Option[String] = None
+                         ): Unit = {
 
     val infoTimes                  = info.map(_ => 1).getOrElse(0)
     val warnTimes                  = warn.map(_ => 1).getOrElse(0)
