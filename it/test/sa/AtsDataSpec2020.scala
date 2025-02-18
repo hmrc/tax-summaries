@@ -19,13 +19,13 @@ package sa
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
-import common.models.LiabilityKey._
+import common.models.LiabilityKey.*
 import common.models.{Amount, GovernmentSpendingOutputWrapper}
-import common.services.GoodsAndServices._
+import common.services.GoodsAndServices.*
 import common.utils.FileHelper
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import sa.models.{AtsMiddleTierData, SpendData}
 
 import scala.concurrent.Future
@@ -49,39 +49,39 @@ class AtsDataSpec2020 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 0.0, // LS1a
       IncomeFromEmployment               -> 40511.0, // LS1
-      StatePension                       -> 0.0, //LS2
-      OtherPensionIncome                 -> 0.0, //LS3
-      TaxableStateBenefits               -> 0.0, //LS4
-      OtherIncome                        -> 10079.0, //LS5
-      BenefitsFromEmployment             -> 0.0, //LS6
-      TotalIncomeBeforeTax               -> 50590.0, //LS7
-      PersonalTaxFreeAmount              -> 12500.00, //LS8.1
-      MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-      OtherAllowancesAmount              -> 0.0, //LS9
-      TotalTaxFreeAmount                 -> 12500.0, //LS10
-      StartingRateForSavingsAmount       -> 0.0, //LS12.1
-      BasicRateIncomeTax                 -> 5818.0, //lS12.2
-      HigherRateIncomeTax                -> 0.0, //lS12.3
-      AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      DividendOrdinaryRate               -> 443.25, //LS13.1
-      DividendUpperRate                  -> 191.75, //LS13.2
-      AdditionalRate                     -> 0.0, //LS13.3
-      //WelshIncomeTax -> 2909.0, //LS20a
-      OtherAdjustmentsIncreasing         -> 0.0, //LS15a
-      OtherAdjustmentsReducing           -> 0.0, //LS15b
-      TotalIncomeTax                     -> 6453.0, //LS20
-      TotalIncomeTaxAndNics              -> 10278.48, //LS16
-      EmployeeNicAmount                  -> 3825.48, //LS14
-      PayCgTaxOn                         -> 0.0, //LS19.8
-      TaxableGains                       -> 0.0, //LS19.6
-      //??? -> 12000.0, //LS19.7
-      AmountDueAtEntrepreneursRate       -> 0.0, //LS19.1
-      AmountDueAtOrdinaryRate            -> 0.0, //LS19.2
-      AmountDueRPCIHigherRate            -> 0.0, //LS19.3
-      AmountDueRPCILowerRate             -> 0.0, //LS19.3b
-      Adjustments                        -> 0.0, //LS19.4
+      StatePension                       -> 0.0, // LS2
+      OtherPensionIncome                 -> 0.0, // LS3
+      TaxableStateBenefits               -> 0.0, // LS4
+      OtherIncome                        -> 10079.0, // LS5
+      BenefitsFromEmployment             -> 0.0, // LS6
+      TotalIncomeBeforeTax               -> 50590.0, // LS7
+      PersonalTaxFreeAmount              -> 12500.00, // LS8.1
+      MarriageAllowanceTransferredAmount -> 0.0, // LS8.2
+      OtherAllowancesAmount              -> 0.0, // LS9
+      TotalTaxFreeAmount                 -> 12500.0, // LS10
+      StartingRateForSavingsAmount       -> 0.0, // LS12.1
+      BasicRateIncomeTax                 -> 5818.0, // lS12.2
+      HigherRateIncomeTax                -> 0.0, // lS12.3
+      AdditionalRateIncomeTax            -> 0.0, // LS12.4
+      DividendOrdinaryRate               -> 443.25, // LS13.1
+      DividendUpperRate                  -> 191.75, // LS13.2
+      AdditionalRate                     -> 0.0, // LS13.3
+      // WelshIncomeTax -> 2909.0, //LS20a
+      OtherAdjustmentsIncreasing         -> 0.0, // LS15a
+      OtherAdjustmentsReducing           -> 0.0, // LS15b
+      TotalIncomeTax                     -> 6453.0, // LS20
+      TotalIncomeTaxAndNics              -> 10278.48, // LS16
+      EmployeeNicAmount                  -> 3825.48, // LS14
+      PayCgTaxOn                         -> 0.0, // LS19.8
+      TaxableGains                       -> 0.0, // LS19.6
+      // ??? -> 12000.0, //LS19.7
+      AmountDueAtEntrepreneursRate       -> 0.0, // LS19.1
+      AmountDueAtOrdinaryRate            -> 0.0, // LS19.2
+      AmountDueRPCIHigherRate            -> 0.0, // LS19.3
+      AmountDueRPCILowerRate             -> 0.0, // LS19.3b
+      Adjustments                        -> 0.0, // LS19.4
       TotalCgTax                         -> 0.0,
-      YourTotalTax                       -> 10278.48 //RS7
+      YourTotalTax                       -> 10278.48 // RS7
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -104,39 +104,39 @@ class AtsDataSpec2020 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 1100.0, // LS1a
       IncomeFromEmployment               -> 10500.0, // LS1
-      StatePension                       -> 0.0, //LS2
-      OtherPensionIncome                 -> 0.0, //LS3
-      TaxableStateBenefits               -> 0.0, //LS4
-      OtherIncome                        -> 0.0, //LS5
-      BenefitsFromEmployment             -> 0.0, //LS6
-      TotalIncomeBeforeTax               -> 11600.0, //LS7
-      PersonalTaxFreeAmount              -> 9440.00, //LS8.1
-      MarriageAllowanceTransferredAmount -> 0.0, //LS8.2
-      OtherAllowancesAmount              -> 300.0, //LS9
-      TotalTaxFreeAmount                 -> 9740.0, //LS10
-      StartingRateForSavingsAmount       -> 0.0, //LS12.1
-      BasicRateIncomeTax                 -> 0.0, //lS12.2
-      HigherRateIncomeTax                -> 0.0, //lS12.3
-      AdditionalRateIncomeTax            -> 0.0, //LS12.4
-      DividendOrdinaryRate               -> 27000.0, //LS13.1
-      DividendUpperRate                  -> 0.0, //LS13.2
-      AdditionalRate                     -> 0.0, //LS13.3
-      //WelshIncomeTax -> 2909.0, //LS20a
-      OtherAdjustmentsIncreasing         -> 0.0, //LS15a
-      OtherAdjustmentsReducing           -> 0.0, //LS15b
-      TotalIncomeTax                     -> 4297.00, //LS20
-      TotalIncomeTaxAndNics              -> 4497.00, //LS16
-      EmployeeNicAmount                  -> 200.00, //LS14
-      PayCgTaxOn                         -> 2000.0, //LS19.8
-      TaxableGains                       -> 2100.0, //LS19.6
-      //??? -> 12000.0, //LS19.7
-      AmountDueAtEntrepreneursRate       -> 100.0, //LS19.1
-      AmountDueAtOrdinaryRate            -> 200.0, //LS19.2
-      AmountDueRPCIHigherRate            -> 840.0, //LS19.3
-      AmountDueRPCILowerRate             -> 540.0, //LS19.3b
-      Adjustments                        -> 0.0, //LS19.4
+      StatePension                       -> 0.0, // LS2
+      OtherPensionIncome                 -> 0.0, // LS3
+      TaxableStateBenefits               -> 0.0, // LS4
+      OtherIncome                        -> 0.0, // LS5
+      BenefitsFromEmployment             -> 0.0, // LS6
+      TotalIncomeBeforeTax               -> 11600.0, // LS7
+      PersonalTaxFreeAmount              -> 9440.00, // LS8.1
+      MarriageAllowanceTransferredAmount -> 0.0, // LS8.2
+      OtherAllowancesAmount              -> 300.0, // LS9
+      TotalTaxFreeAmount                 -> 9740.0, // LS10
+      StartingRateForSavingsAmount       -> 0.0, // LS12.1
+      BasicRateIncomeTax                 -> 0.0, // lS12.2
+      HigherRateIncomeTax                -> 0.0, // lS12.3
+      AdditionalRateIncomeTax            -> 0.0, // LS12.4
+      DividendOrdinaryRate               -> 27000.0, // LS13.1
+      DividendUpperRate                  -> 0.0, // LS13.2
+      AdditionalRate                     -> 0.0, // LS13.3
+      // WelshIncomeTax -> 2909.0, //LS20a
+      OtherAdjustmentsIncreasing         -> 0.0, // LS15a
+      OtherAdjustmentsReducing           -> 0.0, // LS15b
+      TotalIncomeTax                     -> 4297.00, // LS20
+      TotalIncomeTaxAndNics              -> 4497.00, // LS16
+      EmployeeNicAmount                  -> 200.00, // LS14
+      PayCgTaxOn                         -> 2000.0, // LS19.8
+      TaxableGains                       -> 2100.0, // LS19.6
+      // ??? -> 12000.0, //LS19.7
+      AmountDueAtEntrepreneursRate       -> 100.0, // LS19.1
+      AmountDueAtOrdinaryRate            -> 200.0, // LS19.2
+      AmountDueRPCIHigherRate            -> 840.0, // LS19.3
+      AmountDueRPCILowerRate             -> 540.0, // LS19.3b
+      Adjustments                        -> 0.0, // LS19.4
       TotalCgTax                         -> 1880.0,
-      YourTotalTax                       -> 6377.00 //RS7
+      YourTotalTax                       -> 6377.00 // RS7
     )
 
     expected foreach { case (key, expectedValue) =>
