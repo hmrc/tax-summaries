@@ -69,7 +69,7 @@ class CachingSelfAssessmentODSConnector @Inject() (
     def fetchAndCache: EitherT[Future, L, HttpResponse] =
       for {
         result  <- f
-        jsonBody = Json.parse(result.body) // Store as JsValue
+        jsonBody = Json.parse(result.body)
         _       <- EitherT[Future, L, (String, String)](
                      sessionCacheRepository
                        .putSession[play.api.libs.json.JsValue](DataKey[play.api.libs.json.JsValue](key), jsonBody)

@@ -24,6 +24,7 @@ import common.utils.{BaseSpec, WireMockHelper}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
+import org.scalatest.EitherValues.*
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
@@ -90,7 +91,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
 
         verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessment("utr", 2022)
 
-        saResponse mustBe a[Right[_, _]]
+        saResponse mustBe a[Right[_, HttpResponse]]
+        saResponse.value mustBe a[HttpResponse]
       }
 
       "a value is cached" in {
@@ -115,7 +117,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
 
         verify(mockSelfAssessmentODSConnector, times(0)).connectToSelfAssessment("utr", 2022)
 
-        saResponse mustBe a[Right[_, _]]
+        saResponse mustBe a[Right[_, HttpResponse]]
+        saResponse.value mustBe a[HttpResponse]
 
       }
 
@@ -128,7 +131,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
         verify(mockSelfAssessmentODSConnector, times(1))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000010"), ArgumentMatchers.eq(2022))(any(), any())
-        saResponse mustBe a[Right[_, _]]
+        saResponse mustBe a[Right[_, HttpResponse]]
+        saResponse.value mustBe a[HttpResponse]
       }
 
       "a cached value is used when in a 'local' (stubbed) env (i.e. local or staging) and NOT one of test utrs" in {
@@ -143,7 +147,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
         verify(mockSelfAssessmentODSConnector, times(0))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000030"), ArgumentMatchers.eq(2022))(any(), any())
-        saResponse mustBe a[Right[_, _]]
+        saResponse mustBe a[Right[_, HttpResponse]]
+        saResponse.value mustBe a[HttpResponse]
       }
 
       "a cached value is used when in 'live' (non-stubbed) env and one of test utrs" in {
@@ -158,7 +163,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
         verify(mockSelfAssessmentODSConnector, times(0))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000010"), ArgumentMatchers.eq(2022))(any(), any())
-        saResponse mustBe a[Right[_, _]]
+        saResponse mustBe a[Right[_, HttpResponse]]
+        saResponse.value mustBe a[HttpResponse]
       }
 
       "a cached value is used when in 'qa' (non-stubbed) env and one of test utrs" in {
@@ -173,7 +179,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
         verify(mockSelfAssessmentODSConnector, times(0))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000010"), ArgumentMatchers.eq(2022))(any(), any())
-        saResponse mustBe a[Right[_, _]]
+        saResponse mustBe a[Right[_, HttpResponse]]
+        saResponse.value mustBe a[HttpResponse]
       }
     }
 
@@ -199,7 +206,8 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
 
       verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessment("utr", 2022)
 
-      saResponse mustBe a[Left[_, _]]
+      saResponse mustBe a[Right[_, HttpResponse]]
+      saResponse.value mustBe a[HttpResponse]
     }
   }
 }
