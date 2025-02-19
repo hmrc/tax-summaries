@@ -20,7 +20,7 @@ import uk.gov.hmrc.DefaultBuildSettings
 val appName = "tax-summaries"
 
 ThisBuild / majorVersion := 3
-ThisBuild / scalaVersion := "3.3.5"
+ThisBuild / scalaVersion := "3.3.4"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val microservice = Project(appName, file("."))
@@ -47,7 +47,6 @@ lazy val microservice = Project(appName, file("."))
 
 Test / Keys.fork := true
 Test / parallelExecution := true
-Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
 
 lazy val it = project
   .enablePlugins(play.sbt.PlayScala)

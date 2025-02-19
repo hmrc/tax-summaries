@@ -22,16 +22,17 @@ import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import common.config.ApplicationConfig
 import common.connectors.HttpClientResponse
+import common.models.HttpResponseJsonFormat.given
 import common.models.admin.SelfAssessmentDetailsFromIfToggle
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
-import play.api.libs.json.Json
+import play.api.libs.json.Format
 import play.api.mvc.Request
 import sa.repositories.TaxSummariesSessionCacheRepository
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
@@ -62,27 +63,26 @@ class CachingSelfAssessmentODSConnector @Inject() (
 )(implicit ec: ExecutionContext)
     extends SelfAssessmentODSConnector {
 
-  private def cache[L](
+  private def cache[L, A: Format](
     key: String
-  )(f: => EitherT[Future, L, HttpResponse])(implicit hc: HeaderCarrier): EitherT[Future, L, HttpResponse] = {
+  )(f: => EitherT[Future, L, A])(implicit hc: HeaderCarrier): EitherT[Future, L, A] = {
 
-    def fetchAndCache: EitherT[Future, L, HttpResponse] =
+    def fetchAndCache: EitherT[Future, L, A] =
       for {
-        result  <- f
-        jsonBody = Json.parse(result.body)
-        _       <- EitherT[Future, L, (String, String)](
-                     sessionCacheRepository
-                       .putSession[play.api.libs.json.JsValue](DataKey[play.api.libs.json.JsValue](key), jsonBody)
-                       .map(Right(_))
-                   )
+        result <- f
+        _      <- EitherT[Future, L, (String, String)](
+                    sessionCacheRepository
+                      .putSession[A](DataKey[A](key), result)
+                      .map(Right(_))
+                  )
       } yield result
 
     EitherT(
       sessionCacheRepository
-        .getFromSession[play.api.libs.json.JsValue](DataKey[play.api.libs.json.JsValue](key))
+        .getFromSession[A](DataKey[A](key))
         .map {
-          case None       => fetchAndCache
-          case Some(json) => EitherT.rightT[Future, L](HttpResponse(200, json.toString()))
+          case None        => fetchAndCache
+          case Some(value) => EitherT.rightT[Future, L](value)
         }
         .map(_.value)
         .flatten
