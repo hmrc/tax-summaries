@@ -202,4 +202,60 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
       saResponse mustBe a[Left[_, _]]
     }
   }
+
+  "Calling CachingSelfAssessmentODSConnectorSpec.connectToSelfAssessmentList" must {
+    "return a Right response" when {
+      "no value is cached" in {
+        when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        when(
+          mockSessionCacheRepository.putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+        ).thenReturn(Future.successful(("", "")))
+
+        when(mockSelfAssessmentODSConnector.connectToSelfAssessmentList("utr"))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
+
+        val saResponse = connector.connectToSelfAssessmentList("utr").value.futureValue
+
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
+
+        verify(mockSessionCacheRepository, times(1))
+          .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+
+        verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessmentList("utr")
+
+        saResponse mustBe a[Right[_, _]]
+      }
+    }
+  }
+
+  "Calling CachingSelfAssessmentODSConnectorSpec.connectToSATaxpayerDetails" must {
+    "return a Right response" when {
+      "no value is cached" in {
+        when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        when(
+          mockSessionCacheRepository.putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+        ).thenReturn(Future.successful(("", "")))
+
+        when(mockSelfAssessmentODSConnector.connectToSATaxpayerDetails("utr"))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
+
+        val saResponse = connector.connectToSATaxpayerDetails("utr").value.futureValue
+
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
+
+        verify(mockSessionCacheRepository, times(1))
+          .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+
+        verify(mockSelfAssessmentODSConnector, times(1)).connectToSATaxpayerDetails("utr")
+
+        saResponse mustBe a[Right[_, _]]
+      }
+    }
+  }
 }
