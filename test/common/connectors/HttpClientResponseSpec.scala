@@ -20,9 +20,8 @@ import cats.data.EitherT
 import common.utils.{BaseSpec, WireMockHelper}
 import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.slf4j.{Logger, LoggerFactory}
+import play.api.Logging
 import play.api.http.Status.*
-import play.api.{LoggerLike, Logging}
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
 
@@ -34,13 +33,8 @@ class HttpClientResponseSpec
     with ScalaFutures
     with IntegrationPatience
     with RecoverMethods
-    with LogCapturing {
-
-  class TestLogger extends LoggerLike {
-    override val logger: Logger = LoggerFactory.getLogger("test-logger")
-  }
-
-  val testLogger = new TestLogger
+    with LogCapturing
+    with TestLogger {
 
   private implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
@@ -78,12 +72,14 @@ class HttpClientResponseSpec
 
     infoLevel.foreach { httpResponseCode =>
       s"log message: INFO level only when response code is $httpResponseCode" in {
-        withCaptureOfLoggingFrom(testLogger) { capturedLogs =>
+        withCaptureOfLoggingFrom(getLogger) { capturedLogs =>
           val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
             Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
           whenReady(block(response).value) { actual =>
             actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-            capturedLogs.exists(_.getMessage.contains(dummyContent)) mustBe true
+
+            val logMessages = capturedLogs.filter(_.getLevel.toString == "INFO").map(_.getMessage)
+            logMessages.exists(_.contains(dummyContent)) mustBe true
           }
           ()
         }
@@ -92,12 +88,14 @@ class HttpClientResponseSpec
 
     warnLevel.foreach { httpResponseCode =>
       s"log message: WARNING level only when response is $httpResponseCode" in {
-        withCaptureOfLoggingFrom(testLogger) { capturedLogs =>
+        withCaptureOfLoggingFrom(getLogger) { capturedLogs =>
           val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
             Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
           whenReady(block(response).value) { actual =>
             actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-            capturedLogs.exists(_.getMessage.contains(dummyContent)) mustBe true
+
+            val logMessages = capturedLogs.filter(_.getLevel.toString == "WARN").map(_.getMessage)
+            logMessages.exists(_.contains(dummyContent)) mustBe true
           }
           ()
         }
@@ -106,12 +104,14 @@ class HttpClientResponseSpec
 
     errorLevelWithThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITH throwable when response code is $httpResponseCode" in {
-        withCaptureOfLoggingFrom(testLogger) { capturedLogs =>
+        withCaptureOfLoggingFrom(getLogger) { capturedLogs =>
           val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
             Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
           whenReady(block(response).value) { actual =>
             actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-            capturedLogs.exists(_.getMessage.contains(dummyContent)) mustBe true
+
+            val logMessages = capturedLogs.filter(_.getLevel.toString == "ERROR").map(_.getMessage)
+            logMessages.exists(_.contains(dummyContent)) mustBe true
           }
           ()
         }
@@ -120,12 +120,14 @@ class HttpClientResponseSpec
 
     errorLevelWithoutThrowable.foreach { httpResponseCode =>
       s"log message: ERROR level only WITHOUT throwable when response code is $httpResponseCode" in {
-        withCaptureOfLoggingFrom(testLogger) { capturedLogs =>
+        withCaptureOfLoggingFrom(getLogger) { capturedLogs =>
           val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
             Future(Left(UpstreamErrorResponse(dummyContent, httpResponseCode)))
           whenReady(block(response).value) { actual =>
             actual mustBe Left(UpstreamErrorResponse(dummyContent, httpResponseCode))
-            capturedLogs.exists(_.getMessage.contains(dummyContent)) mustBe true
+
+            val logMessages = capturedLogs.filter(_.getLevel.toString == "ERROR").map(_.getMessage)
+            logMessages.exists(_.contains(dummyContent)) mustBe true
           }
           ()
         }
@@ -133,26 +135,29 @@ class HttpClientResponseSpec
     }
 
     "log message: ERROR level only WITHOUT throwable when future failed with HttpException & recover to BAD GATEWAY" in {
-      withCaptureOfLoggingFrom(testLogger) { capturedLogs =>
+      withCaptureOfLoggingFrom(getLogger) { capturedLogs =>
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future.failed(new HttpException(dummyContent, GATEWAY_TIMEOUT))
 
         whenReady(block(response).value) { actual =>
           actual mustBe Left(UpstreamErrorResponse(dummyContent, BAD_GATEWAY))
-          capturedLogs.exists(_.getMessage.contains(dummyContent)) mustBe true
+
+          val logMessages = capturedLogs.filter(_.getLevel.toString == "ERROR").map(_.getMessage)
+          logMessages.exists(_.contains(dummyContent)) mustBe true
         }
         ()
       }
     }
 
     "log nothing at all when future failed with non-HTTPException" in {
-      withCaptureOfLoggingFrom(testLogger) { capturedLogs =>
+      withCaptureOfLoggingFrom(getLogger) { capturedLogs =>
         val response: Future[Either[UpstreamErrorResponse, HttpResponse]] =
           Future.failed(new RuntimeException(dummyContent))
 
         recoverToSucceededIf[RuntimeException] {
           block(response).value
         }
+
         capturedLogs.isEmpty mustBe true
         ()
       }
