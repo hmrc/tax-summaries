@@ -42,7 +42,7 @@ trait ConnectorSpec
     with IntegrationPatience {
 
   implicit lazy val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
+    scala.concurrent.ExecutionContext.global // TODO: remove lazy keyword when Caching spec is done.
 
   protected val server: WireMockServer
 

@@ -16,7 +16,7 @@
 
 package common.utils
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.ATSModule
 import org.apache.pekko.Done
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -36,13 +36,13 @@ import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
 import scala.util.Random
 
-/**
-  * GET   /:UTR/:TAX_YEAR/ats-data                  controllers.AtsSaDataController.getATSData(UTR: String, TAX_YEAR: Int)
-  * GET   /:NINO/:TAX_YEAR/paye-ats-data            controllers.ATSPAYEDataController.getATSData(NINO: String, TAX_YEAR: Int)
-  * GET   /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data  controllers.ATSPAYEDataController.getATSDataMultipleYears(NINO: String, YEAR_FROM: Int, YEAR_TO: Int)
+/** GET /:UTR/:TAX_YEAR/ats-data controllers.AtsSaDataController.getATSData(UTR: String, TAX_YEAR: Int) GET
+  * /:NINO/:TAX_YEAR/paye-ats-data controllers.ATSPAYEDataController.getATSData(NINO: String, TAX_YEAR: Int) GET
+  * /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data controllers.ATSPAYEDataController.getATSDataMultipleYears(NINO: String,
+  * YEAR_FROM: Int, YEAR_TO: Int)
   *
-  * GET   /:UTR/has_summary_for_previous_period     controllers.AtsSaDataController.hasAts(UTR: String)
-  * GET   /:UTR/ats-list                            controllers.AtsSaDataController.getATSList(UTR: String)
+  * GET /:UTR/has_summary_for_previous_period controllers.AtsSaDataController.hasAts(UTR: String) GET /:UTR/ats-list
+  * controllers.AtsSaDataController.getATSList(UTR: String)
   */
 
 trait IntegrationSpec

@@ -17,12 +17,13 @@
 package sa.connectors
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.instances.future.*
 import common.config.ApplicationConfig
 import common.connectors.ConnectorSpec
 import common.utils.{BaseSpec, WireMockHelper}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.AnyContentAsEmpty
@@ -55,6 +56,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
     reset(mockSessionCacheRepository)
     reset(mockAppConfig)
     when(mockAppConfig.environment).thenReturn("tax-summaries-hod.env")
+    ()
   }
 
   def connector: CachingSelfAssessmentODSConnector = inject[CachingSelfAssessmentODSConnector]
@@ -198,6 +200,62 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
       verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessment("utr", 2022)
 
       saResponse mustBe a[Left[_, _]]
+    }
+  }
+
+  "Calling CachingSelfAssessmentODSConnectorSpec.connectToSelfAssessmentList" must {
+    "return a Right response" when {
+      "no value is cached" in {
+        when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        when(
+          mockSessionCacheRepository.putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+        ).thenReturn(Future.successful(("", "")))
+
+        when(mockSelfAssessmentODSConnector.connectToSelfAssessmentList("utr"))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
+
+        val saResponse = connector.connectToSelfAssessmentList("utr").value.futureValue
+
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
+
+        verify(mockSessionCacheRepository, times(1))
+          .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+
+        verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessmentList("utr")
+
+        saResponse mustBe a[Right[_, _]]
+      }
+    }
+  }
+
+  "Calling CachingSelfAssessmentODSConnectorSpec.connectToSATaxpayerDetails" must {
+    "return a Right response" when {
+      "no value is cached" in {
+        when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        when(
+          mockSessionCacheRepository.putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+        ).thenReturn(Future.successful(("", "")))
+
+        when(mockSelfAssessmentODSConnector.connectToSATaxpayerDetails("utr"))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
+
+        val saResponse = connector.connectToSATaxpayerDetails("utr").value.futureValue
+
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
+
+        verify(mockSessionCacheRepository, times(1))
+          .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
+
+        verify(mockSelfAssessmentODSConnector, times(1)).connectToSATaxpayerDetails("utr")
+
+        saResponse mustBe a[Right[_, _]]
+      }
     }
   }
 }

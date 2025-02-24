@@ -32,15 +32,15 @@
 
 package paye.models
 
+import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax}
+import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
 import common.models.{Amount, ApiRate, DataHolder, LiabilityKey, RateKey}
 import common.services.GoodsAndServices
-import common.services.GoodsAndServices._
+import common.services.GoodsAndServices.*
 import common.utils.{BaseSpec, TestConstants}
 import org.scalatest.AppendedClues.convertToClueful
 import paye.utils.PayeAtsDataUtil
 import play.api.Configuration
-import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax}
-import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
 import sa.models.SpendData
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -171,18 +171,18 @@ class PayeAtsDataTest extends BaseSpec {
       val diff2 = expectedPayloadValues.keySet.diff(incomeTax.payload.get.keySet)
       diff2 mustBe empty
 
-      incomeTax.payload.get.foreach { liability: (LiabilityKey, Amount) =>
-        val expected = expectedPayloadValues.get(liability._1)
-        liability._2 mustBe expected.getOrElse(
+      incomeTax.payload.get.foreach { case (key: LiabilityKey, amount: Amount) =>
+        val expected = expectedPayloadValues.get(key)
+        amount mustBe expected.getOrElse(
           Amount(0.0, "missing", Some("expected missing"))
-        ) withClue s"clue: `$liability must be $expected``"
+        ) withClue s"clue: `$key must be $expected``"
       }
 
-      incomeTax.rates.get.foreach { liability: (RateKey, ApiRate) =>
-        val expected = expectedRatesValues.get(liability._1)
-        liability._2 mustBe expected.getOrElse(
+      incomeTax.rates.get.foreach { case (key: RateKey, rate: ApiRate) =>
+        val expected = expectedRatesValues.get(key)
+        rate mustBe expected.getOrElse(
           ApiRate("expected missing")
-        ) withClue s"clue: `$liability must be $expected``"
+        ) withClue s"clue: `$key must be $expected``"
       }
     }
 

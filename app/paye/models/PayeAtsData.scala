@@ -87,7 +87,7 @@ case class PayeAtsData(
         DividendOrdinaryRate,
         dividendLowerBand.map(_.dividendLowRateAmount)
       ),
-      //------
+      // ------
       DividendUpperRateAmount                 -> optionToAmount(
         DividendUpperRateAmount,
         dividendHigherBand.map(_.dividendHigherRateTax)
@@ -96,7 +96,7 @@ case class PayeAtsData(
         DividendUpperRate,
         dividendHigherBand.map(_.dividendHigherRateAmount)
       ),
-      //------
+      // ------
       DividendAdditionalRateAmount            -> optionToAmount(
         DividendAdditionalRateAmount,
         dividendAdditionalBand.map(_.dividendAdditionalRateTax)

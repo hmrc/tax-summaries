@@ -25,7 +25,7 @@ class TaxRateServiceTest extends BaseSpec {
     "return a value for StartingRateForSavingsRate" in {
       val expectedStartingRateForSavingsRate = 12.3
 
-      val taxRate                          =
+      val taxRate =
         new TaxRateService(2000, _ => Map("startingRateForSavingsRate" -> expectedStartingRateForSavingsRate))
 
       val actualStartingRateForSavingsRate = taxRate.startingRateForSavingsRate()
@@ -56,7 +56,7 @@ class TaxRateServiceTest extends BaseSpec {
     "return a value for AdditionalRateIncomeTaxRate" in {
       val expectedAdditionalRateIncomeTaxRate = 22
 
-      val taxRate                           =
+      val taxRate =
         new TaxRateService(2000, _ => Map("additionalRateIncomeTaxRate" -> expectedAdditionalRateIncomeTaxRate))
 
       val actualAdditionalRateIncomeTaxRate = taxRate.additionalRateIncomeTaxRate()

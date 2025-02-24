@@ -58,7 +58,7 @@ class SessionCacheRepository @Inject() (
   def putSession[T: Writes](
     dataKey: DataKey[T],
     data: T
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(String, String)]                    =
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(String, String)] =
     cacheRepo
       .put[T](hc)(dataKey, data)
       .map(res => "sessionId" -> res.id)

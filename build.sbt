@@ -16,13 +16,11 @@
 
 import sbt.*
 import uk.gov.hmrc.DefaultBuildSettings
-import uk.gov.hmrc.DefaultBuildSettings.*
 
 val appName = "tax-summaries"
-val scala2_13 = "2.13.12"
 
-ThisBuild / majorVersion := 2
-ThisBuild / scalaVersion := scala2_13
+ThisBuild / majorVersion := 3
+ThisBuild / scalaVersion := "3.3.4"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val microservice = Project(appName, file("."))
@@ -31,32 +29,28 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     PlayKeys.playDefaultPort := 9323,
     ScoverageSettings.settings,
-    scalaSettings,
     libraryDependencies ++= AppDependencies.all
   )
   .settings(
     scalacOptions ++= Seq(
       "-unchecked",
       "-feature",
-      "-Xlint:_",
-      "-Wdead-code",
-      "-Wunused:_",
-      "-Wextra-implicit",
       "-Wvalue-discard",
       "-Werror",
-      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+      "-Wconf:msg=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:msg=unused&src=.*Routes\\.scala:s",
+      "-Wvalue-discard",
+      "-Xfatal-warnings",
+      "-Wconf:msg=Flag.*repeatedly:s"
     )
   )
 
 Test / Keys.fork := true
 Test / parallelExecution := true
-Test / scalacOptions --= Seq("-Wdead-code", "-Wvalue-discard")
 
 lazy val it = project
   .enablePlugins(play.sbt.PlayScala)
-  .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
+  .dependsOn(microservice % "test->test")
   .settings(
     libraryDependencies ++= AppDependencies.test,
     DefaultBuildSettings.itSettings(),

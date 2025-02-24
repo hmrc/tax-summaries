@@ -17,12 +17,14 @@
 package paye.controllers
 
 import cats.data.EitherT
+import cats.instances.future.*
 import common.controllers.auth.{AuthJourney, FakeAuthAction, FakeAuthJourney}
+import common.utils.TestConstants.*
 import common.utils.{ATSErrorHandler, BaseSpec}
-import common.utils.TestConstants._
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.Materializer
-import org.mockito.ArgumentMatchers.{eq => eqTo, _}
+import org.mockito.ArgumentMatchers.{eq as eqTo, *}
+import org.mockito.Mockito.{reset, when}
 import paye.controllers.auth.PayeAuthAction
 import paye.models.PayeAtsMiddleTier
 import paye.services.NpsService

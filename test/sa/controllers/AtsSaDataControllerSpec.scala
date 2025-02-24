@@ -17,12 +17,14 @@
 package sa.controllers
 
 import cats.data.EitherT
+import cats.instances.future.*
 import common.controllers.auth.FakeAuthAction
+import common.utils.TestConstants.*
 import common.utils.{ATSErrorHandler, BaseSpec}
-import common.utils.TestConstants._
-import org.mockito.ArgumentMatchers.{eq => eqTo, _}
+import org.mockito.ArgumentMatchers.{eq as eqTo, *}
+import org.mockito.Mockito.{reset, when}
 import org.scalatest.time.{Millis, Seconds, Span}
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{JsString, Json}
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, Request}
 import play.api.test.FakeRequest

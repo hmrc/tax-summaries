@@ -26,7 +26,7 @@ trait ATSRawDataTransformerTestFixtureBase
   override protected val taxYear: Int = 2024
 
   // scalastyle:off method.length
-  override protected def tliSlpAtsData: Map[String, BigDecimal]    = Map(
+  override protected def tliSlpAtsData: Map[String, BigDecimal] = Map(
     "ctnEmploymentBenefitsAmt"   -> BigDecimal(10.00),
     "ctnSummaryTotalScheduleD"   -> BigDecimal(20.00),
     "ctnSummaryTotalPartnership" -> BigDecimal(30.00),
@@ -164,7 +164,7 @@ trait ATSRawDataTransformerTestFixtureBase
     "employerNic"       -> BigDecimal(0.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
-  override def expectedResultIncomeTax: Map[LiabilityKey, Amount]  = Map(
+  override def expectedResultIncomeTax: Map[LiabilityKey, Amount] = Map(
     StartingRateForSavings          -> calcExp("ctnSavingsChgbleStartRate", "ctnTaxableCegSr"),
     StartingRateForSavingsAmount    -> calcExp("ctnSavingsTaxStartingRate", "ctnTaxOnCegSr"),
     BasicRateIncomeTax              -> expBasicRateIncomeTax,

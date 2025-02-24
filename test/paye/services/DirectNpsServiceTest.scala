@@ -17,9 +17,11 @@
 package paye.services
 
 import cats.data.EitherT
-import common.utils.TestConstants._
+import cats.instances.future.*
+import common.utils.TestConstants.*
 import common.utils.{BaseSpec, JsonUtil}
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.*
 import paye.connectors.NpsConnector
 import paye.models.{PayeAtsData, PayeAtsMiddleTier}
 import paye.utils.PayeAtsDataUtil

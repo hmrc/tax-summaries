@@ -17,7 +17,8 @@
 package sa.services
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.instances.future.*
+
 import common.models.Amount
 import common.utils.BaseSpec
 import common.utils.TestConstants._
@@ -30,6 +31,8 @@ import sa.models.{PensionTaxRate, TaxSummaryLiability}
 import sa.transformers.ATSCalculations
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import org.mockito.Mockito.{never, reset, times, verify, when}
+import scala.collection.immutable.Range
 
 import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
@@ -98,13 +101,13 @@ class OdsServiceSpec extends BaseSpec {
     }
 
   private def whenClausesForATSCalculations(endTaxYear: Int, values: Seq[BigDecimal]): Unit =
-    ((endTaxYear - (values.size - 1)) to endTaxYear).zipWithIndex.foreach { case (year, i) =>
+    Range(endTaxYear - (values.size - 1), endTaxYear + 1).zipWithIndex.foreach { case (year, i) =>
       when(jsonHelper.getATSCalculations(eqTo(year), eqTo(saResponse(year))))
         .thenReturn(atsCalculations(year, values(i)))
     }
 
   private def verifyATSCalculations(endTaxYear: Int, expectedNumberOfCalls: Seq[Int]): Unit =
-    ((endTaxYear - (expectedNumberOfCalls.size - 1)) to endTaxYear).zipWithIndex.foreach { case (year, i) =>
+    Range(endTaxYear - (expectedNumberOfCalls.size - 1), endTaxYear + 1).zipWithIndex.foreach { case (year, i) =>
       verify(jsonHelper, times(expectedNumberOfCalls(i))).getATSCalculations(eqTo(year), eqTo(saResponse(year)))
     }
 

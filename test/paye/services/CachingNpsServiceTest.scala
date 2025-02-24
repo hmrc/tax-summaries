@@ -17,19 +17,22 @@
 package paye.services
 
 import cats.data.EitherT
+import cats.instances.future.*
 import common.config.ApplicationConfig
 import common.utils.BaseSpec
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
 import org.mockito.{ArgumentCaptor, Mockito}
 import paye.models.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import paye.repositories.Repository
 import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+
 import java.sql.Timestamp
 import java.time.{Instant, LocalDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class CachingNpsServiceTest extends BaseSpec {
   val IM_A_TEAPOT = 418

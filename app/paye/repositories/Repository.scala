@@ -17,8 +17,9 @@
 package paye.repositories
 
 import common.config.ApplicationConfig
+import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model._
+import org.mongodb.scala.model.*
 import paye.models.PayeAtsMiddleTierMongo
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository

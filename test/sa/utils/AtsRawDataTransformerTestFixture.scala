@@ -52,13 +52,12 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
 
   protected def calcExp(fieldNames: String*): Amount = {
     val retrieveAmount: String => Amount = fieldName => {
-      val (name, isNull) = {
+      val (name, isNull) =
         if (fieldName.endsWith(":null")) {
           (fieldName.takeWhile(_ != ':'), true)
         } else {
           (fieldName, false)
         }
-      }
 
       if (isNull) {
         Amount.empty(name)

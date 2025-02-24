@@ -16,7 +16,6 @@
 
 package sa.transformers
 
-import common.config.ApplicationConfig
 import common.models.Amount
 import common.utils.BaseSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -69,7 +68,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     lazy val calculation: Option[ATSCalculations] = ATSCalculations.make(taxSummaryLiability, taxRateService)
   }
 
-  class Fixture(val taxYear: Int, origin: Nationality, applicationConfig: ApplicationConfig = applicationConfig) {
+  class Fixture(val taxYear: Int, origin: Nationality) {
 
     def apply(): CalcFixtures =
       new CalcFixtures(taxYear, origin)(PensionTaxRate(0))
@@ -422,7 +421,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "savingsBasicRateTax returns tax on savings" in {
 
-      forAll { taxVal: Double =>
+      forAll { (taxVal: Double) =>
         val tax: BigDecimal = BigDecimal(taxVal)
         val sut             = scottishFixture(SavingsTaxLowerRate -> Amount.gbp(tax, SavingsTaxLowerRate.apiValue))
         sut.calculation.map(
@@ -434,7 +433,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "savingsHigherRateTax returns tax on savings" in {
 
-      forAll { taxVal: Double =>
+      forAll { (taxVal: Double) =>
         val tax: BigDecimal = BigDecimal(taxVal)
         val sut             = scottishFixture(SavingsTaxHigherRate -> Amount.gbp(tax, SavingsTaxHigherRate.apiValue))
         sut.calculation.map(
@@ -446,7 +445,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "savingsAdditionalRateTax returns tax on savings" in {
 
-      forAll { taxVal: Double =>
+      forAll { (taxVal: Double) =>
         val tax: BigDecimal = BigDecimal(taxVal)
         val sut             = scottishFixture(SavingsTaxAddHighRate -> Amount.gbp(tax, SavingsTaxAddHighRate.apiValue))
         sut.calculation.map(
@@ -458,7 +457,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "savingsBasicRateIncome returns income on savings" in {
 
-      forAll { taxVal: Double =>
+      forAll { (taxVal: Double) =>
         val tax: BigDecimal = BigDecimal(taxVal)
         val sut             = scottishFixture(SavingsChargeableLowerRate -> Amount.gbp(tax, SavingsChargeableLowerRate.apiValue))
         sut.calculation.map(
@@ -470,9 +469,10 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "savingsHigherRateIncome returns income on savings" in {
 
-      forAll { taxVal: Double =>
+      forAll { (taxVal: Double) =>
         val tax: BigDecimal = BigDecimal(taxVal)
-        val sut             = scottishFixture(SavingsChargeableHigherRate -> Amount.gbp(tax, SavingsChargeableHigherRate.apiValue))
+        val sut             =
+          scottishFixture(SavingsChargeableHigherRate -> Amount.gbp(tax, SavingsChargeableHigherRate.apiValue))
         sut.calculation.map(
           _.savingsHigherRateIncome
             .roundAmount()
@@ -482,7 +482,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     "savingsAdditionalRateIncome returns income on savings" in {
 
-      forAll { taxVal: Double =>
+      forAll { (taxVal: Double) =>
         val tax: BigDecimal = BigDecimal(taxVal)
         val sut             = scottishFixture(SavingsChargeableAddHRate -> Amount.gbp(tax, SavingsChargeableAddHRate.apiValue))
         sut.calculation.map(
@@ -517,7 +517,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
           _.scottishTotalTax
             .roundAmount()
             .amount
-        ) mustBe Some(Amount.gbp(first + second, "").roundAmount().amount) //TODO: to be fixed
+        ) mustBe Some(Amount.gbp(first + second, "").roundAmount().amount) // TODO: to be fixed
       }
     }
 

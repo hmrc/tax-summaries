@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.sql.Timestamp
 import java.time.{Instant, LocalDateTime}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration: Configuration) {
 
@@ -50,10 +50,10 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
         .getObject(s"governmentSpend.$year.percentages")
         .asScala
         .map { case (index, _) =>
-          val map = configuration
+          val map: Map[String, Double] = configuration
             .getOptional[ConfigObject](s"governmentSpend.$year.percentages.$index")
-            .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble))
-            .getOrElse(Map())
+            .map(_.unwrapped().asScala.view.mapValues(_.toString.toDouble).toMap)
+            .getOrElse(Map.empty[String, Double])
           index.toInt -> Item(map.keys.head, map.values.head)
         }
         .toSeq

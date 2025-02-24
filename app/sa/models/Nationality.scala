@@ -39,7 +39,6 @@ object Nationality {
         case Scottish() => JsString("0002")
         case Welsh()    => JsString("0003")
         case UK()       => JsString("0001")
-        case _          => JsString("0001")
       }
   }
 

@@ -18,14 +18,14 @@ package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
-import common.models.LiabilityKey._
+import common.models.LiabilityKey.*
 import common.models.{Amount, GovernmentSpendingOutputWrapper}
-import common.services.GoodsAndServices._
+import common.services.GoodsAndServices.*
 import common.utils.FileHelper
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import sa.models._
+import play.api.test.Helpers.*
+import sa.models.*
 
 class AtsDataSpec2022 extends SaTestHelper {
 
@@ -46,46 +46,46 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 942.00, // LS1a e
       IncomeFromEmployment               -> 122500.00, // LS1 e
-      StatePension                       -> 3770.00, //LS2 e
-      OtherPensionIncome                 -> 3121.00, //LS3 e Excel
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 298111.00, //LS5 e
-      BenefitsFromEmployment             -> 9600.00, //LS6 e
-      TotalIncomeBeforeTax               -> 438044.00, //LS7 total income received e Excel
-      PersonalTaxFreeAmount              -> 0.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 15209.00, //LS9 e
-      TotalTaxFreeAmount                 -> 15209.00, //LS10 e
-      StartingRateForSavings             -> 0.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 45218.00, //lS12.2 e
+      StatePension                       -> 3770.00, // LS2 e
+      OtherPensionIncome                 -> 3121.00, // LS3 e Excel
+      TaxableStateBenefits               -> 0.00, // LS4 e
+      OtherIncome                        -> 298111.00, // LS5 e
+      BenefitsFromEmployment             -> 9600.00, // LS6 e
+      TotalIncomeBeforeTax               -> 438044.00, // LS7 total income received e Excel
+      PersonalTaxFreeAmount              -> 0.00, // LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 e
+      OtherAllowancesAmount              -> 15209.00, // LS9 e
+      TotalTaxFreeAmount                 -> 15209.00, // LS10 e
+      StartingRateForSavings             -> 0.00, // LS12.1
+      StartingRateForSavingsAmount       -> 0.00, // LS12.1 e
+      BasicRateIncomeTax                 -> 45218.00, // lS12.2 e
       BasicRateIncomeTaxAmount           -> 9043.60, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 112300.00, //LS12.3 e
+      HigherRateIncomeTax                -> 112300.00, // LS12.3 e
       HigherRateIncomeTaxAmount          -> 44920.0, // LS12.3 (tax amount - right column)
-      AdditionalRateIncomeTax            -> 205433.00, //LS12.4 e
+      AdditionalRateIncomeTax            -> 205433.00, // LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 92444.85, // LS12.4 (tax amount - right column)
-      DividendOrdinaryRate               -> 0.00, //LS13.1 e
+      DividendOrdinaryRate               -> 0.00, // LS13.1 e
       DividendOrdinaryRateAmount         -> 0.0, // LS13.1 (tax amount - right column)
-      DividendUpperRate                  -> 0.00, //LS13.2 e
+      DividendUpperRate                  -> 0.00, // LS13.2 e
       DividendUpperRateAmount            -> 0.0, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 57884.00, //LS13.3 e,
+      AdditionalRate                     -> 57884.00, // LS13.3 e,
       AdditionalRateAmount               -> 22053.80, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 5130.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 163332.65, //LS20 e
-      TotalIncomeTaxAndNics              -> 163491.25, //LS16 e
-      EmployeeNicAmount                  -> 158.60, //LS14 e
-      PayCgTaxOn                         -> 28700.00, //LS19.8 e
-      TaxableGains                       -> 41000.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 1200.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 12000.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 3340.00, //LS19.3 e Excel
-      AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 4540.00, //e
-      YourTotalTax                       -> 168031.25, //RS7 e
+      OtherAdjustmentsIncreasing         -> 0.00, // LS15a e
+      OtherAdjustmentsReducing           -> 5130.00, // LS15b e
+      WelshIncomeTax                     -> 0.00, // LS20a
+      TotalIncomeTax                     -> 163332.65, // LS20 e
+      TotalIncomeTaxAndNics              -> 163491.25, // LS16 e
+      EmployeeNicAmount                  -> 158.60, // LS14 e
+      PayCgTaxOn                         -> 28700.00, // LS19.8 e
+      TaxableGains                       -> 41000.00, // LS19.6 e
+      AmountDueAtEntrepreneursRate       -> 1200.00, // LS19.1 e
+      AmountAtEntrepreneursRate          -> 12000.00, // LS19.1 e
+      AmountDueAtOrdinaryRate            -> 0.00, // LS19.2 e
+      AmountDueRPCIHigherRate            -> 3340.00, // LS19.3 e Excel
+      AmountDueRPCILowerRate             -> 0.00, // LS19.3a e
+      Adjustments                        -> 0.00, // LS19.4 e
+      TotalCgTax                         -> 4540.00, // e
+      YourTotalTax                       -> 168031.25, // RS7 e
       ScottishIncomeTax                  -> 0.0,
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
@@ -122,46 +122,46 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 6945.00, // LS1a e
       IncomeFromEmployment               -> 8000.00, // LS1 e
-      StatePension                       -> 0.00, //LS2 e
-      OtherPensionIncome                 -> 0.00, //LS3 e
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 38728.00, //LS5 e
-      BenefitsFromEmployment             -> 0.00, //LS6 e
-      TotalIncomeBeforeTax               -> 53673.00, //LS7 total income received e
-      PersonalTaxFreeAmount              -> 12570.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 0.00, //LS9 e
-      TotalTaxFreeAmount                 -> 12570.00, //LS10 e
-      StartingRateForSavings             -> 5000.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 61.00, //lS12.2 e
+      StatePension                       -> 0.00, // LS2 e
+      OtherPensionIncome                 -> 0.00, // LS3 e
+      TaxableStateBenefits               -> 0.00, // LS4 e
+      OtherIncome                        -> 38728.00, // LS5 e
+      BenefitsFromEmployment             -> 0.00, // LS6 e
+      TotalIncomeBeforeTax               -> 53673.00, // LS7 total income received e
+      PersonalTaxFreeAmount              -> 12570.00, // LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 e
+      OtherAllowancesAmount              -> 0.00, // LS9 e
+      TotalTaxFreeAmount                 -> 12570.00, // LS10 e
+      StartingRateForSavings             -> 5000.00, // LS12.1
+      StartingRateForSavingsAmount       -> 0.00, // LS12.1 e
+      BasicRateIncomeTax                 -> 61.00, // lS12.2 e
       BasicRateIncomeTaxAmount           -> 12.20, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 3403.00, //LS12.3 e
+      HigherRateIncomeTax                -> 3403.00, // LS12.3 e
       HigherRateIncomeTaxAmount          -> 1361.20, // LS12.3 (tax amount - right column)
-      AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
+      AdditionalRateIncomeTax            -> 0.00, // LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      DividendOrdinaryRate               -> 30139.00, //LS13.1 e
+      DividendOrdinaryRate               -> 30139.00, // LS13.1 e
       DividendOrdinaryRateAmount         -> 2260.42, // LS13.1 (tax amount - right column)
-      DividendUpperRate                  -> 0.00, //LS13.2 e
+      DividendUpperRate                  -> 0.00, // LS13.2 e
       DividendUpperRateAmount            -> 0.0, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 0.00, //LS13.3 e,
+      AdditionalRate                     -> 0.00, // LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 3633.82, //LS20 e
-      TotalIncomeTaxAndNics              -> 3792.42, //LS16 e
-      EmployeeNicAmount                  -> 158.60, //LS14 e
-      PayCgTaxOn                         -> 0.00, //LS19.8 e
-      TaxableGains                       -> 0.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 0.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 0.00, //LS19.3 e
-      AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 0.00, //e
-      YourTotalTax                       -> 3792.42, //RS7 e
+      OtherAdjustmentsIncreasing         -> 0.00, // LS15a e
+      OtherAdjustmentsReducing           -> 0.00, // LS15b e
+      WelshIncomeTax                     -> 0.00, // LS20a
+      TotalIncomeTax                     -> 3633.82, // LS20 e
+      TotalIncomeTaxAndNics              -> 3792.42, // LS16 e
+      EmployeeNicAmount                  -> 158.60, // LS14 e
+      PayCgTaxOn                         -> 0.00, // LS19.8 e
+      TaxableGains                       -> 0.00, // LS19.6 e
+      AmountDueAtEntrepreneursRate       -> 0.00, // LS19.1 e
+      AmountAtEntrepreneursRate          -> 0.00, // LS19.1 e
+      AmountDueAtOrdinaryRate            -> 0.00, // LS19.2 e
+      AmountDueRPCIHigherRate            -> 0.00, // LS19.3 e
+      AmountDueRPCILowerRate             -> 0.00, // LS19.3a e
+      Adjustments                        -> 0.00, // LS19.4 e
+      TotalCgTax                         -> 0.00, // e
+      YourTotalTax                       -> 3792.42, // RS7 e
       ScottishIncomeTax                  -> 0.0,
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
@@ -198,46 +198,46 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 0.00, // LS1 e
-      StatePension                       -> 0.00, //LS2 e
-      OtherPensionIncome                 -> 0.00, //LS3 e
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 102811.00, //LS5 e
-      BenefitsFromEmployment             -> 0.00, //LS6 e
-      TotalIncomeBeforeTax               -> 102811.00, //LS7 total income received e
-      PersonalTaxFreeAmount              -> 12510.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 2691.00, //LS9 e
-      TotalTaxFreeAmount                 -> 15201.00, //LS10 e
-      StartingRateForSavings             -> 0.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 35925.00, //lS12.2 e
+      StatePension                       -> 0.00, // LS2 e
+      OtherPensionIncome                 -> 0.00, // LS3 e
+      TaxableStateBenefits               -> 0.00, // LS4 e
+      OtherIncome                        -> 102811.00, // LS5 e
+      BenefitsFromEmployment             -> 0.00, // LS6 e
+      TotalIncomeBeforeTax               -> 102811.00, // LS7 total income received e
+      PersonalTaxFreeAmount              -> 12510.00, // LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 e
+      OtherAllowancesAmount              -> 2691.00, // LS9 e
+      TotalTaxFreeAmount                 -> 15201.00, // LS10 e
+      StartingRateForSavings             -> 0.00, // LS12.1
+      StartingRateForSavingsAmount       -> 0.00, // LS12.1 e
+      BasicRateIncomeTax                 -> 35925.00, // lS12.2 e
       BasicRateIncomeTaxAmount           -> 7185.00, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 49910.00, //LS12.3 e
+      HigherRateIncomeTax                -> 49910.00, // LS12.3 e
       HigherRateIncomeTaxAmount          -> 19964.00, // LS12.3 (tax amount - right column)
-      AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
+      AdditionalRateIncomeTax            -> 0.00, // LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      DividendOrdinaryRate               -> 0.00, //LS13.1 e
+      DividendOrdinaryRate               -> 0.00, // LS13.1 e
       DividendOrdinaryRateAmount         -> 0.00, // LS13.1 (tax amount - right column)
-      DividendUpperRate                  -> 0.00, //LS13.2 e
+      DividendUpperRate                  -> 0.00, // LS13.2 e
       DividendUpperRateAmount            -> 0.0, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 0.00, //LS13.3 e,
+      AdditionalRate                     -> 0.00, // LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 23468.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 3681.50, //LS20 e
-      TotalIncomeTaxAndNics              -> 3681.50, //LS16 e
-      EmployeeNicAmount                  -> 0.00, //LS14 e
-      PayCgTaxOn                         -> 0.00, //LS19.8 e
-      TaxableGains                       -> 0.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 0.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 0.00, //LS19.3 e
-      AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 0.00, //e
-      YourTotalTax                       -> 3681.50, //RS7 e
+      OtherAdjustmentsIncreasing         -> 0.00, // LS15a e
+      OtherAdjustmentsReducing           -> 23468.00, // LS15b e
+      WelshIncomeTax                     -> 0.00, // LS20a
+      TotalIncomeTax                     -> 3681.50, // LS20 e
+      TotalIncomeTaxAndNics              -> 3681.50, // LS16 e
+      EmployeeNicAmount                  -> 0.00, // LS14 e
+      PayCgTaxOn                         -> 0.00, // LS19.8 e
+      TaxableGains                       -> 0.00, // LS19.6 e
+      AmountDueAtEntrepreneursRate       -> 0.00, // LS19.1 e
+      AmountAtEntrepreneursRate          -> 0.00, // LS19.1 e
+      AmountDueAtOrdinaryRate            -> 0.00, // LS19.2 e
+      AmountDueRPCIHigherRate            -> 0.00, // LS19.3 e
+      AmountDueRPCILowerRate             -> 0.00, // LS19.3a e
+      Adjustments                        -> 0.00, // LS19.4 e
+      TotalCgTax                         -> 0.00, // e
+      YourTotalTax                       -> 3681.50, // RS7 e
       ScottishIncomeTax                  -> 0.0,
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
@@ -274,40 +274,40 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 157719.00, // LS1a e
       IncomeFromEmployment               -> 15000.00, // LS1 e
-      StatePension                       -> 0.00, //LS2 e
-      OtherPensionIncome                 -> 0.00, //LS3 e
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 16963.00, //LS5 e
-      BenefitsFromEmployment             -> 0.00, //LS6 e
-      TotalIncomeBeforeTax               -> 189682.00, //LS7 total income received e
-      PersonalTaxFreeAmount              -> 0.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 33151.00, //LS9 e
-      TotalTaxFreeAmount                 -> 33151.00, //LS10 e
-      StartingRateForSavings             -> 0.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      DividendOrdinaryRate               -> 0.00, //LS13.1 e
+      StatePension                       -> 0.00, // LS2 e
+      OtherPensionIncome                 -> 0.00, // LS3 e
+      TaxableStateBenefits               -> 0.00, // LS4 e
+      OtherIncome                        -> 16963.00, // LS5 e
+      BenefitsFromEmployment             -> 0.00, // LS6 e
+      TotalIncomeBeforeTax               -> 189682.00, // LS7 total income received e
+      PersonalTaxFreeAmount              -> 0.00, // LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 e
+      OtherAllowancesAmount              -> 33151.00, // LS9 e
+      TotalTaxFreeAmount                 -> 33151.00, // LS10 e
+      StartingRateForSavings             -> 0.00, // LS12.1
+      StartingRateForSavingsAmount       -> 0.00, // LS12.1 e
+      DividendOrdinaryRate               -> 0.00, // LS13.1 e
       DividendOrdinaryRateAmount         -> 0.00, // LS13.1 (tax amount - right column)
-      DividendUpperRate                  -> 3233.00, //LS13.2 e
+      DividendUpperRate                  -> 3233.00, // LS13.2 e
       DividendUpperRateAmount            -> 1050.72, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 0.00, //LS13.3 e,
+      AdditionalRate                     -> 0.00, // LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 56492.86, //LS20 e excel
-      TotalIncomeTaxAndNics              -> 61668.70, //LS16 e excel
-      EmployeeNicAmount                  -> 5175.84, //LS14 e
-      PayCgTaxOn                         -> 34000.00, //LS19.8 e
-      TaxableGains                       -> 46300.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 0.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 9520.00, //LS19.3 e
-      AmountDueRPCILowerRate             -> 0.00, //LS19.3a e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 9520.00, //e
-      YourTotalTax                       -> 71188.70, //RS7 e Excel
+      OtherAdjustmentsIncreasing         -> 0.00, // LS15a e
+      OtherAdjustmentsReducing           -> 0.00, // LS15b e
+      WelshIncomeTax                     -> 0.00, // LS20a
+      TotalIncomeTax                     -> 56492.86, // LS20 e excel
+      TotalIncomeTaxAndNics              -> 61668.70, // LS16 e excel
+      EmployeeNicAmount                  -> 5175.84, // LS14 e
+      PayCgTaxOn                         -> 34000.00, // LS19.8 e
+      TaxableGains                       -> 46300.00, // LS19.6 e
+      AmountDueAtEntrepreneursRate       -> 0.00, // LS19.1 e
+      AmountAtEntrepreneursRate          -> 0.00, // LS19.1 e
+      AmountDueAtOrdinaryRate            -> 0.00, // LS19.2 e
+      AmountDueRPCIHigherRate            -> 9520.00, // LS19.3 e
+      AmountDueRPCILowerRate             -> 0.00, // LS19.3a e
+      Adjustments                        -> 0.00, // LS19.4 e
+      TotalCgTax                         -> 9520.00, // e
+      YourTotalTax                       -> 71188.70, // RS7 e Excel
       ScottishIncomeTax                  -> 0.0,
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 398.43, // LS12.5	Scottish Starter rate
@@ -324,9 +324,9 @@ class AtsDataSpec2022 extends SaTestHelper {
       SavingsLowerRateTax                -> 0.0, // LS12b.1	Basic rate Income Tax
       SavingsHigherRateTax               -> 3278.40, // LS12b.2	Higher rate Income Tax
       SavingsAdditionalRateTax           -> 0.0 // LS12b.3 Additional rate Income Tax
-      //SavingsLowerIncome                 -> 0.0,
-      //SavingsHigherIncome                -> 0.0,
-      //SavingsAdditionalIncome            -> 0.0
+      // SavingsLowerIncome                 -> 0.0,
+      // SavingsHigherIncome                -> 0.0,
+      // SavingsAdditionalIncome            -> 0.0
     )
 
     expected foreach { case (key, expectedValue) =>
@@ -348,45 +348,45 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 149243.00, // LS1 e
-      StatePension                       -> 0.00, //LS2 e
-      OtherPensionIncome                 -> 0.00, //LS3 e
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 12000.00, //LS5 e
-      BenefitsFromEmployment             -> 0.00, //LS6 e
-      TotalIncomeBeforeTax               -> 161243.00, //LS7 total income received e
-      PersonalTaxFreeAmount              -> 0.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 0.00, //LS9 e
-      TotalTaxFreeAmount                 -> 0.00, //LS10 e
-      StartingRateForSavings             -> 0.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 25700.00, //lS12.2 e
+      StatePension                       -> 0.00, // LS2 e
+      OtherPensionIncome                 -> 0.00, // LS3 e
+      TaxableStateBenefits               -> 0.00, // LS4 e
+      OtherIncome                        -> 12000.00, // LS5 e
+      BenefitsFromEmployment             -> 0.00, // LS6 e
+      TotalIncomeBeforeTax               -> 161243.00, // LS7 total income received e
+      PersonalTaxFreeAmount              -> 0.00, // LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 e
+      OtherAllowancesAmount              -> 0.00, // LS9 e
+      TotalTaxFreeAmount                 -> 0.00, // LS10 e
+      StartingRateForSavings             -> 0.00, // LS12.1
+      StartingRateForSavingsAmount       -> 0.00, // LS12.1 e
+      BasicRateIncomeTax                 -> 25700.00, // lS12.2 e
       BasicRateIncomeTaxAmount           -> 5140.00, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 112300.00, //LS12.3 e
+      HigherRateIncomeTax                -> 112300.00, // LS12.3 e
       HigherRateIncomeTaxAmount          -> 44920.00, // LS12.3 (tax amount - right column)
-      AdditionalRateIncomeTax            -> 11243.00, //LS12.4 e
+      AdditionalRateIncomeTax            -> 11243.00, // LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 5059.35, // LS12.4 (tax amount - right column)
-      DividendOrdinaryRate               -> 10000.00, //LS13.1 e
+      DividendOrdinaryRate               -> 10000.00, // LS13.1 e
       DividendOrdinaryRateAmount         -> 750.00, // LS13.1 (tax amount - right column)
-      DividendUpperRate                  -> 0.00, //LS13.2 e
+      DividendUpperRate                  -> 0.00, // LS13.2 e
       DividendUpperRateAmount            -> 0.0, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 0.00, //LS13.3 e,
+      AdditionalRate                     -> 0.00, // LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 55869.35, //LS20 e
-      TotalIncomeTaxAndNics              -> 55869.35, //LS16 e
-      EmployeeNicAmount                  -> 0.00, //LS14 e
-      PayCgTaxOn                         -> 0.00, //LS19.8 e
-      TaxableGains                       -> 0.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 0.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 0.00, //LS19.3 e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 0.00, //e
-      YourTotalTax                       -> 55869.35, //RS7 e
+      OtherAdjustmentsIncreasing         -> 0.00, // LS15a e
+      OtherAdjustmentsReducing           -> 0.00, // LS15b e
+      WelshIncomeTax                     -> 0.00, // LS20a
+      TotalIncomeTax                     -> 55869.35, // LS20 e
+      TotalIncomeTaxAndNics              -> 55869.35, // LS16 e
+      EmployeeNicAmount                  -> 0.00, // LS14 e
+      PayCgTaxOn                         -> 0.00, // LS19.8 e
+      TaxableGains                       -> 0.00, // LS19.6 e
+      AmountDueAtEntrepreneursRate       -> 0.00, // LS19.1 e
+      AmountAtEntrepreneursRate          -> 0.00, // LS19.1 e
+      AmountDueAtOrdinaryRate            -> 0.00, // LS19.2 e
+      AmountDueRPCIHigherRate            -> 0.00, // LS19.3 e
+      Adjustments                        -> 0.00, // LS19.4 e
+      TotalCgTax                         -> 0.00, // e
+      YourTotalTax                       -> 55869.35, // RS7 e
       ScottishIncomeTax                  -> 0.0,
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
@@ -423,45 +423,45 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 14190.00, // LS1a e
       IncomeFromEmployment               -> 31717.00, // LS1 e
-      StatePension                       -> 0.00, //LS2 e
-      OtherPensionIncome                 -> 0.00, //LS3 e
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 6178.00, //LS5 e
-      BenefitsFromEmployment             -> 0.00, //LS6 e
-      TotalIncomeBeforeTax               -> 52085.00, //LS7 total income received e
-      PersonalTaxFreeAmount              -> 12570.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 0.00, //LS9 e
-      TotalTaxFreeAmount                 -> 12570.00, //LS10 e
-      StartingRateForSavings             -> 0.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 12432.00, //lS12.2 e
+      StatePension                       -> 0.00, // LS2 e
+      OtherPensionIncome                 -> 0.00, // LS3 e
+      TaxableStateBenefits               -> 0.00, // LS4 e
+      OtherIncome                        -> 6178.00, // LS5 e
+      BenefitsFromEmployment             -> 0.00, // LS6 e
+      TotalIncomeBeforeTax               -> 52085.00, // LS7 total income received e
+      PersonalTaxFreeAmount              -> 12570.00, // LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 e
+      OtherAllowancesAmount              -> 0.00, // LS9 e
+      TotalTaxFreeAmount                 -> 12570.00, // LS10 e
+      StartingRateForSavings             -> 0.00, // LS12.1
+      StartingRateForSavingsAmount       -> 0.00, // LS12.1 e
+      BasicRateIncomeTax                 -> 12432.00, // lS12.2 e
       BasicRateIncomeTaxAmount           -> 2486.40, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 620.00, //LS12.3 e
+      HigherRateIncomeTax                -> 620.00, // LS12.3 e
       HigherRateIncomeTaxAmount          -> 254.20, // LS12.3 (tax amount - right column)
-      AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
+      AdditionalRateIncomeTax            -> 0.00, // LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      DividendOrdinaryRate               -> 3310.00, //LS13.1 e
+      DividendOrdinaryRate               -> 3310.00, // LS13.1 e
       DividendOrdinaryRateAmount         -> 248.25, // LS13.1 (tax amount - right column)
-      DividendUpperRate                  -> 190.00, //LS13.2 e
+      DividendUpperRate                  -> 190.00, // LS13.2 e
       DividendUpperRateAmount            -> 61.75, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 0.00, //LS13.3 e,
+      AdditionalRate                     -> 0.00, // LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 3050.60, //LS20 e
-      TotalIncomeTaxAndNics              -> 3585.53, //LS16 e
-      EmployeeNicAmount                  -> 534.93, //LS14 e
-      PayCgTaxOn                         -> 0.00, //LS19.8 e
-      TaxableGains                       -> 0.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 0.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 0.00, //LS19.3 e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 0.00, //e
-      YourTotalTax                       -> 3585.53, //RS7 e
+      OtherAdjustmentsIncreasing         -> 0.00, // LS15a e
+      OtherAdjustmentsReducing           -> 0.00, // LS15b e
+      WelshIncomeTax                     -> 0.00, // LS20a
+      TotalIncomeTax                     -> 3050.60, // LS20 e
+      TotalIncomeTaxAndNics              -> 3585.53, // LS16 e
+      EmployeeNicAmount                  -> 534.93, // LS14 e
+      PayCgTaxOn                         -> 0.00, // LS19.8 e
+      TaxableGains                       -> 0.00, // LS19.6 e
+      AmountDueAtEntrepreneursRate       -> 0.00, // LS19.1 e
+      AmountAtEntrepreneursRate          -> 0.00, // LS19.1 e
+      AmountDueAtOrdinaryRate            -> 0.00, // LS19.2 e
+      AmountDueRPCIHigherRate            -> 0.00, // LS19.3 e
+      Adjustments                        -> 0.00, // LS19.4 e
+      TotalCgTax                         -> 0.00, // e
+      YourTotalTax                       -> 3585.53, // RS7 e
       ScottishIncomeTax                  -> 0.0,
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
@@ -498,45 +498,45 @@ class AtsDataSpec2022 extends SaTestHelper {
     val expected = Map(
       SelfEmploymentIncome               -> 0.00, // LS1a e
       IncomeFromEmployment               -> 0.00, // LS1 e
-      StatePension                       -> 6198.00, //LS2 e Wrong in excel
-      OtherPensionIncome                 -> 12302.00, //LS3 e Wrong in excel
-      TaxableStateBenefits               -> 0.00, //LS4 e
-      OtherIncome                        -> 36505.00, //LS5 e
-      BenefitsFromEmployment             -> 0.00, //LS6 e
-      TotalIncomeBeforeTax               -> 55005.00, //LS7 total income received e Excel
-      PersonalTaxFreeAmount              -> 12570.00, //LS8.1 e
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 e
-      OtherAllowancesAmount              -> 0.00, //LS9 e
-      TotalTaxFreeAmount                 -> 12570.00, //LS10 e
-      StartingRateForSavings             -> 0.00, //LS12.1
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 e
-      BasicRateIncomeTax                 -> 37200.00, //lS12.2 e
+      StatePension                       -> 6198.00, // LS2 e Wrong in excel
+      OtherPensionIncome                 -> 12302.00, // LS3 e Wrong in excel
+      TaxableStateBenefits               -> 0.00, // LS4 e
+      OtherIncome                        -> 36505.00, // LS5 e
+      BenefitsFromEmployment             -> 0.00, // LS6 e
+      TotalIncomeBeforeTax               -> 55005.00, // LS7 total income received e Excel
+      PersonalTaxFreeAmount              -> 12570.00, // LS8.1 e
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 e
+      OtherAllowancesAmount              -> 0.00, // LS9 e
+      TotalTaxFreeAmount                 -> 12570.00, // LS10 e
+      StartingRateForSavings             -> 0.00, // LS12.1
+      StartingRateForSavingsAmount       -> 0.00, // LS12.1 e
+      BasicRateIncomeTax                 -> 37200.00, // lS12.2 e
       BasicRateIncomeTaxAmount           -> 7440.00, // LS12.2 (tax amount - right column)
-      HigherRateIncomeTax                -> 0.00, //LS12.3 e
+      HigherRateIncomeTax                -> 0.00, // LS12.3 e
       HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 (tax amount - right column)
-      AdditionalRateIncomeTax            -> 0.00, //LS12.4 e
+      AdditionalRateIncomeTax            -> 0.00, // LS12.4 e
       AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 (tax amount - right column)
-      DividendOrdinaryRate               -> 0.00, //LS13.1 e
+      DividendOrdinaryRate               -> 0.00, // LS13.1 e
       DividendOrdinaryRateAmount         -> 0.00, // LS13.1 (tax amount - right column)
-      DividendUpperRate                  -> 2735.00, //LS13.2 e
+      DividendUpperRate                  -> 2735.00, // LS13.2 e
       DividendUpperRateAmount            -> 888.87, // LS13.2 (tax amount - right column)
-      AdditionalRate                     -> 0.00, //LS13.3 e,
+      AdditionalRate                     -> 0.00, // LS13.3 e,
       AdditionalRateAmount               -> 0.00, // LS13.3 (tax amount - right column)
-      OtherAdjustmentsIncreasing         -> 0.00, //LS15a e
-      OtherAdjustmentsReducing           -> 0.00, //LS15b e
-      WelshIncomeTax                     -> 0.00, //LS20a
-      TotalIncomeTax                     -> 8328.87, //LS20 e
-      TotalIncomeTaxAndNics              -> 8328.87, //LS16 e
-      EmployeeNicAmount                  -> 0.00, //LS14 e
-      PayCgTaxOn                         -> 0.00, //LS19.8 e
-      TaxableGains                       -> 0.00, //LS19.6 e
-      AmountDueAtEntrepreneursRate       -> 0.00, //LS19.1 e
-      AmountAtEntrepreneursRate          -> 0.00, //LS19.1 e
-      AmountDueAtOrdinaryRate            -> 0.00, //LS19.2 e
-      AmountDueRPCIHigherRate            -> 0.00, //LS19.3 e
-      Adjustments                        -> 0.00, //LS19.4 e
-      TotalCgTax                         -> 0.00, //e
-      YourTotalTax                       -> 8328.87, //RS7 e
+      OtherAdjustmentsIncreasing         -> 0.00, // LS15a e
+      OtherAdjustmentsReducing           -> 0.00, // LS15b e
+      WelshIncomeTax                     -> 0.00, // LS20a
+      TotalIncomeTax                     -> 8328.87, // LS20 e
+      TotalIncomeTaxAndNics              -> 8328.87, // LS16 e
+      EmployeeNicAmount                  -> 0.00, // LS14 e
+      PayCgTaxOn                         -> 0.00, // LS19.8 e
+      TaxableGains                       -> 0.00, // LS19.6 e
+      AmountDueAtEntrepreneursRate       -> 0.00, // LS19.1 e
+      AmountAtEntrepreneursRate          -> 0.00, // LS19.1 e
+      AmountDueAtOrdinaryRate            -> 0.00, // LS19.2 e
+      AmountDueRPCIHigherRate            -> 0.00, // LS19.3 e
+      Adjustments                        -> 0.00, // LS19.4 e
+      TotalCgTax                         -> 0.00, // e
+      YourTotalTax                       -> 8328.87, // RS7 e
       ScottishIncomeTax                  -> 0.0,
       WelshIncomeTax                     -> 0.0,
       ScottishStarterRateTax             -> 0.0, // LS12.5	Scottish Starter rate
@@ -574,63 +574,63 @@ class AtsDataSpec2022 extends SaTestHelper {
       // Your Taxable income
       SelfEmploymentIncome   -> 0.00, // LS1a Self Employment Income
       IncomeFromEmployment   -> 23678.00, // LS1 Total income from employment
-      StatePension           -> 9783.00, //LS2 State pension
-      OtherPensionIncome     -> 0.00, //LS3 Other pension income
-      TaxableStateBenefits   -> 0.00, //LS4 Taxable state benefits
-      OtherIncome            -> 21903.00, //LS5 Other income
-      BenefitsFromEmployment -> 0.00, //LS6 Benefits from employment
-      TotalIncomeBeforeTax   -> 55364.00, //LS7 Your income before tax
+      StatePension           -> 9783.00, // LS2 State pension
+      OtherPensionIncome     -> 0.00, // LS3 Other pension income
+      TaxableStateBenefits   -> 0.00, // LS4 Taxable state benefits
+      OtherIncome            -> 21903.00, // LS5 Other income
+      BenefitsFromEmployment -> 0.00, // LS6 Benefits from employment
+      TotalIncomeBeforeTax   -> 55364.00, // LS7 Your income before tax
 
       // Tax Free Amount
-      PersonalTaxFreeAmount              -> 12570.0, //LS8.1 tax free amount
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 Marriage Allowance transferred
-      OtherAllowancesAmount              -> 0.00, //LS9 Other allowances, deducations and expenses
-      TotalTaxFreeAmount                 -> 12570.0, //LS10 Less your total tax free amount
+      PersonalTaxFreeAmount              -> 12570.0, // LS8.1 tax free amount
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 Marriage Allowance transferred
+      OtherAllowancesAmount              -> 0.00, // LS9 Other allowances, deductions and expenses
+      TotalTaxFreeAmount                 -> 12570.0, // LS10 Less your total tax free amount
       // LS11 You pay tax on
 
       // Income Tax - UK
-      StartingRateForSavings             -> 0.00, //LS12.1 Starting rate for savings (income)
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 Starting rate for savings (tax amount - right column)
-      BasicRateIncomeTax                 -> 0.00, //lS12.2 Basic rate Income Tax (income)
-      BasicRateIncomeTaxAmount           -> 0.00, // LS12.2 Basic rate Income Tax (tax amount - right column)
-      HigherRateIncomeTax                -> 0.00, //LS12.3 Higher rate Income Tax (income)
-      HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 Higher rate Income Tax (tax amount - right column)
-      AdditionalRateIncomeTax            -> 0.00, //LS12.4 Additional rate Income Tax (income)
-      AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
+      StartingRateForSavings        -> 0.00, // LS12.1 Starting rate for savings (income)
+      StartingRateForSavingsAmount  -> 0.00, // LS12.1 Starting rate for savings (tax amount - right column)
+      BasicRateIncomeTax            -> 0.00, // lS12.2 Basic rate Income Tax (income)
+      BasicRateIncomeTaxAmount      -> 0.00, // LS12.2 Basic rate Income Tax (tax amount - right column)
+      HigherRateIncomeTax           -> 0.00, // LS12.3 Higher rate Income Tax (income)
+      HigherRateIncomeTaxAmount     -> 0.00, // LS12.3 Higher rate Income Tax (tax amount - right column)
+      AdditionalRateIncomeTax       -> 0.00, // LS12.4 Additional rate Income Tax (income)
+      AdditionalRateIncomeTaxAmount -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
 
       // Dividends
-      DividendOrdinaryRate         -> 10750.00, //LS13.1 Ordinary Rate (income)
-      DividendOrdinaryRateAmount   -> 806.25, // LS13.1 Ordinary Rate (tax amount - right column)
-      DividendUpperRate            -> 0.00, //LS13.2 Upper Rate (income)
-      DividendUpperRateAmount      -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
-      AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
-      AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
+      DividendOrdinaryRate       -> 10750.00, // LS13.1 Ordinary Rate (income)
+      DividendOrdinaryRateAmount -> 806.25, // LS13.1 Ordinary Rate (tax amount - right column)
+      DividendUpperRate          -> 0.00, // LS13.2 Upper Rate (income)
+      DividendUpperRateAmount    -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
+      AdditionalRate             -> 0.00, // LS13.3 Additional Rate (income)
+      AdditionalRateAmount       -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
       // LS13a Total UK Income Tax
 
       // Adjustments
-      OtherAdjustmentsIncreasing   -> 0.00, //LS15a Other adjustments that increase your Income Tax
-      OtherAdjustmentsReducing     -> 500.00, //LS15b Less other adjustments that reduce your Income Tax
+      OtherAdjustmentsIncreasing -> 0.00, // LS15a Other adjustments that increase your Income Tax
+      OtherAdjustmentsReducing   -> 500.00, // LS15b Less other adjustments that reduce your Income Tax
       // LS15aa	Marriage Allowance received that reduces your income tax
 
       // Income Tax - Welsh
-      WelshIncomeTax               -> 0.00, //LS20a
-      TotalIncomeTax               -> 6162.58, //LS20 Total Income Tax
-      TotalIncomeTaxAndNics        -> 6162.58, //LS16 Total Income Tax and NICs
-      EmployeeNicAmount            -> 0.00, //LS14	National Insurance Contributions (NICs)
+      WelshIncomeTax        -> 0.00, // LS20a
+      TotalIncomeTax        -> 6162.58, // LS20 Total Income Tax
+      TotalIncomeTaxAndNics -> 6162.58, // LS16 Total Income Tax and NICs
+      EmployeeNicAmount     -> 0.00, // LS14	National Insurance Contributions (NICs)
       // LS17/RS5		Your income after tax and NICs
-      //LS18	National Insurance Contributions
+      // LS18	National Insurance Contributions
 
       // Capital Gains
-      PayCgTaxOn                   -> 0.00, //LS19.8 You pay tax on
-      TaxableGains                 -> 0.00, //LS19.6 Your Taxable Gains
-      AmountDueAtEntrepreneursRate -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
-      AmountAtEntrepreneursRate    -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
-      AmountDueAtOrdinaryRate      -> 0.00, //LS19.2 Ordinary Rate
-      AmountDueRPCIHigherRate      -> 0.00, //LS19.3 Upper Rate
-      Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
+      PayCgTaxOn                   -> 0.00, // LS19.8 You pay tax on
+      TaxableGains                 -> 0.00, // LS19.6 Your Taxable Gains
+      AmountDueAtEntrepreneursRate -> 0.00, // LS19.1 Entrepreneurs' relief rate ??
+      AmountAtEntrepreneursRate    -> 0.00, // LS19.1 Entrepreneurs' relief rate ??
+      AmountDueAtOrdinaryRate      -> 0.00, // LS19.2 Ordinary Rate
+      AmountDueRPCIHigherRate      -> 0.00, // LS19.3 Upper Rate
+      Adjustments                  -> 0.00, // LS19.4 Adjustment to Capital Gains Tax
       TotalCgTax                   -> 0.00, // Total Capital Gains Tax
 
-      //RS7 Your Total Income Tax, Capital Gains Tax and NICs
+      // RS7 Your Total Income Tax, Capital Gains Tax and NICs
       YourTotalTax                -> 6162.58,
       // Income Tax - Scottish
       ScottishIncomeTax           -> 0.0,
@@ -669,63 +669,63 @@ class AtsDataSpec2022 extends SaTestHelper {
       // Your Taxable income
       SelfEmploymentIncome   -> 0.00, // LS1a Self Employment Income
       IncomeFromEmployment   -> 149243.00, // LS1 Total income from employment
-      StatePension           -> 0.00, //LS2 State pension
-      OtherPensionIncome     -> 0.00, //LS3 Other pension income
-      TaxableStateBenefits   -> 0.00, //LS4 Taxable state benefits
-      OtherIncome            -> 12000.00, //LS5 Other income
-      BenefitsFromEmployment -> 0.00, //LS6 Benefits from employment
-      TotalIncomeBeforeTax   -> 161243.00, //LS7 Your income before tax
+      StatePension           -> 0.00, // LS2 State pension
+      OtherPensionIncome     -> 0.00, // LS3 Other pension income
+      TaxableStateBenefits   -> 0.00, // LS4 Taxable state benefits
+      OtherIncome            -> 12000.00, // LS5 Other income
+      BenefitsFromEmployment -> 0.00, // LS6 Benefits from employment
+      TotalIncomeBeforeTax   -> 161243.00, // LS7 Your income before tax
 
       // Tax Free Amount
-      PersonalTaxFreeAmount              -> 0.0, //LS8.1 tax free amount
-      MarriageAllowanceTransferredAmount -> 0.00, //LS8.2 Marriage Allowance transferred
-      OtherAllowancesAmount              -> 0.00, //LS9 Other allowances, deducations and expenses
-      TotalTaxFreeAmount                 -> 0.0, //LS10 Less your total tax free amount
+      PersonalTaxFreeAmount              -> 0.0, // LS8.1 tax free amount
+      MarriageAllowanceTransferredAmount -> 0.00, // LS8.2 Marriage Allowance transferred
+      OtherAllowancesAmount              -> 0.00, // LS9 Other allowances, deductions and expenses
+      TotalTaxFreeAmount                 -> 0.0, // LS10 Less your total tax free amount
       // LS11 You pay tax on
 
       // Income Tax - UK
-      StartingRateForSavings             -> 0.00, //LS12.1 Starting rate for savings (income)
-      StartingRateForSavingsAmount       -> 0.00, //LS12.1 Starting rate for savings (tax amount - right column)
-      BasicRateIncomeTax                 -> 20493.0, //lS12.2 Basic rate Income Tax (income)
-      BasicRateIncomeTaxAmount           -> 4098.6, // LS12.2 Basic rate Income Tax (tax amount - right column)
-      HigherRateIncomeTax                -> 0.00, //LS12.3 Higher rate Income Tax (income)
-      HigherRateIncomeTaxAmount          -> 0.00, // LS12.3 Higher rate Income Tax (tax amount - right column)
-      AdditionalRateIncomeTax            -> 0.00, //LS12.4 Additional rate Income Tax (income)
-      AdditionalRateIncomeTaxAmount      -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
+      StartingRateForSavings        -> 0.00, // LS12.1 Starting rate for savings (income)
+      StartingRateForSavingsAmount  -> 0.00, // LS12.1 Starting rate for savings (tax amount - right column)
+      BasicRateIncomeTax            -> 20493.0, // lS12.2 Basic rate Income Tax (income)
+      BasicRateIncomeTaxAmount      -> 4098.6, // LS12.2 Basic rate Income Tax (tax amount - right column)
+      HigherRateIncomeTax           -> 0.00, // LS12.3 Higher rate Income Tax (income)
+      HigherRateIncomeTaxAmount     -> 0.00, // LS12.3 Higher rate Income Tax (tax amount - right column)
+      AdditionalRateIncomeTax       -> 0.00, // LS12.4 Additional rate Income Tax (income)
+      AdditionalRateIncomeTaxAmount -> 0.00, // LS12.4 Additional rate Income Tax (tax amount - right column)
 
       // Dividends
-      DividendOrdinaryRate         -> 10000.00, //LS13.1 Ordinary Rate (income)
-      DividendOrdinaryRateAmount   -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
-      DividendUpperRate            -> 0.00, //LS13.2 Upper Rate (income)
-      DividendUpperRateAmount      -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
-      AdditionalRate               -> 0.00, //LS13.3 Additional Rate (income)
-      AdditionalRateAmount         -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
+      DividendOrdinaryRate       -> 10000.00, // LS13.1 Ordinary Rate (income)
+      DividendOrdinaryRateAmount -> 750.0, // LS13.1 Ordinary Rate (tax amount - right column)
+      DividendUpperRate          -> 0.00, // LS13.2 Upper Rate (income)
+      DividendUpperRateAmount    -> 0.00, // LS13.2 Upper Rate (tax amount - right column)
+      AdditionalRate             -> 0.00, // LS13.3 Additional Rate (income)
+      AdditionalRateAmount       -> 0.00, // LS13.3 Additional Rate (tax amount - right column)
       // LS13a Total UK Income Tax
 
       // Adjustments
-      OtherAdjustmentsIncreasing   -> 0.00, //LS15a Other adjustments that increase your Income Tax
-      OtherAdjustmentsReducing     -> 0.00, //LS15b Less other adjustments that reduce your Income Tax
+      OtherAdjustmentsIncreasing -> 0.00, // LS15a Other adjustments that increase your Income Tax
+      OtherAdjustmentsReducing   -> 0.00, // LS15b Less other adjustments that reduce your Income Tax
       // LS15aa	Marriage Allowance received that reduces your income tax
 
       // Income Tax - Welsh
-      WelshIncomeTax               -> 0.00, //LS20a
-      TotalIncomeTax               -> 4848.6, //LS20 Total Income Tax
-      TotalIncomeTaxAndNics        -> 4848.6, //LS16 Total Income Tax and NICs
-      EmployeeNicAmount            -> 0.00, //LS14	National Insurance Contributions (NICs)
+      WelshIncomeTax        -> 0.00, // LS20a
+      TotalIncomeTax        -> 4848.6, // LS20 Total Income Tax
+      TotalIncomeTaxAndNics -> 4848.6, // LS16 Total Income Tax and NICs
+      EmployeeNicAmount     -> 0.00, // LS14	National Insurance Contributions (NICs)
       // LS17/RS5		Your income after tax and NICs
-      //LS18	National Insurance Contributions
+      // LS18	National Insurance Contributions
 
       // Capital Gains
-      PayCgTaxOn                   -> 0.00, //LS19.8 You pay tax on
-      TaxableGains                 -> 0.00, //LS19.6 Your Taxable Gains
-      AmountDueAtEntrepreneursRate -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
-      AmountAtEntrepreneursRate    -> 0.00, //LS19.1 Entrepreneurs' relief rate ??
-      AmountDueAtOrdinaryRate      -> 0.00, //LS19.2 Ordinary Rate
-      AmountDueRPCIHigherRate      -> 0.00, //LS19.3 Upper Rate
-      Adjustments                  -> 0.00, //LS19.4 Adjustment to Capital Gains Tax
+      PayCgTaxOn                   -> 0.00, // LS19.8 You pay tax on
+      TaxableGains                 -> 0.00, // LS19.6 Your Taxable Gains
+      AmountDueAtEntrepreneursRate -> 0.00, // LS19.1 Entrepreneurs' relief rate ??
+      AmountAtEntrepreneursRate    -> 0.00, // LS19.1 Entrepreneurs' relief rate ??
+      AmountDueAtOrdinaryRate      -> 0.00, // LS19.2 Ordinary Rate
+      AmountDueRPCIHigherRate      -> 0.00, // LS19.3 Upper Rate
+      Adjustments                  -> 0.00, // LS19.4 Adjustment to Capital Gains Tax
       TotalCgTax                   -> 0.00, // Total Capital Gains Tax
 
-      //RS7 Your Total Income Tax, Capital Gains Tax and NICs
+      // RS7 Your Total Income Tax, Capital Gains Tax and NICs
       YourTotalTax                -> 4848.6,
       // Income Tax - Scottish
       ScottishIncomeTax           -> 0.0,

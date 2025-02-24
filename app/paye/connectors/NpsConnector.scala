@@ -22,15 +22,16 @@ import common.config.ApplicationConfig
 import common.connectors.HttpClientResponse
 import common.models.admin.PayeDetailsFromIfToggle
 import play.api.Logging
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class NpsConnector @Inject() (
-  http: HttpClient,
+  http: HttpClientV2,
   applicationConfig: ApplicationConfig,
   httpClientResponse: HttpClientResponse,
   featureFlagService: FeatureFlagService
@@ -71,17 +72,16 @@ class NpsConnector @Inject() (
     val ninoWithoutSuffix = NINO.take(8)
     featureFlagService.getAsEitherT(PayeDetailsFromIfToggle).flatMap { toggle =>
       val url = {
-        val path = "/individuals/annual-tax-summary/" + ninoWithoutSuffix + "/" + TAX_YEAR
+        val path = s"/individuals/annual-tax-summary/$ninoWithoutSuffix/$TAX_YEAR"
         if (toggle.isEnabled) ifUrl(path)
         else desUrl(path)
       }
 
       httpClientResponse.read(
         http
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](
-            url,
-            headers = createHeader(toggle.isEnabled)
-          )
+          .get(url"$url")
+          .setHeader(createHeader(toggle.isEnabled): _*)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]]
       )
     }
   }

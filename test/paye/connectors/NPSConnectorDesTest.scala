@@ -17,23 +17,27 @@
 package paye.connectors
 
 import cats.data.EitherT
-import com.github.tomakehurst.wiremock.client.WireMock._
+import cats.implicits.*
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.connectors.HttpClientResponse
 import common.models.admin.PayeDetailsFromIfToggle
 import common.utils.TestConstants.testNino
 import common.utils.{BaseSpec, JsonUtil, WireMockHelper}
+import org.mockito.Mockito.{reset, when}
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, IM_A_TEAPOT, OK, SERVICE_UNAVAILABLE}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, HttpResponse, RequestId, SessionId, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, RequestId, SessionId, UpstreamErrorResponse}
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class NPSConnectorDesTest extends BaseSpec with WireMockHelper {
-  implicit lazy val ec: ExecutionContext      =
-    scala.concurrent.ExecutionContext.global //TODO: remove lazy keyword when Caching spec is done.
+  implicit lazy val ec: ExecutionContext =
+    scala.concurrent.ExecutionContext.global // TODO: remove lazy keyword when Caching spec is done.
+
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
@@ -58,7 +62,7 @@ class NPSConnectorDesTest extends BaseSpec with WireMockHelper {
 
   class NPSConnectorSetUp
       extends NpsConnector(
-        app.injector.instanceOf[HttpClient],
+        app.injector.instanceOf[HttpClientV2],
         applicationConfig,
         httpClientResponse,
         mockFeatureFlagService
@@ -73,9 +77,8 @@ class NPSConnectorDesTest extends BaseSpec with WireMockHelper {
     reset(mockFeatureFlagService)
     when(
       mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromIfToggle))
-    ) thenReturn EitherT.rightT(
-      FeatureFlag(PayeDetailsFromIfToggle, isEnabled = false)
-    )
+    ).thenReturn(EitherT.pure[Future, UpstreamErrorResponse](FeatureFlag(PayeDetailsFromIfToggle, isEnabled = false)))
+    ()
   }
 
   "connectToPayeTaxSummary" must {
