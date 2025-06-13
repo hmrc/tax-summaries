@@ -26,13 +26,13 @@ object AllFeatureFlags {
 case object SelfAssessmentDetailsFromIfToggle extends FeatureFlagName {
   override val name: String                = "selfAssessment-details-from-if-toggle"
   override val description: Option[String] = Some(
-    "Enable or disable calls to IF for retrieving annual tax summaries using API-1535: `/self-assessment/individuals/<utr>/annual-tax-summaries/<taxYear>`"
+    "Enable/disable calls to IF for retrieving annual tax summaries using API-1535: `/self-assessment/individuals/<utr>/annual-tax-summaries/<taxYear>`"
   )
 }
 
 case object PayeDetailsFromIfToggle extends FeatureFlagName {
   override val name: String                = "paye-details-from-if-toggle"
   override val description: Option[String] = Some(
-    "Enable or disable calls to IF for PAYE annual tax summary data using API-1535: `/individuals/annual-tax-summary/<nino>/<taxYear>`"
+    "Enable/disable calls to IF for PAYE annual tax summary data using API-1535: `/individuals/annual-tax-summary/<nino>/<taxYear>`"
   )
 }
