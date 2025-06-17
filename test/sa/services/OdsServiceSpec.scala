@@ -518,7 +518,7 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+        service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
@@ -540,7 +540,7 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+        service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
         verifySA(
@@ -563,7 +563,7 @@ class OdsServiceSpec extends BaseSpec {
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(1)))
 
       whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+        service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe Right(Json.obj("has_ats" -> true))
 
@@ -587,7 +587,7 @@ class OdsServiceSpec extends BaseSpec {
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(0)))
 
       whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+        service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe Right(Json.obj("has_ats" -> false))
 
@@ -611,7 +611,7 @@ class OdsServiceSpec extends BaseSpec {
       whenClausesForATSCalculations(endTaxYear = currentTaxYear - 3, values = Seq(BigDecimal(0), BigDecimal(0)))
 
       whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+        service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe Left(UpstreamErrorResponse("", GATEWAY_TIMEOUT))
 
@@ -638,7 +638,7 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+        service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe Right(Json.obj("has_ats" -> true))
 
@@ -665,7 +665,7 @@ class OdsServiceSpec extends BaseSpec {
       )
 
       whenReady(
-        service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+        service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
       ) { result =>
         result mustBe Right(Json.obj("has_ats" -> true))
 
@@ -693,7 +693,7 @@ class OdsServiceSpec extends BaseSpec {
         )
 
         whenReady(
-          service.hasATS(testUtr)(mock[HeaderCarrier], mock[Request[_]]).value
+          service.hasATS(testUtr, () => currentTaxYear)(mock[HeaderCarrier], mock[Request[_]]).value
         ) { result =>
           result mustBe Right(Json.obj("has_ats" -> true))
 
