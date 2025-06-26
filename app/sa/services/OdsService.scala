@@ -140,10 +140,11 @@ class OdsService @Inject() (
 
   // TODO: Below method not called at present but may be called instead of getList in future by BTA. See comments on DDCNL-7999 for more info
   def hasATS(
-    utr: String
+    utr: String,
+    currentTaxYearProvider: () => Int = () => TaxYear.current.startYear
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] = {
-    val startTaxYear   = TaxYear.current.startYear - 3
-    val currentTaxYear = TaxYear.current.startYear
+    val startTaxYear   = currentTaxYearProvider() - 3
+    val currentTaxYear = currentTaxYearProvider()
 
     val futureResult = findAllYears(utr, currentTaxYear to startTaxYear by -1).flatMap {
       case ir @ InterimResult(Nil, Seq(_), _) => retry(utr, ir)
