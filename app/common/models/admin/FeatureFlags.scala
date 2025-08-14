@@ -20,7 +20,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlagName
 
 object AllFeatureFlags {
   val list: List[FeatureFlagName] =
-    List(SelfAssessmentDetailsFromIfToggle, PayeDetailsFromIfToggle)
+    List(SelfAssessmentDetailsFromIfToggle, PayeDetailsFromHipToggle)
 }
 
 case object SelfAssessmentDetailsFromIfToggle extends FeatureFlagName {
@@ -30,9 +30,9 @@ case object SelfAssessmentDetailsFromIfToggle extends FeatureFlagName {
   )
 }
 
-case object PayeDetailsFromIfToggle extends FeatureFlagName {
-  override val name: String                = "paye-details-from-if-toggle"
+case object PayeDetailsFromHipToggle extends FeatureFlagName {
+  override val name: String                = "paye-details-from-hip-toggle"
   override val description: Option[String] = Some(
-    "Enable/disable calls to IF for PAYE annual tax summary data using API-1535: `/individuals/annual-tax-summary/<nino>/<taxYear>`"
+    "Enable/disable calls to HIP for PAYE annual tax summary data using API-1535: `/individuals/annual-tax-summary/<nino>/<taxYear>`"
   )
 }

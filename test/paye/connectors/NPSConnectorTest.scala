@@ -19,7 +19,7 @@ package paye.connectors
 import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.connectors.HttpClientResponse
-import common.models.admin.PayeDetailsFromIfToggle
+import common.models.admin.PayeDetailsFromHipToggle
 import common.utils.TestConstants.testNino
 import common.utils.{BaseSpec, JsonUtil, WireMockHelper}
 import org.mockito.Mockito.{reset, when}
@@ -79,10 +79,10 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
 
     val _ = when(
       mockFeatureFlagService.getAsEitherT[UpstreamErrorResponse](
-        org.mockito.ArgumentMatchers.eq(PayeDetailsFromIfToggle)
+        org.mockito.ArgumentMatchers.eq(PayeDetailsFromHipToggle)
       )
     ) thenReturn EitherT.pure[Future, UpstreamErrorResponse](
-      FeatureFlag(PayeDetailsFromIfToggle, isEnabled = true)
+      FeatureFlag(PayeDetailsFromHipToggle, isEnabled = false)
     )
   }
 
