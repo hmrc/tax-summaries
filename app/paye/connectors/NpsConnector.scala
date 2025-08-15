@@ -46,8 +46,8 @@ class NpsConnector @Inject() (
 
   private def ifUrl(path: String): String = s"${applicationConfig.ifBaseURL}$path"
 
-  private def createHeader(ifToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
-    if (ifToggle)
+  private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
+    if (hipToggle)
       Seq(
         "Environment"          -> applicationConfig.hipEnvironment,
         "Authorization"        -> applicationConfig.hipAuthorization,
