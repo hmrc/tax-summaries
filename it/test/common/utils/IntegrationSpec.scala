@@ -121,6 +121,10 @@ trait IntegrationSpec
         "microservice.services.auth.port"              -> server.port(),
         "microservice.services.pertax.host"            -> "localhost",
         "microservice.services.pertax.port"            -> server.port(),
+        "microservice.services.hip-hod.port"           -> server.port(),
+        "microservice.services.hip-hod.host"           -> "127.0.0.1",
+        "microservice.services.if-hod.port"            -> server.port(),
+        "microservice.services.if-hod.host"            -> "127.0.0.1",
         "play.ws.timeout.request"                      -> "1000ms",
         "play.ws.timeout.connection"                   -> "500ms",
         "mongodb.uri"                                  -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"

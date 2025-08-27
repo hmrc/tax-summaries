@@ -20,8 +20,8 @@ import sbt.*
 object AppDependencies {
 
   private val playVersion                = "play-30"
-  private val hmrcMongoVersion           = "2.5.0"
-  private val bootstrapVersion           = "9.8.0"
+  private val hmrcMongoVersion           = "2.7.0"
+  private val bootstrapVersion           = "9.19.0"
 
   val compile: Seq[ModuleID] = Seq(
     filters,
@@ -30,7 +30,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% s"domain-$playVersion"                          % "10.0.0",
     "org.typelevel"     %% "cats-core"                                     % "2.13.0",
     "uk.gov.hmrc"       %% "tax-year"                                      % "5.0.0",
-    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion"    % "1.9.0"
+    "uk.gov.hmrc"       %% s"mongo-feature-toggles-client-$playVersion"    % "1.10.0"
   )
 
   val test: Seq[ModuleID] = Seq(

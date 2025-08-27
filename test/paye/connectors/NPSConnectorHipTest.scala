@@ -20,7 +20,7 @@ import cats.data.EitherT
 import cats.implicits.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.connectors.HttpClientResponse
-import common.models.admin.PayeDetailsFromIfToggle
+import common.models.admin.PayeDetailsFromHipToggle
 import common.utils.TestConstants.testNino
 import common.utils.{BaseSpec, JsonUtil, WireMockHelper}
 import org.mockito.Mockito.{reset, when}
@@ -34,15 +34,15 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class NPSConnectorDesTest extends BaseSpec with WireMockHelper {
+class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
   implicit lazy val ec: ExecutionContext =
     scala.concurrent.ExecutionContext.global // TODO: remove lazy keyword when Caching spec is done.
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(
-        "microservice.services.tax-summaries-hod.port" -> server.port(),
-        "microservice.services.tax-summaries-hod.host" -> "127.0.0.1"
+        "microservice.services.hip-hod.port" -> server.port(),
+        "microservice.services.hip-hod.host" -> "127.0.0.1"
       )
       .build()
 
@@ -76,8 +76,8 @@ class NPSConnectorDesTest extends BaseSpec with WireMockHelper {
     server.resetAll()
     reset(mockFeatureFlagService)
     when(
-      mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromIfToggle))
-    ).thenReturn(EitherT.pure[Future, UpstreamErrorResponse](FeatureFlag(PayeDetailsFromIfToggle, isEnabled = false)))
+      mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromHipToggle))
+    ).thenReturn(EitherT.pure[Future, UpstreamErrorResponse](FeatureFlag(PayeDetailsFromHipToggle, isEnabled = true)))
     ()
   }
 
@@ -86,6 +86,7 @@ class NPSConnectorDesTest extends BaseSpec with WireMockHelper {
     "return successful response when provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye/paye_annual_tax_summary.json")
+        .replace("dividendAdditionalRateTaxAmoun", "dividendAdditionalRateTaxAmount")
       val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(

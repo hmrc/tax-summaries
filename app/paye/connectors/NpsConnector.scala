@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.google.inject.Inject
 import common.config.ApplicationConfig
 import common.connectors.HttpClientResponse
-import common.models.admin.PayeDetailsFromIfToggle
+import common.models.admin.PayeDetailsFromHipToggle
 import play.api.Logging
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -42,39 +42,39 @@ class NpsConnector @Inject() (
 
   def url(path: String): String = s"$serviceUrl$path"
 
-  private def desUrl(path: String): String = s"$serviceUrl$path"
+  private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURL}$path"
 
   private def ifUrl(path: String): String = s"${applicationConfig.ifBaseURL}$path"
 
-  private def createHeader(ifToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
-    if (ifToggle)
+  private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
+    if (hipToggle)
       Seq(
-        "Environment"             -> applicationConfig.ifEnvironment,
-        "Authorization"           -> applicationConfig.ifAuthorization,
-        HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
-        HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
-        "CorrelationId"           -> UUID.randomUUID().toString,
-        "OriginatorId"            -> applicationConfig.ifOriginatorId
+        "Environment"          -> applicationConfig.hipEnvironment,
+        "Authorization"        -> applicationConfig.hipAuthorization,
+        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"        -> UUID.randomUUID().toString,
+        "OriginatorId"         -> applicationConfig.hipOriginatorId
       )
     else
       Seq(
-        HeaderNames.authorisation -> applicationConfig.authorization,
-        "Environment"             -> applicationConfig.environment,
-        "OriginatorId"            -> applicationConfig.originatorId,
-        HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
-        HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
-        "CorrelationId"           -> UUID.randomUUID().toString
+        "Environment"          -> applicationConfig.ifEnvironment,
+        "Authorization"        -> applicationConfig.ifAuthorization,
+        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"        -> UUID.randomUUID().toString,
+        "OriginatorId"         -> applicationConfig.ifOriginatorId
       )
 
   def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val ninoWithoutSuffix = NINO.take(8)
-    featureFlagService.getAsEitherT(PayeDetailsFromIfToggle).flatMap { toggle =>
+    featureFlagService.getAsEitherT(PayeDetailsFromHipToggle).flatMap { toggle =>
       val url = {
         val path = s"/individuals/annual-tax-summary/$ninoWithoutSuffix/$TAX_YEAR"
-        if (toggle.isEnabled) ifUrl(path)
-        else desUrl(path)
+        if (toggle.isEnabled) hipUrl(path)
+        else ifUrl(path)
       }
 
       httpClientResponse.read(
