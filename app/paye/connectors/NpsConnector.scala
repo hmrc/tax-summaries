@@ -27,7 +27,8 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
-import java.util.UUID
+import java.nio.charset.StandardCharsets
+import java.util.{Base64, UUID}
 import scala.concurrent.{ExecutionContext, Future}
 
 class NpsConnector @Inject() (
@@ -37,6 +38,15 @@ class NpsConnector @Inject() (
   featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext)
     extends Logging {
+
+  private val hipAuth = {
+    val clientId: String     = applicationConfig.hipClientId
+    val clientSecret: String = applicationConfig.hipClientSecret
+    val token                = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes(StandardCharsets.UTF_8))
+    Seq(
+      HeaderNames.authorisation -> s"Basic $token"
+    )
+  }
 
   def serviceUrl: String = applicationConfig.npsServiceUrl
 
@@ -55,7 +65,7 @@ class NpsConnector @Inject() (
         HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
         "CorrelationId"        -> UUID.randomUUID().toString,
         "OriginatorId"         -> applicationConfig.hipOriginatorId
-      )
+      ) ++ hipAuth
     else
       Seq(
         "Environment"          -> applicationConfig.ifEnvironment,
