@@ -95,6 +95,8 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
   lazy val hipEnvironment: String   = servicesConfig.getConfString("hip-hod.env", "local")
   lazy val hipAuthorization: String = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
   lazy val hipOriginatorId: String  = servicesConfig.getConfString("hip-hod.originatorId", "")
+  val hipClientId: String           = servicesConfig.getConfString("hip-hod.clientId", "local")
+  val hipClientSecret: String       = servicesConfig.getConfString("hip-hod.clientSecret", "local")
 
   lazy val appName: String = servicesConfig.getString("appName")
 }
