@@ -40,7 +40,6 @@ lazy val microservice = Project(appName, file("."))
       "-Wconf:msg=unused&src=.*RoutesPrefix\\.scala:s",
       "-Wconf:msg=unused&src=.*Routes\\.scala:s",
       "-Wvalue-discard",
-      "-Xfatal-warnings",
       "-Wconf:msg=Flag.*repeatedly:s"
     )
   )

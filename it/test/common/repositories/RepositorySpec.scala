@@ -42,7 +42,7 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
 
   "a repository" must {
     "must be able to store and retrieve a payload" in {
-      val taxYear: Int      = 2020
+      val taxYear: Int      = 2024
       val minuteOffset: Int = 15
 
       val data = PayeAtsMiddleTier(taxYear, "NINONINO", None, None, None, None, None)
