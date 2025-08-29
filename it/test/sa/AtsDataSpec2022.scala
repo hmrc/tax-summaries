@@ -789,7 +789,7 @@ class AtsDataSpec2022 extends SaTestHelper {
     server.stubFor(
       WireMock
         .get(urlEqualTo(odsUrl(taxYear)))
-        .willReturn(ok(FileHelper.loadFile("sa/2019-20/utr_1097172561.json")))
+        .willReturn(ok(FileHelper.loadFile("sa/2021-22/TCForGovSpending.json")))
     )
 
     val result: AtsMiddleTierData                      = resultToAtsData(route(app, request))

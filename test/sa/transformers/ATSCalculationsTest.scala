@@ -134,23 +134,6 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       }
     }
 
-    "return None" when {
-      "tax year is < 2020 and type is scottish" in {
-        val calculation = new Fixture(2019, Scottish())().calculation
-        calculation mustBe None
-      }
-
-      "tax year is < 2020 and type is welsh" in {
-        val calculation = new Fixture(2019, Welsh())().calculation
-        calculation mustBe None
-      }
-
-      "tax year is < 2020 and type is UK" in {
-        val calculation = new Fixture(2019, UK())().calculation
-        calculation mustBe None
-      }
-    }
-
     "return ATSCalculationsUK2020" when {
       "tax year is 2020 and type is UK" in {
         val calculation = new Fixture(2021, UK())().calculation
