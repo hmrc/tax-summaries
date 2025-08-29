@@ -34,7 +34,7 @@ package paye.models
 
 import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax}
 import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
-import common.models.{Amount, ApiRate, DataHolder, LiabilityKey, RateKey}
+import common.models.*
 import common.services.GoodsAndServices
 import common.services.GoodsAndServices.*
 import common.utils.{BaseSpec, TestConstants}
@@ -190,37 +190,21 @@ class PayeAtsDataTest extends BaseSpec {
 
       "gov spend data contains correct amount with percentages" in {
         val expectedValues: Map[GoodsAndServices, SpendData] = Map(
-          //          PublicOrderAndSafety     -> SpendData(Amount(180.60, "GBP"), 4.3),
-          //          Environment              -> SpendData(Amount(63.00, "GBP"), 1.5),
-          //          OverseasAid              -> SpendData(Amount(46.20, "GBP"), 1.1),
-          //          BusinessAndIndustry      -> SpendData(Amount(159.60, "GBP"), 3.8),
-          //          NationalDebtInterest     -> SpendData(Amount(289.80, "GBP"), 6.9),
-          //          Defence                  -> SpendData(Amount(222.60, "GBP"), 5.3),
-          //          Health                   -> SpendData(Amount(861.00, "GBP"), 20.5),
-          //          Culture                  -> SpendData(Amount(63.00, "GBP"), 1.5),
-          //          UkContributionToEuBudget -> SpendData(Amount(33.60, "GBP"), 0.8),
-          //          HousingAndUtilities      -> SpendData(Amount(75.60, "GBP"), 1.8),
-          //          Transport                -> SpendData(Amount(180.60, "GBP"), 4.3),
-          //          Welfare                  -> SpendData(Amount(928.20, "GBP"), 22.1),
-          //          GovernmentAdministration -> SpendData(Amount(88.20, "GBP"), 2.1),
-          //          Education                -> SpendData(Amount(487.20, "GBP"), 11.6),
-          //          StatePensions            -> SpendData(Amount(520.80, "GBP"), 12.4)
-
-          Welfare                    -> SpendData(Amount(907.20, "GBP"), 0),
-          Health                     -> SpendData(Amount(848.40, "GBP"), 0),
-          StatePensions              -> SpendData(Amount(478.80, "GBP"), 0),
-          NationalDebtInterest       -> SpendData(Amount(466.20, "GBP"), 0),
-          Education                  -> SpendData(Amount(428.40, "GBP"), 0),
-          Defence                    -> SpendData(Amount(218.40, "GBP"), 0),
-          PublicOrderAndSafety       -> SpendData(Amount(184.80, "GBP"), 0),
-          Transport                  -> SpendData(Amount(176.40, "GBP"), 0),
-          BusinessAndIndustry        -> SpendData(Amount(176.40, "GBP"), 0),
-          GovernmentAdministration   -> SpendData(Amount(88.20, "GBP"), 0),
-          HousingAndUtilities        -> SpendData(Amount(75.60, "GBP"), 0),
-          Environment                -> SpendData(Amount(58.80, "GBP"), 0),
-          Culture                    -> SpendData(Amount(50.40, "GBP"), 0),
-          OverseasAid                -> SpendData(Amount(29.40, "GBP"), 0),
-          OutstandingPaymentsToTheEU -> SpendData(Amount(25.200, "GBP"), 0)
+          Welfare                    -> SpendData(Amount(907.20, "GBP"), 21.6),
+          Health                     -> SpendData(Amount(848.40, "GBP"), 20.2),
+          StatePensions              -> SpendData(Amount(478.80, "GBP"), 11.4),
+          NationalDebtInterest       -> SpendData(Amount(466.20, "GBP"), 11.1),
+          Education                  -> SpendData(Amount(428.40, "GBP"), 10.2),
+          Defence                    -> SpendData(Amount(218.40, "GBP"), 5.2),
+          PublicOrderAndSafety       -> SpendData(Amount(184.80, "GBP"), 4.4),
+          Transport                  -> SpendData(Amount(176.40, "GBP"), 4.2),
+          BusinessAndIndustry        -> SpendData(Amount(176.40, "GBP"), 4.2),
+          GovernmentAdministration   -> SpendData(Amount(88.20, "GBP"), 2.1),
+          HousingAndUtilities        -> SpendData(Amount(75.60, "GBP"), 1.8),
+          Environment                -> SpendData(Amount(58.80, "GBP"), 1.4),
+          Culture                    -> SpendData(Amount(50.40, "GBP"), 1.2),
+          OverseasAid                -> SpendData(Amount(29.40, "GBP"), 0.7),
+          OutstandingPaymentsToTheEU -> SpendData(Amount(25.200, "GBP"), 0.6)
         )
 
         val spendData = transformedData.gov_spending.getOrElse(fail("No gov spend data"))
