@@ -18,9 +18,9 @@ package sa.transformers
 
 import common.models.{Amount, Rate}
 import play.api.Logging
+import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
-import sa.models.ODSLiabilities.ODSLiabilities.{Alimony, AnnuityPay, BPA, BpaAllowance, CapAdjustment, CgAnnualExempt, CgDueEntrepreneursRate, CgDueHigherRate, CgDueLowerRate, CgGainsAfterLosses, CgTotGainsAfterLosses, ChildBenefitCharge, Class4Nic, CommInvTrustRel, DeficiencyRelief, DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, EisRelief, EmployeeClass1NI, EmployeeClass2NI, EmploymentBenefits, EmploymentExpenses, ExcludedIncome, GiftsInvCharities, HigherRateCgtRPCI, IncBenefitSuppAllow, IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxDue, IncomeTaxHigherRate, JobSeekersAllowance, LFIRelief, LowerRateCgtRPCI, MarriageAllceIn, MarriageAllceOut, NetAnnuityPaytsTaxDue, NonDomCharge, NonPayableTaxCredits, NotionalTaxCegs, NotlTaxOtherSource, OthStatePenBenefits, OtherPension, PensionLsumTaxDue, PensionSavingChargeable, PersonalAllowance, QualDistnRelief, ReliefForFinanceCosts, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsChargeableStartRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, SavingsTaxStartingRate, SeedEisRelief, StatePension, StatePensionGross, SumTotForeignTaxRelief, SumTotLifePolicyGains, SumTotLoanRestricted, SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotShareOptions, SummaryTotTrustEstates, SummaryTotalDedPpr, SummaryTotalEmployment, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule, SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxCreditsForDivs, TaxDueAfterAllceRlf, TaxExcluded, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief}
-import sa.models.{Nationality, Scottish, TaxSummaryLiability, UK, Welsh}
+import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.services.TaxRateService
 import sa.transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK2021, ATSCalculationsWelsh2021}
 import sa.transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
@@ -72,9 +72,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(CgDueHigherRate) +
       get(CapAdjustment)).max(0)
 
-  def selfEmployment: Amount =
-    get(SummaryTotalSchedule) +
-      get(SummaryTotalPartnership)
+  def selfEmployment: Amount
 
   def otherPension: Amount =
     get(OtherPension) +
@@ -85,16 +83,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(JobSeekersAllowance) +
       get(OthStatePenBenefits)
 
-  def otherIncome: Amount =
-    get(SummaryTotShareOptions) +
-      get(SummaryTotalUklProperty) +
-      get(SummaryTotForeignIncome) +
-      get(SummaryTotTrustEstates) +
-      get(SummaryTotalOtherIncome) +
-      get(SummaryTotalUkInterest) +
-      get(SummaryTotForeignDiv) +
-      get(SummaryTotalUkIntDivs) +
-      get(SumTotLifePolicyGains)
+  def otherIncome: Amount
 
   def totalIncomeBeforeTax: Amount =
     selfEmployment +
@@ -105,20 +94,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       otherIncome +
       get(EmploymentBenefits)
 
-  def otherAllowances: Amount =
-    (
-      get(EmploymentExpenses) +
-        get(SummaryTotalDedPpr) +
-        get(SumTotForeignTaxRelief) +
-        get(SumTotLoanRestricted) +
-        get(SumTotLossRestricted) +
-        get(AnnuityPay) +
-        get(GiftsInvCharities) +
-        get(TradeUnionDeathBenefits) +
-        get(BpaAllowance) +
-        get(BPA) +
-        get(ExcludedIncome)
-    ).roundAmountUp()
+  def otherAllowances: Amount
 
   def totalTaxFreeAmount: Amount =
     otherAllowances +
@@ -186,15 +162,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   def welshIncomeTax: Amount = Amount.empty("welshIncomeTax")
 
-  def otherAdjustmentsIncreasing: Amount =
-    (
-      get(NonDomCharge) +
-        get(TaxExcluded) +
-        get(IncomeTaxDue) +
-        get(NetAnnuityPaytsTaxDue) +
-        get(ChildBenefitCharge) +
-        get(PensionSavingChargeable)
-    ) - get(TaxDueAfterAllceRlf)
+  def otherAdjustmentsIncreasing: Amount
 
   def otherAdjustmentsReducing: Amount =
     get(DeficiencyRelief) +
@@ -214,17 +182,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       getWithDefaultAmount(LFIRelief) +
       getWithDefaultAmount(Alimony)
 
-  def totalIncomeTaxAmount: Amount =
-    savingsRateAmount + // LS12.1
-      basicRateIncomeTaxAmount + // LS12.2
-      higherRateIncomeTaxAmount + // LS12.3
-      additionalRateIncomeTaxAmount +
-      get(DividendTaxLowRate) +
-      get(DividendTaxHighRate) + // LS13.2
-      get(DividendTaxAddHighRate) +
-      otherAdjustmentsIncreasing -
-      otherAdjustmentsReducing -
-      getWithDefaultAmount(MarriageAllceIn)
+  def totalIncomeTaxAmount: Amount
 
   def totalAmountTaxAndNics: Amount =
     totalAmountEmployeeNic +
@@ -249,12 +207,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(SavingsChargeableAddHRate) +
       includePensionIncomeForRate(taxRates.additionalRateIncomeTaxRate())
 
-  def scottishIncomeTax: Amount = {
-    val scottishRate = 0.1
-    (getWithDefaultAmount(IncomeChargeableBasicRate) +
-      getWithDefaultAmount(IncomeChargeableHigherRate) +
-      getWithDefaultAmount(IncomeChargeableAddHRate)) * scottishRate
-  }
+  def scottishIncomeTax: Amount
 
   def taxLiability: Amount = totalCapitalGainsTax + totalIncomeTaxAmount
 
