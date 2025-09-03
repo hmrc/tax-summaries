@@ -24,7 +24,7 @@ import sa.models.ODSLiabilities.ODSLiabilities.{CapAdjustment, CgDueEntrepreneur
 import sa.models.{Nationality, PensionTaxRate, Scottish, TaxSummaryLiability, UK, Welsh}
 import sa.services.TaxRateService
 import sa.transformers.ATS2021.ATSCalculationsUK2021
-import sa.transformers.ATS2024.{ATSCalculationsScottish2024, ATSCalculationsUK2024, ATSCalculationsWelsh2024}
+import sa.transformers.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.utils.DoubleUtils
 
 import scala.util.Random
@@ -120,17 +120,17 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       "country is UK" in {
         val calculation = new Fixture(9999, UK())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsUK2024])
+        calculation.map(_ mustBe a[ATSCalculationsUK2025])
       }
       "country is Scotland" in {
         val calculation = new Fixture(9999, Scottish())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsScottish2024])
+        calculation.map(_ mustBe a[ATSCalculationsScottish2025])
       }
       "country is Wales" in {
         val calculation = new Fixture(9999, Welsh())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsWelsh2024])
+        calculation.map(_ mustBe a[ATSCalculationsWelsh2025])
       }
     }
 

@@ -167,13 +167,37 @@ class AtsSaFieldListController @Inject() (
 
   private val fields2024: Seq[String] = fields2023 :+ "ctnTaxOnTransitionPrft"
 
+  private val fields2025: Seq[String] = fields2024 ++ Seq(
+    "capOffshoreTrustLiability",
+    "incomeTermination",
+    "taxablePaySar",
+    "taxableRedundancySar",
+    "taxOnPaySar",
+    "taxOnRedundancySar",
+    "cgAtHigherRateCi",
+    "higherRateCgtCi",
+    "cgAtLowerRateRp",
+    "lowerRateCgtRp",
+    "cgAtHigherRateRp",
+    "higherRateCgtRp",
+    "cgAtLowerRateCi",
+    "lowerRateCgtCi",
+    "cgAtLowerRateRp",
+    "lowerRateCgtRp",
+    "cgAtHigherRateRp",
+    "higherRateCgtRp",
+    "brdReduction",
+    "brdCharge"
+  )
+
   def getFieldList(tax_year: Int): Action[AnyContent] = Action {
     val items = tax_year match {
       case 2021 => fields2023
       case 2022 => fields2023
       case 2023 => fields2023
       case 2024 => fields2024
-      case _    => fields2024
+      case 2025 => fields2025
+      case _    => fields2025
     }
     Ok(
       Json.obj(

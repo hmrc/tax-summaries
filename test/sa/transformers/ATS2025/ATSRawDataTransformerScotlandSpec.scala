@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sa.transformers.ATS2024
+package sa.transformers.ATS2025
 
 import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTotalTax, StartingRateForSavings, StartingRateForSavingsAmount, TotalIncomeTax, TotalIncomeTaxAndNics, YourTotalTax}
 import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
@@ -166,10 +166,10 @@ class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransfor
 protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTransformerTestFixtureBase {
   override protected val incomeTaxStatus: String                  = "0002"
   override def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
-    StartingRateForSavingsAmount  -> calcExp("savingsRateAmountScottish2024:null"),
+    StartingRateForSavingsAmount  -> calcExp("savingsRateAmountScottish2025:null"),
     SavingsLowerIncome            -> calcExp("ctnSavingsChgbleLowerRate"),
     SavingsLowerRateTax           -> calcExp("ctnSavingsTaxLowerRate"),
-    ScottishIncomeTax             -> calcExp("scottishIncomeTaxScottish2024:null"),
+    ScottishIncomeTax             -> calcExp("scottishIncomeTaxScottish2025:null"),
     ScottishIntermediateRateTax   -> calcExp("taxOnPaySIR", "ctnTaxOnRedundancySir", "ctnPensionLsumTaxDueAmt:null"),
     ScottishHigherIncome          -> calcExp(
       "ctnIncomeChgbleHigherRate",
@@ -177,8 +177,8 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
       "itfStatePensionLsGrossAmt:null"
     ),
     ScottishStarterRateTax        -> calcExp("taxOnPaySSR", "ctnTaxOnRedundancySsr", "ctnPensionLsumTaxDueAmt:null"),
-    StartingRateForSavings        -> calcExp("savingsRateScottish2024:null"),
-    AdditionalRateIncomeTax       -> calcExp("additionalRateIncomeTaxScottish2024:null"),
+    StartingRateForSavings        -> calcExp("savingsRateScottish2025:null"),
+    AdditionalRateIncomeTax       -> calcExp("additionalRateIncomeTaxScottish2025:null"),
     SavingsAdditionalIncome       -> calcExp("ctnSavingsChgbleAddHRate"),
     SavingsHigherIncome           -> calcExp("ctnSavingsChgbleHigherRate"),
     ScottishAdditionalRateTax     -> calcExp(
@@ -186,25 +186,25 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
       "ctnTaxOnRedundancyAhr",
       "ctnPensionLsumTaxDueAmt:null"
     ),
-    HigherRateIncomeTax           -> calcExp("higherRateIncomeTaxScottish2024:null"),
+    HigherRateIncomeTax           -> calcExp("higherRateIncomeTaxScottish2025:null"),
     ScottishBasicRateTax          -> calcExp("ctnIncomeTaxBasicRate", "ctnTaxOnRedundancyBr", "ctnPensionLsumTaxDueAmt:null"),
-    BasicRateIncomeTaxAmount      -> calcExp("basicRateIncomeTaxAmountScottish2024:null"),
+    BasicRateIncomeTaxAmount      -> calcExp("basicRateIncomeTaxAmountScottish2025:null"),
     ScottishAdditionalIncome      -> calcExp(
       "ctnIncomeChgbleAddHRate",
       "ctnTaxableRedundancyAhr",
       "itfStatePensionLsGrossAmt:null"
     ),
     ScottishIntermediateIncome    -> calcExp("taxablePaySIR", "ctnTaxableRedundancySir", "itfStatePensionLsGrossAmt:null"),
-    AdditionalRateIncomeTaxAmount -> calcExp("additionalRateIncomeTaxAmountScottish2024:null"),
+    AdditionalRateIncomeTaxAmount -> calcExp("additionalRateIncomeTaxAmountScottish2025:null"),
     ScottishBasicIncome           -> calcExp(
       "ctnIncomeChgbleBasicRate",
       "ctnTaxableRedundancyBr",
       "itfStatePensionLsGrossAmt:null"
     ),
     ScottishTotalTax              -> expScottishTotalTax,
-    BasicRateIncomeTax            -> calcExp("basicRateIncomeTaxScottish2024:null"),
+    BasicRateIncomeTax            -> calcExp("basicRateIncomeTaxScottish2025:null"),
     SavingsAdditionalRateTax      -> calcExp("ctnSavingsTaxAddHighRate", "ctnTaxOnCegAhr"),
-    HigherRateIncomeTaxAmount     -> calcExp("higherRateIncomeTaxAmountScottish2024:null"),
+    HigherRateIncomeTaxAmount     -> calcExp("higherRateIncomeTaxAmountScottish2025:null"),
     TotalIncomeTax                -> expTotalIncomeTax,
     SavingsHigherRateTax          -> calcExp("ctnSavingsTaxHigherRate"),
     ScottishHigherRateTax         -> calcExp("ctnIncomeTaxHigherRate", "ctnTaxOnRedundancyHr", "ctnPensionLsumTaxDueAmt:null"),
@@ -223,10 +223,10 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
       expScottishTotalTax + expSavingsTotalTax
 
   override protected def expSavingsIncomeTaxDivs: Amount = calcExp(
-    "savingsRateAmountScottish2024:null",
-    "basicRateIncomeTaxAmountScottish2024:null",
-    "higherRateIncomeTaxAmountScottish2024:null",
-    "additionalRateIncomeTaxAmountScottish2024:null",
+    "savingsRateAmountScottish2025:null",
+    "basicRateIncomeTaxAmountScottish2025:null",
+    "higherRateIncomeTaxAmountScottish2025:null",
+    "additionalRateIncomeTaxAmountScottish2025:null",
     "ctnDividendTaxLowRate",
     "ctnDividendTaxHighRate",
     "ctnDividendTaxAddHighRate"
@@ -239,10 +239,10 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
 
   override protected def expTotalIncomeTax: Amount =
     ((calcExp(
-      "savingsRateAmountScottish2024:null",
-      "basicRateIncomeTaxAmountScottish2024:null",
-      "higherRateIncomeTaxAmountScottish2024:null",
-      "additionalRateIncomeTaxAmountScottish2024:null",
+      "savingsRateAmountScottish2025:null",
+      "basicRateIncomeTaxAmountScottish2025:null",
+      "higherRateIncomeTaxAmountScottish2025:null",
+      "additionalRateIncomeTaxAmountScottish2025:null",
       "ctnDividendTaxLowRate",
       "ctnDividendTaxHighRate",
       "ctnDividendTaxAddHighRate"

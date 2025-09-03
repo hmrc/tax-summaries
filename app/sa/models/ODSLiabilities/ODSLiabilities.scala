@@ -326,6 +326,7 @@ object ODSLiabilities {
       2022 -> allLiabilities2022,
       2023 -> (allLiabilities2022 :+ RelTaxAcctFor),
       2024 -> (allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits),
+      2025 -> (allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits),
     )
   }
   // format: on

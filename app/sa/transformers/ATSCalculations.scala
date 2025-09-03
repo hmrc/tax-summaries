@@ -27,6 +27,7 @@ import sa.transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK20
 import sa.transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
 import sa.transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
 import sa.transformers.ATS2024.{ATSCalculationsScottish2024, ATSCalculationsUK2024, ATSCalculationsWelsh2024}
+import sa.transformers.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.utils.DoubleUtils
 
 // scalastyle:off number.of.methods
@@ -301,6 +302,10 @@ object ATSCalculations {
     val scotland = Scottish()
     val wales    = Welsh()
 
+    val calc2025UK       = new ATSCalculationsUK2025(_, _)
+    val calc2025Scotland = new ATSCalculationsScottish2025(_, _)
+    val calc2025Wales    = new ATSCalculationsWelsh2025(_, _)
+
     val calc2024UK       = new ATSCalculationsUK2024(_, _)
     val calc2024Scotland = new ATSCalculationsScottish2024(_, _)
     val calc2024Wales    = new ATSCalculationsWelsh2024(_, _)
@@ -319,6 +324,9 @@ object ATSCalculations {
     val calc2020Scotland = new ATSCalculationsScottish2020(_, _)
 
     Map(
+      (uk, 2025)       -> calc2025UK,
+      (scotland, 2025) -> calc2025Scotland,
+      (wales, 2025)    -> calc2025Wales,
       (uk, 2024)       -> calc2024UK,
       (scotland, 2024) -> calc2024Scotland,
       (wales, 2024)    -> calc2024Wales,
