@@ -2,10 +2,10 @@
   "annualTaxSummaries":
   [
     {
-      "taxYearEnd":2020,
+      "taxYearEnd":2024,
       "links":
       [
-        {"rel":"details", "href":"/self-assessment/individuals/1130492359/annual-tax-summaries/2020"}
+        {"rel":"details", "href":"/self-assessment/individuals/1130492359/annual-tax-summaries/2024"}
       ]
     }
   ],

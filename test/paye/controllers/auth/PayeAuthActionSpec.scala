@@ -43,7 +43,7 @@ class PayeAuthActionSpec extends BaseSpec {
     mockPertaxConnector
   )
   val harness                                      = new Harness(payeAuthAction)
-  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/$testNino/2020/paye-ats-data")
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/$testNino/2024/paye-ats-data")
 
   class Harness(payeAuthAction: PayeAuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = payeAuthAction { _ =>

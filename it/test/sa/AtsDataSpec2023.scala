@@ -731,21 +731,21 @@ class AtsDataSpec2023 extends SaTestHelper {
       GovernmentSpendingOutputWrapper(
         2023,
         Map(
-          PublicOrderAndSafety       -> SpendData(Amount(261.46, "GBP", None), 4.1),
-          BusinessAndIndustry        -> SpendData(Amount(484.65, "GBP", None), 7.6),
-          OutstandingPaymentsToTheEU -> SpendData(Amount(38.26, "GBP", None), 0.6),
-          NationalDebtInterest       -> SpendData(Amount(765.24, "GBP", None), 12),
-          Defence                    -> SpendData(Amount(331.6, "GBP", None), 5.2),
-          Health                     -> SpendData(Amount(1262.65, "GBP", None), 19.8),
-          Culture                    -> SpendData(Amount(82.9, "GBP", None), 1.3),
-          HousingAndUtilities        -> SpendData(Amount(108.41, "GBP", None), 1.7),
-          GovernmentAdministration   -> SpendData(Amount(127.54, "GBP", None), 2),
-          Environment                -> SpendData(Amount(82.9, "GBP", None), 1.3),
-          OverseasAid                -> SpendData(Amount(31.89, "GBP", None), 0.5),
-          Transport                  -> SpendData(Amount(261.46, "GBP", None), 4.1),
-          Welfare                    -> SpendData(Amount(1249.89, "GBP", None), 19.6),
-          Education                  -> SpendData(Amount(631.32, "GBP", None), 9.9),
-          StatePensions              -> SpendData(Amount(656.83, "GBP", None), 10.3)
+          PublicOrderAndSafety       -> SpendData(Amount(1707.32, "GBP", None), 4.1),
+          BusinessAndIndustry        -> SpendData(Amount(3164.78, "GBP", None), 7.6),
+          OutstandingPaymentsToTheEU -> SpendData(Amount(249.85, "GBP", None), 0.6),
+          NationalDebtInterest       -> SpendData(Amount(4997.03, "GBP", None), 12),
+          Defence                    -> SpendData(Amount(2165.38, "GBP", None), 5.2),
+          Health                     -> SpendData(Amount(8245.1, "GBP", None), 19.8),
+          Culture                    -> SpendData(Amount(541.34, "GBP", None), 1.3),
+          HousingAndUtilities        -> SpendData(Amount(707.91, "GBP", None), 1.7),
+          GovernmentAdministration   -> SpendData(Amount(832.84, "GBP", None), 2),
+          Environment                -> SpendData(Amount(541.34, "GBP", None), 1.3),
+          OverseasAid                -> SpendData(Amount(208.21, "GBP", None), 0.5),
+          Transport                  -> SpendData(Amount(1707.32, "GBP", None), 4.1),
+          Welfare                    -> SpendData(Amount(8161.81, "GBP", None), 19.6),
+          Education                  -> SpendData(Amount(4122.55, "GBP", None), 9.9),
+          StatePensions              -> SpendData(Amount(4289.12, "GBP", None), 10.3)
         ),
         Amount(6377, "GBP", None),
         None
@@ -766,6 +766,7 @@ class AtsDataSpec2023 extends SaTestHelper {
     actualWrapper.taxYear mustBe taxYear
     actualWrapper.govSpendAmountData.foreach { goodsAndService =>
       val expSpendData = expectedValue.govSpendAmountData(goodsAndService._1)
+
       goodsAndService._2.amount.amount mustBe expSpendData.amount.amount
       goodsAndService._2.amount.currency mustBe expSpendData.amount.currency
     }
