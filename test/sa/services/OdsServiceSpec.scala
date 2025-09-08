@@ -18,12 +18,12 @@ package sa.services
 
 import cats.data.EitherT
 import cats.instances.future.*
-
 import common.models.Amount
 import common.utils.BaseSpec
-import common.utils.TestConstants._
-import org.mockito.ArgumentMatchers.{eq => eqTo, _}
-import play.api.http.Status._
+import common.utils.TestConstants.*
+import org.mockito.ArgumentMatchers.{eq as eqTo, *}
+import org.mockito.Mockito.*
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
 import sa.connectors.SelfAssessmentODSConnector
@@ -31,9 +31,8 @@ import sa.models.{PensionTaxRate, TaxSummaryLiability}
 import sa.transformers.ATSCalculations
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
-import org.mockito.Mockito.{never, reset, times, verify, when}
-import scala.collection.immutable.Range
 
+import scala.collection.immutable.Range
 import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 
@@ -64,6 +63,19 @@ class OdsServiceSpec extends BaseSpec {
       override protected val taxRates: TaxRateService         = mockTaxRateService
 
       override def taxLiability: Amount = Amount(amount, "GBP")
+
+      override def otherIncome: Amount = Amount.empty("Dummy other income amount")
+
+      override def selfEmployment: Amount = Amount.empty("Dummy self employment amount")
+
+      override def otherAllowances: Amount = Amount.empty("Dummy other allowances amount")
+
+      override def otherAdjustmentsIncreasing: Amount = Amount.empty("Dummy other adj increasing amount")
+
+      override def totalIncomeTaxAmount: Amount = Amount.empty("Dummy total income tax amount")
+
+      override def scottishIncomeTax: Amount = Amount.empty("Dummy scottish income tax amount")
+
     })
 
   private implicit def convertIntToSeqInt(i: Int): Seq[Int] = Seq(i)

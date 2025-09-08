@@ -42,7 +42,7 @@ class DirectNpsServiceTest extends BaseSpec with JsonUtil {
 
   class TestService extends DirectNpsService(applicationConfig, npsConnector)
 
-  private val currentYear = 2020
+  private val currentYear = 2024
 
   "getPayeATSData" must {
 

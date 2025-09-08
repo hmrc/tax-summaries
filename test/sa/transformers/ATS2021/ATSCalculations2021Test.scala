@@ -31,7 +31,9 @@ class ATSCalculations2021Test extends BaseSpec {
   val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
   class FakeATSCalculation2021(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-      extends ATSCalculations2021
+      extends ATSCalculations2021 {
+    override def scottishIncomeTax: Amount = Amount.empty("Dummy scottish income tax amount")
+  }
 
   def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculation2021 =
     new FakeATSCalculation2021(taxSummaryLiability, taxRate)

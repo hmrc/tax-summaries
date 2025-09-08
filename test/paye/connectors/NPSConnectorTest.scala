@@ -47,7 +47,7 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       )
       .build()
 
-  private val currentYear = 2020
+  private val currentYear = 2024
 
   val sessionId = "testSessionId"
   val requestId = "testRequestId"

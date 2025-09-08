@@ -31,7 +31,7 @@ class GovernmentSpendControllerSpec extends BaseSpec {
 
   val mockGovSpendService: GovSpendService = mock[GovSpendService]
 
-  val taxYear = 2020
+  val taxYear = 2024
 
   implicit val mat: Materializer = app.injector.instanceOf[Materializer]
 
