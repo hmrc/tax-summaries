@@ -23,7 +23,6 @@ import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.*
 import sa.services.TaxRateService
-import sa.transformers.ATS2021.ATSCalculationsUK2021
 import sa.transformers.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.utils.DoubleUtils
 
