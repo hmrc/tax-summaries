@@ -52,9 +52,11 @@ class NpsConnector @Inject() (
 
   def url(path: String): String = s"$serviceUrl$path"
 
-  private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURL}$path"
+  private def hipUrl(ninoWithoutSuffix: String, taxYear: Int): String =
+    s"${applicationConfig.hipBaseURL}/individual/$ninoWithoutSuffix/tax-account/$taxYear/annual-tax-summary"
 
-  private def ifUrl(path: String): String = s"${applicationConfig.ifBaseURL}$path"
+  private def ifUrl(ninoWithoutSuffix: String, taxYear: Int): String =
+    s"${applicationConfig.ifBaseURL}/individuals/annual-tax-summary/$ninoWithoutSuffix/$taxYear"
 
   private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
     if (hipToggle)
@@ -76,16 +78,14 @@ class NpsConnector @Inject() (
         "OriginatorId"         -> applicationConfig.ifOriginatorId
       )
 
-  def connectToPayeTaxSummary(NINO: String, TAX_YEAR: Int)(implicit
+  def connectToPayeTaxSummary(nino: String, taxYear: Int)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
-    val ninoWithoutSuffix = NINO.take(8)
+    val ninoWithoutSuffix = nino.take(8)
     featureFlagService.getAsEitherT(PayeDetailsFromHipToggle).flatMap { toggle =>
-      val url = {
-        val path = s"/individual/annual-tax-summary/$ninoWithoutSuffix/$TAX_YEAR"
-        if (toggle.isEnabled) hipUrl(path)
-        else ifUrl(path)
-      }
+      val url =
+        if (toggle.isEnabled) hipUrl(ninoWithoutSuffix, taxYear)
+        else ifUrl(ninoWithoutSuffix, taxYear)
 
       httpClientResponse.read(
         http

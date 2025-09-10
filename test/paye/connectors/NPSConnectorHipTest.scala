@@ -81,16 +81,18 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
     ()
   }
 
+  def hipUrl(nino: String, taxYear: Int): String =
+    s"/individual/" + nino + "/tax-account/" + taxYear + "/annual-tax-summary"
+
   "connectToPayeTaxSummary" must {
 
     "return successful response when provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye/paye_annual_tax_summary.json")
         .replace("dividendAdditionalRateTaxAmoun", "dividendAdditionalRateTaxAmount")
-      val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
-        get(urlEqualTo(url)).willReturn(
+        get(urlEqualTo(hipUrl(testNinoWithoutSuffix, currentYear))).willReturn(
           aResponse()
             .withStatus(OK)
             .withBody(expectedNpsResponse)
@@ -104,7 +106,7 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
       result.getOrElse(HttpResponse(IM_A_TEAPOT, "")).json mustBe Json.parse(expectedNpsResponse)
 
       server.verify(
-        getRequestedFor(urlEqualTo(url))
+        getRequestedFor(urlEqualTo(hipUrl(testNinoWithoutSuffix, currentYear)))
           .withHeader("Environment", equalTo("local"))
           .withHeader(HeaderNames.authorisation, equalTo("Bearer local"))
           .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
@@ -119,10 +121,9 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
     "return successful response when NOT provided suffix" in new NPSConnectorSetUp {
 
       val expectedNpsResponse: String = load("/paye/paye_annual_tax_summary.json")
-      val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
       server.stubFor(
-        get(urlEqualTo(url)).willReturn(
+        get(urlEqualTo(hipUrl(testNinoWithoutSuffix, currentYear))).willReturn(
           aResponse()
             .withStatus(OK)
             .withBody(expectedNpsResponse)
@@ -130,8 +131,8 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
       )
 
       val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(
-        NINO = testNinoWithoutSuffix,
-        TAX_YEAR = currentYear
+        nino = testNinoWithoutSuffix,
+        taxYear = currentYear
       ).value.futureValue
 
       result mustBe a[Right[_, _]]
@@ -141,10 +142,9 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
     "return UpstreamErrorResponse" when {
       List(400, 401, 403, 404, 409, 412, 429, 500, 501, 502, 503, 504).foreach { status =>
         s"a response with status $status is received" in new NPSConnectorSetUp {
-          val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
 
           server.stubFor(
-            get(urlEqualTo(url)).willReturn(
+            get(urlEqualTo(hipUrl(testNinoWithoutSuffix, currentYear))).willReturn(
               aResponse()
                 .withStatus(status)
                 .withBody("")
@@ -152,8 +152,8 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
           )
 
           val result: Future[Either[UpstreamErrorResponse, HttpResponse]] = connectToPayeTaxSummary(
-            NINO = testNino,
-            TAX_YEAR = currentYear
+            nino = testNino,
+            taxYear = currentYear
           ).value
 
           whenReady(result) { res =>
@@ -165,11 +165,10 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
 
     "return INTERNAL_SERVER_ERROR response in case of a timeout exception from http verbs" in new NPSConnectorSetUp {
 
-      val url: String                 = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
       val expectedNpsResponse: String = load("/paye/paye_annual_tax_summary.json")
 
       server.stubFor(
-        get(urlEqualTo(url)).willReturn(
+        get(urlEqualTo(hipUrl(testNinoWithoutSuffix, currentYear))).willReturn(
           aResponse()
             .withStatus(OK)
             .withBody(expectedNpsResponse)
@@ -188,10 +187,8 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
 
     "return INTERNAL_SERVER_ERROR response in case of 503 from NPS" in new NPSConnectorSetUp {
 
-      val url: String = s"/individuals/annual-tax-summary/" + testNinoWithoutSuffix + "/" + currentYear
-
       server.stubFor(
-        get(urlEqualTo(url)).willReturn(
+        get(urlEqualTo(hipUrl(testNinoWithoutSuffix, currentYear))).willReturn(
           aResponse()
             .withStatus(SERVICE_UNAVAILABLE)
             .withBody("SERVICE_UNAVAILABLE")
