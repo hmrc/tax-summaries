@@ -82,7 +82,7 @@ class NpsConnector @Inject() (
     val ninoWithoutSuffix = NINO.take(8)
     featureFlagService.getAsEitherT(PayeDetailsFromHipToggle).flatMap { toggle =>
       val url = {
-        val path = s"/individuals/annual-tax-summary/$ninoWithoutSuffix/$TAX_YEAR"
+        val path = s"/individual/annual-tax-summary/$ninoWithoutSuffix/$TAX_YEAR"
         if (toggle.isEnabled) hipUrl(path)
         else ifUrl(path)
       }
