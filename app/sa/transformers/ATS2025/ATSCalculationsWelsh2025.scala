@@ -35,5 +35,5 @@ class ATSCalculationsWelsh2025(val summaryData: TaxSummaryLiability, val taxRate
     ) * welshRate
   }
 
-  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxWelsh2025")
+  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTax")
 }
