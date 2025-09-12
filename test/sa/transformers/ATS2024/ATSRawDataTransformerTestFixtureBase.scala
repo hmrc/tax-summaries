@@ -183,7 +183,7 @@ trait ATSRawDataTransformerTestFixtureBase
     MarriageAllowanceReceivedAmount -> calcExp("ctnMarriageAllceInAmt"),
     OtherAdjustmentsReducing        -> expOtherAdjustmentsReducing,
     TotalIncomeTax                  -> expTotalIncomeTax,
-    ScottishIncomeTax               -> calcExp("scottishIncomeTaxUK2024:null"),
+    ScottishIncomeTax               -> calcExp("scottishIncomeTax:null"),
     WelshIncomeTax                  -> calcExp("welshIncomeTax:null"),
     ScottishStarterRateTax          -> calcExp("scottishStarterRateTax:null"),
     ScottishBasicRateTax            -> calcExp("scottishBasicRateTax:null"),

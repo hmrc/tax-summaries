@@ -30,7 +30,7 @@ Each year we have to update the tax rules used for ATS for SA users. The process
 <li>Add new tax year items to the tax years map at the bottom of ATSCalculations.</li>
 <li>Add new tax year items to the readsLiabilities method at the bottom of ODSLiabilities.</li>
 <li>Run the unit tests for the new tax year (testOnly test.transformers.ATSyyyy.AtsRawDataTransformerSpec) - they should all pass.</li>
-<li>Now follow the usual TDD process to update tests and code. 
+<li>Now follow the usual TDD process to update tests and code. The "expected" values are in the fixture (ATSRawDataTransformerTestFixtureBase & child classes) and the "actual" values are in the newly copied and renamed folder. 
 <li>Update the tax year in app config staging, raise a PR and get it merged. 
 <li>Edit the app/controllers/testOnly/AtsSaFieldListController.getFieldList method and add a new case for the new tax year, adding any new ODS fields and removing any no longer valid. This needs to be up-to-date with the correct ODS field list for the new tax year otherwise the frontend validation on the SME test tool will fail for that tax year.</li>
 <li>Raise a PR for the code changes and get it merged into staging.</li>

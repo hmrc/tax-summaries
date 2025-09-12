@@ -144,7 +144,7 @@ protected trait ATSRawDataTransformerTestFixtureWales extends ATSRawDataTransfor
   private def welshRate: Double                                   = 0.1d
   override def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++
     Map(
-      ScottishIncomeTax -> calcExp("scottishIncomeTaxWelsh2024:null"),
+      ScottishIncomeTax -> calcExp("scottishIncomeTax:null"),
       WelshIncomeTax    -> calcExp(
         "ctnIncomeChgbleBasicRate",
         "ctnTaxableRedundancyBr",

@@ -292,6 +292,9 @@ object ODSLiabilities {
 
   case object TaxableRedundancySir extends ODSLiabilities("ctnTaxableRedundancySir")
 
+  case object IncomeTermination extends ODSLiabilities("incomeTermination")
+
+
   // format: off
   private val allLiabilities: List[ODSLiabilities with ApiValue] =
     List(AnnuityPay, BPA, BpaAllowance, CGAtHigherRateRPCI, CGAtLowerRateRPCI, CGOtherGainsAfterLoss, CapAdjustment,
@@ -322,11 +325,17 @@ object ODSLiabilities {
       TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
       TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
     )
+    
+    
+    val allLiabilities2023 = allLiabilities2022 :+ RelTaxAcctFor
+    val allLiabilities2024 = allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits
+    val allLiabilities2025 = allLiabilities2024 :+ IncomeTermination
+    
     Map(
       2022 -> allLiabilities2022,
-      2023 -> (allLiabilities2022 :+ RelTaxAcctFor),
-      2024 -> (allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits),
-      2025 -> (allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits),
+      2023 -> allLiabilities2023,
+      2024 -> allLiabilities2024,
+      2025 -> allLiabilities2025
     )
   }
   // format: on

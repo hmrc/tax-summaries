@@ -17,7 +17,7 @@
 package sa.transformers.ATS2025
 
 import common.models.Amount
-import sa.models.ODSLiabilities.ODSLiabilities.{Alimony, AnnuityPay, BPA, BpaAllowance, ChildBenefitCharge, Class2NicAmt, Class4Nic, CommInvTrustRel, DeficiencyRelief, DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, DividendsPartnership, EisRelief, EmployeeClass1NI, EmploymentExpenses, ForeignCegDedn, FtcrRestricted, GiftAidTaxReduced, GiftsInvCharities, IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, ItfCegReceivedAfterTax, LFIRelief, MarriageAllceIn, NetAnnuityPaytsTaxDue, NonDomCharge, NotionalTaxCegs, NotlTaxOtherSource, PensionSavingChargeable, RelTaxAcctFor, ReliefForFinanceCosts, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsChargeableStartRate, SavingsPartnership, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, SavingsTaxStartingRate, SeedEisRelief, SocialInvTaxRel, SumTotForeignTaxRelief, SumTotLifePolicyGains, SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotForeignSav, SummaryTotShareOptions, SummaryTotTrustEstates, SummaryTotalDedPpr, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule, SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxExcluded, TaxOnCegAhr, TaxOnCegBr, TaxOnCegHr, TaxOnCegSr, TaxOnNonExcludedIncome, TaxOnRedundancyAhr, TaxOnRedundancyBr, TaxOnRedundancyHr, TaxOnTransitionProfits, TaxableCegAhr, TaxableCegBr, TaxableCegHr, TaxableCegSr, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr, TopSlicingRelief, VctSharesRelief}
+import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 import sa.transformers.ATSCalculations
@@ -45,7 +45,8 @@ trait ATSCalculations2025 extends ATSCalculations {
       get(SumTotLifePolicyGains) +
       get(SummaryTotForeignSav) +
       get(ForeignCegDedn) +
-      get(ItfCegReceivedAfterTax)
+      get(ItfCegReceivedAfterTax) +
+      get(IncomeTermination)
 
   override def otherAllowances: Amount =
     (
