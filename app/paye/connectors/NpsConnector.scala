@@ -62,7 +62,6 @@ class NpsConnector @Inject() (
     if (hipToggle)
       Seq(
         "Environment"          -> applicationConfig.hipEnvironment,
-        "Authorization"        -> applicationConfig.hipAuthorization,
         HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
         HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
         "CorrelationId"        -> UUID.randomUUID().toString,

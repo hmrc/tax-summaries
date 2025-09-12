@@ -108,7 +108,7 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
       server.verify(
         getRequestedFor(urlEqualTo(hipUrl(testNinoWithoutSuffix, currentYear)))
           .withHeader("Environment", equalTo("local"))
-          .withHeader(HeaderNames.authorisation, equalTo("Bearer local"))
+          .withHeader(HeaderNames.authorisation, equalTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0"))
           .withHeader(HeaderNames.xSessionId, equalTo(sessionId))
           .withHeader(HeaderNames.xRequestId, equalTo(requestId))
           .withHeader(
