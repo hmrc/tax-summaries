@@ -65,7 +65,7 @@ class NpsConnector @Inject() (
         HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
         HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
         "CorrelationId"        -> UUID.randomUUID().toString,
-        "OriginatorId"         -> applicationConfig.hipOriginatorId
+        "Gov-Uk-Originator-Id" -> applicationConfig.hipOriginatorId
       ) ++ hipAuth
     else
       Seq(
