@@ -23,7 +23,7 @@ import common.utils.BaseSpec
 import sa.utils.ATSRawDataTransformerBehaviours
 
 class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransformerBehaviours {
-  s"atsDataDTO for Scotland" must {
+  s"atsDataDTO for Scotland 2024" must {
     "use the correct tax rates" in new ATSRawDataTransformerTestFixtureScotland {
       transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
         Set(
