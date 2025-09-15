@@ -46,7 +46,8 @@ trait SaTestHelper extends IntegrationSpec {
 
   def resultToAtsData(resultOption: Option[Future[Result]]): AtsMiddleTierData =
     resultOption match {
-      case Some(result) => Json.parse(contentAsString(result)).as[AtsMiddleTierData]
+      case Some(result) =>
+        Json.parse(contentAsString(result)).as[AtsMiddleTierData]
       case None         => throw new NoSuchElementException
     }
 

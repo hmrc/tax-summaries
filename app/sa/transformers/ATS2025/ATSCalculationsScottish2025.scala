@@ -17,7 +17,7 @@
 package sa.transformers.ATS2025
 
 import common.models.Amount
-import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, TaxOnCegAhr, TaxOnPayScottishAdvancedRate, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate, TaxOnRedundancyAhr, TaxOnRedundancyBr, TaxOnRedundancyHr, TaxOnRedundancySar, TaxOnRedundancySir, TaxOnRedundancySsr, TaxablePayScottishAdvancedRate, TaxablePayScottishIntermediateRate, TaxablePayScottishStarterRate, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr, TaxableRedundancySar, TaxableRedundancySir, TaxableRedundancySsr}
+import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
@@ -63,9 +63,9 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
     )
 
   override def scottishAdvancedRateTax: Amount =
-    getWithDefaultAmount(TaxOnPayScottishAdvancedRate) + get(TaxOnRedundancySar) + includePensionTaxForRate(
-      taxRates.scottishAdvancedRate
-    )
+    getWithDefaultAmount(TaxOnPayScottishAdvancedRate)
+  // TODO: 10982 The other methods include fields below too - do we need these? Ask Paddy
+  /* + get(TaxOnRedundancySar) + includePensionTaxForRate(taxRates.scottishAdvancedRate)*/
 
   override def scottishAdditionalRateTax: Amount =
     getWithDefaultAmount(IncomeTaxAddHighRate) + get(TaxOnRedundancyAhr) + includePensionTaxForRate(
@@ -92,10 +92,11 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
       taxRates.scottishHigherRate
     )
 
-  override def scottishAdvancedRateIncome: Amount =
-    getWithDefaultAmount(TaxablePayScottishAdvancedRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
-      taxRates.scottishAdvancedRate
-    )
+  // TODO: 10982 Do we need to do anything here? Nothing in spreadsheet. Speak to Paddy
+  //  override def scottishAdvancedRateIncome: Amount =
+  //    getWithDefaultAmount(TaxablePayScottishAdvancedRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
+  //      taxRates.scottishAdvancedRate
+  //    )
 
   override def scottishAdditionalRateIncome: Amount = // LS12.9: Top rate
     getWithDefaultAmount(IncomeChargeableAddHRate) + get(TaxableRedundancyAhr) + includePensionIncomeForRate(

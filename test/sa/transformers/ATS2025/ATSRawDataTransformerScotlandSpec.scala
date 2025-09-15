@@ -17,7 +17,7 @@
 package sa.transformers.ATS2025
 
 import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishAdvancedIncome, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTotalTax, StartingRateForSavings, StartingRateForSavingsAmount, TotalIncomeTax, TotalIncomeTaxAndNics, YourTotalTax}
-import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
+import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishAdvancedRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
 import common.models.{Amount, ApiRate, LiabilityKey}
 import common.utils.BaseSpec
 import sa.utils.ATSRawDataTransformerBehaviours
@@ -32,6 +32,7 @@ class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransfor
           ScottishBasicRate        -> ApiRate("20%"),
           SavingsLowerRate         -> ApiRate("20%"),
           SavingsHigherRate        -> ApiRate("40%"),
+          ScottishAdvancedRate     -> ApiRate("45%"),
           ScottishAdditionalRate   -> ApiRate("48%"),
           IncomeHigher             -> ApiRate("40%"),
           ScottishIntermediateRate -> ApiRate("21%"),
@@ -47,7 +48,7 @@ class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransfor
     }
 
     behave like atsRawDataTransformerWithTotalTaxLiabilityChecks(
-      expTotalTaxLiabilityValue = BigDecimal(11202.58),
+      expTotalTaxLiabilityValue = BigDecimal(12322.58),
       testFixture = new ATSRawDataTransformerTestFixtureScotland {}
     )
 
@@ -176,11 +177,6 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
       "ctnTaxableRedundancyHr",
       "itfStatePensionLsGrossAmt:null"
     ),
-    ScottishAdvancedIncome        -> calcExp(
-      "ctnIncomeChgbleHigherRate",
-      "ctnTaxableRedundancyHr",
-      "itfStatePensionLsGrossAmt:null"
-    ),
     ScottishStarterRateTax        -> calcExp("taxOnPaySSR", "ctnTaxOnRedundancySsr", "ctnPensionLsumTaxDueAmt:null"),
     StartingRateForSavings        -> calcExp("savingsRateScottish2025:null"),
     AdditionalRateIncomeTax       -> calcExp("additionalRateIncomeTaxScottish2025:null"),
@@ -268,6 +264,7 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
     "ctnIncomeTaxHigherRate",
     "ctnTaxOnRedundancyHr",
     "ctnPensionLsumTaxDueAmt:null",
+    "taxOnPaySar",
     "ctnIncomeTaxAddHighRate",
     "ctnTaxOnRedundancyAhr",
     "ctnPensionLsumTaxDueAmt:null"

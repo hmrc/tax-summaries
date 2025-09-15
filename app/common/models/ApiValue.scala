@@ -24,12 +24,22 @@ import scala.collection.{Map => CMap}
 abstract class ApiValue(val apiValue: String)
 
 object ApiValue extends DefaultReads {
+  /*
+KKK:List(additional_rate_rate, cg_entrepreneurs_rate, cg_ordinary_rate, cg_upper_rate, additional_rate_income_tax_rate, basic_rate_income_tax_rate,
+higher_rate_income_tax_rate, prop_interest_rate_higher_rate, prop_interest_rate_lower_rate, nics_and_tax_rate, ordinary_rate_tax_rate,
+starting_rate_for_savings_rate, total_cg_tax_rate, upper_rate_rate, paye_ordinary_rate, paye_dividend_additional_rate, paye_higher_rate_income_tax,
+paye_additional_rate_income_tax, paye_basic_rate_income_tax, paye_upper_rate, paye_scottish_starter_rate, paye_scottish_basic_rate,
+paye_scottish_intermediate_rate, paye_scottish_higher_rate, paye_scottish_top_rate, scottish_starter_rate, scottish_basic_rate,
+scottish_intermediate_rate, scottish_higher_rate, scottish_additional_rate, savings_lower_rate, savings_higher_rate,
+savings_additional_rate):scottish_advanced_rate
 
+
+   */
   private def readKeyValue[K <: ApiValue](key: String, ls: List[K]): JsResult[K] =
     ls.find(_.apiValue == key)
-      .fold[JsResult[K]](
+      .fold[JsResult[K]] {
         JsError(s"Failed to interpret key $key for key in Map")
-      )(k => JsSuccess(k))
+      }(k => JsSuccess(k))
 
   private def readPair[K <: ApiValue, V](pair: (String, JsValue), ls: List[K], reads: Reads[V]): JsResult[(K, V)] =
     for {

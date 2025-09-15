@@ -205,7 +205,7 @@ object ODSLiabilities {
   case object SurplusMcaAlimonyRel extends ODSLiabilities("atsSurplusMcaAlimonyRel")
 
   case object TaxablePayScottishIntermediateRate extends ODSLiabilities("taxablePaySIR")
-  
+
   case object TaxablePayScottishAdvancedRate extends ODSLiabilities("taxablePaySar")
 
   case object TaxablePayScottishStarterRate extends ODSLiabilities("taxablePaySSR")
@@ -219,6 +219,7 @@ object ODSLiabilities {
   case object TaxExcluded extends ODSLiabilities("taxExcluded")
 
   case object TaxOnPayScottishIntermediateRate extends ODSLiabilities("taxOnPaySIR")
+
   case object TaxOnPayScottishAdvancedRate extends ODSLiabilities("taxOnPaySar")
 
   case object TaxOnPayScottishStarterRate extends ODSLiabilities("taxOnPaySSR")
@@ -296,6 +297,7 @@ object ODSLiabilities {
   case object TaxableRedundancySsr extends ODSLiabilities("ctnTaxableRedundancySsr")
 
   case object TaxableRedundancySir extends ODSLiabilities("ctnTaxableRedundancySir")
+
   case object TaxableRedundancySar extends ODSLiabilities("taxableRedundancySar")
 
   case object IncomeTermination extends ODSLiabilities("incomeTermination")
@@ -331,12 +333,12 @@ object ODSLiabilities {
       TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
       TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
     )
-    
-    
+
+
     val allLiabilities2023 = allLiabilities2022 :+ RelTaxAcctFor
     val allLiabilities2024 = allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits
-    val allLiabilities2025 = allLiabilities2024 :+ IncomeTermination
-    
+    val allLiabilities2025 = allLiabilities2024 :+ IncomeTermination :+ TaxableRedundancySar :+ TaxablePayScottishAdvancedRate :+ TaxOnPayScottishAdvancedRate :+ TaxOnRedundancySar
+
     Map(
       2022 -> allLiabilities2022,
       2023 -> allLiabilities2023,

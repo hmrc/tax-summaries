@@ -93,7 +93,7 @@ object RateKey {
       IncomeHigher, InterestHigher, InterestLower, NICS, Ordinary, Savings, TotalCapitalGains, Upper,
       PayeDividendOrdinaryRate, PayeDividendAdditionalRate, PayeHigherRateIncomeTax, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendUpperRate,
       PayeScottishStarterRate, PayeScottishBasicRate, PayeScottishIntermediateRate, PayeScottishHigherRate, PayeScottishTopRate,
-      ScottishStarterRate, ScottishBasicRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate,
+      ScottishStarterRate, ScottishBasicRate, ScottishAdvancedRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate,
       SavingsLowerRate, SavingsHigherRate, SavingsAdditionalRate
     )
   // format: on

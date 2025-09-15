@@ -28,19 +28,26 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
   protected val incomeTaxStatus: String
 
   protected def tliSlpAtsData: Map[String, BigDecimal]
+
   protected def saPayeNicDetails: Map[String, BigDecimal]
 
   def expectedResultIncomeTax: Map[LiabilityKey, Amount]
+
   def expectedResultIncomeData: Map[LiabilityKey, Amount]
+
   def expectedResultCapitalGainsData: Map[LiabilityKey, Amount]
+
   def expectedResultAllowanceData: Map[LiabilityKey, Amount]
+
   def expectedResultSummaryData: Map[LiabilityKey, Amount]
+
   def transformedData: AtsMiddleTierData = doTest(buildJsonPayload())
 
   protected def parsedTaxpayerDetailsJson: JsValue =
     Json.parse(JsonUtil.load("/common/taxpayer/sa_taxpayer-valid.json"))
 
   def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
+
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
     atsRawDataTransformer.atsDataDTO(
       rawPayloadJson = jsonPayload,

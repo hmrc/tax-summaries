@@ -394,6 +394,7 @@ trait AtsRawDataTransformerTestFixtureBaseCalculations {
     "scottishBasicRateTax:null",
     "scottishIntermediateRateTax:null",
     "scottishHigherRateTax:null",
+    "scottishAdvancedRateTax:null",
     "scottishAdditionalRateTax:null"
   )
 

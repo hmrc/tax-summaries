@@ -40,6 +40,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
       liability,
       summaryData.nationalInsuranceData.getOrElse(
         liability, {
+          val a  = new RuntimeException("")
+          a.printStackTrace()
           val ex = ATSParsingException(liability.apiValue)
           logger.error(s"Unable to retrieve $liability", ex)
           throw ex
@@ -145,7 +147,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   def scottishIntermediateRateIncome: Amount = Amount.empty("scottishIntermediateRateIncome")
 
-  def scottishHigherRateIncome: Amount   = Amount.empty("scottishHigherRateIncome")
+  def scottishHigherRateIncome: Amount = Amount.empty("scottishHigherRateIncome")
+
   def scottishAdvancedRateIncome: Amount = Amount.empty("scottishAdvancedRateIncome")
 
   def scottishAdditionalRateIncome: Amount = Amount.empty("scottishAdditionalRateIncome")

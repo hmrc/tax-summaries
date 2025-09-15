@@ -158,4 +158,5 @@ trait ATSCalculations2025 extends ATSCalculations {
 
   override def scottishTotalTax: Amount =
     scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdvancedRateTax + scottishAdditionalRateTax
+
 }
