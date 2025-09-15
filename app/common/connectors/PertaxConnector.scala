@@ -40,7 +40,7 @@ class PertaxConnector @Inject() (
 
   def pertaxAuth(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, PertaxApiResponse] =
     httpClientResponse
-      .read(
+      .readPayeDefault(
         httpClient
           .post(url"$baseUrl/pertax/authorise")
           .setHeader(HeaderNames.ACCEPT -> "application/vnd.hmrc.2.0+json")

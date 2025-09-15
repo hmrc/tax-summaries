@@ -86,7 +86,7 @@ class NpsConnector @Inject() (
         if (toggle.isEnabled) hipUrl(ninoWithoutSuffix, taxYear)
         else ifUrl(ninoWithoutSuffix, taxYear)
 
-      httpClientResponse.read(
+      httpClientResponse.readPaye(
         http
           .get(url"$url")
           .setHeader(createHeader(toggle.isEnabled): _*)

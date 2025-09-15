@@ -197,7 +197,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.read(
+    httpClientResponse.readSA(
       http
         .get(url"${desUrl(s"/self-assessment/individual/$utr/designatory-details/taxpayer")}")
         .setHeader(createHeader(ifToggle = false): _*)
