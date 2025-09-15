@@ -44,6 +44,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       "scottishBasicRate"           -> 20,
       "scottishIntermediateRate"    -> 21,
       "scottishHigherRate"          -> 41,
+      "scottishAdvancedRate"        -> 42,
       "scottishAdditionalRate"      -> 46
     )
 

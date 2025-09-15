@@ -217,6 +217,7 @@ object ODSLiabilities {
   case object TaxExcluded extends ODSLiabilities("taxExcluded")
 
   case object TaxOnPayScottishIntermediateRate extends ODSLiabilities("taxOnPaySIR")
+  case object TaxOnPayScottishAdvancedRate extends ODSLiabilities("taxOnPaySar")
 
   case object TaxOnPayScottishStarterRate extends ODSLiabilities("taxOnPaySSR")
 
@@ -266,6 +267,8 @@ object ODSLiabilities {
 
   case object TaxOnRedundancySir extends ODSLiabilities("ctnTaxOnRedundancySir")
 
+  case object TaxOnRedundancySar extends ODSLiabilities("taxOnRedundancySar")
+
   case object TaxOnCegHr extends ODSLiabilities("ctnTaxOnCegHr")
 
   case object TaxOnRedundancyBr extends ODSLiabilities("ctnTaxOnRedundancyBr")
@@ -291,6 +294,7 @@ object ODSLiabilities {
   case object TaxableRedundancySsr extends ODSLiabilities("ctnTaxableRedundancySsr")
 
   case object TaxableRedundancySir extends ODSLiabilities("ctnTaxableRedundancySir")
+  case object TaxableRedundancySar extends ODSLiabilities("taxableRedundancySar")
 
   case object IncomeTermination extends ODSLiabilities("incomeTermination")
 

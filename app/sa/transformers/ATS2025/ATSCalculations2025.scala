@@ -155,4 +155,7 @@ trait ATSCalculations2025 extends ATSCalculations {
   override def savingsRateAmount: Amount = get(SavingsTaxStartingRate) + get(TaxOnCegSr)
 
   override def savingsRate: Amount = get(SavingsChargeableStartRate) + get(TaxableCegSr)
+
+  override def scottishTotalTax: Amount =
+    scottishStarterRateTax + scottishBasicRateTax + scottishIntermediateRateTax + scottishHigherRateTax + scottishAdvancedRateTax + scottishAdditionalRateTax
 }

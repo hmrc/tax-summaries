@@ -80,6 +80,7 @@ object RateKey {
   case object ScottishBasicRate extends RateKey("scottish_basic_rate")
   case object ScottishIntermediateRate extends RateKey("scottish_intermediate_rate")
   case object ScottishHigherRate extends RateKey("scottish_higher_rate")
+  case object ScottishAdvancedRate extends RateKey("scottish_advanced_rate")
   case object ScottishAdditionalRate extends RateKey("scottish_additional_rate")
   case object SavingsLowerRate extends RateKey(apiValue = "savings_lower_rate")
   case object SavingsHigherRate extends RateKey(apiValue = "savings_higher_rate")

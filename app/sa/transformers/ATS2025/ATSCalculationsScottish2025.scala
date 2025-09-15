@@ -17,7 +17,7 @@
 package sa.transformers.ATS2025
 
 import common.models.Amount
-import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, TaxOnCegAhr, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate, TaxOnRedundancyAhr, TaxOnRedundancyBr, TaxOnRedundancyHr, TaxOnRedundancySir, TaxOnRedundancySsr, TaxablePayScottishIntermediateRate, TaxablePayScottishStarterRate, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr, TaxableRedundancySir, TaxableRedundancySsr}
+import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, TaxOnCegAhr, TaxOnPayScottishAdvancedRate, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate, TaxOnRedundancyAhr, TaxOnRedundancyBr, TaxOnRedundancyHr, TaxOnRedundancySar, TaxOnRedundancySir, TaxOnRedundancySsr, TaxablePayScottishIntermediateRate, TaxablePayScottishStarterRate, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr, TaxableRedundancySar, TaxableRedundancySir, TaxableRedundancySsr}
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
@@ -62,6 +62,11 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
       taxRates.scottishHigherRate
     )
 
+  override def scottishAdvancedRateTax: Amount =
+    getWithDefaultAmount(TaxOnPayScottishAdvancedRate) + get(TaxOnRedundancySar) + includePensionTaxForRate(
+      taxRates.scottishAdvancedRate
+    )
+
   override def scottishAdditionalRateTax: Amount =
     getWithDefaultAmount(IncomeTaxAddHighRate) + get(TaxOnRedundancyAhr) + includePensionTaxForRate(
       taxRates.scottishAdditionalRate
@@ -85,6 +90,12 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
   override def scottishHigherRateIncome: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) + get(TaxableRedundancyHr) + includePensionIncomeForRate(
       taxRates.scottishHigherRate
+    )
+
+  override def scottishAdvancedRateIncome: Amount =
+    // TODO: 10982 - What do I put in place of IncomeChargeableHigherRate???
+    getWithDefaultAmount(IncomeChargeableHigherRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
+      taxRates.scottishAdvancedRate
     )
 
   override def scottishAdditionalRateIncome: Amount = // LS12.9: Top rate

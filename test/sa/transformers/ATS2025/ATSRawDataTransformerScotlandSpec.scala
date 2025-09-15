@@ -16,7 +16,7 @@
 
 package sa.transformers.ATS2025
 
-import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTotalTax, StartingRateForSavings, StartingRateForSavingsAmount, TotalIncomeTax, TotalIncomeTaxAndNics, YourTotalTax}
+import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishAdvancedIncome, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTotalTax, StartingRateForSavings, StartingRateForSavingsAmount, TotalIncomeTax, TotalIncomeTaxAndNics, YourTotalTax}
 import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
 import common.models.{Amount, ApiRate, LiabilityKey}
 import common.utils.BaseSpec
@@ -32,12 +32,12 @@ class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransfor
           ScottishBasicRate        -> ApiRate("20%"),
           SavingsLowerRate         -> ApiRate("20%"),
           SavingsHigherRate        -> ApiRate("40%"),
-          ScottishAdditionalRate   -> ApiRate("46%"),
+          ScottishAdditionalRate   -> ApiRate("48%"),
           IncomeHigher             -> ApiRate("40%"),
           ScottishIntermediateRate -> ApiRate("21%"),
           SavingsAdditionalRate    -> ApiRate("45%"),
           IncomeAdditional         -> ApiRate("45%"),
-          ScottishHigherRate       -> ApiRate("41%"),
+          ScottishHigherRate       -> ApiRate("42%"),
           ScottishStarterRate      -> ApiRate("19%"),
           Savings                  -> ApiRate("0%"),
           Upper                    -> ApiRate("33.75%"),
@@ -172,6 +172,11 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
     ScottishIncomeTax             -> calcExp("scottishIncomeTaxScottish2025:null"),
     ScottishIntermediateRateTax   -> calcExp("taxOnPaySIR", "ctnTaxOnRedundancySir", "ctnPensionLsumTaxDueAmt:null"),
     ScottishHigherIncome          -> calcExp(
+      "ctnIncomeChgbleHigherRate",
+      "ctnTaxableRedundancyHr",
+      "itfStatePensionLsGrossAmt:null"
+    ),
+    ScottishAdvancedIncome        -> calcExp(
       "ctnIncomeChgbleHigherRate",
       "ctnTaxableRedundancyHr",
       "itfStatePensionLsGrossAmt:null"

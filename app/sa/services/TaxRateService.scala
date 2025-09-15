@@ -56,5 +56,6 @@ class TaxRateService @Inject() (val taxYear: Int, configRate: Int => Map[String,
   def scottishBasicRate: Rate        = getRate("scottishBasicRate")
   def scottishIntermediateRate: Rate = getRate("scottishIntermediateRate")
   def scottishHigherRate: Rate       = getRate("scottishHigherRate")
+  def scottishAdvancedRate: Rate     = getRate("scottishAdvancedRate")
   def scottishAdditionalRate: Rate   = getRate("scottishAdditionalRate")
 }
