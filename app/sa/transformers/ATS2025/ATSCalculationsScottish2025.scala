@@ -17,7 +17,7 @@
 package sa.transformers.ATS2025
 
 import common.models.Amount
-import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, TaxOnCegAhr, TaxOnPayScottishAdvancedRate, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate, TaxOnRedundancyAhr, TaxOnRedundancyBr, TaxOnRedundancyHr, TaxOnRedundancySar, TaxOnRedundancySir, TaxOnRedundancySsr, TaxablePayScottishIntermediateRate, TaxablePayScottishStarterRate, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr, TaxableRedundancySar, TaxableRedundancySir, TaxableRedundancySsr}
+import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, TaxOnCegAhr, TaxOnPayScottishAdvancedRate, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate, TaxOnRedundancyAhr, TaxOnRedundancyBr, TaxOnRedundancyHr, TaxOnRedundancySar, TaxOnRedundancySir, TaxOnRedundancySsr, TaxablePayScottishAdvancedRate, TaxablePayScottishIntermediateRate, TaxablePayScottishStarterRate, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr, TaxableRedundancySar, TaxableRedundancySir, TaxableRedundancySsr}
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
@@ -93,8 +93,7 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
     )
 
   override def scottishAdvancedRateIncome: Amount =
-    // TODO: 10982 - What do I put in place of IncomeChargeableHigherRate???
-    getWithDefaultAmount(IncomeChargeableHigherRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
+    getWithDefaultAmount(TaxablePayScottishAdvancedRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
       taxRates.scottishAdvancedRate
     )
 

@@ -158,8 +158,9 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishIntermediateRateTax extends LiabilityKey("scottish_intermediate_rate_tax")
 
-  case object ScottishAdvancedRateTax extends LiabilityKey("scottish_advanced_rate_tax")
   case object ScottishHigherRateTax extends LiabilityKey("scottish_higher_rate_tax")
+
+  case object ScottishAdvancedRateTax extends LiabilityKey("scottish_advanced_rate_tax")
 
   case object ScottishAdditionalRateTax extends LiabilityKey("scottish_additional_rate_tax")
 
@@ -194,6 +195,7 @@ object LiabilityKey extends DefaultReads {
   case object ScottishIntermediateIncome extends LiabilityKey("scottish_intermediate_income")
 
   case object ScottishHigherIncome extends LiabilityKey("scottish_higher_income")
+
   case object ScottishAdvancedIncome extends LiabilityKey("scottish_advanced_income")
 
   case object ScottishAdditionalIncome extends LiabilityKey("scottish_additional_income")
@@ -235,7 +237,7 @@ object LiabilityKey extends DefaultReads {
     ScottishHigherIncome, ScottishAdvancedIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
     SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax
   )
-    // format: on
+  // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =
     ApiValue.formatMap[LiabilityKey, V](allItems)

@@ -205,6 +205,8 @@ object ODSLiabilities {
   case object SurplusMcaAlimonyRel extends ODSLiabilities("atsSurplusMcaAlimonyRel")
 
   case object TaxablePayScottishIntermediateRate extends ODSLiabilities("taxablePaySIR")
+  
+  case object TaxablePayScottishAdvancedRate extends ODSLiabilities("taxablePaySar")
 
   case object TaxablePayScottishStarterRate extends ODSLiabilities("taxablePaySSR")
 
