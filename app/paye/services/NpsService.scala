@@ -17,14 +17,14 @@
 package paye.services
 
 import cats.data.EitherT
-import cats.implicits._
+import cats.implicits.*
 import com.google.inject.Inject
 import common.config.ApplicationConfig
 import paye.connectors.NpsConnector
 import paye.models
 import paye.models.{PayeAtsData, PayeAtsMiddleTier}
 import paye.repositories.Repository
-import play.api.http.Status.NOT_FOUND
+import play.api.http.Status.{NOT_FOUND, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,9 +39,10 @@ class NpsService @Inject() (repository: Repository, innerService: DirectNpsServi
     taxYears
       .map { year =>
         getPayeATSData(nino, year).transform {
-          case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => Right(None)
-          case Right(data)                                     => Right(Some(data))
-          case Left(error)                                     => Left(error)
+          case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _))            => Right(None) // Nino not found
+          case Left(UpstreamErrorResponse(_, UNPROCESSABLE_ENTITY, _, _)) => Right(None) // No ATS data
+          case Right(data)                                                => Right(Some(data))
+          case Left(error)                                                => Left(error)
         }
       }
       .sequence

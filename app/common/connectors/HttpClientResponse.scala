@@ -26,9 +26,29 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class HttpClientResponse @Inject() ()(implicit ec: ExecutionContext) extends Logging {
-  private val logErrorResponsesMain: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
+  private val logErrorResponsesDefault: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
+    case Success(Left(error)) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
+      logger.error(error.message)
+    case Failure(exception: HttpException)                                                        =>
+      logger.error(exception.message)
+  }
+
+  private val logErrorResponsesSa: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
     case Success(Left(error)) if error.statusCode == NOT_FOUND                                    =>
       logger.info(error.message)
+    case Success(Left(error)) if error.statusCode == LOCKED                                       =>
+      logger.warn(error.message)
+    case Success(Left(error)) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
+      logger.error(error.message)
+    case Failure(exception: HttpException)                                                        =>
+      logger.error(exception.message)
+  }
+
+  private val logErrorResponsesPaye: PartialFunction[Try[Either[UpstreamErrorResponse, HttpResponse]], Unit] = {
+    case Success(Left(error)) if error.statusCode == NOT_FOUND                                    =>
+      logger.info(error.message) // nino not found
+    case Success(Left(error)) if error.statusCode == UNPROCESSABLE_ENTITY                         =>
+      logger.info(error.message) // no ats data
     case Success(Left(error)) if error.statusCode == LOCKED                                       =>
       logger.warn(error.message)
     case Success(Left(error)) if error.statusCode >= 499 || error.statusCode == TOO_MANY_REQUESTS =>
@@ -47,13 +67,23 @@ class HttpClientResponse @Inject() ()(implicit ec: ExecutionContext) extends Log
       Left(UpstreamErrorResponse(exception.message, BAD_GATEWAY, BAD_GATEWAY))
   }
 
-  def read(
+  def readPayeDefault(
     response: Future[Either[UpstreamErrorResponse, HttpResponse]]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(
       response
         andThen
-          (logErrorResponsesMain orElse logUpstreamErrorResponseAsError)
+          (logErrorResponsesDefault orElse logUpstreamErrorResponseAsError)
+          recover recoverHttpException
+    )
+
+  def readPaye(
+    response: Future[Either[UpstreamErrorResponse, HttpResponse]]
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    EitherT(
+      response
+        andThen
+          (logErrorResponsesPaye orElse logUpstreamErrorResponseAsError)
           recover recoverHttpException
     )
 
@@ -66,7 +96,7 @@ class HttpClientResponse @Inject() ()(implicit ec: ExecutionContext) extends Log
     EitherT(
       response
         andThen
-          (logErrorResponsesMain orElse logBadRequestAsInfo orElse logUpstreamErrorResponseAsError)
+          (logErrorResponsesSa orElse logBadRequestAsInfo orElse logUpstreamErrorResponseAsError)
           recover recoverHttpException
     )
   }
