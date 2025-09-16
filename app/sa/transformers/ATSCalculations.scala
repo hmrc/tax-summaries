@@ -149,6 +149,10 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   def scottishAdvancedRateIncome: Amount = Amount.empty("scottishAdvancedRateIncome")
 
+  def brdCharge: Amount = Amount.empty("brdCharge")
+
+  def brdReduction: Amount = Amount.empty("brdReduction")
+
   def scottishAdditionalRateIncome: Amount = Amount.empty("scottishAdditionalRateIncome")
 
   def scottishTopRateIncome: Amount = Amount.empty("scottishTopRateIncome")

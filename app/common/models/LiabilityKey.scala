@@ -16,7 +16,7 @@
 
 package common.models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 sealed class LiabilityKey(apiValue: String) extends ApiValue(apiValue)
 
@@ -197,6 +197,10 @@ object LiabilityKey extends DefaultReads {
   case object ScottishHigherIncome extends LiabilityKey("scottish_higher_income")
 
   case object ScottishAdvancedIncome extends LiabilityKey("scottish_advanced_income")
+
+  case object BrdCharge extends LiabilityKey("brdCharge")
+
+  case object BrdReduction extends LiabilityKey("brdReduction")
 
   case object ScottishAdditionalIncome extends LiabilityKey("scottish_additional_income")
 

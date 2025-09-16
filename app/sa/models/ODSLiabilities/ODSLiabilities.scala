@@ -300,8 +300,22 @@ object ODSLiabilities {
 
   case object TaxableRedundancySar extends ODSLiabilities("taxableRedundancySar")
 
+  case object BrdReduction extends ODSLiabilities("brdReduction")
+
+  case object BrdCharge extends ODSLiabilities("brdCharge")
+
   case object IncomeTermination extends ODSLiabilities("incomeTermination")
+
   case object CapOffshoreTrustLiability extends ODSLiabilities("capOffshoreTrustLiability")
+
+  case object CGAtLowerRateCI extends ODSLiabilities("cGAtLowerRateCI")
+  case object lowerRateCgtCI extends ODSLiabilities("lowerRateCgtCI")
+  case object CGAtHigherRateCI extends ODSLiabilities("cGAtHigherRateCI")
+  case object higherRateCgtCI extends ODSLiabilities("higherRateCgtCI")
+  case object CGAtLowerRateRP extends ODSLiabilities("cGAtLowerRateRP")
+  case object lowerRateCgtRP extends ODSLiabilities("lowerRateCgtRP")
+  case object CGAtHigherRateRP extends ODSLiabilities("cGAtHigherRateRP")
+  case object higherRateCgtRP extends ODSLiabilities("higherRateCgtRP")
 
 
   // format: off
@@ -338,7 +352,18 @@ object ODSLiabilities {
 
     val allLiabilities2023 = allLiabilities2022 :+ RelTaxAcctFor
     val allLiabilities2024 = allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits
-    val allLiabilities2025 = allLiabilities2024 :+ IncomeTermination :+ TaxableRedundancySar :+ TaxablePayScottishAdvancedRate :+ TaxOnPayScottishAdvancedRate :+ TaxOnRedundancySar :+ CapOffshoreTrustLiability
+    val allLiabilities2025 = allLiabilities2024 ++
+      List(
+        BrdReduction, BrdCharge, // Extra fields for frontend
+        IncomeTermination, // Added to otherIncome but not required for frontend
+        TaxablePayScottishAdvancedRate, TaxableRedundancySar, TaxOnPayScottishAdvancedRate, TaxOnRedundancySar,
+        // TODO 10982: Need to speak to Paddy about what to do with these:-
+        CGAtLowerRateCI, lowerRateCgtCI,
+        CGAtHigherRateCI, higherRateCgtCI,
+        CGAtLowerRateRP, lowerRateCgtRP,
+        CGAtHigherRateRP, higherRateCgtRP,
+        CapOffshoreTrustLiability // Added to adjustmentToCapitalGainsTax but not required for frontend
+      )
 
     Map(
       2022 -> allLiabilities2022,
@@ -347,8 +372,8 @@ object ODSLiabilities {
       2025 -> allLiabilities2025
     )
   }
-  // format: on
 
+  // format: on
   def readsLiabilities(taxYear: Int): Reads[ODSLiabilities] =
     ApiValue.readFromList[ODSLiabilities] {
       mapLiabilities.get(taxYear) match {

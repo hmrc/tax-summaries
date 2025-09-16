@@ -161,4 +161,8 @@ trait ATSCalculations2025 extends ATSCalculations {
 
   override def adjustmentsToCapitalGains: Amount = get(CapAdjustment) + get(CapOffshoreTrustLiability)
 
+  override def brdCharge: Amount = get(BrdCharge)
+
+  override def brdReduction: Amount = get(BrdReduction)
+
 }

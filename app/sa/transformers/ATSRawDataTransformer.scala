@@ -223,7 +223,9 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       SavingsAdditionalRateTax        -> calculations.savingsAdditionalRateTax,
       SavingsLowerIncome              -> calculations.savingsBasicRateIncome,
       SavingsHigherIncome             -> calculations.savingsHigherRateIncome,
-      SavingsAdditionalIncome         -> calculations.savingsAdditionalRateIncome
+      SavingsAdditionalIncome         -> calculations.savingsAdditionalRateIncome,
+      LiabilityKey.BrdCharge          -> calculations.brdCharge,
+      LiabilityKey.BrdReduction       -> calculations.brdReduction
     )
 
   private def createCapitalGainsTaxRates(
