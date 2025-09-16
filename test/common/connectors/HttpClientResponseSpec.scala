@@ -42,10 +42,10 @@ class HttpClientResponseSpec
 
   "read" must {
     behave like clientResponseLogger(
-      httpClientResponseUsingMockLogger.read,
-      infoLevel = Set(NOT_FOUND),
+      httpClientResponseUsingMockLogger.readPaye,
+      infoLevel = Set(NOT_FOUND, UNPROCESSABLE_ENTITY),
       warnLevel = Set(LOCKED),
-      errorLevelWithThrowable = Set(UNPROCESSABLE_ENTITY, UNAUTHORIZED, FORBIDDEN, BAD_REQUEST),
+      errorLevelWithThrowable = Set(UNAUTHORIZED, FORBIDDEN, BAD_REQUEST),
       errorLevelWithoutThrowable = Set(TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR)
     )
   }

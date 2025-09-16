@@ -61,6 +61,23 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
       }
     }
 
+    "return a NOT_FOUND with an error message when NPS returns a UNPROCESSABLE_ENTITY" in {
+      val errorMessage = """{"failures":[{"code":"63356","reason":"No ATS Available"}]}"""
+      server.stubFor(
+        get(urlEqualTo(npsAtsDataUrl)).willReturn(
+          aResponse()
+            .withStatus(UNPROCESSABLE_ENTITY)
+            .withBody(errorMessage)
+        )
+      )
+
+      val result = route(fakeApplication(), request)
+      result.map(getStatus) mustBe Some(NOT_FOUND)
+      result.map(contentAsString).map { message =>
+        message must include(errorMessage)
+      }
+    }
+
     "return a IM_A_TEAPOT with an error message when NPS returns a INTERNAL_SERVER_ERROR" in {
       server.stubFor(
         get(urlEqualTo(npsAtsDataUrl)).willReturn(

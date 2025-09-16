@@ -135,8 +135,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
       )
 
       val result: Either[UpstreamErrorResponse, HttpResponse] = connectToPayeTaxSummary(
-        NINO = testNinoWithoutSuffix,
-        TAX_YEAR = currentYear
+        nino = testNinoWithoutSuffix,
+        taxYear = currentYear
       ).value.futureValue
 
       result mustBe a[Right[_, _]]
@@ -157,8 +157,8 @@ class NPSConnectorTest extends BaseSpec with WireMockHelper {
           )
 
           val result: Future[Either[UpstreamErrorResponse, HttpResponse]] = connectToPayeTaxSummary(
-            NINO = testNino,
-            TAX_YEAR = currentYear
+            nino = testNino,
+            taxYear = currentYear
           ).value
 
           whenReady(result) { res =>
