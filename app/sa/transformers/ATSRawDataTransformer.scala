@@ -91,9 +91,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
               Some(calculations.taxLiability) // Careful: taxLiability overridden based on Nationality/ tax year
           )
         catch {
-          case ATSParsingException(message) =>
-            AtsMiddleTierData.error(taxYear, message)
-          case otherError: Throwable        =>
+          case x @ ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
+          case otherError: Throwable            =>
             logger.error("Unexpected error has occurred", otherError)
             AtsMiddleTierData.error(taxYear, "Other Error")
         }
@@ -139,7 +138,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       AmountDueAtOrdinaryRate      -> calculations.get(CgDueLowerRate),
       AmountAtHigherRate           -> calculations.get(CgAtHigherRate),
       AmountDueAtHigherRate        -> calculations.get(CgDueHigherRate),
-      Adjustments                  -> calculations.get(CapAdjustment),
+      Adjustments                  -> calculations.adjustmentsToCapitalGains,
       TotalCgTax                   -> calculations.totalCapitalGainsTax,
       CgTaxPerCurrencyUnit         -> calculations.capitalGainsTaxPerCurrency,
       AmountAtRPCILowerRate        -> calculations.getWithDefaultAmount(CGAtLowerRateRPCI),

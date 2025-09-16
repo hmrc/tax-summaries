@@ -45,9 +45,9 @@ trait ATSRawDataTransformerBehaviours extends BaseSpec {
           // }
           }
 
-          //          "check for missing keys made" in {
-          //            exp.keys.toSeq.diff(act.keys.toSeq) mustBe Nil
-          //          }
+          "check for missing keys made" in {
+            exp.keys.toSeq.diff(act.keys.toSeq) mustBe Nil
+          }
         }
       }
     }

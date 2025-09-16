@@ -47,7 +47,6 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
     Json.parse(JsonUtil.load("/common/taxpayer/sa_taxpayer-valid.json"))
 
   def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
-
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
     atsRawDataTransformer.atsDataDTO(
       rawPayloadJson = jsonPayload,

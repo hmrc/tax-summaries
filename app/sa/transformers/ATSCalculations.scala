@@ -40,8 +40,6 @@ trait ATSCalculations extends DoubleUtils with Logging {
       liability,
       summaryData.nationalInsuranceData.getOrElse(
         liability, {
-          val a  = new RuntimeException("")
-          a.printStackTrace()
           val ex = ATSParsingException(liability.apiValue)
           logger.error(s"Unable to retrieve $liability", ex)
           throw ex
@@ -251,6 +249,8 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   private def liabilityAsPercentage(amountPerUnit: Amount): Rate =
     Rate.rateFromPerUnitAmount(amountPerUnit)
+
+  def adjustmentsToCapitalGains: Amount = get(CapAdjustment)
 }
 
 object ATSCalculations {

@@ -160,7 +160,8 @@ trait ATSRawDataTransformerTestFixtureBase
     "taxablePaySar"              -> BigDecimal(1100.00),
     "taxableRedundancySar"       -> BigDecimal(1110.00),
     "taxOnPaySar"                -> BigDecimal(1120.00),
-    "taxOnRedundancySar"         -> BigDecimal(1130.00)
+    "taxOnRedundancySar"         -> BigDecimal(1130.00),
+    "capOffshoreTrustLiability"  -> BigDecimal(1140.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
   override protected def saPayeNicDetails: Map[String, BigDecimal] = Map(
@@ -237,7 +238,7 @@ trait ATSRawDataTransformerTestFixtureBase
     AmountDueAtOrdinaryRate      -> calcExp("ctnCgDueLowerRate"),
     AmountAtHigherRate           -> calcExp("ctnCgAtHigherRate"),
     AmountDueAtHigherRate        -> calcExp("ctnCgDueHigherRate"),
-    Adjustments                  -> calcExp("capAdjustmentAmt"),
+    Adjustments                  -> calcExp("capAdjustmentAmt", "capOffshoreTrustLiability"),
     TotalCgTax                   -> expTotalCgTax.max(0),
     CgTaxPerCurrencyUnit         -> expTotalCgTax.max(0).divideWithPrecision(expTaxableGains, 4),
     AmountAtRPCILowerRate        -> calcExp("ctnCGAtLowerRateRPCI"),

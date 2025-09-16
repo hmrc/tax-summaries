@@ -301,6 +301,7 @@ object ODSLiabilities {
   case object TaxableRedundancySar extends ODSLiabilities("taxableRedundancySar")
 
   case object IncomeTermination extends ODSLiabilities("incomeTermination")
+  case object CapOffshoreTrustLiability extends ODSLiabilities("capOffshoreTrustLiability")
 
 
   // format: off
@@ -337,7 +338,7 @@ object ODSLiabilities {
 
     val allLiabilities2023 = allLiabilities2022 :+ RelTaxAcctFor
     val allLiabilities2024 = allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits
-    val allLiabilities2025 = allLiabilities2024 :+ IncomeTermination :+ TaxableRedundancySar :+ TaxablePayScottishAdvancedRate :+ TaxOnPayScottishAdvancedRate :+ TaxOnRedundancySar
+    val allLiabilities2025 = allLiabilities2024 :+ IncomeTermination :+ TaxableRedundancySar :+ TaxablePayScottishAdvancedRate :+ TaxOnPayScottishAdvancedRate :+ TaxOnRedundancySar :+ CapOffshoreTrustLiability
 
     Map(
       2022 -> allLiabilities2022,
