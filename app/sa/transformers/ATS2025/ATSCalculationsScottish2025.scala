@@ -62,9 +62,9 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
       taxRates.scottishHigherRate
     )
 
+  // TODO 10982 Uncomment and follow model for other rates
   override def scottishAdvancedRateTax: Amount =
     getWithDefaultAmount(TaxOnPayScottishAdvancedRate)
-  // TODO: 10982 The other methods include fields below too - do we need these? Ask Paddy
   /* + get(TaxOnRedundancySar) + includePensionTaxForRate(taxRates.scottishAdvancedRate)*/
 
   override def scottishAdditionalRateTax: Amount =
@@ -92,7 +92,7 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
       taxRates.scottishHigherRate
     )
 
-  // TODO: 10982 Do we need to do anything here? Nothing in spreadsheet. Speak to Paddy
+  // TODO 10982 Uncomment and follow model for other rates
   //  override def scottishAdvancedRateIncome: Amount =
   //    getWithDefaultAmount(TaxablePayScottishAdvancedRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
   //      taxRates.scottishAdvancedRate
