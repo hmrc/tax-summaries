@@ -355,13 +355,12 @@ object ODSLiabilities {
     val allLiabilities2024 = allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits
     val allLiabilities2025 = allLiabilities2024 ++
       List(
-        BrdReduction, BrdCharge, // Extra fields for frontend
-        IncomeTermination, // Added to otherIncome but not required for frontend
+        BrdReduction, BrdCharge,
+        IncomeTermination,
         TaxablePayScottishAdvancedRate, TaxableRedundancySar, TaxOnPayScottishAdvancedRate, TaxOnRedundancySar,
-        // TODO 10982: Fields for frontend and add into CG totals:-
         CGAtLowerRateCI, LowerRateCgtCI, CGAtHigherRateCI, HigherRateCgtCI, 
         CGAtLowerRateRP, LowerRateCgtRP, CGAtHigherRateRP, HigherRateCgtRP,
-        CapOffshoreTrustLiability // Added to adjustmentToCapitalGainsTax but not required for frontend
+        CapOffshoreTrustLiability
       )
 
     Map(
