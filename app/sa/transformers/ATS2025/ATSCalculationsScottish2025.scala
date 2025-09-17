@@ -64,8 +64,9 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
 
   // TODO 10982 Uncomment and follow model for other rates
   override def scottishAdvancedRateTax: Amount =
-    getWithDefaultAmount(TaxOnPayScottishAdvancedRate)
-  /* + get(TaxOnRedundancySar) + includePensionTaxForRate(taxRates.scottishAdvancedRate)*/
+    getWithDefaultAmount(TaxOnPayScottishAdvancedRate) + get(TaxOnRedundancySar) + includePensionTaxForRate(
+      taxRates.scottishAdvancedRate
+    )
 
   override def scottishAdditionalRateTax: Amount =
     getWithDefaultAmount(IncomeTaxAddHighRate) + get(TaxOnRedundancyAhr) + includePensionTaxForRate(
@@ -92,11 +93,10 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
       taxRates.scottishHigherRate
     )
 
-  // TODO 10982 Uncomment and follow model for other rates
-  //  override def scottishAdvancedRateIncome: Amount =
-  //    getWithDefaultAmount(TaxablePayScottishAdvancedRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
-  //      taxRates.scottishAdvancedRate
-  //    )
+  override def scottishAdvancedRateIncome: Amount =
+    getWithDefaultAmount(TaxablePayScottishAdvancedRate) + get(TaxableRedundancySar) + includePensionIncomeForRate(
+      taxRates.scottishAdvancedRate
+    )
 
   override def scottishAdditionalRateIncome: Amount = // LS12.9: Top rate
     getWithDefaultAmount(IncomeChargeableAddHRate) + get(TaxableRedundancyAhr) + includePensionIncomeForRate(

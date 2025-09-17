@@ -48,7 +48,7 @@ class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransfor
     }
 
     behave like atsRawDataTransformerWithTotalTaxLiabilityChecks(
-      expTotalTaxLiabilityValue = BigDecimal(12322.58),
+      expTotalTaxLiabilityValue = BigDecimal(13452.58),
       testFixture = new ATSRawDataTransformerTestFixtureScotland {}
     )
 
@@ -165,7 +165,8 @@ class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransfor
 }
 
 protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTransformerTestFixtureBase {
-  override protected val incomeTaxStatus: String                  = "0002"
+  override protected val incomeTaxStatus: String = "0002"
+
   override def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++ Map(
     StartingRateForSavingsAmount  -> calcExp("savingsRateAmountScottish2025:null"),
     SavingsLowerIncome            -> calcExp("ctnSavingsChgbleLowerRate"),
@@ -175,6 +176,11 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
     ScottishHigherIncome          -> calcExp(
       "ctnIncomeChgbleHigherRate",
       "ctnTaxableRedundancyHr",
+      "itfStatePensionLsGrossAmt:null"
+    ),
+    ScottishAdvancedIncome        -> calcExp(
+      "taxablePaySar",
+      "taxableRedundancySar",
       "itfStatePensionLsGrossAmt:null"
     ),
     ScottishStarterRateTax        -> calcExp("taxOnPaySSR", "ctnTaxOnRedundancySsr", "ctnPensionLsumTaxDueAmt:null"),
@@ -265,6 +271,8 @@ protected trait ATSRawDataTransformerTestFixtureScotland extends ATSRawDataTrans
     "ctnTaxOnRedundancyHr",
     "ctnPensionLsumTaxDueAmt:null",
     "taxOnPaySar",
+    "taxOnRedundancySar",
+    "ctnPensionLsumTaxDueAmt:null",
     "ctnIncomeTaxAddHighRate",
     "ctnTaxOnRedundancyAhr",
     "ctnPensionLsumTaxDueAmt:null"
