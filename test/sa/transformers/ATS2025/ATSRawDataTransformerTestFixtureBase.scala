@@ -16,7 +16,7 @@
 
 package sa.transformers.ATS2025
 
-import common.models.LiabilityKey.{AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments, AmountAtEntrepreneursRate, AmountAtHigherRate, AmountAtOrdinaryRate, AmountAtRPCIHigheRate, AmountAtRPCILowerRate, AmountDueAtEntrepreneursRate, AmountDueAtHigherRate, AmountDueAtOrdinaryRate, AmountDueRPCIHigherRate, AmountDueRPCILowerRate, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, BrdCharge, BrdReduction, CgTaxPerCurrencyUnit, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeFromEmployment, LessTaxFreeAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishAdvancedIncome, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTotalTax, SelfEmploymentIncome, StartingRateForSavings, StartingRateForSavingsAmount, StatePension, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTaxAndNics, TotalTaxFreeAmount, WelshIncomeTax, YourTotalTax}
+import common.models.LiabilityKey.{AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments, AmountAtCIHigherRate, AmountAtCILowerRate, AmountAtEntrepreneursRate, AmountAtHigherRate, AmountAtOrdinaryRate, AmountAtRPCIHigheRate, AmountAtRPCILowerRate, AmountAtRPHigherRate, AmountAtRPLowerRate, AmountDueAtEntrepreneursRate, AmountDueAtHigherRate, AmountDueAtOrdinaryRate, AmountDueCIHigherRate, AmountDueCILowerRate, AmountDueRPCIHigherRate, AmountDueRPCILowerRate, AmountDueRPHigherRate, AmountDueRPLowerRate, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, BrdCharge, BrdReduction, CgTaxPerCurrencyUnit, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeFromEmployment, LessTaxFreeAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishAdvancedIncome, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTotalTax, SelfEmploymentIncome, StartingRateForSavings, StartingRateForSavingsAmount, StatePension, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTaxAndNics, TotalTaxFreeAmount, WelshIncomeTax, YourTotalTax}
 import common.models.{Amount, LiabilityKey}
 import sa.utils.AtsRawDataTransformerTestFixture
 
@@ -163,7 +163,15 @@ trait ATSRawDataTransformerTestFixtureBase
     "taxableRedundancySar"       -> BigDecimal(1110.00),
     "taxOnPaySar"                -> BigDecimal(1120.00),
     "taxOnRedundancySar"         -> BigDecimal(1130.00),
-    "capOffshoreTrustLiability"  -> BigDecimal(1140.00)
+    "capOffshoreTrustLiability"  -> BigDecimal(1140.00),
+    "cGAtLowerRateCI"            -> BigDecimal(1180.00),
+    "lowerRateCgtCI"             -> BigDecimal(1190.00),
+    "cGAtHigherRateCI"           -> BigDecimal(1200.00),
+    "higherRateCgtCI"            -> BigDecimal(1210.00),
+    "cGAtLowerRateRP"            -> BigDecimal(1220.00),
+    "lowerRateCgtRP"             -> BigDecimal(1230.00),
+    "cGAtHigherRateRP"           -> BigDecimal(1240.00),
+    "higherRateCgtRP"            -> BigDecimal(1250.00)
   ).map(item => item._1 -> item._2.setScale(2))
 
   override protected def saPayeNicDetails: Map[String, BigDecimal] = Map(
@@ -249,7 +257,15 @@ trait ATSRawDataTransformerTestFixtureBase
     AmountAtRPCILowerRate        -> calcExp("ctnCGAtLowerRateRPCI"),
     AmountDueRPCILowerRate       -> calcExp("ctnLowerRateCgtRPCI"),
     AmountAtRPCIHigheRate        -> calcExp("ctnCGAtHigherRateRPCI"),
-    AmountDueRPCIHigherRate      -> calcExp("ctnHigherRateCgtRPCI")
+    AmountDueRPCIHigherRate      -> calcExp("ctnHigherRateCgtRPCI"),
+    AmountAtCILowerRate          -> calcExp("cGAtLowerRateCI"),
+    AmountDueCILowerRate         -> calcExp("lowerRateCgtCI"),
+    AmountAtCIHigherRate         -> calcExp("cGAtHigherRateCI"),
+    AmountDueCIHigherRate        -> calcExp("higherRateCgtCI"),
+    AmountAtRPLowerRate          -> calcExp("cGAtLowerRateRP"),
+    AmountDueRPLowerRate         -> calcExp("lowerRateCgtRP"),
+    AmountAtRPHigherRate         -> calcExp("cGAtHigherRateRP"),
+    AmountDueRPHigherRate        -> calcExp("higherRateCgtRP")
   )
 
   override def expectedResultSummaryData: Map[LiabilityKey, Amount] = Map(

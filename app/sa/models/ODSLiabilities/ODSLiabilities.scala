@@ -309,13 +309,14 @@ object ODSLiabilities {
   case object CapOffshoreTrustLiability extends ODSLiabilities("capOffshoreTrustLiability")
 
   case object CGAtLowerRateCI extends ODSLiabilities("cGAtLowerRateCI")
-  case object lowerRateCgtCI extends ODSLiabilities("lowerRateCgtCI")
+  case object LowerRateCgtCI extends ODSLiabilities("lowerRateCgtCI")
   case object CGAtHigherRateCI extends ODSLiabilities("cGAtHigherRateCI")
-  case object higherRateCgtCI extends ODSLiabilities("higherRateCgtCI")
+  case object HigherRateCgtCI extends ODSLiabilities("higherRateCgtCI")
+
   case object CGAtLowerRateRP extends ODSLiabilities("cGAtLowerRateRP")
-  case object lowerRateCgtRP extends ODSLiabilities("lowerRateCgtRP")
+  case object LowerRateCgtRP extends ODSLiabilities("lowerRateCgtRP")
   case object CGAtHigherRateRP extends ODSLiabilities("cGAtHigherRateRP")
-  case object higherRateCgtRP extends ODSLiabilities("higherRateCgtRP")
+  case object HigherRateCgtRP extends ODSLiabilities("higherRateCgtRP")
 
 
   // format: off
@@ -359,8 +360,8 @@ object ODSLiabilities {
         // TODO 10982: Follow model for other rates - see commented code in ATSCalculationsScottish2025
         TaxablePayScottishAdvancedRate, TaxableRedundancySar, TaxOnPayScottishAdvancedRate, TaxOnRedundancySar,
         // TODO 10982: Fields for frontend and add into CG totals:-
-        CGAtLowerRateCI, lowerRateCgtCI, CGAtHigherRateCI, higherRateCgtCI, 
-        CGAtLowerRateRP, lowerRateCgtRP, CGAtHigherRateRP, higherRateCgtRP,
+        CGAtLowerRateCI, LowerRateCgtCI, CGAtHigherRateCI, HigherRateCgtCI, 
+        CGAtLowerRateRP, LowerRateCgtRP, CGAtHigherRateRP, HigherRateCgtRP,
         CapOffshoreTrustLiability // Added to adjustmentToCapitalGainsTax but not required for frontend
       )
 

@@ -198,10 +198,6 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishAdvancedIncome extends LiabilityKey("scottish_advanced_income")
 
-  case object BrdCharge extends LiabilityKey("brdCharge")
-
-  case object BrdReduction extends LiabilityKey("brdReduction")
-
   case object ScottishAdditionalIncome extends LiabilityKey("scottish_additional_income")
 
   case object ScottishTopIncome extends LiabilityKey("scottish_top_income")
@@ -219,6 +215,20 @@ object LiabilityKey extends DefaultReads {
   case object SavingsAdditionalIncome extends LiabilityKey("savings_additional_income")
 
   case object TaxOnTransitionProfitsB extends LiabilityKey("tax_on_transition_prft")
+
+  case object BrdCharge extends LiabilityKey("brdCharge")
+
+  case object BrdReduction extends LiabilityKey("brdReduction")
+
+  case object AmountAtCILowerRate extends LiabilityKey("amount_due_ci_lower_rate")
+  case object AmountDueCILowerRate extends LiabilityKey("amount_at_ci_lower_rate")
+  case object AmountAtCIHigherRate extends LiabilityKey("amount_due_ci_higher_rate")
+  case object AmountDueCIHigherRate extends LiabilityKey("amount_at_ci_higher_rate")
+
+  case object AmountAtRPLowerRate extends LiabilityKey("amount_due_rp_lower_rate")
+  case object AmountDueRPLowerRate extends LiabilityKey("amount_at_rp_lower_rate")
+  case object AmountAtRPHigherRate extends LiabilityKey("amount_due_rp_higher_rate")
+  case object AmountDueRPHigherRate extends LiabilityKey("amount_at_rp_higher_rate")
 
   // format: off
   val allItems: List[LiabilityKey] = List(
