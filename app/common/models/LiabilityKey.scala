@@ -249,7 +249,9 @@ object LiabilityKey extends DefaultReads {
     ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount,
     ScottishHigherRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
     ScottishHigherIncome, ScottishAdvancedIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax, BrdCharge, BrdReduction
+    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax, BrdCharge, BrdReduction,
+    AmountAtCILowerRate, AmountDueCILowerRate, AmountAtCIHigherRate, AmountDueCIHigherRate,
+    AmountAtRPLowerRate, AmountDueRPLowerRate, AmountAtRPHigherRate, AmountDueRPHigherRate
   )
   // format: on
 

@@ -357,7 +357,6 @@ object ODSLiabilities {
       List(
         BrdReduction, BrdCharge, // Extra fields for frontend
         IncomeTermination, // Added to otherIncome but not required for frontend
-        // TODO 10982: Follow model for other rates - see commented code in ATSCalculationsScottish2025
         TaxablePayScottishAdvancedRate, TaxableRedundancySar, TaxOnPayScottishAdvancedRate, TaxOnRedundancySar,
         // TODO 10982: Fields for frontend and add into CG totals:-
         CGAtLowerRateCI, LowerRateCgtCI, CGAtHigherRateCI, HigherRateCgtCI, 
