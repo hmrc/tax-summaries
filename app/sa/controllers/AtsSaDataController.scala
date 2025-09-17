@@ -52,7 +52,10 @@ class AtsSaDataController @Inject() (
       .getPayload(utr, tax_year)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
-        result => Ok(result)
+        result => {
+          println("\nHERE:" + result)
+          Ok(result)
+        }
       )
   }
 

@@ -220,15 +220,15 @@ object LiabilityKey extends DefaultReads {
 
   case object BrdReduction extends LiabilityKey("brdReduction")
 
-  case object AmountAtCILowerRate extends LiabilityKey("amount_due_ci_lower_rate")
-  case object AmountDueCILowerRate extends LiabilityKey("amount_at_ci_lower_rate")
-  case object AmountAtCIHigherRate extends LiabilityKey("amount_due_ci_higher_rate")
-  case object AmountDueCIHigherRate extends LiabilityKey("amount_at_ci_higher_rate")
+  case object AmountAtCILowerRate extends LiabilityKey("amount_at_ci_lower_rate")
+  case object AmountDueCILowerRate extends LiabilityKey("amount_due_ci_lower_rate")
+  case object AmountAtCIHigherRate extends LiabilityKey("amount_at_ci_higher_rate")
+  case object AmountDueCIHigherRate extends LiabilityKey("amount_due_ci_higher_rate")
 
-  case object AmountAtRPLowerRate extends LiabilityKey("amount_due_rp_lower_rate")
-  case object AmountDueRPLowerRate extends LiabilityKey("amount_at_rp_lower_rate")
-  case object AmountAtRPHigherRate extends LiabilityKey("amount_due_rp_higher_rate")
-  case object AmountDueRPHigherRate extends LiabilityKey("amount_at_rp_higher_rate")
+  case object AmountAtRPLowerRate extends LiabilityKey("amount_at_rp_lower_rate")
+  case object AmountDueRPLowerRate extends LiabilityKey("amount_due_rp_lower_rate")
+  case object AmountAtRPHigherRate extends LiabilityKey("amount_at_rp_higher_rate")
+  case object AmountDueRPHigherRate extends LiabilityKey("amount_due_rp_higher_rate")
 
   // format: off
   val allItems: List[LiabilityKey] = List(
