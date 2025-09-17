@@ -66,12 +66,18 @@ trait ATSCalculations extends DoubleUtils with Logging {
     else taxableGains() - get(CgAnnualExempt)
 
   def totalCapitalGainsTax: Amount =
-    (getWithDefaultAmount(LowerRateCgtRPCI) +
-      getWithDefaultAmount(HigherRateCgtRPCI) +
-      get(CgDueEntrepreneursRate) +
-      get(CgDueLowerRate) +
-      get(CgDueHigherRate) +
-      get(CapAdjustment)).max(0)
+    (
+      getWithDefaultAmount(LowerRateCgtRPCI) +
+        getWithDefaultAmount(HigherRateCgtRPCI) +
+        getWithDefaultAmount(LowerRateCgtCI) +
+        getWithDefaultAmount(HigherRateCgtCI) +
+        getWithDefaultAmount(LowerRateCgtRP) +
+        getWithDefaultAmount(HigherRateCgtRP) +
+        get(CgDueEntrepreneursRate) +
+        get(CgDueLowerRate) +
+        get(CgDueHigherRate) +
+        get(CapAdjustment)
+    ).max(0)
 
   def selfEmployment: Amount
 

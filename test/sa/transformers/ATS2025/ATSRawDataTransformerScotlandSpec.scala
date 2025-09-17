@@ -48,7 +48,7 @@ class ATSRawDataTransformerScotlandSpec extends BaseSpec with ATSRawDataTransfor
     }
 
     behave like atsRawDataTransformerWithTotalTaxLiabilityChecks(
-      expTotalTaxLiabilityValue = BigDecimal(13452.58),
+      expTotalTaxLiabilityValue = BigDecimal(18332.58),
       testFixture = new ATSRawDataTransformerTestFixtureScotland {}
     )
 
