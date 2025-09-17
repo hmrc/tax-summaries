@@ -165,4 +165,18 @@ trait ATSCalculations2025 extends ATSCalculations {
 
   override def brdReduction: Amount = get(BrdReduction)
 
+  override def totalCapitalGainsTax: Amount =
+    (
+      getWithDefaultAmount(LowerRateCgtRPCI) +
+        getWithDefaultAmount(HigherRateCgtRPCI) +
+        getWithDefaultAmount(LowerRateCgtCI) +
+        getWithDefaultAmount(HigherRateCgtCI) +
+        getWithDefaultAmount(LowerRateCgtRP) +
+        getWithDefaultAmount(HigherRateCgtRP) +
+        get(CgDueEntrepreneursRate) +
+        get(CgDueLowerRate) +
+        get(CgDueHigherRate) +
+        get(CapAdjustment)
+    ).max(0)
+
 }

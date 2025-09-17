@@ -69,10 +69,6 @@ trait ATSCalculations extends DoubleUtils with Logging {
     (
       getWithDefaultAmount(LowerRateCgtRPCI) +
         getWithDefaultAmount(HigherRateCgtRPCI) +
-        getWithDefaultAmount(LowerRateCgtCI) +
-        getWithDefaultAmount(HigherRateCgtCI) +
-        getWithDefaultAmount(LowerRateCgtRP) +
-        getWithDefaultAmount(HigherRateCgtRP) +
         get(CgDueEntrepreneursRate) +
         get(CgDueLowerRate) +
         get(CgDueHigherRate) +
