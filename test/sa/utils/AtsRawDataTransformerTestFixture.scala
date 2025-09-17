@@ -48,15 +48,12 @@ trait AtsRawDataTransformerTestFixture extends BaseSpec with Assertions {
 
   def doTest(jsonPayload: JsObject): AtsMiddleTierData = {
     val atsRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
-    val a                                            = atsRawDataTransformer.atsDataDTO(
+    atsRawDataTransformer.atsDataDTO(
       rawPayloadJson = jsonPayload,
       rawTaxPayerJson = parsedTaxpayerDetailsJson,
       UTR = "",
       taxYear = taxYear
     )
-//    println("\nJSON=" + jsonPayload)
-//    println("\nTRANFORMED=" + a)
-    a
   }
 
   protected def calcExp(fieldNames: String*): Amount = {
