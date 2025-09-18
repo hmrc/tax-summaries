@@ -32,7 +32,7 @@ import play.api.inject.guice.{GuiceApplicationBuilder, GuiceableModule}
 import scala.concurrent.ExecutionContext
 
 trait ConnectorSpec
-  extends AnyWordSpec
+    extends AnyWordSpec
     with GuiceOneAppPerSuite
     with Status
     with HeaderNames
@@ -53,19 +53,19 @@ trait ConnectorSpec
 
   def stubGet(url: String, responseStatus: Int, responseBody: Option[String]): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
+    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     get(url).willReturn(response)
   }
 
   def stubPost(
-                url: String,
-                responseStatus: Int,
-                requestBody: Option[String],
-                responseBody: Option[String]
-              ): StubMapping = server.stubFor {
+    url: String,
+    responseStatus: Int,
+    requestBody: Option[String],
+    responseBody: Option[String]
+  ): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
+    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     requestBody.fold(post(url).willReturn(response))(requestBody =>
       post(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
@@ -81,14 +81,14 @@ trait ConnectorSpec
   }
 
   def stubWithDelay(
-                     url: String,
-                     responseStatus: Int,
-                     requestBody: Option[String],
-                     responseBody: Option[String],
-                     delay: Int
-                   ): StubMapping = server.stubFor {
+    url: String,
+    responseStatus: Int,
+    requestBody: Option[String],
+    responseBody: Option[String],
+    delay: Int
+  ): StubMapping = server.stubFor {
     val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON).withFixedDelay(delay)
-    val response = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
+    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
 
     requestBody.fold(any(urlEqualTo(url)).willReturn(response))(requestBody =>
       any(urlEqualTo(url)).withRequestBody(equalToJson(requestBody)).willReturn(response)

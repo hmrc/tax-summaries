@@ -60,14 +60,14 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
   lazy val httpClientResponse: HttpClientResponse = inject[HttpClientResponse]
 
   class NPSConnectorSetUp
-    extends NpsConnector(
-      app.injector.instanceOf[HttpClientV2],
-      applicationConfig,
-      httpClientResponse,
-      mockFeatureFlagService
-    )(
-      app.injector.instanceOf[ExecutionContext]
-    )
+      extends NpsConnector(
+        app.injector.instanceOf[HttpClientV2],
+        applicationConfig,
+        httpClientResponse,
+        mockFeatureFlagService
+      )(
+        app.injector.instanceOf[ExecutionContext]
+      )
       with JsonUtil
 
   override def beforeEach(): Unit = {

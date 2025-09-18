@@ -30,7 +30,6 @@ import play.api.libs.json.Format
 import play.api.mvc.Request
 import sa.repositories.TaxSummariesSessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits.*
-import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
