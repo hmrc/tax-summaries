@@ -35,8 +35,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import scala.concurrent.{ExecutionContext, Future}
 
 class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
-  implicit lazy val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.global // TODO: remove lazy keyword when Caching spec is done.
+  implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -61,14 +60,14 @@ class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
   lazy val httpClientResponse: HttpClientResponse = inject[HttpClientResponse]
 
   class NPSConnectorSetUp
-      extends NpsConnector(
-        app.injector.instanceOf[HttpClientV2],
-        applicationConfig,
-        httpClientResponse,
-        mockFeatureFlagService
-      )(
-        app.injector.instanceOf[ExecutionContext]
-      )
+    extends NpsConnector(
+      app.injector.instanceOf[HttpClientV2],
+      applicationConfig,
+      httpClientResponse,
+      mockFeatureFlagService
+    )(
+      app.injector.instanceOf[ExecutionContext]
+    )
       with JsonUtil
 
   override def beforeEach(): Unit = {

@@ -62,7 +62,6 @@ class ATSCalculationsScottish2025(val summaryData: TaxSummaryLiability, val taxR
       taxRates.scottishHigherRate
     )
 
-  // TODO 10982 Uncomment and follow model for other rates
   override def scottishAdvancedRateTax: Amount =
     getWithDefaultAmount(TaxOnPayScottishAdvancedRate) + get(TaxOnRedundancySar) + includePensionTaxForRate(
       taxRates.scottishAdvancedRate

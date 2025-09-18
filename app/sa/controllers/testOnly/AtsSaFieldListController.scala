@@ -167,7 +167,6 @@ class AtsSaFieldListController @Inject() (
 
   private val fields2024: Seq[String] = fields2023 :+ "ctnTaxOnTransitionPrft"
 
-  // TODO: Check with Paddy that these are the only new fields:-
   private val fields2025: Seq[String] = fields2024 ++ Seq(
     "incomeTermination",
     "taxablePaySar",
