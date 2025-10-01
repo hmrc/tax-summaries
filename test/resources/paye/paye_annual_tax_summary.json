@@ -85,6 +85,11 @@
     "scottishHigherRateTax": 12943.70,
     "scottishHigherRate": 41.00
   },
+  "scottishAdvancedBand": {
+    "scottishAdvancedRateTaxAmount": 12345.67,
+    "scottishAdvancedRateTax": 98765.43,
+    "scottishAdvancedRate": 45.00
+  },
   "scottishTopBand": {
     "scottishTopRateTaxAmount": 22570.00,
     "scottishTopRateTax": 5443.70,

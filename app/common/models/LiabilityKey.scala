@@ -180,9 +180,15 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishHigherRateIncomeTaxAmount extends LiabilityKey("scottish_higher_rate_amount")
 
+  case object ScottishAdvancedRateTax extends LiabilityKey("scottish_advanced_rate_tax")
+
   case object ScottishTopRateIncomeTaxAmount extends LiabilityKey("scottish_top_rate_amount")
 
   case object ScottishHigherRateIncomeTax extends LiabilityKey("scottish_higher_rate")
+
+  case object ScottishAdvancedRateIncomeTax extends LiabilityKey("scottish_advanced_rate")
+
+  case object ScottishAdvancedRateIncomeTaxAmount extends LiabilityKey("scottish_advanced_rate_amount")
 
   case object ScottishTopRateIncomeTax extends LiabilityKey("scottish_top_rate")
 
@@ -193,6 +199,8 @@ object LiabilityKey extends DefaultReads {
   case object ScottishIntermediateIncome extends LiabilityKey("scottish_intermediate_income")
 
   case object ScottishHigherIncome extends LiabilityKey("scottish_higher_income")
+
+  case object ScottishAdvancedIncome extends LiabilityKey("scottish_advanced_income")
 
   case object ScottishAdditionalIncome extends LiabilityKey("scottish_additional_income")
 
@@ -212,6 +220,20 @@ object LiabilityKey extends DefaultReads {
 
   case object TaxOnTransitionProfitsB extends LiabilityKey("tax_on_transition_prft")
 
+  case object BrdCharge extends LiabilityKey("brdCharge")
+
+  case object BrdReduction extends LiabilityKey("brdReduction")
+
+  case object AmountAtCILowerRate extends LiabilityKey("amount_at_ci_lower_rate")
+  case object AmountDueCILowerRate extends LiabilityKey("amount_due_ci_lower_rate")
+  case object AmountAtCIHigherRate extends LiabilityKey("amount_at_ci_higher_rate")
+  case object AmountDueCIHigherRate extends LiabilityKey("amount_due_ci_higher_rate")
+
+  case object AmountAtRPLowerRate extends LiabilityKey("amount_at_rp_lower_rate")
+  case object AmountDueRPLowerRate extends LiabilityKey("amount_due_rp_lower_rate")
+  case object AmountAtRPHigherRate extends LiabilityKey("amount_at_rp_higher_rate")
+  case object AmountDueRPHigherRate extends LiabilityKey("amount_due_rp_higher_rate")
+
   // format: off
   val allItems: List[LiabilityKey] = List(
     AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments,
@@ -226,14 +248,16 @@ object LiabilityKey extends DefaultReads {
     StartingRateForSavingsAmount, StatePension, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalCgTaxRate,
     TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2Nics, TotalUKIncomeTax, TotalIncomeTax2, TotalIncomeTaxAndNics,
     TotalTaxFreeAmount, DividendUpperRate, DividendUpperRateAmount, DividendAdditionalRate, DividendAdditionalRateAmount, YourTotalTax, ScottishStarterRateTax, ScottishBasicRateTax,
-    ScottishIntermediateRateTax, ScottishHigherRateTax, ScottishAdditionalRateTax, ScottishTotalTax,
+    ScottishIntermediateRateTax, ScottishHigherRateTax, ScottishAdvancedRateTax, ScottishAdditionalRateTax, ScottishTotalTax,
     ScottishStarterRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishBasicRateIncomeTax,
     ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount,
     ScottishHigherRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
-    ScottishHigherIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax
+    ScottishHigherIncome, ScottishAdvancedIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
+    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax, BrdCharge, BrdReduction,
+    AmountAtCILowerRate, AmountDueCILowerRate, AmountAtCIHigherRate, AmountDueCIHigherRate,
+    AmountAtRPLowerRate, AmountDueRPLowerRate, AmountAtRPHigherRate, AmountDueRPHigherRate, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount
   )
-    // format: on
+  // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =
     ApiValue.formatMap[LiabilityKey, V](allItems)
