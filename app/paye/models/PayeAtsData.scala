@@ -23,6 +23,7 @@ import common.models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapp
 import play.api.libs.json.{Json, Reads}
 
 case class PayeAtsData(
+  includeBRDMessage: Option[Boolean],
   taxableStateBenefits: Option[Double],
   averageRateTax: Option[Int],
   scottishIncomeTax: Option[Double],

@@ -1,4 +1,5 @@
 {
+  "includeBRDMessage": false,
   "taxableStateBenefits": 500.00,
   "averageRateTax": 25,
   "scottishIncomeTax": 2550.00,
