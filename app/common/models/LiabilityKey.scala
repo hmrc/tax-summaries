@@ -251,11 +251,11 @@ object LiabilityKey extends DefaultReads {
     ScottishIntermediateRateTax, ScottishHigherRateTax, ScottishAdvancedRateTax, ScottishAdditionalRateTax, ScottishTotalTax,
     ScottishStarterRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishBasicRateIncomeTax,
     ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount,
-    ScottishHigherRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
+    ScottishHigherRateIncomeTax, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
     ScottishHigherIncome, ScottishAdvancedIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
     SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax, BrdCharge, BrdReduction,
     AmountAtCILowerRate, AmountDueCILowerRate, AmountAtCIHigherRate, AmountDueCIHigherRate,
-    AmountAtRPLowerRate, AmountDueRPLowerRate, AmountAtRPHigherRate, AmountDueRPHigherRate, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount
+    AmountAtRPLowerRate, AmountDueRPLowerRate, AmountAtRPHigherRate, AmountDueRPHigherRate
   )
   // format: on
 
