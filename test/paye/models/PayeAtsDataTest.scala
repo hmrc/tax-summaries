@@ -147,8 +147,8 @@ class PayeAtsDataTest extends BaseSpec {
         ScottishIntermediateRateIncomeTax       -> Amount.gbp(19430.0, ScottishIntermediateRateIncomeTax.apiValue),
         ScottishHigherRateIncomeTaxAmount       -> Amount.gbp(12943.7, ScottishHigherRateIncomeTaxAmount.apiValue),
         ScottishHigherRateIncomeTax             -> Amount.gbp(31570.0, ScottishHigherRateIncomeTax.apiValue),
-        ScottishAdvancedRateIncomeTaxAmount     -> Amount.gbp(98765.43, ScottishAdvancedRateIncomeTaxAmount.apiValue),
-        ScottishAdvancedRateIncomeTax           -> Amount.gbp(12345.67, ScottishAdvancedRateIncomeTax.apiValue),
+        ScottishAdvancedRateIncomeTaxAmount     -> Amount.gbp(9000.0, ScottishAdvancedRateIncomeTaxAmount.apiValue),
+        ScottishAdvancedRateIncomeTax           -> Amount.gbp(20000.0, ScottishAdvancedRateIncomeTax.apiValue),
         ScottishTopRateIncomeTaxAmount          -> Amount.gbp(5443.7, ScottishTopRateIncomeTaxAmount.apiValue),
         ScottishTopRateIncomeTax                -> Amount.gbp(22570.00, ScottishTopRateIncomeTax.apiValue)
       )
