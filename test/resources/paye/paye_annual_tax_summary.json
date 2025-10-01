@@ -1,4 +1,5 @@
 {
+  "includeBRDMessage": false,
   "taxableStateBenefits": 500.00,
   "averageRateTax": 25,
   "scottishIncomeTax": 2550.00,
@@ -84,6 +85,11 @@
     "scottishHigherRateTaxAmount": 31570.00,
     "scottishHigherRateTax": 12943.70,
     "scottishHigherRate": 41.00
+  },
+  "scottishAdvancedBand": {
+    "scottishAdvancedRateTaxAmount": 20000.00,
+    "scottishAdvancedRateTax": 9000.00,
+    "scottishAdvancedRate": 45.00
   },
   "scottishTopBand": {
     "scottishTopRateTaxAmount": 22570.00,
