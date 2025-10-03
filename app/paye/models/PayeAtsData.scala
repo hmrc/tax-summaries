@@ -27,7 +27,7 @@ case class PayeAtsData(
   averageRateTax: Option[Int],
   /*
     The field scottishIncomeTax is actually the WELSH income tax.
-    See the comment in LiabilityKey class for ScottishIncomeTax key.
+    See the comment below for WelshIncomeTax key.
    */
   scottishIncomeTax: Option[Double],
   adjustments: Option[Adjustments],
