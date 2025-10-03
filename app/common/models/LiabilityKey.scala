@@ -157,6 +157,11 @@ object LiabilityKey extends DefaultReads {
 
   case object YourTotalTax extends LiabilityKey("your_total_tax")
 
+  /*
+    The liability key WelshIncomeTax is only used for SA.
+    For PAYE the Welsh income tax is stored in the key ScottishIncomeTax.
+    See the comment above against ScottishIncomeTax.
+   */
   case object WelshIncomeTax extends LiabilityKey("welsh_income_tax")
 
   case object ScottishStarterRateTax extends LiabilityKey("scottish_starter_rate_tax")
