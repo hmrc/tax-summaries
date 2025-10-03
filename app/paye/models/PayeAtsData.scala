@@ -25,6 +25,10 @@ import play.api.libs.json.{Json, Reads}
 case class PayeAtsData(
   taxableStateBenefits: Option[Double],
   averageRateTax: Option[Int],
+  /* 
+    The field scottishIncomeTax is actually the WELSH income tax. 
+    See the comment in LiabilityKey class for ScottishIncomeTax key.
+   */
   scottishIncomeTax: Option[Double],
   adjustments: Option[Adjustments],
   income: Option[Income],
