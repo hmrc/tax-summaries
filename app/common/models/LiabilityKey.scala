@@ -107,7 +107,7 @@ object LiabilityKey extends DefaultReads {
   case object PayCgTaxOn extends LiabilityKey("pay_cg_tax_on")
 
   case object PersonalTaxFreeAmount extends LiabilityKey("personal_tax_free_amount")
-  
+
   case object ScottishIncomeTax extends LiabilityKey("scottish_income_tax")
 
   case object SelfEmploymentIncome extends LiabilityKey("self_employment_income")
@@ -149,7 +149,7 @@ object LiabilityKey extends DefaultReads {
   case object DividendAdditionalRateAmount extends LiabilityKey("dividend_additional_rate_amount")
 
   case object YourTotalTax extends LiabilityKey("your_total_tax")
-  
+
   case object WelshIncomeTax extends LiabilityKey("welsh_income_tax")
 
   case object ScottishStarterRateTax extends LiabilityKey("scottish_starter_rate_tax")

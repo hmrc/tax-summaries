@@ -219,7 +219,7 @@ case class PayeAtsData(
         The PAYE API response field "scottishIncomeTax" confusingly holds the WELSH income tax.
         This is because it was existing functionality from the DA2 API when originally set up by the API team.
         See the Jira ticket https://jira.tools.tax.service.gov.uk/browse/DDCNL-10985 for more info.
-       */      
+       */
       WelshIncomeTax         -> optionToAmount(ScottishIncomeTax, scottishIncomeTax)
     )
 
