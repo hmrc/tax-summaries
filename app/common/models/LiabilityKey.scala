@@ -107,14 +107,7 @@ object LiabilityKey extends DefaultReads {
   case object PayCgTaxOn extends LiabilityKey("pay_cg_tax_on")
 
   case object PersonalTaxFreeAmount extends LiabilityKey("personal_tax_free_amount")
-
-  /*
-    The liability key ScottishIncomeTax is used for both SA and PAYE. 
-    However, when used for PAYE it is confusingly holding the WELSH income tax: this is
-    what is returned in the field scottishIncomeTax in the PAYE API response. This is because
-    it was existing functionality from the DA2 API when originally set up by the API team.
-    See the Jira ticket https://jira.tools.tax.service.gov.uk/browse/DDCNL-10985 for more info. 
-   */
+  
   case object ScottishIncomeTax extends LiabilityKey("scottish_income_tax")
 
   case object SelfEmploymentIncome extends LiabilityKey("self_employment_income")
@@ -156,12 +149,7 @@ object LiabilityKey extends DefaultReads {
   case object DividendAdditionalRateAmount extends LiabilityKey("dividend_additional_rate_amount")
 
   case object YourTotalTax extends LiabilityKey("your_total_tax")
-
-  /*
-    The liability key WelshIncomeTax is only used for SA.
-    For PAYE the Welsh income tax is stored in the key ScottishIncomeTax.
-    See the comment above against ScottishIncomeTax.
-   */
+  
   case object WelshIncomeTax extends LiabilityKey("welsh_income_tax")
 
   case object ScottishStarterRateTax extends LiabilityKey("scottish_starter_rate_tax")

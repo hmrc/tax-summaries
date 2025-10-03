@@ -17,7 +17,7 @@
 package paye.models
 
 import common.config.ApplicationConfig
-import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax}
+import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax, WelshIncomeTax}
 import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
 import common.models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, Rate, RateKey}
 import play.api.libs.json.{Json, Reads}
@@ -25,8 +25,8 @@ import play.api.libs.json.{Json, Reads}
 case class PayeAtsData(
   taxableStateBenefits: Option[Double],
   averageRateTax: Option[Int],
-  /* 
-    The field scottishIncomeTax is actually the WELSH income tax. 
+  /*
+    The field scottishIncomeTax is actually the WELSH income tax.
     See the comment in LiabilityKey class for ScottishIncomeTax key.
    */
   scottishIncomeTax: Option[Double],
@@ -215,7 +215,12 @@ case class PayeAtsData(
       TotalIncomeBeforeTax   -> optionToAmount(TotalIncomeBeforeTax, income.flatMap(_.incomeBeforeTax)),
       BenefitsFromEmployment -> optionToAmount(BenefitsFromEmployment, income.flatMap(_.employmentBenefits)),
       TaxableStateBenefits   -> optionToAmount(TaxableStateBenefits, taxableStateBenefits),
-      ScottishIncomeTax      -> optionToAmount(ScottishIncomeTax, scottishIncomeTax)
+      /*
+        The PAYE API response field "scottishIncomeTax" confusingly holds the WELSH income tax.
+        This is because it was existing functionality from the DA2 API when originally set up by the API team.
+        See the Jira ticket https://jira.tools.tax.service.gov.uk/browse/DDCNL-10985 for more info.
+       */      
+      WelshIncomeTax         -> optionToAmount(ScottishIncomeTax, scottishIncomeTax)
     )
 
   private def createAllowanceData: DataHolder =
