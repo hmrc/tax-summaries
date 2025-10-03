@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package sa.transformers.ATS2024
+package sa.transformers.ATS2025
 
-import common.models.LiabilityKey.{LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, TotalIncomeTax, TotalIncomeTaxAndNics, YourTotalTax}
+import common.models.LiabilityKey.{LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, ScottishIncomeTax, TotalIncomeTax, TotalIncomeTaxAndNics, WelshIncomeTax, YourTotalTax}
 import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishAdvancedRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
 import common.models.{Amount, ApiRate, LiabilityKey}
 import common.utils.BaseSpec
 import sa.utils.ATSRawDataTransformerBehaviours
 
-class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransformerBehaviours {
-  s"atsDataDTO for England 2024" must {
-    "use the correct tax rates" in new ATSRawDataTransformerTestFixtureEngland {
+class ATSRawDataTransformerWalesSpec extends BaseSpec with ATSRawDataTransformerBehaviours {
+  s"atsDataDTO for Wales 2025" must {
+    "use the correct tax rates" in new ATSRawDataTransformerTestFixtureWales {
       transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
         Set(
           Additional               -> ApiRate("39.35%"),
@@ -32,13 +32,13 @@ class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransform
           ScottishBasicRate        -> ApiRate("20%"),
           SavingsLowerRate         -> ApiRate("20%"),
           SavingsHigherRate        -> ApiRate("40%"),
-          ScottishAdvancedRate     -> ApiRate("0%"),
-          ScottishAdditionalRate   -> ApiRate("46%"),
+          ScottishAdvancedRate     -> ApiRate("45%"),
+          ScottishAdditionalRate   -> ApiRate("48%"),
           IncomeHigher             -> ApiRate("40%"),
           ScottishIntermediateRate -> ApiRate("21%"),
           SavingsAdditionalRate    -> ApiRate("45%"),
           IncomeAdditional         -> ApiRate("45%"),
-          ScottishHigherRate       -> ApiRate("41%"),
+          ScottishHigherRate       -> ApiRate("42%"),
           ScottishStarterRate      -> ApiRate("19%"),
           Savings                  -> ApiRate("0%"),
           Upper                    -> ApiRate("33.75%"),
@@ -48,18 +48,18 @@ class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransform
     }
 
     behave like atsRawDataTransformerWithTotalTaxLiabilityChecks(
-      expTotalTaxLiabilityValue = BigDecimal(10935.65),
-      testFixture = new ATSRawDataTransformerTestFixtureEngland {}
+      expTotalTaxLiabilityValue = BigDecimal(15815.65),
+      testFixture = new ATSRawDataTransformerTestFixtureWales {}
     )
 
     behave like atsRawDataTransformerWithCalculations(
       description = "NOT using tax excluded/ tax on non-excluded income when > amount",
-      testFixture = new ATSRawDataTransformerTestFixtureEngland {}
+      testFixture = new ATSRawDataTransformerTestFixtureWales {}
     )
 
     behave like atsRawDataTransformerWithCalculations(
       description = "using tax excluded/ tax on non-excluded income when < amount",
-      testFixture = new ATSRawDataTransformerTestFixtureEngland {
+      testFixture = new ATSRawDataTransformerTestFixtureWales {
         override def tliSlpAtsData: Map[String, BigDecimal] = super.tliSlpAtsData ++ Map(
           "taxExcluded"         -> BigDecimal(630.00),
           "taxOnNonExcludedInc" -> BigDecimal(640.00)
@@ -89,7 +89,7 @@ class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransform
 
     behave like atsRawDataTransformerWithCalculations(
       description = "subtracting capital gains exempt amount when < taxable gains",
-      testFixture = new ATSRawDataTransformerTestFixtureEngland {
+      testFixture = new ATSRawDataTransformerTestFixtureWales {
         override def tliSlpAtsData: Map[String, BigDecimal] = super.tliSlpAtsData ++ Map(
           "atsCgAnnualExemptAmt" -> BigDecimal(100.0)
         ).map(item => item._1 -> item._2.setScale(2))
@@ -104,7 +104,7 @@ class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransform
 
     atsRawDataTransformerWithCalculations(
       description = "using default amounts where applicable",
-      testFixture = new ATSRawDataTransformerTestFixtureEngland {
+      testFixture = new ATSRawDataTransformerTestFixtureWales {
         override def tliSlpAtsData: Map[String, BigDecimal] =
           super.tliSlpAtsData -- Seq(
             "ctnLowerRateCgtRPCI",
@@ -140,6 +140,19 @@ class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransform
   }
 }
 
-protected trait ATSRawDataTransformerTestFixtureEngland extends ATSRawDataTransformerTestFixtureBase {
-  override protected val incomeTaxStatus: String = "0001"
+protected trait ATSRawDataTransformerTestFixtureWales extends ATSRawDataTransformerTestFixtureBase {
+  override protected val incomeTaxStatus: String                  = "0003"
+  private def welshRate: Double                                   = 0.1d
+  override def expectedResultIncomeTax: Map[LiabilityKey, Amount] = super.expectedResultIncomeTax ++
+    Map(
+      ScottishIncomeTax -> calcExp("scottishIncomeTax:null"),
+      WelshIncomeTax    -> calcExp(
+        "ctnIncomeChgbleBasicRate",
+        "ctnTaxableRedundancyBr",
+        "ctnIncomeChgbleHigherRate",
+        "ctnTaxableRedundancyHr",
+        "ctnIncomeChgbleAddHRate",
+        "ctnTaxableRedundancyAhr"
+      ) * welshRate
+    )
 }

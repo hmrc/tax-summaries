@@ -15,8 +15,7 @@
  */
 
 package common.utils
-
-import uk.gov.hmrc.domain.{Generator, SaUtrGenerator}
+import uk.gov.hmrc.domain.{NinoGenerator, SaUtrGenerator}
 
 import scala.util.Random
 
@@ -24,7 +23,7 @@ object TestConstants {
 
   // We only want one test nino and utr throughout, therefore assign a value in the object declaration
   lazy val testUtr: String            = new SaUtrGenerator().nextSaUtr.utr
-  lazy val testNino: String           = new Generator().nextNino.nino
+  lazy val testNino: String           = new NinoGenerator().nextNino.nino
   lazy val testUar: String            = "V" + genRandNumString(4) + "H"
   lazy val testInvalidUtr: String     = genRandNumString(4)
   lazy val testKey: String            = genRandNumString(22)

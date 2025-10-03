@@ -17,13 +17,13 @@
 package sa.transformers.ATS2023
 
 import common.models.LiabilityKey.{LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, ScottishIncomeTax, TotalIncomeTax, TotalIncomeTaxAndNics, WelshIncomeTax, YourTotalTax}
-import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
+import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishAdvancedRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
 import common.models.{Amount, ApiRate, LiabilityKey}
 import common.utils.BaseSpec
 import sa.utils.ATSRawDataTransformerBehaviours
 
 class ATSRawDataTransformerWalesSpec extends BaseSpec with ATSRawDataTransformerBehaviours {
-  s"atsDataDTO for Wales" must {
+  s"atsDataDTO for Wales 2023" must {
     "use the correct tax rates" in new ATSRawDataTransformerTestFixtureWales {
       transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
         Set(
@@ -32,6 +32,7 @@ class ATSRawDataTransformerWalesSpec extends BaseSpec with ATSRawDataTransformer
           ScottishBasicRate        -> ApiRate("20%"),
           SavingsLowerRate         -> ApiRate("20%"),
           SavingsHigherRate        -> ApiRate("40%"),
+          ScottishAdvancedRate     -> ApiRate("0%"),
           ScottishAdditionalRate   -> ApiRate("46%"),
           IncomeHigher             -> ApiRate("40%"),
           ScottishIntermediateRate -> ApiRate("21%"),

@@ -23,10 +23,9 @@ import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
 import sa.connectors.SelfAssessmentODSConnector
-import sa.services.OdsService.{FailureInfo, InterimResult, toEither, toRightIfAnyYearsFound}
+import sa.services.OdsService.{FailureInfo, InterimResult, toEither}
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.time.TaxYear
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -138,24 +137,6 @@ class OdsService @Inject() (
         case Left(error)                                     => Left(error)
       }
 
-  // TODO: Below method not called at present but may be called instead of getList in future by BTA. See comments on DDCNL-7999 for more info
-  def hasATS(
-    utr: String,
-    currentTaxYearProvider: () => Int = () => TaxYear.current.startYear
-  )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] = {
-    val startTaxYear   = currentTaxYearProvider() - 3
-    val currentTaxYear = currentTaxYearProvider()
-
-    val futureResult = findAllYears(utr, currentTaxYear to startTaxYear by -1).flatMap {
-      case ir @ InterimResult(Nil, Seq(_), _) => retry(utr, ir)
-      case ir                                 => Future.successful(ir)
-    }
-
-    EitherT(
-      futureResult.map(toRightIfAnyYearsFound orElse toEither(currentTaxYear - startTaxYear))
-    ).map(taxYears => Json.obj("has_ats" -> taxYears.nonEmpty))
-  }
-
   def connectToSATaxpayerDetails(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
@@ -182,9 +163,5 @@ object OdsService {
     case InterimResult(_, _, notFoundCount) if notFoundCount >= years =>
       Left(UpstreamErrorResponse("Not_Found", NOT_FOUND))
     case InterimResult(processedYears, _, _)                          => Right(processedYears)
-  }
-
-  private val toRightIfAnyYearsFound: PartialFunction[InterimResult, Either[UpstreamErrorResponse, Seq[Int]]] = {
-    case InterimResult(processedYears @ Seq(_, _*), _, _) => Right(processedYears)
   }
 }

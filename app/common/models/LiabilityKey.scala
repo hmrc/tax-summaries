@@ -16,7 +16,7 @@
 
 package common.models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 sealed class LiabilityKey(apiValue: String) extends ApiValue(apiValue)
 
@@ -160,6 +160,8 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishHigherRateTax extends LiabilityKey("scottish_higher_rate_tax")
 
+  case object ScottishAdvancedRateTax extends LiabilityKey("scottish_advanced_rate_tax")
+
   case object ScottishAdditionalRateTax extends LiabilityKey("scottish_additional_rate_tax")
 
   case object ScottishTopRateTax extends LiabilityKey("scottish_top_rate_tax")
@@ -194,6 +196,8 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishHigherIncome extends LiabilityKey("scottish_higher_income")
 
+  case object ScottishAdvancedIncome extends LiabilityKey("scottish_advanced_income")
+
   case object ScottishAdditionalIncome extends LiabilityKey("scottish_additional_income")
 
   case object ScottishTopIncome extends LiabilityKey("scottish_top_income")
@@ -212,6 +216,20 @@ object LiabilityKey extends DefaultReads {
 
   case object TaxOnTransitionProfitsB extends LiabilityKey("tax_on_transition_prft")
 
+  case object BrdCharge extends LiabilityKey("brdCharge")
+
+  case object BrdReduction extends LiabilityKey("brdReduction")
+
+  case object AmountAtCILowerRate extends LiabilityKey("amount_at_ci_lower_rate")
+  case object AmountDueCILowerRate extends LiabilityKey("amount_due_ci_lower_rate")
+  case object AmountAtCIHigherRate extends LiabilityKey("amount_at_ci_higher_rate")
+  case object AmountDueCIHigherRate extends LiabilityKey("amount_due_ci_higher_rate")
+
+  case object AmountAtRPLowerRate extends LiabilityKey("amount_at_rp_lower_rate")
+  case object AmountDueRPLowerRate extends LiabilityKey("amount_due_rp_lower_rate")
+  case object AmountAtRPHigherRate extends LiabilityKey("amount_at_rp_higher_rate")
+  case object AmountDueRPHigherRate extends LiabilityKey("amount_due_rp_higher_rate")
+
   // format: off
   val allItems: List[LiabilityKey] = List(
     AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments,
@@ -226,14 +244,16 @@ object LiabilityKey extends DefaultReads {
     StartingRateForSavingsAmount, StatePension, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalCgTaxRate,
     TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2Nics, TotalUKIncomeTax, TotalIncomeTax2, TotalIncomeTaxAndNics,
     TotalTaxFreeAmount, DividendUpperRate, DividendUpperRateAmount, DividendAdditionalRate, DividendAdditionalRateAmount, YourTotalTax, ScottishStarterRateTax, ScottishBasicRateTax,
-    ScottishIntermediateRateTax, ScottishHigherRateTax, ScottishAdditionalRateTax, ScottishTotalTax,
+    ScottishIntermediateRateTax, ScottishHigherRateTax, ScottishAdvancedRateTax, ScottishAdditionalRateTax, ScottishTotalTax,
     ScottishStarterRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishBasicRateIncomeTax,
     ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount,
     ScottishHigherRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
-    ScottishHigherIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
-    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax
+    ScottishHigherIncome, ScottishAdvancedIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
+    SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax, BrdCharge, BrdReduction,
+    AmountAtCILowerRate, AmountDueCILowerRate, AmountAtCIHigherRate, AmountDueCIHigherRate,
+    AmountAtRPLowerRate, AmountDueRPLowerRate, AmountAtRPHigherRate, AmountDueRPHigherRate
   )
-    // format: on
+  // format: on
 
   implicit def mapFormat[V: Format]: Format[Map[LiabilityKey, V]] =
     ApiValue.formatMap[LiabilityKey, V](allItems)

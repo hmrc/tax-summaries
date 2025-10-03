@@ -17,7 +17,7 @@
 package common.connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.http.Fault
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
@@ -41,8 +41,7 @@ trait ConnectorSpec
     with ScalaFutures
     with IntegrationPatience {
 
-  implicit lazy val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.global // TODO: remove lazy keyword when Caching spec is done.
+  implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   protected val server: WireMockServer
 

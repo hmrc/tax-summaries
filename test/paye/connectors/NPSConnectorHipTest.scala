@@ -35,8 +35,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import scala.concurrent.{ExecutionContext, Future}
 
 class NPSConnectorHipTest extends BaseSpec with WireMockHelper {
-  implicit lazy val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.global // TODO: remove lazy keyword when Caching spec is done.
+  implicit lazy val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()

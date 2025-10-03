@@ -20,7 +20,7 @@ import uk.gov.hmrc.DefaultBuildSettings
 val appName = "tax-summaries"
 
 ThisBuild / majorVersion := 3
-ThisBuild / scalaVersion := "3.3.4"
+ThisBuild / scalaVersion := "3.3.6"
 ThisBuild / scalafmtOnCompile := true
 
 lazy val microservice = Project(appName, file("."))
