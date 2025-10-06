@@ -182,8 +182,6 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishHigherRateIncomeTaxAmount extends LiabilityKey("scottish_higher_rate_amount")
 
-  case object ScottishAdvancedRateTax extends LiabilityKey("scottish_advanced_rate_tax")
-
   case object ScottishTopRateIncomeTaxAmount extends LiabilityKey("scottish_top_rate_amount")
 
   case object ScottishHigherRateIncomeTax extends LiabilityKey("scottish_higher_rate")
