@@ -15,7 +15,7 @@
  */
 
 package common.utils
-
+import uk.gov.hmrc.domain.{Nino, NinoGenerator}
 import common.config.ApplicationConfig
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -24,7 +24,6 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
-import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
@@ -39,7 +38,7 @@ class BaseSpec
     with BeforeAndAfterEach {
   lazy val applicationConfig: ApplicationConfig = inject[ApplicationConfig]
 
-  val generatedNino: Nino = new Generator().nextNino
+  val generatedNino: Nino = new NinoGenerator().nextNino
 
   implicit lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
   implicit lazy val hc: HeaderCarrier                          = HeaderCarrier()

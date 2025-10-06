@@ -28,7 +28,7 @@ import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import sa.connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
-import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.domain.{Nino, NinoGenerator, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -131,8 +131,8 @@ trait IntegrationSpec
       )
       .build()
 
-  val nino: Nino        = new Generator(new Random).nextNino
-  val utr: SaUtr        = new SaUtrGenerator(new Random).nextSaUtr
+  val nino: Nino        = new NinoGenerator().nextNino
+  val utr: SaUtr        = new SaUtrGenerator().nextSaUtr
   val hc: HeaderCarrier = HeaderCarrier()
 
   val taxYear: Int         = 2047

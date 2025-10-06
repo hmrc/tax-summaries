@@ -16,7 +16,7 @@
 
 package common.models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 sealed class LiabilityKey(apiValue: String) extends ApiValue(apiValue)
 
@@ -160,6 +160,8 @@ object LiabilityKey extends DefaultReads {
 
   case object ScottishHigherRateTax extends LiabilityKey("scottish_higher_rate_tax")
 
+  case object ScottishAdvancedRateTax extends LiabilityKey("scottish_advanced_rate_tax")
+
   case object ScottishAdditionalRateTax extends LiabilityKey("scottish_additional_rate_tax")
 
   case object ScottishTopRateTax extends LiabilityKey("scottish_top_rate_tax")
@@ -250,8 +252,8 @@ object LiabilityKey extends DefaultReads {
     TotalTaxFreeAmount, DividendUpperRate, DividendUpperRateAmount, DividendAdditionalRate, DividendAdditionalRateAmount, YourTotalTax, ScottishStarterRateTax, ScottishBasicRateTax,
     ScottishIntermediateRateTax, ScottishHigherRateTax, ScottishAdvancedRateTax, ScottishAdditionalRateTax, ScottishTotalTax,
     ScottishStarterRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishBasicRateIncomeTax,
-    ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount,
-    ScottishHigherRateIncomeTax, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
+    ScottishIntermediateRateIncomeTaxAmount, ScottishIntermediateRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount,
+    ScottishHigherRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishStarterIncome, ScottishBasicIncome, ScottishIntermediateIncome,
     ScottishHigherIncome, ScottishAdvancedIncome, ScottishAdditionalIncome, ScottishTopIncome, SavingsLowerRateTax, SavingsHigherRateTax, SavingsAdditionalRateTax,
     SavingsLowerIncome, SavingsHigherIncome, SavingsAdditionalIncome, WelshIncomeTax, ScottishTopRateTax, BrdCharge, BrdReduction,
     AmountAtCILowerRate, AmountDueCILowerRate, AmountAtCIHigherRate, AmountDueCIHigherRate,

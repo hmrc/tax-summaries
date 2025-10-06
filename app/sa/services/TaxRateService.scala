@@ -46,15 +46,19 @@ class TaxRateService @Inject() (val taxYear: Int, configRate: Int => Map[String,
 
   def cgUpperRate(): Rate = getRate("cgUpperRate")
 
-  def individualsForResidentialPropertyAndCarriedInterestLowerRate(): Rate =
-    getRate("RPCILowerRate")
+  def individualsForResidentialPropertyAndCarriedInterestLowerRate(): Rate  = getRate("RPCILowerRate")
+  def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate = getRate("RPCIHigherRate")
 
-  def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate =
-    getRate("RPCIHigherRate")
+  def individualsForCIHigherRate(): Rate = getRate("ciHigherRate")
+  def individualsForCILowerRate(): Rate  = getRate("ciLowerRate")
+
+  def individualsForRPHigherRate(): Rate = getRate("rpHigherRate")
+  def individualsForRPLowerRate(): Rate  = getRate("rpLowerRate")
 
   def scottishStarterRate: Rate      = getRate("scottishStarterRate")
   def scottishBasicRate: Rate        = getRate("scottishBasicRate")
   def scottishIntermediateRate: Rate = getRate("scottishIntermediateRate")
   def scottishHigherRate: Rate       = getRate("scottishHigherRate")
+  def scottishAdvancedRate: Rate     = getRate("scottishAdvancedRate")
   def scottishAdditionalRate: Rate   = getRate("scottishAdditionalRate")
 }

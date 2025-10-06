@@ -111,7 +111,6 @@ object TaxSummaryLiability extends Logging {
           case (liability, Some(amount))                                      =>
             liability -> amount
         }
-
       JsSuccess(
         TaxSummaryLiability.apply(
           taxYear,

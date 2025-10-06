@@ -16,20 +16,19 @@
 
 package common.models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import scala.annotation.tailrec
-import scala.collection.{Map => CMap}
+import scala.collection.Map as CMap
 
 abstract class ApiValue(val apiValue: String)
 
 object ApiValue extends DefaultReads {
-
   private def readKeyValue[K <: ApiValue](key: String, ls: List[K]): JsResult[K] =
     ls.find(_.apiValue == key)
-      .fold[JsResult[K]](
+      .fold[JsResult[K]] {
         JsError(s"Failed to interpret key $key for key in Map")
-      )(k => JsSuccess(k))
+      }(k => JsSuccess(k))
 
   private def readPair[K <: ApiValue, V](pair: (String, JsValue), ls: List[K], reads: Reads[V]): JsResult[(K, V)] =
     for {
