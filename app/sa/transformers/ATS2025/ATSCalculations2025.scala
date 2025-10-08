@@ -179,13 +179,4 @@ trait ATSCalculations2025 extends ATSCalculations {
         get(CapAdjustment) +
         get(CapOffshoreTrustLiability)
     ).max(0)
-
-  // TODO: Add capOffshoreTrustLiability to YourTotalTax
-//  override def totalTax: Amount =
-//    totalAmountTaxAndNics +
-//      totalCapitalGainsTax
-
-  // TODO: Add capOffshoreTrustLiability to CgTaxPerCurrencyUnit
-//  override def capitalGainsTaxPerCurrency: Amount =
-//    taxPerTaxableCurrencyUnit(totalCapitalGainsTax, taxableGains())
 }
