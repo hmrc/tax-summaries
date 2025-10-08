@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package sa.transformers.ATS2024
+package sa.transformers.ATS2025
 
 import common.models.Amount
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
-class ATSCalculationsUK2024(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations2024 {
+class ATSCalculationsUK2025(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations2025 {
   override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTax")
 }

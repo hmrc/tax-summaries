@@ -18,13 +18,13 @@ package sa.transformers
 
 import com.google.inject.{Inject, Singleton}
 import common.config.ApplicationConfig
-import common.models.LiabilityKey.{AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments, AmountAtEntrepreneursRate, AmountAtHigherRate, AmountAtOrdinaryRate, AmountAtRPCIHigheRate, AmountAtRPCILowerRate, AmountDueAtEntrepreneursRate, AmountDueAtHigherRate, AmountDueAtOrdinaryRate, AmountDueRPCIHigherRate, AmountDueRPCILowerRate, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, CgTaxPerCurrencyUnit, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeFromEmployment, LessTaxFreeAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTopIncome, ScottishTopRateTax, ScottishTotalTax, SelfEmploymentIncome, StartingRateForSavings, StartingRateForSavingsAmount, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTaxAndNics, TotalTaxFreeAmount, WelshIncomeTax, YourTotalTax}
-import common.models.RateKey.{Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic, IncomeHigher, InterestHigher, InterestLower, NICS, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, TotalCapitalGains, Upper}
-import common.models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, Rate, RateKey}
-import play.api.libs.json._
+import common.models.*
+import common.models.LiabilityKey.{AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments, AmountAtCIHigherRate, AmountAtCILowerRate, AmountAtEntrepreneursRate, AmountAtHigherRate, AmountAtOrdinaryRate, AmountAtRPCIHigheRate, AmountAtRPCILowerRate, AmountAtRPHigherRate, AmountAtRPLowerRate, AmountDueAtEntrepreneursRate, AmountDueAtHigherRate, AmountDueAtOrdinaryRate, AmountDueCIHigherRate, AmountDueCILowerRate, AmountDueRPCIHigherRate, AmountDueRPCILowerRate, AmountDueRPHigherRate, AmountDueRPLowerRate, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, CgTaxPerCurrencyUnit, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeFromEmployment, LessTaxFreeAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishAdvancedIncome, ScottishAdvancedRateTax, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTopIncome, ScottishTopRateTax, ScottishTotalTax, SelfEmploymentIncome, StartingRateForSavings, StartingRateForSavingsAmount, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTaxAndNics, TotalTaxFreeAmount, WelshIncomeTax, YourTotalTax}
+import common.models.RateKey.{Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic, IncomeHigher, InterestCIHigher, InterestCILower, InterestHigher, InterestLower, InterestRPHigher, InterestRPLower, NICS, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishAdvancedRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, TotalCapitalGains, Upper}
+import play.api.libs.json.*
 import play.api.{Logger, Logging}
 import sa.models.AtsMiddleTierData.noAtsResult
-import sa.models.ODSLiabilities.ODSLiabilities.{CGAtHigherRateRPCI, CGAtLowerRateRPCI, CapAdjustment, CgAnnualExempt, CgAtEntrepreneursRate, CgAtHigherRate, CgAtLowerRate, CgDueEntrepreneursRate, CgDueHigherRate, CgDueLowerRate, DividendChargeableAddHRate, DividendChargeableHighRate, DividendChargeableLowRate, DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, EmploymentBenefits, HigherRateCgtRPCI, LowerRateCgtRPCI, MarriageAllceIn, MarriageAllceOut, PersonalAllowance, StatePension, SummaryTotalEmployment}
+import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.{AtsMiddleTierData, Nationality, TaxSummaryLiability}
 import sa.services.TaxRateService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -91,8 +91,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
               Some(calculations.taxLiability) // Careful: taxLiability overridden based on Nationality/ tax year
           )
         catch {
-          case ATSParsingException(message) =>
-            AtsMiddleTierData.error(taxYear, message)
+          case ATSParsingException(message) => AtsMiddleTierData.error(taxYear, message)
           case otherError: Throwable        =>
             logger.error("Unexpected error has occurred", otherError)
             AtsMiddleTierData.error(taxYear, "Other Error")
@@ -139,13 +138,21 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       AmountDueAtOrdinaryRate      -> calculations.get(CgDueLowerRate),
       AmountAtHigherRate           -> calculations.get(CgAtHigherRate),
       AmountDueAtHigherRate        -> calculations.get(CgDueHigherRate),
-      Adjustments                  -> calculations.get(CapAdjustment),
+      Adjustments                  -> calculations.adjustmentsToCapitalGains,
       TotalCgTax                   -> calculations.totalCapitalGainsTax,
       CgTaxPerCurrencyUnit         -> calculations.capitalGainsTaxPerCurrency,
       AmountAtRPCILowerRate        -> calculations.getWithDefaultAmount(CGAtLowerRateRPCI),
       AmountDueRPCILowerRate       -> calculations.getWithDefaultAmount(LowerRateCgtRPCI),
       AmountAtRPCIHigheRate        -> calculations.getWithDefaultAmount(CGAtHigherRateRPCI),
-      AmountDueRPCIHigherRate      -> calculations.getWithDefaultAmount(HigherRateCgtRPCI)
+      AmountDueRPCIHigherRate      -> calculations.getWithDefaultAmount(HigherRateCgtRPCI),
+      AmountAtCILowerRate          -> calculations.getWithDefaultAmount(CGAtLowerRateCI),
+      AmountDueCILowerRate         -> calculations.getWithDefaultAmount(LowerRateCgtCI),
+      AmountAtCIHigherRate         -> calculations.getWithDefaultAmount(CGAtHigherRateCI),
+      AmountDueCIHigherRate        -> calculations.getWithDefaultAmount(HigherRateCgtCI),
+      AmountAtRPLowerRate          -> calculations.getWithDefaultAmount(CGAtLowerRateRP),
+      AmountDueRPLowerRate         -> calculations.getWithDefaultAmount(LowerRateCgtRP),
+      AmountAtRPHigherRate         -> calculations.getWithDefaultAmount(CGAtHigherRateRP),
+      AmountDueRPHigherRate        -> calculations.getWithDefaultAmount(HigherRateCgtRP)
     )
 
   private def createYourIncomeBeforeTaxBreakdown(calculations: ATSCalculations): Map[LiabilityKey, Amount] =
@@ -209,6 +216,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       ScottishBasicRateTax            -> calculations.scottishBasicRateTax,
       ScottishIntermediateRateTax     -> calculations.scottishIntermediateRateTax,
       ScottishHigherRateTax           -> calculations.scottishHigherRateTax,
+      ScottishAdvancedRateTax         -> calculations.scottishAdvancedRateTax,
       ScottishAdditionalRateTax       -> calculations.scottishAdditionalRateTax,
       ScottishTopRateTax              -> calculations.scottishTopRateTax,
       ScottishTotalTax                -> calculations.scottishTotalTax,
@@ -216,6 +224,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       ScottishBasicIncome             -> calculations.scottishBasicRateIncome,
       ScottishIntermediateIncome      -> calculations.scottishIntermediateRateIncome,
       ScottishHigherIncome            -> calculations.scottishHigherRateIncome,
+      ScottishAdvancedIncome          -> calculations.scottishAdvancedRateIncome,
       ScottishAdditionalIncome        -> calculations.scottishAdditionalRateIncome,
       ScottishTopIncome               -> calculations.scottishTopRateIncome,
       SavingsLowerRateTax             -> calculations.savingsBasicRateTax,
@@ -223,7 +232,9 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       SavingsAdditionalRateTax        -> calculations.savingsAdditionalRateTax,
       SavingsLowerIncome              -> calculations.savingsBasicRateIncome,
       SavingsHigherIncome             -> calculations.savingsHigherRateIncome,
-      SavingsAdditionalIncome         -> calculations.savingsAdditionalRateIncome
+      SavingsAdditionalIncome         -> calculations.savingsAdditionalRateIncome,
+      LiabilityKey.BrdCharge          -> calculations.brdCharge,
+      LiabilityKey.BrdReduction       -> calculations.brdReduction
     )
 
   private def createCapitalGainsTaxRates(
@@ -236,7 +247,11 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       CapitalGainsUpper        -> taxRate.cgUpperRate(),
       TotalCapitalGains        -> calculations.totalCgTaxLiabilityAsPercentage,
       InterestLower            -> taxRate.individualsForResidentialPropertyAndCarriedInterestLowerRate(),
-      InterestHigher           -> taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate()
+      InterestHigher           -> taxRate.individualsForResidentialPropertyAndCarriedInterestHigherRate(),
+      InterestCIHigher         -> taxRate.individualsForCIHigherRate(),
+      InterestCILower          -> taxRate.individualsForCILowerRate(),
+      InterestRPHigher         -> taxRate.individualsForRPHigherRate(),
+      InterestRPLower          -> taxRate.individualsForRPLowerRate()
     ).view.mapValues(_.apiValue).toMap
 
   private def createSummaryPageRates(calculations: ATSCalculations): Map[RateKey, ApiRate] =
@@ -258,6 +273,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       ScottishBasicRate        -> taxRate.scottishBasicRate,
       ScottishIntermediateRate -> taxRate.scottishIntermediateRate,
       ScottishHigherRate       -> taxRate.scottishHigherRate,
+      ScottishAdvancedRate     -> taxRate.scottishAdvancedRate,
       ScottishAdditionalRate   -> taxRate.scottishAdditionalRate,
       SavingsLowerRate         -> taxRate.basicRateIncomeTaxRate(),
       SavingsHigherRate        -> taxRate.higherRateIncomeTaxRate(),

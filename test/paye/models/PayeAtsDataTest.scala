@@ -33,8 +33,8 @@
 package paye.models
 
 import common.models.*
-import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax, WelshIncomeTax}
-import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
+import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax, WelshIncomeTax}
+import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishAdvancedRate, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
 import common.services.GoodsAndServices
 import common.services.GoodsAndServices.*
 import common.utils.{BaseSpec, TestConstants}
@@ -146,6 +146,8 @@ class PayeAtsDataTest extends BaseSpec {
         ScottishIntermediateRateIncomeTax       -> Amount.gbp(19430.0, ScottishIntermediateRateIncomeTax.apiValue),
         ScottishHigherRateIncomeTaxAmount       -> Amount.gbp(12943.7, ScottishHigherRateIncomeTaxAmount.apiValue),
         ScottishHigherRateIncomeTax             -> Amount.gbp(31570.0, ScottishHigherRateIncomeTax.apiValue),
+        ScottishAdvancedRateIncomeTaxAmount     -> Amount.gbp(9000.0, ScottishAdvancedRateIncomeTaxAmount.apiValue),
+        ScottishAdvancedRateIncomeTax           -> Amount.gbp(20000.0, ScottishAdvancedRateIncomeTax.apiValue),
         ScottishTopRateIncomeTaxAmount          -> Amount.gbp(5443.7, ScottishTopRateIncomeTaxAmount.apiValue),
         ScottishTopRateIncomeTax                -> Amount.gbp(22570.00, ScottishTopRateIncomeTax.apiValue)
       )
@@ -161,6 +163,7 @@ class PayeAtsDataTest extends BaseSpec {
         PayeScottishBasicRate        -> ApiRate("20%"),
         PayeScottishIntermediateRate -> ApiRate("21%"),
         PayeScottishHigherRate       -> ApiRate("41%"),
+        PayeScottishAdvancedRate     -> ApiRate("45%"),
         PayeScottishTopRate          -> ApiRate("48%")
       )
 

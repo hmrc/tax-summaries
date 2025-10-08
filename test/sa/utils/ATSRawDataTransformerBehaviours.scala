@@ -36,10 +36,8 @@ trait ATSRawDataTransformerBehaviours extends BaseSpec {
         s"(for $section section) calculate for $description" when {
           act.foreach { item =>
             exp.find(_._1 == item._1).map { actItem =>
-              if (item._1.apiValue == "total_income_tax") {
-                s"field ${item._1} calculated (act ${actItem._2.amount}, exp ${item._2.amount})" in {
-                  item._2 mustBe actItem._2
-                }
+              s"field ${item._1} calculated (act ${actItem._2.amount}, exp ${item._2.amount})" in {
+                item._2 mustBe actItem._2
               }
             }
           }

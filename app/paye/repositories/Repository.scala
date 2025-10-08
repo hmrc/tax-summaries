@@ -17,7 +17,6 @@
 package paye.repositories
 
 import common.config.ApplicationConfig
-import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
 import paye.models.PayeAtsMiddleTierMongo

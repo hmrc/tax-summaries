@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package sa.transformers.ATS2024
+package paye.models
 
-import common.models.Amount
-import sa.models.TaxSummaryLiability
-import sa.services.TaxRateService
+import play.api.libs.json.{Json, Reads}
 
-class ATSCalculationsUK2024(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations2024 {
-  override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTax")
+case class ScottishAdvancedBand(
+  scottishAdvancedRateTaxAmount: Double,
+  scottishAdvancedRateTax: Double,
+  scottishAdvancedRate: Double
+)
+
+object ScottishAdvancedBand {
+  implicit val reads: Reads[ScottishAdvancedBand] = Json.reads[ScottishAdvancedBand]
 }

@@ -206,6 +206,8 @@ object ODSLiabilities {
 
   case object TaxablePayScottishIntermediateRate extends ODSLiabilities("taxablePaySIR")
 
+  case object TaxablePayScottishAdvancedRate extends ODSLiabilities("taxablePaySar")
+
   case object TaxablePayScottishStarterRate extends ODSLiabilities("taxablePaySSR")
 
   private case object TaxCharged extends ODSLiabilities("atsTaxCharged")
@@ -217,6 +219,8 @@ object ODSLiabilities {
   case object TaxExcluded extends ODSLiabilities("taxExcluded")
 
   case object TaxOnPayScottishIntermediateRate extends ODSLiabilities("taxOnPaySIR")
+
+  case object TaxOnPayScottishAdvancedRate extends ODSLiabilities("taxOnPaySar")
 
   case object TaxOnPayScottishStarterRate extends ODSLiabilities("taxOnPaySSR")
 
@@ -266,6 +270,8 @@ object ODSLiabilities {
 
   case object TaxOnRedundancySir extends ODSLiabilities("ctnTaxOnRedundancySir")
 
+  case object TaxOnRedundancySar extends ODSLiabilities("taxOnRedundancySar")
+
   case object TaxOnCegHr extends ODSLiabilities("ctnTaxOnCegHr")
 
   case object TaxOnRedundancyBr extends ODSLiabilities("ctnTaxOnRedundancyBr")
@@ -291,6 +297,27 @@ object ODSLiabilities {
   case object TaxableRedundancySsr extends ODSLiabilities("ctnTaxableRedundancySsr")
 
   case object TaxableRedundancySir extends ODSLiabilities("ctnTaxableRedundancySir")
+
+  case object TaxableRedundancySar extends ODSLiabilities("taxableRedundancySar")
+
+  case object BrdReduction extends ODSLiabilities("brdReduction")
+
+  case object BrdCharge extends ODSLiabilities("brdCharge")
+
+  case object IncomeTermination extends ODSLiabilities("incomeTermination")
+
+  case object CapOffshoreTrustLiability extends ODSLiabilities("capOffshoreTrustLiability")
+
+  case object CGAtLowerRateCI extends ODSLiabilities("cGAtLowerRateCI")
+  case object LowerRateCgtCI extends ODSLiabilities("lowerRateCgtCI")
+  case object CGAtHigherRateCI extends ODSLiabilities("cGAtHigherRateCI")
+  case object HigherRateCgtCI extends ODSLiabilities("higherRateCgtCI")
+
+  case object CGAtLowerRateRP extends ODSLiabilities("cGAtLowerRateRP")
+  case object LowerRateCgtRP extends ODSLiabilities("lowerRateCgtRP")
+  case object CGAtHigherRateRP extends ODSLiabilities("cGAtHigherRateRP")
+  case object HigherRateCgtRP extends ODSLiabilities("higherRateCgtRP")
+
 
   // format: off
   private val allLiabilities: List[ODSLiabilities with ApiValue] =
@@ -322,14 +349,29 @@ object ODSLiabilities {
       TaxOnRedundancySir, TaxOnRedundancySsr, TaxOnCegAhr, TaxableRedundancyBr, TaxableCegBr, TaxableRedundancyAhr,
       TaxableCegAhr, TaxableCegSr, TaxOnCegSr, TaxableRedundancySsr, TaxableRedundancySir
     )
+
+
+    val allLiabilities2023 = allLiabilities2022 :+ RelTaxAcctFor
+    val allLiabilities2024 = allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits
+    val allLiabilities2025 = allLiabilities2024 ++
+      List(
+        BrdReduction, BrdCharge,
+        IncomeTermination,
+        TaxablePayScottishAdvancedRate, TaxableRedundancySar, TaxOnPayScottishAdvancedRate, TaxOnRedundancySar,
+        CGAtLowerRateCI, LowerRateCgtCI, CGAtHigherRateCI, HigherRateCgtCI, 
+        CGAtLowerRateRP, LowerRateCgtRP, CGAtHigherRateRP, HigherRateCgtRP,
+        CapOffshoreTrustLiability
+      )
+
     Map(
       2022 -> allLiabilities2022,
-      2023 -> (allLiabilities2022 :+ RelTaxAcctFor),
-      2024 -> (allLiabilities2022 :+ RelTaxAcctFor :+ TaxOnTransitionProfits),
+      2023 -> allLiabilities2023,
+      2024 -> allLiabilities2024,
+      2025 -> allLiabilities2025
     )
   }
-  // format: on
 
+  // format: on
   def readsLiabilities(taxYear: Int): Reads[ODSLiabilities] =
     ApiValue.readFromList[ODSLiabilities] {
       mapLiabilities.get(taxYear) match {

@@ -17,17 +17,18 @@
 package paye.models
 
 import common.config.ApplicationConfig
-import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax, WelshIncomeTax}
-import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
-import common.models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, Rate, RateKey}
+import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax, WelshIncomeTax}
+import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishAdvancedRate, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
+import common.models.*
 import play.api.libs.json.{Json, Reads}
 
 case class PayeAtsData(
+  includeBRDMessage: Option[Boolean],
   taxableStateBenefits: Option[Double],
   averageRateTax: Option[Int],
   /*
-    The field scottishIncomeTax is actually the WELSH income tax.
-    See the comment below for WelshIncomeTax key.
+                          The field scottishIncomeTax is actually the WELSH income tax.
+                          See the comment below for WelshIncomeTax key.
    */
   scottishIncomeTax: Option[Double],
   adjustments: Option[Adjustments],
@@ -44,6 +45,7 @@ case class PayeAtsData(
   scottishBasicBand: Option[ScottishBasicBand],
   scottishIntermediateBand: Option[ScottishIntermediateBand],
   scottishHigherBand: Option[ScottishHigherBand],
+  scottishAdvancedBand: Option[ScottishAdvancedBand],
   scottishTopBand: Option[ScottishTopBand],
   savingsStarterBand: Option[SavingsStarterBand]
 ) {
@@ -158,6 +160,14 @@ case class PayeAtsData(
         ScottishHigherRateIncomeTax,
         scottishHigherBand.map(_.scottishHigherRateTaxAmount)
       ),
+      ScottishAdvancedRateIncomeTax           -> optionToAmount(
+        ScottishAdvancedRateIncomeTax,
+        scottishAdvancedBand.map(_.scottishAdvancedRateTaxAmount)
+      ),
+      ScottishAdvancedRateIncomeTaxAmount     -> optionToAmount(
+        ScottishAdvancedRateIncomeTaxAmount,
+        scottishAdvancedBand.map(_.scottishAdvancedRateTax)
+      ),
       ScottishTopRateIncomeTaxAmount          -> optionToAmount(
         ScottishTopRateIncomeTaxAmount,
         scottishTopBand.map(_.scottishTopRateTax)
@@ -180,6 +190,7 @@ case class PayeAtsData(
       PayeScottishBasicRate        -> optionToRate(scottishBasicBand.map(_.scottishBasicRate)),
       PayeScottishIntermediateRate -> optionToRate(scottishIntermediateBand.map(_.scottishIntermediateRate)),
       PayeScottishHigherRate       -> optionToRate(scottishHigherBand.map(_.scottishHigherRate)),
+      PayeScottishAdvancedRate     -> optionToRate(scottishAdvancedBand.map(_.scottishAdvancedRate)),
       PayeScottishTopRate          -> optionToRate(scottishTopBand.map(_.scottishTopRate))
     )
 

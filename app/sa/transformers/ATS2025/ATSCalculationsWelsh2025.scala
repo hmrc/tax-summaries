@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package sa.transformers.ATS2024
+package sa.transformers.ATS2025
 
 import common.models.Amount
+import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr}
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
-class ATSCalculationsUK2024(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
-    extends ATSCalculations2024 {
+class ATSCalculationsWelsh2025(val summaryData: TaxSummaryLiability, val taxRates: TaxRateService)
+    extends ATSCalculations2025 {
+  override def welshIncomeTax: Amount = {
+    val welshRate: Double = 0.1
+    (
+      getWithDefaultAmount(IncomeChargeableBasicRate) +
+        get(TaxableRedundancyBr) +
+        getWithDefaultAmount(IncomeChargeableHigherRate) +
+        get(TaxableRedundancyHr) +
+        getWithDefaultAmount(IncomeChargeableAddHRate)
+        + get(TaxableRedundancyAhr)
+    ) * welshRate
+  }
+
   override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTax")
 }

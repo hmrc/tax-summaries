@@ -1,4 +1,5 @@
 {
+  "includeBRDMessage": false,
   "averageRateTax": 22,
   "adjustments": {
     "taxFreeAmount": 11850.00,
@@ -53,5 +54,10 @@
     "scottishHigherRateTaxAmount": 17570.00,
     "scottishHigherRateTax": 7203.70,
     "scottishHigherRate": 41.00
+  },
+  "scottishAdvancedBand": {
+    "scottishAdvancedRateTaxAmount": 20000.00,
+    "scottishAdvancedRateTax": 9000.00,
+    "scottishAdvancedRate": 45.00
   }
 }
