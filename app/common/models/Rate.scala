@@ -106,6 +106,8 @@ object RateKey {
 
   case object PayeScottishHigherRate extends RateKey("paye_scottish_higher_rate")
 
+  case object PayeScottishAdvancedRate extends RateKey("paye_scottish_advanced_rate")
+
   case object PayeScottishTopRate extends RateKey("paye_scottish_top_rate")
 
   case object ScottishStarterRate extends RateKey("scottish_starter_rate")
@@ -132,7 +134,7 @@ object RateKey {
       Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic,
       IncomeHigher, InterestHigher, InterestCILower, InterestCIHigher, InterestRPLower, InterestRPHigher, InterestLower, NICS, Ordinary, Savings, TotalCapitalGains, Upper,
       PayeDividendOrdinaryRate, PayeDividendAdditionalRate, PayeHigherRateIncomeTax, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendUpperRate,
-      PayeScottishStarterRate, PayeScottishBasicRate, PayeScottishIntermediateRate, PayeScottishHigherRate, PayeScottishTopRate,
+      PayeScottishStarterRate, PayeScottishBasicRate, PayeScottishIntermediateRate, PayeScottishHigherRate, PayeScottishAdvancedRate, PayeScottishTopRate,
       ScottishStarterRate, ScottishBasicRate, ScottishAdvancedRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate,
       SavingsLowerRate, SavingsHigherRate, SavingsAdditionalRate
     )
