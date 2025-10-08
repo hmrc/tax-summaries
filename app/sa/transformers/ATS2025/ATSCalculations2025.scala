@@ -176,7 +176,7 @@ trait ATSCalculations2025 extends ATSCalculations {
         get(CgDueEntrepreneursRate) +
         get(CgDueLowerRate) +
         get(CgDueHigherRate) +
-        get(CapAdjustment)
+        get(CapAdjustment) +
+        get(CapOffshoreTrustLiability)
     ).max(0)
-
 }

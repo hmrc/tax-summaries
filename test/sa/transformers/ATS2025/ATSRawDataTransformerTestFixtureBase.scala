@@ -467,7 +467,8 @@ trait AtsRawDataTransformerTestFixtureBaseCalculations {
     "ctnCgDueEntrepreneursRate",
     "ctnCgDueLowerRate",
     "ctnCgDueHigherRate",
-    "capAdjustmentAmt"
+    "capAdjustmentAmt",
+    "capOffshoreTrustLiability"
   )
 
   protected def expTaxableGains: Amount = calcExp("atsCgTotGainsAfterLosses", "atsCgGainsAfterLossesAmt")
