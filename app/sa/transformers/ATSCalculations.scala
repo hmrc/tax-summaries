@@ -235,7 +235,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
   def savingsRateAmount: Amount = get(SavingsTaxStartingRate)
 
-  private def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount): Amount =
+  protected def taxPerTaxableCurrencyUnit(tax: Amount, taxable: Amount): Amount =
     taxable match {
       case value if value.isZero => taxable
       case _                     => tax.divideWithPrecision(taxable, 4)
