@@ -46,7 +46,8 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class PayeAtsDataTest extends BaseSpec {
 
-  val atsData: PayeAtsData                = PayeAtsDataUtil.atsData
+  val atsData: PayeAtsData = PayeAtsDataUtil.atsData
+
   val nino: String                        = TestConstants.testNino
   val taxYear                             = "2024"
   lazy val servicesConfig: ServicesConfig = app.injector.instanceOf[ServicesConfig]
@@ -56,9 +57,23 @@ class PayeAtsDataTest extends BaseSpec {
     atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
 
   "transformToPayeMiddleTier" must {
-    "populate the nino and tax year" in {
+    "populate the nino and tax year and includeBRDMessage field correctly when it is present and false" in {
       transformedData.nino mustBe nino
       transformedData.taxYear mustBe taxYear.toInt
+      transformedData.includeBRDMessage mustBe false
+    }
+
+    "populate includeBRDMessage field correctly when it is present and true" in {
+      val atsData: PayeAtsData               = PayeAtsDataUtil.atsData.copy(includeBRDMessage = Some(true))
+      val transformedData: PayeAtsMiddleTier =
+        atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
+      transformedData.includeBRDMessage mustBe true
+    }
+    "populate includeBRDMessage field correctly when it is absent" in {
+      val atsData: PayeAtsData               = PayeAtsDataUtil.atsData.copy(includeBRDMessage = None)
+      val transformedData: PayeAtsMiddleTier =
+        atsData.transformToPayeMiddleTier(applicationConfig, nino, taxYear.toInt)
+      transformedData.includeBRDMessage mustBe false
     }
 
     "create allowance data" in {
