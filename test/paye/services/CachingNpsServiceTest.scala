@@ -56,7 +56,8 @@ class CachingNpsServiceTest extends BaseSpec {
 
   "getAtsPayeDataMultipleYears" must {
     "return a successful response" in new Fixture {
-      val data                             = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val data                             =
+        new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None, includeBRDMessage = false)
       val eventCaptor: ArgumentCaptor[Int] = ArgumentCaptor.forClass(classOf[Int])
       when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
@@ -90,7 +91,8 @@ class CachingNpsServiceTest extends BaseSpec {
     }
 
     "return a failure" in new Fixture {
-      val data                             = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val data                             =
+        new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None, includeBRDMessage = false)
       val eventCaptor: ArgumentCaptor[Int] = ArgumentCaptor.forClass(classOf[Int])
       when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
@@ -114,7 +116,8 @@ class CachingNpsServiceTest extends BaseSpec {
 
   "caching getPayeATSData" must {
     "Retrieve data from the cache" in new Fixture {
-      val data      = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val data      =
+        new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None, includeBRDMessage = false)
       val dataMongo = new PayeAtsMiddleTierMongo(buildId(generatedNino.nino, 2627), data, ttl)
 
       when(config.calculateExpiryTime()).thenReturn(ttl)
@@ -126,7 +129,8 @@ class CachingNpsServiceTest extends BaseSpec {
     }
 
     "Retrieve data from the InnerService when cache empty and refresh the cache" in new Fixture {
-      val data = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val data =
+        new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None, includeBRDMessage = false)
       when(config.calculateExpiryTime()).thenReturn(ttl)
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(repository.set(any())).thenReturn(Future.successful(true))
@@ -139,7 +143,8 @@ class CachingNpsServiceTest extends BaseSpec {
     }
 
     "Return an internal server error when refreshing the cache fails" in new Fixture {
-      val data = new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None)
+      val data =
+        new PayeAtsMiddleTier(2627, generatedNino.nino, None, None, None, None, None, includeBRDMessage = false)
 
       when(repository.get(any(), any())).thenReturn(Future.successful(None))
       when(repository.set(any())).thenReturn(Future.failed(new Exception("Failed")))

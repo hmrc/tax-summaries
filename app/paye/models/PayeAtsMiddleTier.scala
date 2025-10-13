@@ -26,7 +26,8 @@ case class PayeAtsMiddleTier(
   summary_data: Option[DataHolder],
   income_data: Option[DataHolder],
   allowance_data: Option[DataHolder],
-  gov_spending: Option[GovernmentSpendingOutputWrapper]
+  gov_spending: Option[GovernmentSpendingOutputWrapper],
+  includeBRDMessage: Boolean
 )
 
 object PayeAtsMiddleTier {
