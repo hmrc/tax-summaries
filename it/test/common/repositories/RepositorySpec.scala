@@ -45,7 +45,7 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
       val taxYear: Int      = 2024
       val minuteOffset: Int = 15
 
-      val data = PayeAtsMiddleTier(taxYear, "NINONINO", None, None, None, None, None)
+      val data = PayeAtsMiddleTier(taxYear, "NINONINO", None, None, None, None, None, includeBRDMessage = false)
 
       /*
         Upgrades to HMRC Mongo seem to have changed the JSON writes for JavaTime types to be truncated at milliseconds

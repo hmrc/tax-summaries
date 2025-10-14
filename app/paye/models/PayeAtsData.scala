@@ -17,9 +17,9 @@
 package paye.models
 
 import common.config.ApplicationConfig
+import common.models.*
 import common.models.LiabilityKey.{AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, DividendAdditionalRate, DividendAdditionalRateAmount, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, EmployerNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeAfterTaxAndNics, IncomeFromEmployment, LessTaxAdjustmentPrevYear, LiableTaxAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, MarriedCouplesAllowance, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PersonalTaxFreeAmount, ScottishAdvancedRateIncomeTax, ScottishAdvancedRateIncomeTaxAmount, ScottishBasicRateIncomeTax, ScottishBasicRateIncomeTaxAmount, ScottishHigherRateIncomeTax, ScottishHigherRateIncomeTaxAmount, ScottishIncomeTax, ScottishIntermediateRateIncomeTax, ScottishIntermediateRateIncomeTaxAmount, ScottishStarterRateIncomeTax, ScottishStarterRateIncomeTaxAmount, ScottishTopRateIncomeTax, ScottishTopRateIncomeTaxAmount, ScottishTotalTax, StatePension, TaxUnderpaidPrevYear, TaxableStateBenefits, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTax2, TotalIncomeTax2Nics, TotalIncomeTaxAndNics, TotalTaxFreeAmount, TotalUKIncomeTax, WelshIncomeTax}
 import common.models.RateKey.{NICS, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendAdditionalRate, PayeDividendOrdinaryRate, PayeDividendUpperRate, PayeHigherRateIncomeTax, PayeScottishAdvancedRate, PayeScottishBasicRate, PayeScottishHigherRate, PayeScottishIntermediateRate, PayeScottishStarterRate, PayeScottishTopRate}
-import common.models.*
 import play.api.libs.json.{Json, Reads}
 
 case class PayeAtsData(
@@ -58,7 +58,8 @@ case class PayeAtsData(
       Some(createSummaryData),
       Some(createIncomeData()),
       Some(createAllowanceData),
-      Some(createGovSpendData(applicationConfig, taxYear))
+      Some(createGovSpendData(applicationConfig, taxYear)),
+      includeBRDMessage.getOrElse(false)
     )
 
   private def optionToAmount(key: LiabilityKey, opt: Option[Double]): Amount =

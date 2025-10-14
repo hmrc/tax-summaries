@@ -55,8 +55,10 @@ class AtsPayeDataControllerTest extends BaseSpec {
   val cy      = 2022
   val cyPlus1 = 2023
 
-  val expectedResponseCY: PayeAtsMiddleTier      = PayeAtsMiddleTier(cy, testNino, None, None, None, None, None)
-  val expectedResponseCYPlus1: PayeAtsMiddleTier = PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None)
+  val expectedResponseCY: PayeAtsMiddleTier      =
+    PayeAtsMiddleTier(cy, testNino, None, None, None, None, None, includeBRDMessage = false)
+  val expectedResponseCYPlus1: PayeAtsMiddleTier =
+    PayeAtsMiddleTier(cyPlus1, testNino, None, None, None, None, None, includeBRDMessage = false)
 
   val notFoundError: UpstreamErrorResponse         = UpstreamErrorResponse("Not found", NOT_FOUND, INTERNAL_SERVER_ERROR)
   val badRequestError: UpstreamErrorResponse       = UpstreamErrorResponse("Bad request", BAD_REQUEST, INTERNAL_SERVER_ERROR)

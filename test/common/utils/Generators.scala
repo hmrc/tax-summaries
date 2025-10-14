@@ -17,7 +17,7 @@
 package common.utils
 
 import common.errors.AtsError
-import common.models.{Amount, ApiRate, DataHolder, GovernmentSpendingOutputWrapper, LiabilityKey, RateKey}
+import common.models.*
 import common.services.GoodsAndServices
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
@@ -64,12 +64,13 @@ object Generators {
   } yield GovernmentSpendingOutputWrapper(taxYear, spend, total, errors)
 
   val genPayeAsMiddleTier: Gen[PayeAtsMiddleTier] = for {
-    taxYear     <- arbitrary[Int]
-    nino        <- arbitrary[String]
-    incomeTax   <- Gen.option(genDataHolder)
-    summary     <- Gen.option(genDataHolder)
-    income      <- Gen.option(genDataHolder)
-    allowance   <- Gen.option(genDataHolder)
-    govSpending <- Gen.option(genGovernmentSpending)
-  } yield PayeAtsMiddleTier(taxYear, nino, incomeTax, summary, income, allowance, govSpending)
+    taxYear           <- arbitrary[Int]
+    nino              <- arbitrary[String]
+    incomeTax         <- Gen.option(genDataHolder)
+    summary           <- Gen.option(genDataHolder)
+    income            <- Gen.option(genDataHolder)
+    allowance         <- Gen.option(genDataHolder)
+    govSpending       <- Gen.option(genGovernmentSpending)
+    includeBRDMessage <- arbitrary[Boolean]
+  } yield PayeAtsMiddleTier(taxYear, nino, incomeTax, summary, income, allowance, govSpending, includeBRDMessage)
 }
