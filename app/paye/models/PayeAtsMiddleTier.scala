@@ -17,7 +17,8 @@
 package paye.models
 
 import common.models.{DataHolder, GovernmentSpendingOutputWrapper}
-import play.api.libs.json.{Format, Json}
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.*
 
 case class PayeAtsMiddleTier(
   taxYear: Int,
@@ -32,6 +33,31 @@ case class PayeAtsMiddleTier(
 
 object PayeAtsMiddleTier {
 
-  implicit val format: Format[PayeAtsMiddleTier] = Json.format[PayeAtsMiddleTier]
+  implicit val format: Format[PayeAtsMiddleTier] = {
+
+    val reads: Reads[PayeAtsMiddleTier] = (
+      (JsPath \ "taxYear").read[Int] and
+        (JsPath \ "nino").read[String] and
+        (JsPath \ "income_tax").readNullable[DataHolder] and
+        (JsPath \ "summary_data").readNullable[DataHolder] and
+        (JsPath \ "income_data").readNullable[DataHolder] and
+        (JsPath \ "allowance_data").readNullable[DataHolder] and
+        (JsPath \ "gov_spending").readNullable[GovernmentSpendingOutputWrapper] and
+        (JsPath \ "includeBRDMessage").readNullable[Boolean]
+    )((taxYear, nino, incomeTax, summaryData, incomeData, allowanceData, govSpending, includeBRDMessage) =>
+      PayeAtsMiddleTier(
+        taxYear,
+        nino,
+        incomeTax,
+        summaryData,
+        incomeData,
+        allowanceData,
+        govSpending,
+        includeBRDMessage.getOrElse(false)
+      )
+    )
+
+    Format(reads, Json.writes[PayeAtsMiddleTier])
+  }
 
 }

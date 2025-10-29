@@ -18,7 +18,7 @@ package paye.models
 
 import common.utils.{BaseSpec, Generators}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 
 class PayeAtsMiddleTierTest extends BaseSpec with ScalaCheckPropertyChecks {
 
@@ -29,5 +29,13 @@ class PayeAtsMiddleTierTest extends BaseSpec with ScalaCheckPropertyChecks {
 
       obj mustBe data
     }
+  }
+
+  "reads must ignore missing brd field, setting it to false" in {
+    val data = PayeAtsMiddleTier(2024, "NINONINO", None, None, None, None, None, includeBRDMessage = false)
+    val json = Json.toJson(data).as[JsObject] - "includeBRDMessage"
+    val obj  = json.as[PayeAtsMiddleTier]
+    obj mustBe data
+
   }
 }
