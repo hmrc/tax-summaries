@@ -15,7 +15,10 @@
  */
 
 import sbt.*
+import sbt.Keys.scalacOptions
 import uk.gov.hmrc.DefaultBuildSettings
+
+import scala.collection.Seq
 
 val appName = "tax-summaries"
 
@@ -23,25 +26,28 @@ ThisBuild / majorVersion := 3
 ThisBuild / scalaVersion := "3.3.6"
 ThisBuild / scalafmtOnCompile := true
 
+val commonSettings: Seq[String] = Seq(
+  "-unchecked",
+  "-feature",
+  "-deprecation",
+  "-language:noAutoTupling",
+  "-Wvalue-discard",
+  "-Werror",
+  "-Wconf:src=routes/.*:s",
+  "-Wunused:unsafe-warn-patvars",
+  "-Wconf:msg=Flag.*repeatedly:s"
+)
+
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
-  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
     PlayKeys.playDefaultPort := 9323,
     ScoverageSettings.settings,
     libraryDependencies ++= AppDependencies.all
   )
   .settings(
-    scalacOptions ++= Seq(
-      "-unchecked",
-      "-feature",
-      "-Wvalue-discard",
-      "-Werror",
-      "-Wconf:msg=unused&src=.*RoutesPrefix\\.scala:s",
-      "-Wconf:msg=unused&src=.*Routes\\.scala:s",
-      "-Wvalue-discard",
-      "-Wconf:msg=Flag.*repeatedly:s"
-    )
+    scalacOptions ++= commonSettings
   )
 
 Test / Keys.fork := true
@@ -53,5 +59,6 @@ lazy val it = project
   .settings(
     libraryDependencies ++= AppDependencies.test,
     DefaultBuildSettings.itSettings(),
-    javaOptions += "-Dlogger.resource=logback-test.xml"
+    javaOptions += "-Dlogger.resource=logback-test.xml",
+    scalacOptions ++= commonSettings
   )

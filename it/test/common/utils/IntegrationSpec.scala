@@ -34,7 +34,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.reflect.ClassTag
-import scala.util.Random
 
 /** GET /:UTR/:TAX_YEAR/ats-data controllers.AtsSaDataController.getATSData(UTR: String, TAX_YEAR: Int) GET
   * /:NINO/:TAX_YEAR/paye-ats-data controllers.ATSPAYEDataController.getATSData(NINO: String, TAX_YEAR: Int) GET
@@ -104,6 +103,7 @@ trait IntegrationSpec
       post(urlEqualTo("/pertax/authorise"))
         .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
     )
+    ()
   }
 
   override def fakeApplication(): Application =

@@ -41,6 +41,7 @@ trait SaTestHelper extends IntegrationSpec {
         .get(urlEqualTo(taxPayerUrl))
         .willReturn(ok(FileHelper.loadFile(taxPayerFile)))
     )
+    ()
 
   }
 
@@ -78,6 +79,7 @@ trait SaTestHelper extends IntegrationSpec {
 
     if (data.errors.isEmpty) {
       dataToFind(data, key).amount mustBe BigDecimal(value)
+      ()
     } else {
       throw new RuntimeException(s"error occurred ......." + data.errors.get.error)
     }
