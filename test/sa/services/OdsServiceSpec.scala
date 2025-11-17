@@ -60,7 +60,7 @@ class OdsServiceSpec extends BaseSpec {
         Map.empty,
         Map.empty
       )
-      override protected val taxRates: TaxRateService         = mockTaxRateService
+      override protected val taxRatesService: TaxRateService  = mockTaxRateService
 
       override def taxLiability: Amount = Amount(amount, "GBP")
 
