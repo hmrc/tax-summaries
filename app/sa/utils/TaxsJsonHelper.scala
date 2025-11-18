@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import common.config.ApplicationConfig
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import sa.models.{AtsMiddleTierData, AtsYearList, TaxSummaryLiability}
-import sa.services.TaxRateService
 import sa.transformers.{ATSCalculations, ATSRawDataTransformer, ATSTaxpayerDataTransformer}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -43,8 +42,8 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
   }
 
   def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] = {
-    val taxRateService = new TaxRateService(applicationConfig.rates(taxYear))
-    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRateService)
+    val rates = applicationConfig.rates(taxYear)
+    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], rates)
   }
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {

@@ -16,27 +16,26 @@
 
 package sa.transformers.ATS2022
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import common.utils.{BaseSpec, JsonUtil}
 import play.api.libs.json.Json
 import sa.models.ODSLiabilities.ODSLiabilities.TaxOnNonExcludedIncome
 import sa.models.TaxSummaryLiability
-import sa.services.TaxRateService
 
 class ATSCalculations2022Test extends BaseSpec {
   val taxYear                                  = 2022
   val json: String                             = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
   val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
 
-  val taxRateService = new TaxRateService(applicationConfig.rates(taxYear))
+  val taxRates: Map[String, Rate] = applicationConfig.rates(taxYear)
 
-  class FakeATSCalculation2022(val summaryData: TaxSummaryLiability, val taxRateService: TaxRateService)
+  class FakeATSCalculation2022(val summaryData: TaxSummaryLiability, val taxRates: Map[String, Rate])
       extends ATSCalculations2022 {
     override def scottishIncomeTax: Amount = Amount.empty("Dummy scottish income tax amount")
   }
 
   def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculation2022 =
-    new FakeATSCalculation2022(taxSummaryLiability, taxRateService)
+    new FakeATSCalculation2022(taxSummaryLiability, taxRates)
 
   "Generic calculations 2022" must {
     "calculate totalAmountEmployeeNic" in {

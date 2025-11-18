@@ -20,12 +20,11 @@ import common.models.{Amount, Rate}
 import sa.models.ODSLiabilities.ODSLiabilities.{Alimony, AnnuityPay, BPA, BpaAllowance, ChildBenefitCharge, Class2NicAmt, Class4Nic, CommInvTrustRel, DeficiencyRelief, DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, DividendsPartnership, EisRelief, EmployeeClass1NI, EmploymentExpenses, ForeignCegDedn, FtcrRestricted, GiftAidTaxReduced, GiftsInvCharities, IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, ItfCegReceivedAfterTax, LFIRelief, MarriageAllceIn, NetAnnuityPaytsTaxDue, NonDomCharge, NotionalTaxCegs, NotlTaxOtherSource, PensionSavingChargeable, ReliefForFinanceCosts, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsChargeableStartRate, SavingsPartnership, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, SavingsTaxStartingRate, SeedEisRelief, SocialInvTaxRel, SumTotForeignTaxRelief, SumTotLifePolicyGains, SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotForeignSav, SummaryTotShareOptions, SummaryTotTrustEstates, SummaryTotalDedPpr, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule, SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, SurplusMcaAlimonyRel, TaxExcluded, TaxOnCegAhr, TaxOnCegBr, TaxOnCegHr, TaxOnCegSr, TaxOnNonExcludedIncome, TaxOnRedundancyAhr, TaxOnRedundancyBr, TaxOnRedundancyHr, TaxableCegAhr, TaxableCegBr, TaxableCegHr, TaxableCegSr, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr, TopSlicingRelief, VctSharesRelief}
 import sa.models.TaxRate.{AdditionalRateIncomeTaxRate, BasicRateIncomeTaxRate, HigherRateIncomeTaxRate}
 import sa.models.TaxSummaryLiability
-import sa.services.TaxRateService
 import sa.transformers.ATSCalculations
 
 trait ATSCalculations2022 extends ATSCalculations {
   protected val summaryData: TaxSummaryLiability
-  protected val taxRateService: TaxRateService
+  protected val taxRates: Map[String, Rate]
 
   override def selfEmployment: Amount =
     get(SummaryTotalSchedule) +
@@ -113,42 +112,42 @@ trait ATSCalculations2022 extends ATSCalculations {
       get(SavingsChargeableLowerRate) +
       get(TaxableRedundancyBr) +
       get(TaxableCegBr) +
-      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+      includePensionIncomeForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   override def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
       get(TaxOnRedundancyBr) +
       get(TaxOnCegBr) +
-      includePensionTaxForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+      includePensionTaxForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   override def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +
       get(TaxableRedundancyHr) +
       get(TaxableCegHr) +
-      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
+      includePensionIncomeForRate(taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   override def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) +
       get(TaxOnRedundancyHr) +
       get(TaxOnCegHr) +
-      includePensionTaxForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
+      includePensionTaxForRate(taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   override def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) +
       get(TaxOnRedundancyAhr) +
       get(TaxOnCegAhr) +
-      includePensionTaxForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
+      includePensionTaxForRate(taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   override def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate) +
       get(TaxableRedundancyAhr) +
       get(TaxableCegAhr) +
-      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
+      includePensionIncomeForRate(taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   override def savingsRateAmount: Amount = get(SavingsTaxStartingRate) + get(TaxOnCegSr)
 

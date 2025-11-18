@@ -27,7 +27,6 @@ import sa.models.AtsMiddleTierData.noAtsResult
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxRate.*
 import sa.models.{AtsMiddleTierData, Nationality, TaxSummaryLiability}
-import sa.services.TaxRateService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -68,9 +67,9 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     UTR: String,
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
-    val taxRateService = new TaxRateService(applicationConfig.rates(taxYear))
-    val logger         = Logger(getClass.getName)
-    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRateService) match {
+    val taxRates = applicationConfig.rates(taxYear)
+    val logger   = Logger(getClass.getName)
+    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRates) match {
       case Some(calculations) =>
         logger.debug(
           s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"
@@ -81,11 +80,11 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
           AtsMiddleTierData.make(
             taxYear = taxYear,
             utr = UTR,
-            incomeTax = createIncomeTaxData(calculations, taxRateService, calculations.incomeTaxStatus),
+            incomeTax = createIncomeTaxData(calculations, taxRates, calculations.incomeTaxStatus),
             summary = createSummaryData(calculations: ATSCalculations),
             income = createIncomeData(calculations: ATSCalculations),
             allowance = createAllowanceData(calculations: ATSCalculations),
-            capitalGains = createCapitalGainsData(calculations, taxRateService),
+            capitalGains = createCapitalGainsData(calculations, taxRates),
             govSpending = createGovSpendData(calculations.totalTax, taxYear),
             taxPayer = createTaxPayerData(rawTaxPayerJson),
             taxLiability =
@@ -113,23 +112,23 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
 
   private def createIncomeTaxData(
     calculations: ATSCalculations,
-    taxRateService: TaxRateService,
+    taxRates: Map[String, Rate],
     incomeTaxStatus: Option[Nationality]
   ) =
     DataHolder
       .make(
         createTotalIncomeTaxPageBreakdown(calculations),
-        createTotalIncomeTaxPageRates(taxRateService),
+        createTotalIncomeTaxPageRates(taxRates),
         incomeTaxStatus
       )
 
   private def createAllowanceData(calculations: ATSCalculations) =
     DataHolder.make(createYourTaxFreeAmountBreakdown(calculations))
 
-  private def createCapitalGainsData(calculations: ATSCalculations, taxRateService: TaxRateService) =
+  private def createCapitalGainsData(calculations: ATSCalculations, taxRates: Map[String, Rate]) =
     DataHolder.make(
       createCapitalGainsTaxBreakdown(calculations),
-      createCapitalGainsTaxRates(calculations, taxRateService)
+      createCapitalGainsTaxRates(calculations, taxRates)
     )
 
   private def createTaxPayerData(rawTaxPayerJson: JsValue) =
@@ -247,25 +246,25 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
 
   private def createCapitalGainsTaxRates(
     calculations: ATSCalculations,
-    taxRateService: TaxRateService
+    taxRates: Map[String, Rate]
   ): Map[RateKey, ApiRate] =
     Map[RateKey, Rate](
-      CapitalGainsEntrepreneur -> taxRateService.taxRates.getOrElse(CgEntrepreneursRate, Rate.empty),
-      CapitalGainsOrdinary     -> taxRateService.taxRates.getOrElse(CgOrdinaryRate, Rate.empty),
-      CapitalGainsUpper        -> taxRateService.taxRates.getOrElse(CgUpperRate, Rate.empty),
+      CapitalGainsEntrepreneur -> taxRates.getOrElse(CgEntrepreneursRate, Rate.empty),
+      CapitalGainsOrdinary     -> taxRates.getOrElse(CgOrdinaryRate, Rate.empty),
+      CapitalGainsUpper        -> taxRates.getOrElse(CgUpperRate, Rate.empty),
       TotalCapitalGains        -> calculations.totalCgTaxLiabilityAsPercentage,
-      InterestLower            -> taxRateService.taxRates.getOrElse(
+      InterestLower            -> taxRates.getOrElse(
         IndividualsForResidentialPropertyAndCarriedInterestLowerRate,
         Rate.empty
       ),
-      InterestHigher           -> taxRateService.taxRates.getOrElse(
+      InterestHigher           -> taxRates.getOrElse(
         IndividualsForResidentialPropertyAndCarriedInterestHigherRate,
         Rate.empty
       ),
-      InterestCIHigher         -> taxRateService.taxRates.getOrElse(IndividualsForCIHigherRate, Rate.empty),
-      InterestCILower          -> taxRateService.taxRates.getOrElse(IndividualsForCILowerRate, Rate.empty),
-      InterestRPHigher         -> taxRateService.taxRates.getOrElse(IndividualsForRPHigherRate, Rate.empty),
-      InterestRPLower          -> taxRateService.taxRates.getOrElse(IndividualsForRPLowerRate, Rate.empty)
+      InterestCIHigher         -> taxRates.getOrElse(IndividualsForCIHigherRate, Rate.empty),
+      InterestCILower          -> taxRates.getOrElse(IndividualsForCILowerRate, Rate.empty),
+      InterestRPHigher         -> taxRates.getOrElse(IndividualsForRPHigherRate, Rate.empty),
+      InterestRPLower          -> taxRates.getOrElse(IndividualsForRPLowerRate, Rate.empty)
     ).view.mapValues(_.apiValue).toMap
 
   private def createSummaryPageRates(calculations: ATSCalculations): Map[RateKey, ApiRate] =
@@ -274,41 +273,41 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
       NICS              -> calculations.totalNicsAndTaxLiabilityAsPercentage.apiValue
     )
 
-  private def createTotalIncomeTaxPageRates(taxRateService: TaxRateService): Map[RateKey, ApiRate] =
+  private def createTotalIncomeTaxPageRates(taxRates: Map[String, Rate]): Map[RateKey, ApiRate] =
     Map[RateKey, Rate](
-      Savings                                        -> taxRateService.taxRates.getOrElse(StartingRateForSavingsRate, Rate.empty),
-      IncomeBasic                                    -> taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
-      IncomeHigher                                   -> taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
-      IncomeAdditional                               -> taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty),
-      Ordinary                                       -> taxRateService.taxRates.getOrElse(DividendsOrdinaryRate, Rate.empty),
-      Upper                                          -> taxRateService.taxRates.getOrElse(DividendUpperRateRate, Rate.empty),
-      Additional                                     -> taxRateService.taxRates.getOrElse(DividendAdditionalRate, Rate.empty),
-      common.models.RateKey.ScottishStarterRate      -> taxRateService.taxRates.getOrElse(
+      Savings                                        -> taxRates.getOrElse(StartingRateForSavingsRate, Rate.empty),
+      IncomeBasic                                    -> taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
+      IncomeHigher                                   -> taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
+      IncomeAdditional                               -> taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty),
+      Ordinary                                       -> taxRates.getOrElse(DividendsOrdinaryRate, Rate.empty),
+      Upper                                          -> taxRates.getOrElse(DividendUpperRateRate, Rate.empty),
+      Additional                                     -> taxRates.getOrElse(DividendAdditionalRate, Rate.empty),
+      common.models.RateKey.ScottishStarterRate      -> taxRates.getOrElse(
         sa.models.TaxRate.ScottishStarterRate,
         Rate.empty
       ),
-      common.models.RateKey.ScottishBasicRate        -> taxRateService.taxRates.getOrElse(
+      common.models.RateKey.ScottishBasicRate        -> taxRates.getOrElse(
         sa.models.TaxRate.ScottishBasicRate,
         Rate.empty
       ),
-      common.models.RateKey.ScottishIntermediateRate -> taxRateService.taxRates.getOrElse(
+      common.models.RateKey.ScottishIntermediateRate -> taxRates.getOrElse(
         sa.models.TaxRate.ScottishIntermediateRate,
         Rate.empty
       ),
-      common.models.RateKey.ScottishHigherRate       -> taxRateService.taxRates.getOrElse(
+      common.models.RateKey.ScottishHigherRate       -> taxRates.getOrElse(
         sa.models.TaxRate.ScottishHigherRate,
         Rate.empty
       ),
-      common.models.RateKey.ScottishAdvancedRate     -> taxRateService.taxRates.getOrElse(
+      common.models.RateKey.ScottishAdvancedRate     -> taxRates.getOrElse(
         sa.models.TaxRate.ScottishAdvancedRate,
         Rate.empty
       ),
-      common.models.RateKey.ScottishAdditionalRate   -> taxRateService.taxRates.getOrElse(
+      common.models.RateKey.ScottishAdditionalRate   -> taxRates.getOrElse(
         sa.models.TaxRate.ScottishAdditionalRate,
         Rate.empty
       ),
-      SavingsLowerRate                               -> taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
-      SavingsHigherRate                              -> taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
-      SavingsAdditionalRate                          -> taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty)
+      SavingsLowerRate                               -> taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
+      SavingsHigherRate                              -> taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
+      SavingsAdditionalRate                          -> taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty)
     ).view.mapValues(_.apiValue).toMap
 }

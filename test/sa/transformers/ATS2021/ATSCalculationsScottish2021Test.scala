@@ -20,7 +20,6 @@ import common.models.{Amount, Rate}
 import common.utils.{BaseSpec, JsonUtil}
 import play.api.libs.json.Json
 import sa.models.{PensionTaxRate, Scottish, TaxSummaryLiability}
-import sa.services.TaxRateService
 import sa.models.TaxRate._
 
 class ATSCalculationsScottish2021Test extends BaseSpec {
@@ -37,10 +36,10 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     .as[TaxSummaryLiability]
     .copy(incomeTaxStatus = Some(Scottish()))
 
-  val taxRateService = new TaxRateService(applicationConfig.rates(taxYear))
+  val taxRates = applicationConfig.rates(taxYear)
 
   class FakeATSCalculationScottish2021(taxSummaryLiability: TaxSummaryLiability)
-      extends ATSCalculationsScottish2021(taxSummaryLiability, taxRateService)
+      extends ATSCalculationsScottish2021(taxSummaryLiability, taxRates)
 
   def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): ATSCalculationsScottish2021 =
     new FakeATSCalculationScottish2021(taxSummaryLiability)

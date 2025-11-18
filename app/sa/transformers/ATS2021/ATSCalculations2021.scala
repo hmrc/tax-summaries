@@ -16,16 +16,15 @@
 
 package sa.transformers.ATS2021
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import sa.models.ODSLiabilities.ODSLiabilities.{AnnuityPay, BPA, BpaAllowance, ChildBenefitCharge, DividendTaxAddHighRate, DividendTaxHighRate, DividendTaxLowRate, DividendsPartnership, EmploymentExpenses, GiftAidTaxReduced, GiftsInvCharities, MarriageAllceIn, NetAnnuityPaytsTaxDue, NonDomCharge, PensionSavingChargeable, SavingsPartnership, SumTotForeignTaxRelief, SumTotLifePolicyGains, SumTotLoanRestricted, SumTotLossRestricted, SummaryTotForeignDiv, SummaryTotForeignIncome, SummaryTotForeignSav, SummaryTotShareOptions, SummaryTotTrustEstates, SummaryTotalDedPpr, SummaryTotalOtherIncome, SummaryTotalPartnership, SummaryTotalSchedule, SummaryTotalUkIntDivs, SummaryTotalUkInterest, SummaryTotalUklProperty, TaxExcluded, TaxOnNonExcludedIncome, TradeUnionDeathBenefits}
 import sa.models.TaxSummaryLiability
-import sa.services.TaxRateService
 import sa.transformers.ATSCalculations
 
 trait ATSCalculations2021 extends ATSCalculations {
 
   protected val summaryData: TaxSummaryLiability
-  protected val taxRateService: TaxRateService
+  protected val taxRates: Map[String, Rate]
 
   override def selfEmployment: Amount =
     get(SummaryTotalSchedule) +

@@ -22,7 +22,6 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.*
-import sa.services.TaxRateService
 import sa.transformers.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.utils.DoubleUtils
 import sa.models.TaxRate._
@@ -63,9 +62,9 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       atsData
     )
 
-    lazy val taxRateService = new TaxRateService(configRates)
+    lazy val taxRates = configRates
 
-    lazy val calculation: Option[ATSCalculations] = ATSCalculations.make(taxSummaryLiability, taxRateService)
+    lazy val calculation: Option[ATSCalculations] = ATSCalculations.make(taxSummaryLiability, taxRates)
   }
 
   class Fixture(val taxYear: Int, origin: Nationality) {

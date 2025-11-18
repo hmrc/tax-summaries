@@ -16,12 +16,11 @@
 
 package sa.transformers.ATS2023
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, TaxableRedundancyAhr, TaxableRedundancyBr, TaxableRedundancyHr}
 import sa.models.TaxSummaryLiability
-import sa.services.TaxRateService
 
-class ATSCalculationsWelsh2023(val summaryData: TaxSummaryLiability, val taxRateService: TaxRateService)
+class ATSCalculationsWelsh2023(val summaryData: TaxSummaryLiability, val taxRates: Map[String, Rate])
     extends ATSCalculations2023 {
   override def welshIncomeTax: Amount = {
     val welshRate: Double = 0.1

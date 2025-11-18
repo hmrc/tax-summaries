@@ -22,7 +22,6 @@ import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxRate.{AdditionalRateIncomeTaxRate, BasicRateIncomeTaxRate, HigherRateIncomeTaxRate}
-import sa.services.TaxRateService
 import sa.transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK2021, ATSCalculationsWelsh2021}
 import sa.transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
 import sa.transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
@@ -33,7 +32,7 @@ import sa.utils.DoubleUtils
 // scalastyle:off number.of.methods
 trait ATSCalculations extends DoubleUtils with Logging {
   protected val summaryData: TaxSummaryLiability
-  protected val taxRateService: TaxRateService
+  protected val taxRates: Map[String, Rate]
   lazy val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
 
   def get(liability: ODSLiabilities): Amount = {
@@ -113,17 +112,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
-      includePensionTaxForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+      includePensionTaxForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) +
-      includePensionTaxForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
+      includePensionTaxForRate(taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) +
-      includePensionTaxForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
+      includePensionTaxForRate(taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   def scottishStarterRateTax: Amount = Amount.empty("scottishStarterRateTax")
 
@@ -207,17 +206,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +
       get(SavingsChargeableLowerRate) +
-      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+      includePensionIncomeForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +
-      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
+      includePensionIncomeForRate(taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate) +
-      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
+      includePensionIncomeForRate(taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   def scottishIncomeTax: Amount
 
@@ -262,7 +261,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
 
 object ATSCalculations {
   private val calculationsForNationalityAndYear
-    : Map[(Nationality, Int), (TaxSummaryLiability, TaxRateService) => ATSCalculations] = {
+    : Map[(Nationality, Int), (TaxSummaryLiability, Map[String, Rate]) => ATSCalculations] = {
     val uk       = UK()
     val scotland = Scottish()
     val wales    = Welsh()
@@ -304,9 +303,9 @@ object ATSCalculations {
     )
   }
 
-  def make(summaryData: TaxSummaryLiability, taxRateService: TaxRateService): Option[ATSCalculations] =
+  def make(summaryData: TaxSummaryLiability, taxRates: Map[String, Rate]): Option[ATSCalculations] =
     calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
-      case Some(found) => Some(found(summaryData, taxRateService))
+      case Some(found) => Some(found(summaryData, taxRates))
       case None        =>
         val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
           .filter(_._1 == summaryData.nationality)
@@ -316,7 +315,7 @@ object ATSCalculations {
           Some(
             calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))(
               summaryData,
-              taxRateService
+              taxRates
             )
           )
         } else {

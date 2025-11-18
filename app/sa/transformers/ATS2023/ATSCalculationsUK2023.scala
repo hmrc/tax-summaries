@@ -16,11 +16,10 @@
 
 package sa.transformers.ATS2023
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import sa.models.TaxSummaryLiability
-import sa.services.TaxRateService
 
-class ATSCalculationsUK2023(val summaryData: TaxSummaryLiability, val taxRateService: TaxRateService)
+class ATSCalculationsUK2023(val summaryData: TaxSummaryLiability, val taxRates: Map[String, Rate])
     extends ATSCalculations2023 {
   override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2023")
 }
