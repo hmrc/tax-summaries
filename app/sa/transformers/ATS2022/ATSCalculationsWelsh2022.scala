@@ -21,7 +21,7 @@ import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, Income
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
-class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRatesService: TaxRateService)
+class ATSCalculationsWelsh2022(val summaryData: TaxSummaryLiability, val taxRateService: TaxRateService)
     extends ATSCalculations2022 {
   override def welshIncomeTax: Amount = {
     val welshRate = 0.1

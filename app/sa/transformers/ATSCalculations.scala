@@ -32,7 +32,7 @@ import sa.utils.DoubleUtils
 // scalastyle:off number.of.methods
 trait ATSCalculations extends DoubleUtils with Logging {
   protected val summaryData: TaxSummaryLiability
-  protected val taxRatesService: TaxRateService
+  protected val taxRateService: TaxRateService
   lazy val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
 
   def get(liability: ODSLiabilities): Amount = {
@@ -112,17 +112,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
-      includePensionTaxForRate(taxRatesService.basicRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.basicRateIncomeTaxRate)
 
   def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) +
-      includePensionTaxForRate(taxRatesService.higherRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.higherRateIncomeTaxRate)
 
   def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) +
-      includePensionTaxForRate(taxRatesService.additionalRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.additionalRateIncomeTaxRate)
 
   def scottishStarterRateTax: Amount = Amount.empty("scottishStarterRateTax")
 
@@ -206,17 +206,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +
       get(SavingsChargeableLowerRate) +
-      includePensionIncomeForRate(taxRatesService.basicRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.basicRateIncomeTaxRate)
 
   def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +
-      includePensionIncomeForRate(taxRatesService.higherRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.higherRateIncomeTaxRate)
 
   def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate) +
-      includePensionIncomeForRate(taxRatesService.additionalRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.additionalRateIncomeTaxRate)
 
   def scottishIncomeTax: Amount
 
@@ -303,9 +303,9 @@ object ATSCalculations {
     )
   }
 
-  def make(summaryData: TaxSummaryLiability, taxRatesService: TaxRateService): Option[ATSCalculations] =
+  def make(summaryData: TaxSummaryLiability, taxRateService: TaxRateService): Option[ATSCalculations] =
     calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
-      case Some(found) => Some(found(summaryData, taxRatesService))
+      case Some(found) => Some(found(summaryData, taxRateService))
       case None        =>
         val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
           .filter(_._1 == summaryData.nationality)
@@ -315,7 +315,7 @@ object ATSCalculations {
           Some(
             calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))(
               summaryData,
-              taxRatesService
+              taxRateService
             )
           )
         } else {

@@ -20,7 +20,7 @@ import common.models.Amount
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
-class ATSCalculationsUK2023(val summaryData: TaxSummaryLiability, val taxRatesService: TaxRateService)
+class ATSCalculationsUK2023(val summaryData: TaxSummaryLiability, val taxRateService: TaxRateService)
     extends ATSCalculations2023 {
   override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTaxUK2023")
 }
