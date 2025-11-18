@@ -62,7 +62,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       atsData
     )
 
-    lazy val taxRateService = new TaxRateService(self.taxYear, configRates)
+    lazy val taxRateService = new TaxRateService(configRates)
 
     lazy val calculation: Option[ATSCalculations] = ATSCalculations.make(taxSummaryLiability, taxRateService)
   }

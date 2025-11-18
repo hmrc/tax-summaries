@@ -36,7 +36,7 @@ class ATSCalculationsScottish2022Test extends BaseSpec {
     .as[TaxSummaryLiability]
     .copy(incomeTaxStatus = Some(Scottish()))
 
-  val taxRateService = new TaxRateService(taxYear, applicationConfig.ratePercentages(taxYear))
+  val taxRateService = new TaxRateService(applicationConfig.ratePercentages(taxYear))
 
   class FakeATSCalculationScottish2022(taxSummaryLiability: TaxSummaryLiability)
       extends ATSCalculationsScottish2022(taxSummaryLiability, taxRateService)

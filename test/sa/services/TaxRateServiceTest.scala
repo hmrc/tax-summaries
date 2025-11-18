@@ -26,7 +26,7 @@ class TaxRateServiceTest extends BaseSpec {
       val expectedStartingRateForSavingsRate = 12.3
 
       val taxRateService =
-        new TaxRateService(2000, Map("startingRateForSavingsRate" -> expectedStartingRateForSavingsRate))
+        new TaxRateService(Map("startingRateForSavingsRate" -> expectedStartingRateForSavingsRate))
 
       val actualStartingRateForSavingsRate = taxRateService.startingRateForSavingsRate
 
@@ -37,7 +37,7 @@ class TaxRateServiceTest extends BaseSpec {
       val expectedBasicRateIncomeTaxRate = 20
 
       val taxRateService =
-        new TaxRateService(2000, Map("basicRateIncomeTaxRate" -> expectedBasicRateIncomeTaxRate))
+        new TaxRateService(Map("basicRateIncomeTaxRate" -> expectedBasicRateIncomeTaxRate))
 
       val actualBasicRateIncomeTaxRate = taxRateService.basicRateIncomeTaxRate
 
@@ -48,7 +48,7 @@ class TaxRateServiceTest extends BaseSpec {
       val expectedHigherRateIncomeTaxRate = 21
 
       val taxRateService =
-        new TaxRateService(2000, Map("higherRateIncomeTaxRate" -> expectedHigherRateIncomeTaxRate))
+        new TaxRateService(Map("higherRateIncomeTaxRate" -> expectedHigherRateIncomeTaxRate))
 
       val actualHigherRateIncomeTaxRate = taxRateService.higherRateIncomeTaxRate
 
@@ -59,7 +59,7 @@ class TaxRateServiceTest extends BaseSpec {
       val expectedAdditionalRateIncomeTaxRate = 22
 
       val taxRateService =
-        new TaxRateService(2000, Map("additionalRateIncomeTaxRate" -> expectedAdditionalRateIncomeTaxRate))
+        new TaxRateService(Map("additionalRateIncomeTaxRate" -> expectedAdditionalRateIncomeTaxRate))
 
       val actualAdditionalRateIncomeTaxRate = taxRateService.additionalRateIncomeTaxRate
 
@@ -69,7 +69,7 @@ class TaxRateServiceTest extends BaseSpec {
     "return a value for dividendsOrdinaryRate" in {
       val expectedDividendsOrdinaryRate = 26
 
-      val taxRateService = new TaxRateService(2000, Map("dividendsOrdinaryRate" -> expectedDividendsOrdinaryRate))
+      val taxRateService = new TaxRateService(Map("dividendsOrdinaryRate" -> expectedDividendsOrdinaryRate))
 
       val actualDividendsOrdinaryRate = taxRateService.dividendsOrdinaryRate
 
@@ -79,7 +79,7 @@ class TaxRateServiceTest extends BaseSpec {
     "return a value for dividendUpperRateRate" in {
       val expectedDividendUpperRateRate = 27
 
-      val taxRateService = new TaxRateService(2000, Map("dividendUpperRateRate" -> expectedDividendUpperRateRate))
+      val taxRateService = new TaxRateService(Map("dividendUpperRateRate" -> expectedDividendUpperRateRate))
 
       val actualDividendUpperRateRate = taxRateService.dividendUpperRateRate
 
@@ -90,7 +90,7 @@ class TaxRateServiceTest extends BaseSpec {
       val expectedDividendAdditionalRate = 28
 
       val taxRateService =
-        new TaxRateService(2000, Map("dividendAdditionalRate" -> expectedDividendAdditionalRate))
+        new TaxRateService(Map("dividendAdditionalRate" -> expectedDividendAdditionalRate))
 
       val actualDividendAdditionalRate = taxRateService.dividendAdditionalRate
 
@@ -100,7 +100,7 @@ class TaxRateServiceTest extends BaseSpec {
     "return a value for cgEntrepreneursRate" in {
       val expectedCgEntrepreneursRate = 29
 
-      val taxRateService = new TaxRateService(2000, Map("cgEntrepreneursRate" -> expectedCgEntrepreneursRate))
+      val taxRateService = new TaxRateService(Map("cgEntrepreneursRate" -> expectedCgEntrepreneursRate))
 
       val actualCgEntrepreneursRate = taxRateService.cgEntrepreneursRate
 
@@ -110,7 +110,7 @@ class TaxRateServiceTest extends BaseSpec {
     "return a value for cgOrdinaryRate" in {
       val expectedCgOrdinaryRate = 30
 
-      val taxRateService = new TaxRateService(2000, Map("cgOrdinaryRate" -> expectedCgOrdinaryRate))
+      val taxRateService = new TaxRateService(Map("cgOrdinaryRate" -> expectedCgOrdinaryRate))
 
       val actualCgOrdinaryRate = taxRateService.cgOrdinaryRate
 
@@ -120,7 +120,7 @@ class TaxRateServiceTest extends BaseSpec {
     "return a value for CgUpperRate" in {
       val expectedCgUpperRate = 31
 
-      val taxRateService = new TaxRateService(2000, Map("cgUpperRate" -> expectedCgUpperRate))
+      val taxRateService = new TaxRateService(Map("cgUpperRate" -> expectedCgUpperRate))
 
       val actualCgUpperRate = taxRateService.cgUpperRate
 
@@ -131,7 +131,6 @@ class TaxRateServiceTest extends BaseSpec {
       val expectedIndividualsForResidentialPropertyAndCarriedInterestLowerRate = 32
 
       val taxRateService = new TaxRateService(
-        2000,
         Map(
           "RPCILowerRate" -> expectedIndividualsForResidentialPropertyAndCarriedInterestLowerRate
         )
@@ -149,7 +148,6 @@ class TaxRateServiceTest extends BaseSpec {
       val expectedIndividualsForResidentialPropertyAndCarriedInterestHigherRate = 33
 
       val taxRateService = new TaxRateService(
-        2000,
         Map(
           "RPCIHigherRate" -> expectedIndividualsForResidentialPropertyAndCarriedInterestHigherRate
         )
@@ -164,7 +162,7 @@ class TaxRateServiceTest extends BaseSpec {
     }
 
     "return empty for all values" in {
-      val taxRateService = new TaxRateService(2000, Map.empty)
+      val taxRateService = new TaxRateService(Map.empty)
 
       val actualStartingRateForSavingsRate                                    = taxRateService.startingRateForSavingsRate
       val actualBasicRateIncomeTaxRate                                        = taxRateService.basicRateIncomeTaxRate
