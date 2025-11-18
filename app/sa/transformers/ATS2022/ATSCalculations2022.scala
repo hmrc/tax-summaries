@@ -112,42 +112,42 @@ trait ATSCalculations2022 extends ATSCalculations {
       get(SavingsChargeableLowerRate) +
       get(TaxableRedundancyBr) +
       get(TaxableCegBr) +
-      includePensionIncomeForRate(taxRatesService.basicRateIncomeTaxRate())
+      includePensionIncomeForRate(taxRatesService.basicRateIncomeTaxRate)
 
   override def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
       get(TaxOnRedundancyBr) +
       get(TaxOnCegBr) +
-      includePensionTaxForRate(taxRatesService.basicRateIncomeTaxRate())
+      includePensionTaxForRate(taxRatesService.basicRateIncomeTaxRate)
 
   override def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +
       get(TaxableRedundancyHr) +
       get(TaxableCegHr) +
-      includePensionIncomeForRate(taxRatesService.higherRateIncomeTaxRate())
+      includePensionIncomeForRate(taxRatesService.higherRateIncomeTaxRate)
 
   override def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) +
       get(TaxOnRedundancyHr) +
       get(TaxOnCegHr) +
-      includePensionTaxForRate(taxRatesService.higherRateIncomeTaxRate())
+      includePensionTaxForRate(taxRatesService.higherRateIncomeTaxRate)
 
   override def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) +
       get(TaxOnRedundancyAhr) +
       get(TaxOnCegAhr) +
-      includePensionTaxForRate(taxRatesService.additionalRateIncomeTaxRate())
+      includePensionTaxForRate(taxRatesService.additionalRateIncomeTaxRate)
 
   override def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate) +
       get(TaxableRedundancyAhr) +
       get(TaxableCegAhr) +
-      includePensionIncomeForRate(taxRatesService.additionalRateIncomeTaxRate())
+      includePensionIncomeForRate(taxRatesService.additionalRateIncomeTaxRate)
 
   override def savingsRateAmount: Amount = get(SavingsTaxStartingRate) + get(TaxOnCegSr)
 

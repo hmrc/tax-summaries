@@ -112,17 +112,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
-      includePensionTaxForRate(taxRatesService.basicRateIncomeTaxRate())
+      includePensionTaxForRate(taxRatesService.basicRateIncomeTaxRate)
 
   def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) +
-      includePensionTaxForRate(taxRatesService.higherRateIncomeTaxRate())
+      includePensionTaxForRate(taxRatesService.higherRateIncomeTaxRate)
 
   def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) +
-      includePensionTaxForRate(taxRatesService.additionalRateIncomeTaxRate())
+      includePensionTaxForRate(taxRatesService.additionalRateIncomeTaxRate)
 
   def scottishStarterRateTax: Amount = Amount.empty("scottishStarterRateTax")
 
@@ -206,17 +206,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +
       get(SavingsChargeableLowerRate) +
-      includePensionIncomeForRate(taxRatesService.basicRateIncomeTaxRate())
+      includePensionIncomeForRate(taxRatesService.basicRateIncomeTaxRate)
 
   def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +
-      includePensionIncomeForRate(taxRatesService.higherRateIncomeTaxRate())
+      includePensionIncomeForRate(taxRatesService.higherRateIncomeTaxRate)
 
   def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate) +
-      includePensionIncomeForRate(taxRatesService.additionalRateIncomeTaxRate())
+      includePensionIncomeForRate(taxRatesService.additionalRateIncomeTaxRate)
 
   def scottishIncomeTax: Amount
 

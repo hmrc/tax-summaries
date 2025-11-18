@@ -26,34 +26,34 @@ class TaxRateService @Inject() (val taxYear: Int, configRate: Int => Map[String,
     Rate(result.getOrElse(rate, Rate.empty))
   }
 
-  def startingRateForSavingsRate(): Rate = getRate("startingRateForSavingsRate")
+  def startingRateForSavingsRate: Rate = getRate("startingRateForSavingsRate")
 
-  def basicRateIncomeTaxRate(): Rate = getRate("basicRateIncomeTaxRate")
+  def basicRateIncomeTaxRate: Rate = getRate("basicRateIncomeTaxRate")
 
-  def higherRateIncomeTaxRate(): Rate = getRate("higherRateIncomeTaxRate")
+  def higherRateIncomeTaxRate: Rate = getRate("higherRateIncomeTaxRate")
 
-  def additionalRateIncomeTaxRate(): Rate = getRate("additionalRateIncomeTaxRate")
+  def additionalRateIncomeTaxRate: Rate = getRate("additionalRateIncomeTaxRate")
 
-  def dividendsOrdinaryRate(): Rate = getRate("dividendsOrdinaryRate")
+  def dividendsOrdinaryRate: Rate = getRate("dividendsOrdinaryRate")
 
-  def dividendUpperRateRate(): Rate = getRate("dividendUpperRateRate")
+  def dividendUpperRateRate: Rate = getRate("dividendUpperRateRate")
 
-  def dividendAdditionalRate(): Rate = getRate("dividendAdditionalRate")
+  def dividendAdditionalRate: Rate = getRate("dividendAdditionalRate")
 
-  def cgEntrepreneursRate(): Rate = getRate("cgEntrepreneursRate")
+  def cgEntrepreneursRate: Rate = getRate("cgEntrepreneursRate")
 
-  def cgOrdinaryRate(): Rate = getRate("cgOrdinaryRate")
+  def cgOrdinaryRate: Rate = getRate("cgOrdinaryRate")
 
-  def cgUpperRate(): Rate = getRate("cgUpperRate")
+  def cgUpperRate: Rate = getRate("cgUpperRate")
 
-  def individualsForResidentialPropertyAndCarriedInterestLowerRate(): Rate  = getRate("RPCILowerRate")
-  def individualsForResidentialPropertyAndCarriedInterestHigherRate(): Rate = getRate("RPCIHigherRate")
+  def individualsForResidentialPropertyAndCarriedInterestLowerRate: Rate  = getRate("RPCILowerRate")
+  def individualsForResidentialPropertyAndCarriedInterestHigherRate: Rate = getRate("RPCIHigherRate")
 
-  def individualsForCIHigherRate(): Rate = getRate("ciHigherRate")
-  def individualsForCILowerRate(): Rate  = getRate("ciLowerRate")
+  def individualsForCIHigherRate: Rate = getRate("ciHigherRate")
+  def individualsForCILowerRate: Rate  = getRate("ciLowerRate")
 
-  def individualsForRPHigherRate(): Rate = getRate("rpHigherRate")
-  def individualsForRPLowerRate(): Rate  = getRate("rpLowerRate")
+  def individualsForRPHigherRate: Rate = getRate("rpHigherRate")
+  def individualsForRPLowerRate: Rate  = getRate("rpLowerRate")
 
   def scottishStarterRate: Rate      = getRate("scottishStarterRate")
   def scottishBasicRate: Rate        = getRate("scottishBasicRate")

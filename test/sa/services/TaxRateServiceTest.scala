@@ -28,7 +28,7 @@ class TaxRateServiceTest extends BaseSpec {
       val taxRateService =
         new TaxRateService(2000, _ => Map("startingRateForSavingsRate" -> expectedStartingRateForSavingsRate))
 
-      val actualStartingRateForSavingsRate = taxRateService.startingRateForSavingsRate()
+      val actualStartingRateForSavingsRate = taxRateService.startingRateForSavingsRate
 
       actualStartingRateForSavingsRate mustBe Rate(expectedStartingRateForSavingsRate)
     }
@@ -39,7 +39,7 @@ class TaxRateServiceTest extends BaseSpec {
       val taxRateService =
         new TaxRateService(2000, _ => Map("basicRateIncomeTaxRate" -> expectedBasicRateIncomeTaxRate))
 
-      val actualBasicRateIncomeTaxRate = taxRateService.basicRateIncomeTaxRate()
+      val actualBasicRateIncomeTaxRate = taxRateService.basicRateIncomeTaxRate
 
       actualBasicRateIncomeTaxRate mustBe Rate(expectedBasicRateIncomeTaxRate)
     }
@@ -50,7 +50,7 @@ class TaxRateServiceTest extends BaseSpec {
       val taxRateService =
         new TaxRateService(2000, _ => Map("higherRateIncomeTaxRate" -> expectedHigherRateIncomeTaxRate))
 
-      val actualHigherRateIncomeTaxRate = taxRateService.higherRateIncomeTaxRate()
+      val actualHigherRateIncomeTaxRate = taxRateService.higherRateIncomeTaxRate
 
       actualHigherRateIncomeTaxRate mustBe Rate(expectedHigherRateIncomeTaxRate)
     }
@@ -61,7 +61,7 @@ class TaxRateServiceTest extends BaseSpec {
       val taxRateService =
         new TaxRateService(2000, _ => Map("additionalRateIncomeTaxRate" -> expectedAdditionalRateIncomeTaxRate))
 
-      val actualAdditionalRateIncomeTaxRate = taxRateService.additionalRateIncomeTaxRate()
+      val actualAdditionalRateIncomeTaxRate = taxRateService.additionalRateIncomeTaxRate
 
       actualAdditionalRateIncomeTaxRate mustBe Rate(expectedAdditionalRateIncomeTaxRate)
     }
@@ -71,7 +71,7 @@ class TaxRateServiceTest extends BaseSpec {
 
       val taxRateService = new TaxRateService(2000, _ => Map("dividendsOrdinaryRate" -> expectedDividendsOrdinaryRate))
 
-      val actualDividendsOrdinaryRate = taxRateService.dividendsOrdinaryRate()
+      val actualDividendsOrdinaryRate = taxRateService.dividendsOrdinaryRate
 
       actualDividendsOrdinaryRate mustBe Rate(expectedDividendsOrdinaryRate)
     }
@@ -81,7 +81,7 @@ class TaxRateServiceTest extends BaseSpec {
 
       val taxRateService = new TaxRateService(2000, _ => Map("dividendUpperRateRate" -> expectedDividendUpperRateRate))
 
-      val actualDividendUpperRateRate = taxRateService.dividendUpperRateRate()
+      val actualDividendUpperRateRate = taxRateService.dividendUpperRateRate
 
       actualDividendUpperRateRate mustBe Rate(expectedDividendUpperRateRate)
     }
@@ -92,7 +92,7 @@ class TaxRateServiceTest extends BaseSpec {
       val taxRateService =
         new TaxRateService(2000, _ => Map("dividendAdditionalRate" -> expectedDividendAdditionalRate))
 
-      val actualDividendAdditionalRate = taxRateService.dividendAdditionalRate()
+      val actualDividendAdditionalRate = taxRateService.dividendAdditionalRate
 
       actualDividendAdditionalRate mustBe Rate(expectedDividendAdditionalRate)
     }
@@ -102,7 +102,7 @@ class TaxRateServiceTest extends BaseSpec {
 
       val taxRateService = new TaxRateService(2000, _ => Map("cgEntrepreneursRate" -> expectedCgEntrepreneursRate))
 
-      val actualCgEntrepreneursRate = taxRateService.cgEntrepreneursRate()
+      val actualCgEntrepreneursRate = taxRateService.cgEntrepreneursRate
 
       actualCgEntrepreneursRate mustBe Rate(expectedCgEntrepreneursRate)
     }
@@ -112,7 +112,7 @@ class TaxRateServiceTest extends BaseSpec {
 
       val taxRateService = new TaxRateService(2000, _ => Map("cgOrdinaryRate" -> expectedCgOrdinaryRate))
 
-      val actualCgOrdinaryRate = taxRateService.cgOrdinaryRate()
+      val actualCgOrdinaryRate = taxRateService.cgOrdinaryRate
 
       actualCgOrdinaryRate mustBe Rate(expectedCgOrdinaryRate)
     }
@@ -122,7 +122,7 @@ class TaxRateServiceTest extends BaseSpec {
 
       val taxRateService = new TaxRateService(2000, _ => Map("cgUpperRate" -> expectedCgUpperRate))
 
-      val actualCgUpperRate = taxRateService.cgUpperRate()
+      val actualCgUpperRate = taxRateService.cgUpperRate
 
       actualCgUpperRate mustBe Rate(expectedCgUpperRate)
     }
@@ -139,7 +139,7 @@ class TaxRateServiceTest extends BaseSpec {
       )
 
       val actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate =
-        taxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate()
+        taxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate
 
       actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate mustBe Rate(
         expectedIndividualsForResidentialPropertyAndCarriedInterestLowerRate
@@ -158,7 +158,7 @@ class TaxRateServiceTest extends BaseSpec {
       )
 
       val actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate =
-        taxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate()
+        taxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate
 
       actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate mustBe Rate(
         expectedIndividualsForResidentialPropertyAndCarriedInterestHigherRate
@@ -168,20 +168,20 @@ class TaxRateServiceTest extends BaseSpec {
     "return empty for all values" in {
       val taxRateService = new TaxRateService(2000, _ => Map.empty)
 
-      val actualStartingRateForSavingsRate                                    = taxRateService.startingRateForSavingsRate()
-      val actualBasicRateIncomeTaxRate                                        = taxRateService.basicRateIncomeTaxRate()
-      val actualHigherRateIncomeTaxRate                                       = taxRateService.higherRateIncomeTaxRate()
-      val actualAdditionalRateIncomeTaxRate                                   = taxRateService.additionalRateIncomeTaxRate()
-      val actualDividendsOrdinaryRate                                         = taxRateService.dividendsOrdinaryRate()
-      val actualDividendUpperRateRate                                         = taxRateService.dividendUpperRateRate()
-      val actualDividendAdditionalRate                                        = taxRateService.dividendAdditionalRate()
-      val actualCgEntrepreneursRate                                           = taxRateService.cgEntrepreneursRate()
-      val actualCgOrdinaryRate                                                = taxRateService.cgOrdinaryRate()
-      val actualCgUpperRate                                                   = taxRateService.cgUpperRate()
+      val actualStartingRateForSavingsRate                                    = taxRateService.startingRateForSavingsRate
+      val actualBasicRateIncomeTaxRate                                        = taxRateService.basicRateIncomeTaxRate
+      val actualHigherRateIncomeTaxRate                                       = taxRateService.higherRateIncomeTaxRate
+      val actualAdditionalRateIncomeTaxRate                                   = taxRateService.additionalRateIncomeTaxRate
+      val actualDividendsOrdinaryRate                                         = taxRateService.dividendsOrdinaryRate
+      val actualDividendUpperRateRate                                         = taxRateService.dividendUpperRateRate
+      val actualDividendAdditionalRate                                        = taxRateService.dividendAdditionalRate
+      val actualCgEntrepreneursRate                                           = taxRateService.cgEntrepreneursRate
+      val actualCgOrdinaryRate                                                = taxRateService.cgOrdinaryRate
+      val actualCgUpperRate                                                   = taxRateService.cgUpperRate
       val actualIndividualsForResidentialPropertyAndCarriedInterestLowerRate  =
-        taxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate()
+        taxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate
       val actualIndividualsForResidentialPropertyAndCarriedInterestHigherRate =
-        taxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate()
+        taxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate
 
       actualStartingRateForSavingsRate mustBe Rate(Rate.empty)
       actualBasicRateIncomeTaxRate mustBe Rate(Rate.empty)

@@ -249,16 +249,16 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     taxRateService: TaxRateService
   ): Map[RateKey, ApiRate] =
     Map[RateKey, Rate](
-      CapitalGainsEntrepreneur -> taxRateService.cgEntrepreneursRate(),
-      CapitalGainsOrdinary     -> taxRateService.cgOrdinaryRate(),
-      CapitalGainsUpper        -> taxRateService.cgUpperRate(),
+      CapitalGainsEntrepreneur -> taxRateService.cgEntrepreneursRate,
+      CapitalGainsOrdinary     -> taxRateService.cgOrdinaryRate,
+      CapitalGainsUpper        -> taxRateService.cgUpperRate,
       TotalCapitalGains        -> calculations.totalCgTaxLiabilityAsPercentage,
-      InterestLower            -> taxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate(),
-      InterestHigher           -> taxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate(),
-      InterestCIHigher         -> taxRateService.individualsForCIHigherRate(),
-      InterestCILower          -> taxRateService.individualsForCILowerRate(),
-      InterestRPHigher         -> taxRateService.individualsForRPHigherRate(),
-      InterestRPLower          -> taxRateService.individualsForRPLowerRate()
+      InterestLower            -> taxRateService.individualsForResidentialPropertyAndCarriedInterestLowerRate,
+      InterestHigher           -> taxRateService.individualsForResidentialPropertyAndCarriedInterestHigherRate,
+      InterestCIHigher         -> taxRateService.individualsForCIHigherRate,
+      InterestCILower          -> taxRateService.individualsForCILowerRate,
+      InterestRPHigher         -> taxRateService.individualsForRPHigherRate,
+      InterestRPLower          -> taxRateService.individualsForRPLowerRate
     ).view.mapValues(_.apiValue).toMap
 
   private def createSummaryPageRates(calculations: ATSCalculations): Map[RateKey, ApiRate] =
@@ -269,21 +269,21 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
 
   private def createTotalIncomeTaxPageRates(taxRateService: TaxRateService): Map[RateKey, ApiRate] =
     Map[RateKey, Rate](
-      Savings                  -> taxRateService.startingRateForSavingsRate(),
-      IncomeBasic              -> taxRateService.basicRateIncomeTaxRate(),
-      IncomeHigher             -> taxRateService.higherRateIncomeTaxRate(),
-      IncomeAdditional         -> taxRateService.additionalRateIncomeTaxRate(),
-      Ordinary                 -> taxRateService.dividendsOrdinaryRate(),
-      Upper                    -> taxRateService.dividendUpperRateRate(),
-      Additional               -> taxRateService.dividendAdditionalRate(),
+      Savings                  -> taxRateService.startingRateForSavingsRate,
+      IncomeBasic              -> taxRateService.basicRateIncomeTaxRate,
+      IncomeHigher             -> taxRateService.higherRateIncomeTaxRate,
+      IncomeAdditional         -> taxRateService.additionalRateIncomeTaxRate,
+      Ordinary                 -> taxRateService.dividendsOrdinaryRate,
+      Upper                    -> taxRateService.dividendUpperRateRate,
+      Additional               -> taxRateService.dividendAdditionalRate,
       ScottishStarterRate      -> taxRateService.scottishStarterRate,
       ScottishBasicRate        -> taxRateService.scottishBasicRate,
       ScottishIntermediateRate -> taxRateService.scottishIntermediateRate,
       ScottishHigherRate       -> taxRateService.scottishHigherRate,
       ScottishAdvancedRate     -> taxRateService.scottishAdvancedRate,
       ScottishAdditionalRate   -> taxRateService.scottishAdditionalRate,
-      SavingsLowerRate         -> taxRateService.basicRateIncomeTaxRate(),
-      SavingsHigherRate        -> taxRateService.higherRateIncomeTaxRate(),
-      SavingsAdditionalRate    -> taxRateService.additionalRateIncomeTaxRate()
+      SavingsLowerRate         -> taxRateService.basicRateIncomeTaxRate,
+      SavingsHigherRate        -> taxRateService.higherRateIncomeTaxRate,
+      SavingsAdditionalRate    -> taxRateService.additionalRateIncomeTaxRate
     ).view.mapValues(_.apiValue).toMap
 }
