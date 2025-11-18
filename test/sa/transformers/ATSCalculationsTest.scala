@@ -25,6 +25,7 @@ import sa.models.*
 import sa.services.TaxRateService
 import sa.transformers.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.utils.DoubleUtils
+import sa.models.TaxRate._
 
 class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with DoubleUtils {
 
@@ -37,15 +38,15 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
     val atsData: Map[ODSLiabilities, Amount] = (newAtsData ++ emptyValues).toMap
     val niData: Map[ODSLiabilities, Amount]  = Map()
     val configRates: Map[String, Rate]       = Map(
-      "basicRateIncomeTaxRate"      -> Rate(20),
-      "higherRateIncomeTaxRate"     -> Rate(40),
-      "additionalRateIncomeTaxRate" -> Rate(45),
-      "scottishStarterRate"         -> Rate(19),
-      "scottishBasicRate"           -> Rate(20),
-      "scottishIntermediateRate"    -> Rate(21),
-      "scottishHigherRate"          -> Rate(41),
-      "scottishAdvancedRate"        -> Rate(42),
-      "scottishAdditionalRate"      -> Rate(46)
+      BasicRateIncomeTaxRate      -> Rate(20),
+      HigherRateIncomeTaxRate     -> Rate(40),
+      AdditionalRateIncomeTaxRate -> Rate(45),
+      ScottishStarterRate         -> Rate(19),
+      ScottishBasicRate           -> Rate(20),
+      ScottishIntermediateRate    -> Rate(21),
+      ScottishHigherRate          -> Rate(41),
+      ScottishAdvancedRate        -> Rate(42),
+      ScottishAdditionalRate      -> Rate(46)
     )
 
     val incomeTaxStatus: Option[String] = origin match {

@@ -18,43 +18,44 @@ package sa.services
 
 import com.google.inject.Inject
 import common.models.Rate
+import sa.models.TaxRate.*
 
 class TaxRateService @Inject() (taxRates: Map[String, Rate]) {
-  private def getRate(rate: String): Rate = taxRates.getOrElse(rate, Rate.empty)
+  def startingRateForSavingsRate: Rate = taxRates.getOrElse(StartingRateForSavingsRate, Rate.empty)
 
-  def startingRateForSavingsRate: Rate = getRate("startingRateForSavingsRate")
+  def basicRateIncomeTaxRate: Rate = taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty)
 
-  def basicRateIncomeTaxRate: Rate = getRate("basicRateIncomeTaxRate")
+  def higherRateIncomeTaxRate: Rate = taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty)
 
-  def higherRateIncomeTaxRate: Rate = getRate("higherRateIncomeTaxRate")
+  def additionalRateIncomeTaxRate: Rate = taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty)
 
-  def additionalRateIncomeTaxRate: Rate = getRate("additionalRateIncomeTaxRate")
+  def dividendsOrdinaryRate: Rate = taxRates.getOrElse(DividendsOrdinaryRate, Rate.empty)
 
-  def dividendsOrdinaryRate: Rate = getRate("dividendsOrdinaryRate")
+  def dividendUpperRateRate: Rate = taxRates.getOrElse(DividendUpperRateRate, Rate.empty)
 
-  def dividendUpperRateRate: Rate = getRate("dividendUpperRateRate")
+  def dividendAdditionalRate: Rate = taxRates.getOrElse(DividendAdditionalRate, Rate.empty)
 
-  def dividendAdditionalRate: Rate = getRate("dividendAdditionalRate")
+  def cgEntrepreneursRate: Rate = taxRates.getOrElse(CgEntrepreneursRate, Rate.empty)
 
-  def cgEntrepreneursRate: Rate = getRate("cgEntrepreneursRate")
+  def cgOrdinaryRate: Rate = taxRates.getOrElse(CgOrdinaryRate, Rate.empty)
 
-  def cgOrdinaryRate: Rate = getRate("cgOrdinaryRate")
+  def cgUpperRate: Rate = taxRates.getOrElse(CgUpperRate, Rate.empty)
 
-  def cgUpperRate: Rate = getRate("cgUpperRate")
+  def individualsForResidentialPropertyAndCarriedInterestLowerRate: Rate  =
+    taxRates.getOrElse(IndividualsForResidentialPropertyAndCarriedInterestLowerRate, Rate.empty)
+  def individualsForResidentialPropertyAndCarriedInterestHigherRate: Rate =
+    taxRates.getOrElse(IndividualsForResidentialPropertyAndCarriedInterestHigherRate, Rate.empty)
 
-  def individualsForResidentialPropertyAndCarriedInterestLowerRate: Rate  = getRate("RPCILowerRate")
-  def individualsForResidentialPropertyAndCarriedInterestHigherRate: Rate = getRate("RPCIHigherRate")
+  def individualsForCIHigherRate: Rate = taxRates.getOrElse(IndividualsForCIHigherRate, Rate.empty)
+  def individualsForCILowerRate: Rate  = taxRates.getOrElse(IndividualsForCILowerRate, Rate.empty)
 
-  def individualsForCIHigherRate: Rate = getRate("ciHigherRate")
-  def individualsForCILowerRate: Rate  = getRate("ciLowerRate")
+  def individualsForRPHigherRate: Rate = taxRates.getOrElse(IndividualsForRPHigherRate, Rate.empty)
+  def individualsForRPLowerRate: Rate  = taxRates.getOrElse(IndividualsForRPLowerRate, Rate.empty)
 
-  def individualsForRPHigherRate: Rate = getRate("rpHigherRate")
-  def individualsForRPLowerRate: Rate  = getRate("rpLowerRate")
-
-  def scottishStarterRate: Rate      = getRate("scottishStarterRate")
-  def scottishBasicRate: Rate        = getRate("scottishBasicRate")
-  def scottishIntermediateRate: Rate = getRate("scottishIntermediateRate")
-  def scottishHigherRate: Rate       = getRate("scottishHigherRate")
-  def scottishAdvancedRate: Rate     = getRate("scottishAdvancedRate")
-  def scottishAdditionalRate: Rate   = getRate("scottishAdditionalRate")
+  def scottishStarterRate: Rate      = taxRates.getOrElse(ScottishStarterRate, Rate.empty)
+  def scottishBasicRate: Rate        = taxRates.getOrElse(ScottishBasicRate, Rate.empty)
+  def scottishIntermediateRate: Rate = taxRates.getOrElse(ScottishIntermediateRate, Rate.empty)
+  def scottishHigherRate: Rate       = taxRates.getOrElse(ScottishHigherRate, Rate.empty)
+  def scottishAdvancedRate: Rate     = taxRates.getOrElse(ScottishAdvancedRate, Rate.empty)
+  def scottishAdditionalRate: Rate   = taxRates.getOrElse(ScottishAdditionalRate, Rate.empty)
 }

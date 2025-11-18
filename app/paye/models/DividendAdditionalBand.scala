@@ -18,6 +18,7 @@ package paye.models
 
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.{JsPath, Reads}
+import sa.models.TaxRate
 
 case class DividendAdditionalBand(
   dividendAdditionalRateTaxAmoun: Double,
@@ -31,6 +32,6 @@ object DividendAdditionalBand {
       (JsPath \ "dividendAdditionalRateTaxAmoun").readNullable[Double] and
         (JsPath \ "dividendAdditionalRateTaxAmount").readNullable[Double] and
         (JsPath \ "dividendAdditionalRateTax").read[Double] and
-        (JsPath \ "dividendAdditionalRate").read[Double]
+        (JsPath \ TaxRate.DividendAdditionalRate).read[Double]
     )((ifAmount, hipAmount, rateTax, rate) => DividendAdditionalBand(hipAmount.getOrElse(ifAmount.get), rateTax, rate))
 }
