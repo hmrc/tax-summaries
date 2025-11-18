@@ -34,7 +34,7 @@ object Rate {
   def rateFromPerUnitAmount(amountPerUnit: Amount): Rate =
     Rate((amountPerUnit.amount * 100).setScale(2, BigDecimal.RoundingMode.DOWN).doubleValue)
 
-  val empty = 0.0
+  val empty = Rate(0.0)
 
   implicit val formats: OFormat[Rate] = Json.format[Rate]
 }

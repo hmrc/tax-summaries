@@ -19,8 +19,8 @@ package sa.services
 import com.google.inject.Inject
 import common.models.Rate
 
-class TaxRateService @Inject() (taxRates: Map[String, Double]) {
-  private def getRate(rate: String): Rate = Rate(taxRates.getOrElse(rate, Rate.empty))
+class TaxRateService @Inject() (taxRates: Map[String, Rate]) {
+  private def getRate(rate: String): Rate = taxRates.getOrElse(rate, Rate.empty)
 
   def startingRateForSavingsRate: Rate = getRate("startingRateForSavingsRate")
 

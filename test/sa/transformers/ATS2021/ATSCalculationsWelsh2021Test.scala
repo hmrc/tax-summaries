@@ -16,7 +16,7 @@
 
 package sa.transformers.ATS2021
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import common.utils.{BaseSpec, JsonUtil}
 import play.api.libs.json.Json
 import sa.models.{TaxSummaryLiability, Welsh}
@@ -25,8 +25,8 @@ import sa.services.TaxRateService
 class ATSCalculationsWelsh2021Test extends BaseSpec {
   val taxYear                       = 2021
   def rate2021(key: String): Double = {
-    val percentage: Double = applicationConfig.ratePercentages(taxYear).getOrElse(key, 0)
-    percentage / 100.0
+    val percentage: Rate = applicationConfig.rates(taxYear).getOrElse(key, Rate.empty)
+    percentage.percent / 100.0
   }
 
   val json: String                             = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
@@ -35,7 +35,7 @@ class ATSCalculationsWelsh2021Test extends BaseSpec {
     .as[TaxSummaryLiability]
     .copy(incomeTaxStatus = Some(Welsh()))
 
-  val taxRateService = new TaxRateService(applicationConfig.ratePercentages(taxYear))
+  val taxRateService = new TaxRateService(applicationConfig.rates(taxYear))
 
   class FakeATSCalculationWelsh2021(taxSummaryLiability: TaxSummaryLiability)
       extends ATSCalculationsWelsh2021(taxSummaryLiability, taxRateService)

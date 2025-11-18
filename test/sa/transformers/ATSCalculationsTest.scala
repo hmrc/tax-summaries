@@ -16,7 +16,7 @@
 
 package sa.transformers
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import common.utils.BaseSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import sa.models.ODSLiabilities.ODSLiabilities
@@ -36,16 +36,16 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     val atsData: Map[ODSLiabilities, Amount] = (newAtsData ++ emptyValues).toMap
     val niData: Map[ODSLiabilities, Amount]  = Map()
-    val configRates: Map[String, Double]     = Map(
-      "basicRateIncomeTaxRate"      -> 20,
-      "higherRateIncomeTaxRate"     -> 40,
-      "additionalRateIncomeTaxRate" -> 45,
-      "scottishStarterRate"         -> 19,
-      "scottishBasicRate"           -> 20,
-      "scottishIntermediateRate"    -> 21,
-      "scottishHigherRate"          -> 41,
-      "scottishAdvancedRate"        -> 42,
-      "scottishAdditionalRate"      -> 46
+    val configRates: Map[String, Rate]       = Map(
+      "basicRateIncomeTaxRate"      -> Rate(20),
+      "higherRateIncomeTaxRate"     -> Rate(40),
+      "additionalRateIncomeTaxRate" -> Rate(45),
+      "scottishStarterRate"         -> Rate(19),
+      "scottishBasicRate"           -> Rate(20),
+      "scottishIntermediateRate"    -> Rate(21),
+      "scottishHigherRate"          -> Rate(41),
+      "scottishAdvancedRate"        -> Rate(42),
+      "scottishAdditionalRate"      -> Rate(46)
     )
 
     val incomeTaxStatus: Option[String] = origin match {
