@@ -16,8 +16,9 @@
 
 package sa.transformers.ATS2021
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import sa.models.ODSLiabilities.ODSLiabilities.{IncomeChargeableAddHRate, IncomeChargeableBasicRate, IncomeChargeableHigherRate, IncomeTaxAddHighRate, IncomeTaxBasicRate, IncomeTaxHigherRate, SavingsChargeableAddHRate, SavingsChargeableHigherRate, SavingsChargeableLowerRate, SavingsTaxAddHighRate, SavingsTaxHigherRate, SavingsTaxLowerRate, TaxOnPayScottishIntermediateRate, TaxOnPayScottishStarterRate, TaxablePayScottishIntermediateRate, TaxablePayScottishStarterRate}
+import sa.models.TaxRate._
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 
@@ -43,40 +44,54 @@ class ATSCalculationsScottish2021(val summaryData: TaxSummaryLiability, val taxR
   override def additionalRateIncomeTax: Amount = Amount.empty("additionalRateIncomeTaxScottish2021")
 
   override def scottishStarterRateTax: Amount =
-    getWithDefaultAmount(TaxOnPayScottishStarterRate) + includePensionTaxForRate(taxRateService.scottishStarterRate)
+    getWithDefaultAmount(TaxOnPayScottishStarterRate) + includePensionTaxForRate(
+      taxRateService.taxRates.getOrElse(ScottishStarterRate, Rate.empty)
+    )
 
   override def scottishBasicRateTax: Amount =
-    getWithDefaultAmount(IncomeTaxBasicRate) + includePensionTaxForRate(taxRateService.scottishBasicRate)
+    getWithDefaultAmount(IncomeTaxBasicRate) + includePensionTaxForRate(
+      taxRateService.taxRates.getOrElse(ScottishBasicRate, Rate.empty)
+    )
 
   override def scottishIntermediateRateTax: Amount =
     getWithDefaultAmount(TaxOnPayScottishIntermediateRate) + includePensionTaxForRate(
-      taxRateService.scottishIntermediateRate
+      taxRateService.taxRates.getOrElse(ScottishIntermediateRate, Rate.empty)
     )
 
   override def scottishHigherRateTax: Amount =
-    getWithDefaultAmount(IncomeTaxHigherRate) + includePensionTaxForRate(taxRateService.scottishHigherRate)
+    getWithDefaultAmount(IncomeTaxHigherRate) + includePensionTaxForRate(
+      taxRateService.taxRates.getOrElse(ScottishHigherRate, Rate.empty)
+    )
 
   override def scottishAdditionalRateTax: Amount =
-    getWithDefaultAmount(IncomeTaxAddHighRate) + includePensionTaxForRate(taxRateService.scottishAdditionalRate)
+    getWithDefaultAmount(IncomeTaxAddHighRate) + includePensionTaxForRate(
+      taxRateService.taxRates.getOrElse(ScottishAdditionalRate, Rate.empty)
+    )
 
   override def scottishStarterRateIncome: Amount =
     getWithDefaultAmount(TaxablePayScottishStarterRate) + includePensionIncomeForRate(
-      taxRateService.scottishStarterRate
+      taxRateService.taxRates.getOrElse(ScottishStarterRate, Rate.empty)
     )
 
   override def scottishBasicRateIncome: Amount =
-    getWithDefaultAmount(IncomeChargeableBasicRate) + includePensionIncomeForRate(taxRateService.scottishBasicRate)
+    getWithDefaultAmount(IncomeChargeableBasicRate) + includePensionIncomeForRate(
+      taxRateService.taxRates.getOrElse(ScottishBasicRate, Rate.empty)
+    )
 
   override def scottishIntermediateRateIncome: Amount =
     getWithDefaultAmount(TaxablePayScottishIntermediateRate) + includePensionIncomeForRate(
-      taxRateService.scottishIntermediateRate
+      taxRateService.taxRates.getOrElse(ScottishIntermediateRate, Rate.empty)
     )
 
   override def scottishHigherRateIncome: Amount =
-    getWithDefaultAmount(IncomeChargeableHigherRate) + includePensionIncomeForRate(taxRateService.scottishHigherRate)
+    getWithDefaultAmount(IncomeChargeableHigherRate) + includePensionIncomeForRate(
+      taxRateService.taxRates.getOrElse(ScottishHigherRate, Rate.empty)
+    )
 
   override def scottishAdditionalRateIncome: Amount =
-    getWithDefaultAmount(IncomeChargeableAddHRate) + includePensionIncomeForRate(taxRateService.scottishAdditionalRate)
+    getWithDefaultAmount(IncomeChargeableAddHRate) + includePensionIncomeForRate(
+      taxRateService.taxRates.getOrElse(ScottishAdditionalRate, Rate.empty)
+    )
 
   override def savingsBasicRateTax: Amount = getWithDefaultAmount(SavingsTaxLowerRate)
 

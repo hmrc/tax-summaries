@@ -21,6 +21,7 @@ import play.api.Logging
 import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
+import sa.models.TaxRate.{AdditionalRateIncomeTaxRate, BasicRateIncomeTaxRate, HigherRateIncomeTaxRate}
 import sa.services.TaxRateService
 import sa.transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK2021, ATSCalculationsWelsh2021}
 import sa.transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
@@ -112,17 +113,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
-      includePensionTaxForRate(taxRateService.basicRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) +
-      includePensionTaxForRate(taxRateService.higherRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) +
-      includePensionTaxForRate(taxRateService.additionalRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   def scottishStarterRateTax: Amount = Amount.empty("scottishStarterRateTax")
 
@@ -206,17 +207,17 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def basicRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableBasicRate) +
       get(SavingsChargeableLowerRate) +
-      includePensionIncomeForRate(taxRateService.basicRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +
-      includePensionIncomeForRate(taxRateService.higherRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate) +
-      includePensionIncomeForRate(taxRateService.additionalRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   def scottishIncomeTax: Amount
 

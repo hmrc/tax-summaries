@@ -16,8 +16,9 @@
 
 package sa.transformers.ATS2025
 
-import common.models.Amount
+import common.models.{Amount, Rate}
 import sa.models.ODSLiabilities.ODSLiabilities.*
+import sa.models.TaxRate._
 import sa.models.TaxSummaryLiability
 import sa.services.TaxRateService
 import sa.transformers.ATSCalculations
@@ -115,42 +116,42 @@ trait ATSCalculations2025 extends ATSCalculations {
       get(SavingsChargeableLowerRate) +
       get(TaxableRedundancyBr) +
       get(TaxableCegBr) +
-      includePensionIncomeForRate(taxRateService.basicRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   override def basicRateIncomeTaxAmount: Amount =
     get(IncomeTaxBasicRate) +
       get(SavingsTaxLowerRate) +
       get(TaxOnRedundancyBr) +
       get(TaxOnCegBr) +
-      includePensionTaxForRate(taxRateService.basicRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
 
   override def higherRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableHigherRate) +
       get(SavingsChargeableHigherRate) +
       get(TaxableRedundancyHr) +
       get(TaxableCegHr) +
-      includePensionIncomeForRate(taxRateService.higherRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   override def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
       get(SavingsTaxHigherRate) +
       get(TaxOnRedundancyHr) +
       get(TaxOnCegHr) +
-      includePensionTaxForRate(taxRateService.higherRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
 
   override def additionalRateIncomeTaxAmount: Amount =
     get(IncomeTaxAddHighRate) +
       get(SavingsTaxAddHighRate) +
       get(TaxOnRedundancyAhr) +
       get(TaxOnCegAhr) +
-      includePensionTaxForRate(taxRateService.additionalRateIncomeTaxRate)
+      includePensionTaxForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   override def additionalRateIncomeTax: Amount =
     getWithDefaultAmount(IncomeChargeableAddHRate) +
       get(SavingsChargeableAddHRate) +
       get(TaxableRedundancyAhr) +
       get(TaxableCegAhr) +
-      includePensionIncomeForRate(taxRateService.additionalRateIncomeTaxRate)
+      includePensionIncomeForRate(taxRateService.taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
 
   override def savingsRateAmount: Amount = get(SavingsTaxStartingRate) + get(TaxOnCegSr)
 
