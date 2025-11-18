@@ -28,7 +28,7 @@ class ATSCalculations2022Test extends BaseSpec {
   val json: String                             = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
   val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
 
-  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val taxRateService = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
   class FakeATSCalculation2022(val summaryData: TaxSummaryLiability, val taxRatesService: TaxRateService)
       extends ATSCalculations2022 {
@@ -36,7 +36,7 @@ class ATSCalculations2022Test extends BaseSpec {
   }
 
   def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculation2022 =
-    new FakeATSCalculation2022(taxSummaryLiability, taxRate)
+    new FakeATSCalculation2022(taxSummaryLiability, taxRateService)
 
   "Generic calculations 2022" must {
     "calculate totalAmountEmployeeNic" in {

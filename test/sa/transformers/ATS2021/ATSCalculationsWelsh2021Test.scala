@@ -35,10 +35,10 @@ class ATSCalculationsWelsh2021Test extends BaseSpec {
     .as[TaxSummaryLiability]
     .copy(incomeTaxStatus = Some(Welsh()))
 
-  val taxRate = new TaxRateService(taxYear, applicationConfig.ratePercentages)
+  val taxRateService = new TaxRateService(taxYear, applicationConfig.ratePercentages)
 
   class FakeATSCalculationWelsh2021(taxSummaryLiability: TaxSummaryLiability)
-      extends ATSCalculationsWelsh2021(taxSummaryLiability, taxRate)
+      extends ATSCalculationsWelsh2021(taxSummaryLiability, taxRateService)
 
   def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculationWelsh2021 =
     new FakeATSCalculationWelsh2021(taxSummaryLiability)
