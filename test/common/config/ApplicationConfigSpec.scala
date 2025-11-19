@@ -57,7 +57,7 @@ class ApplicationConfigSpec extends BaseSpec {
     appWithConfig(percentageRates ++ governmentSpend)
   }
 
-  "calling rates" must {
+  "calling taxRates" must {
     "return default percentage rates when no overriding year" in {
       applicationConfig
         .taxRates(2021) mustBe Map(
