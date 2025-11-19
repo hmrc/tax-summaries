@@ -72,21 +72,23 @@ class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
     )
   }
 
-  def apply(responseFromAPI: SelfAssessmentAPIResponse): Option[ATSCalculations] = {
-    val taxYear: Int                = responseFromAPI.taxYear
-    def taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
-    calculationsForNationalityAndYear.get((responseFromAPI.nationality, taxYear)) match {
-      case Some(factoryForNationalityAndYear) => Some(factoryForNationalityAndYear(responseFromAPI, taxRates))
+  // Create (if available) an ATSCalculations instance appropriate for the tax year and country found in the API response.
+  def apply(selfAssessmentAPIResponse: SelfAssessmentAPIResponse): Option[ATSCalculations] = {
+    val taxYear: Int                = selfAssessmentAPIResponse.taxYear
+    val nationality: Nationality    = selfAssessmentAPIResponse.nationality
+    def taxRatesForTaxYear: Map[String, Rate] = applicationConfig.taxRates(taxYear)
+    calculationsForNationalityAndYear.get((nationality, taxYear)) match {
+      case Some(factoryForNationalityAndYear) => Some(factoryForNationalityAndYear(selfAssessmentAPIResponse, taxRatesForTaxYear))
       case None                               =>
         val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
-          .filter(_._1 == responseFromAPI.nationality)
+          .filter(_._1 == nationality)
           .map(_._2)
           .max
-        if (responseFromAPI.taxYear > maxDefinedYearForCountry) {
+        if (selfAssessmentAPIResponse.taxYear > maxDefinedYearForCountry) {
           Some(
-            calculationsForNationalityAndYear((responseFromAPI.nationality, maxDefinedYearForCountry))(
-              responseFromAPI,
-              taxRates
+            calculationsForNationalityAndYear((nationality, maxDefinedYearForCountry))(
+              selfAssessmentAPIResponse,
+              taxRatesForTaxYear
             )
           )
         } else {
