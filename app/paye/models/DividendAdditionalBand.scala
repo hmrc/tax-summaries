@@ -32,6 +32,6 @@ object DividendAdditionalBand {
       (JsPath \ "dividendAdditionalRateTaxAmoun").readNullable[Double] and
         (JsPath \ "dividendAdditionalRateTaxAmount").readNullable[Double] and
         (JsPath \ "dividendAdditionalRateTax").read[Double] and
-        (JsPath \ TaxRate.DividendAdditionalRate).read[Double]
+        (JsPath \ "dividendAdditionalRate").read[Double]
     )((ifAmount, hipAmount, rateTax, rate) => DividendAdditionalBand(hipAmount.getOrElse(ifAmount.get), rateTax, rate))
 }

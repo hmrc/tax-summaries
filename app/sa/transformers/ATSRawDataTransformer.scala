@@ -67,7 +67,7 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     UTR: String,
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
-    val taxRates = applicationConfig.rates(taxYear)
+    val taxRates: Map[String, Rate] = applicationConfig.rates(taxYear)
     val logger   = Logger(getClass.getName)
     ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRates) match {
       case Some(calculations) =>
