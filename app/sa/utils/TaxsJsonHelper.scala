@@ -17,13 +17,15 @@
 package sa.utils
 
 import com.google.inject.Inject
-import common.config.ApplicationConfig
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import sa.models.{AtsMiddleTierData, AtsYearList, TaxSummaryLiability}
-import sa.transformers.{ATSCalculations, ATSRawDataTransformer, ATSTaxpayerDataTransformer}
+import sa.transformers.{ATSCalculations, ATSCalculationsFactory, ATSRawDataTransformer, ATSTaxpayerDataTransformer}
 import uk.gov.hmrc.http.HeaderCarrier
 
-class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawDataTransformer: ATSRawDataTransformer) {
+class TaxsJsonHelper @Inject() (
+  aTSRawDataTransformer: ATSRawDataTransformer,
+  atsCalculationsFactory: ATSCalculationsFactory
+) {
   def getAllATSData(
     rawTaxpayerJson: JsValue,
     rawPayloadJson: JsValue,
@@ -42,7 +44,7 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
   }
 
   def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] =
-    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], applicationConfig.taxRates(taxYear))
+    atsCalculationsFactory.make(rawPayloadJson.as[TaxSummaryLiability])
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
     val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]

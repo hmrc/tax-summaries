@@ -22,17 +22,12 @@ import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxRate.{AdditionalRateIncomeTaxRate, BasicRateIncomeTaxRate, HigherRateIncomeTaxRate}
-import sa.transformers.ATS2021.{ATSCalculationsScottish2021, ATSCalculationsUK2021, ATSCalculationsWelsh2021}
-import sa.transformers.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK2022, ATSCalculationsWelsh2022}
-import sa.transformers.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
-import sa.transformers.ATS2024.{ATSCalculationsScottish2024, ATSCalculationsUK2024, ATSCalculationsWelsh2024}
-import sa.transformers.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.utils.DoubleUtils
 
 // scalastyle:off number.of.methods
 trait ATSCalculations extends DoubleUtils with Logging {
   protected val summaryData: TaxSummaryLiability
-  protected val taxRates: Map[String, Rate]
+  val taxRates: Map[String, Rate]
   lazy val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
 
   def get(liability: ODSLiabilities): Amount = {
@@ -257,69 +252,4 @@ trait ATSCalculations extends DoubleUtils with Logging {
     Rate.rateFromPerUnitAmount(amountPerUnit)
 
   def adjustmentsToCapitalGains: Amount = get(CapAdjustment)
-}
-
-object ATSCalculations {
-  private val calculationsForNationalityAndYear
-    : Map[(Nationality, Int), (TaxSummaryLiability, Map[String, Rate]) => ATSCalculations] = {
-    val uk       = UK()
-    val scotland = Scottish()
-    val wales    = Welsh()
-
-    val calc2025UK       = new ATSCalculationsUK2025(_, _)
-    val calc2025Scotland = new ATSCalculationsScottish2025(_, _)
-    val calc2025Wales    = new ATSCalculationsWelsh2025(_, _)
-
-    val calc2024UK       = new ATSCalculationsUK2024(_, _)
-    val calc2024Scotland = new ATSCalculationsScottish2024(_, _)
-    val calc2024Wales    = new ATSCalculationsWelsh2024(_, _)
-
-    val calc2023UK       = new ATSCalculationsUK2023(_, _)
-    val calc2023Scotland = new ATSCalculationsScottish2023(_, _)
-    val calc2023Wales    = new ATSCalculationsWelsh2023(_, _)
-    val calc2022UK       = new ATSCalculationsUK2022(_, _)
-    val calc2022Scotland = new ATSCalculationsScottish2022(_, _)
-    val calc2022Wales    = new ATSCalculationsWelsh2022(_, _)
-    val calc2021UK       = new ATSCalculationsUK2021(_, _)
-    val calc2021Scotland = new ATSCalculationsScottish2021(_, _)
-    val calc2021Wales    = new ATSCalculationsWelsh2021(_, _)
-
-    Map(
-      (uk, 2025)       -> calc2025UK,
-      (scotland, 2025) -> calc2025Scotland,
-      (wales, 2025)    -> calc2025Wales,
-      (uk, 2024)       -> calc2024UK,
-      (scotland, 2024) -> calc2024Scotland,
-      (wales, 2024)    -> calc2024Wales,
-      (uk, 2023)       -> calc2023UK,
-      (scotland, 2023) -> calc2023Scotland,
-      (wales, 2023)    -> calc2023Wales,
-      (uk, 2022)       -> calc2022UK,
-      (scotland, 2022) -> calc2022Scotland,
-      (wales, 2022)    -> calc2022Wales,
-      (uk, 2021)       -> calc2021UK,
-      (scotland, 2021) -> calc2021Scotland,
-      (wales, 2021)    -> calc2021Wales
-    )
-  }
-
-  def make(summaryData: TaxSummaryLiability, taxRates: Map[String, Rate]): Option[ATSCalculations] =
-    calculationsForNationalityAndYear.get((summaryData.nationality, summaryData.taxYear)) match {
-      case Some(found) => Some(found(summaryData, taxRates))
-      case None        =>
-        val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
-          .filter(_._1 == summaryData.nationality)
-          .map(_._2)
-          .max
-        if (summaryData.taxYear > maxDefinedYearForCountry) {
-          Some(
-            calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))(
-              summaryData,
-              taxRates
-            )
-          )
-        } else {
-          None
-        }
-    }
 }

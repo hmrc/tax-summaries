@@ -58,7 +58,7 @@ class OdsServiceSpec extends BaseSpec {
         Map.empty,
         Map.empty
       )
-      override protected val taxRates: Map[String, Rate]      = Map.empty
+      override val taxRates: Map[String, Rate]                = Map.empty
 
       override def taxLiability: Amount = Amount(amount, "GBP")
 

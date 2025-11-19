@@ -16,15 +16,16 @@
 
 package sa.transformers
 
+import common.config.ApplicationConfig
 import common.models.{Amount, Rate}
 import common.utils.BaseSpec
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
-import sa.models.*
+import sa.models.TaxRate.*
 import sa.transformers.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.utils.DoubleUtils
-import sa.models.TaxRate._
 
 class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with DoubleUtils {
 
@@ -62,9 +63,11 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       atsData
     )
 
-    lazy val taxRates = configRates
+    lazy val taxRates: Map[String, Rate] = configRates
 
-    lazy val calculation: Option[ATSCalculations] = ATSCalculations.make(taxSummaryLiability, taxRates)
+    lazy val appConfig: ApplicationConfig                   = app.injector.instanceOf[ApplicationConfig]
+    lazy val atsCalculationsFactory: ATSCalculationsFactory = new ATSCalculationsFactory(appConfig)
+    lazy val calculation: Option[ATSCalculations]           = atsCalculationsFactory.make(taxSummaryLiability)
   }
 
   class Fixture(val taxYear: Int, origin: Nationality) {

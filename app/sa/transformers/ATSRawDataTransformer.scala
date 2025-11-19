@@ -36,7 +36,11 @@ import scala.concurrent.{ExecutionContext, Future}
 case class ATSParsingException(s: String) extends Exception(s)
 
 @Singleton
-class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, auditConnector: AuditConnector)(implicit
+class ATSRawDataTransformer @Inject() (
+  applicationConfig: ApplicationConfig,
+  auditConnector: AuditConnector,
+  atsCalculationsFactory: ATSCalculationsFactory
+)(implicit
   ec: ExecutionContext
 ) extends Logging {
 
@@ -67,24 +71,22 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     UTR: String,
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
-    val taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
-    val logger                      = Logger(getClass.getName)
-    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRates) match {
+    val logger = Logger(getClass.getName)
+    atsCalculationsFactory.make(rawPayloadJson.as[TaxSummaryLiability]) match {
       case Some(calculations) =>
         logger.debug(
           s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"
         )
         initiateAudit(UTR, taxYear, calculations)
-
         try
           AtsMiddleTierData.make(
             taxYear = taxYear,
             utr = UTR,
-            incomeTax = createIncomeTaxData(calculations, taxRates, calculations.incomeTaxStatus),
+            incomeTax = createIncomeTaxData(calculations, calculations.taxRates, calculations.incomeTaxStatus),
             summary = createSummaryData(calculations: ATSCalculations),
             income = createIncomeData(calculations: ATSCalculations),
             allowance = createAllowanceData(calculations: ATSCalculations),
-            capitalGains = createCapitalGainsData(calculations, taxRates),
+            capitalGains = createCapitalGainsData(calculations, calculations.taxRates),
             govSpending = createGovSpendData(calculations.totalTax, taxYear),
             taxPayer = createTaxPayerData(rawTaxPayerJson),
             taxLiability =
