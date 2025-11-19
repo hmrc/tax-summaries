@@ -18,7 +18,7 @@ package sa.services
 
 import cats.data.EitherT
 import cats.instances.future.*
-import common.models.Amount
+import common.models.{Amount, Rate}
 import common.utils.BaseSpec
 import common.utils.TestConstants.*
 import org.mockito.ArgumentMatchers.{eq as eqTo, *}
@@ -26,9 +26,9 @@ import org.mockito.Mockito.*
 import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
+import sa.calculations.ATSCalculations
 import sa.connectors.SelfAssessmentODSConnector
-import sa.models.{PensionTaxRate, TaxSummaryLiability}
-import sa.transformers.ATSCalculations
+import sa.models.{PensionTaxRate, SelfAssessmentAPIResponse}
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
@@ -49,18 +49,16 @@ class OdsServiceSpec extends BaseSpec {
 
   private def saResponse(taxYear: Int): JsValue = Json.obj("taxYear" -> taxYear)
 
-  private val mockTaxRateService = mock[TaxRateService]
-
   private def atsCalculations(taxYear: Int, amount: BigDecimal) =
     Some(new ATSCalculations {
-      override protected val summaryData: TaxSummaryLiability = TaxSummaryLiability(
+      override protected val selfAssessmentAPIResponse: SelfAssessmentAPIResponse = SelfAssessmentAPIResponse(
         taxYear,
         PensionTaxRate(0),
         None,
         Map.empty,
         Map.empty
       )
-      override protected val taxRates: TaxRateService         = mockTaxRateService
+      override val taxRates: Map[String, Rate]                                    = Map.empty
 
       override def taxLiability: Amount = Amount(amount, "GBP")
 

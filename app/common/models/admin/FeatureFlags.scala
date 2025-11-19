@@ -21,14 +21,7 @@ import uk.gov.hmrc.mongoFeatureToggles.model.{Environment, FeatureFlagName}
 
 object AllFeatureFlags {
   val list: List[FeatureFlagName] =
-    List(SelfAssessmentDetailsFromIfToggle, PayeDetailsFromHipToggle)
-}
-
-case object SelfAssessmentDetailsFromIfToggle extends FeatureFlagName {
-  override val name: String                = "selfAssessment-details-from-if-toggle"
-  override val description: Option[String] = Some(
-    "Enable/disable calls to IF for retrieving annual tax summaries using API-1535: `/self-assessment/individuals/<utr>/annual-tax-summaries/<taxYear>`"
-  )
+    List(PayeDetailsFromHipToggle)
 }
 
 case object PayeDetailsFromHipToggle extends FeatureFlagName {
