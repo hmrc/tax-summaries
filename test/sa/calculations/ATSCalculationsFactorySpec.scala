@@ -54,7 +54,7 @@ class ATSCalculationsFactorySpec extends BaseSpec {
       case _           => None
     }
 
-    lazy val taxSummaryLiability: TaxSummaryLiability = TaxSummaryLiability(
+    lazy val taxSummaryLiability: SelfAssessmentAPIResponse = SelfAssessmentAPIResponse(
       taxYear,
       pensionTaxRate,
       Some(origin),

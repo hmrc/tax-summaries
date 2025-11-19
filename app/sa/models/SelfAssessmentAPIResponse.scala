@@ -23,7 +23,7 @@ import play.api.libs.json._
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.readsLiabilities
 
-final case class TaxSummaryLiability(
+final case class SelfAssessmentAPIResponse(
   taxYear: Int,
   pensionLumpSumTaxRate: PensionTaxRate,
   incomeTaxStatus: Option[Nationality],
@@ -33,7 +33,7 @@ final case class TaxSummaryLiability(
   val nationality: Nationality = incomeTaxStatus.getOrElse(UK())
 }
 
-object TaxSummaryLiability extends Logging {
+object SelfAssessmentAPIResponse extends Logging {
 
   private def alwaysSuccessfulMapReads[K: Reads, V: Reads]: Reads[Map[K, Option[V]]] =
     Reads[Map[K, Option[V]]] {
@@ -65,8 +65,8 @@ object TaxSummaryLiability extends Logging {
       case _           => JsError("error.expected.jsobject")
     }
 
-  implicit val reads: Reads[TaxSummaryLiability] = new Reads[TaxSummaryLiability] {
-    override def reads(json: JsValue): JsResult[TaxSummaryLiability] = {
+  implicit val reads: Reads[SelfAssessmentAPIResponse] = new Reads[SelfAssessmentAPIResponse] {
+    override def reads(json: JsValue): JsResult[SelfAssessmentAPIResponse] = {
       val href           = (json \ "links" \\ "href").flatMap(_.asOpt[String]).headOption.getOrElse("")
       val taxYear        = (json \ "taxYear").as[Int]
       val nationality    = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[Nationality].getOrElse(UK())
@@ -112,7 +112,7 @@ object TaxSummaryLiability extends Logging {
             liability -> amount
         }
       JsSuccess(
-        TaxSummaryLiability(
+        SelfAssessmentAPIResponse(
           taxYear,
           pensionTaxRate,
           Some(nationality),

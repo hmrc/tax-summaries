@@ -19,24 +19,24 @@ package sa.utils
 import com.google.inject.Inject
 import play.api.libs.json.{JsNumber, JsValue, Json}
 import sa.calculations.{ATSCalculations, ATSCalculationsFactory}
-import sa.models.{AtsMiddleTierData, AtsYearList, TaxSummaryLiability}
+import sa.models.{AtsMiddleTierData, AtsYearList, SelfAssessmentAPIResponse}
 import sa.transformers.{ATSRawDataTransformer, ATSTaxpayerDataTransformer}
 import uk.gov.hmrc.http.HeaderCarrier
 
 class TaxsJsonHelper @Inject() (
   aTSRawDataTransformer: ATSRawDataTransformer,
   atsCalculationsFactory: ATSCalculationsFactory
-) {
+) { // rawTaxpayerJson, rawSelfAssessmentJson
   def getAllATSData(
     rawTaxpayerJson: JsValue,
-    rawPayloadJson: JsValue,
+    rawSelfAssessmentJson: JsValue,
     UTR: String,
     taxYear: Int
   )(implicit
     hc: HeaderCarrier
   ): JsValue = {
-    val middleTierData: AtsMiddleTierData = aTSRawDataTransformer.atsDataDTO(
-      rawPayloadJson = rawPayloadJson,
+    val middleTierData: AtsMiddleTierData = aTSRawDataTransformer.transform(
+      rawPayloadJson = rawSelfAssessmentJson,
       rawTaxPayerJson = rawTaxpayerJson,
       UTR = UTR,
       taxYear = taxYear
@@ -45,7 +45,7 @@ class TaxsJsonHelper @Inject() (
   }
 
   def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] =
-    atsCalculationsFactory(rawPayloadJson.as[TaxSummaryLiability])
+    atsCalculationsFactory(rawPayloadJson.as[SelfAssessmentAPIResponse])
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
     val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]

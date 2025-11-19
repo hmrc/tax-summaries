@@ -19,7 +19,7 @@ package sa.calculations.ATS2022
 import common.models.{Amount, Rate}
 import common.utils.{BaseSpec, JsonUtil}
 import play.api.libs.json.Json
-import sa.models.{TaxSummaryLiability, UK}
+import sa.models.{SelfAssessmentAPIResponse, UK}
 
 class ATSCalculationsUK2022Test extends BaseSpec {
 
@@ -29,18 +29,18 @@ class ATSCalculationsUK2022Test extends BaseSpec {
     percentage.percent / 100.0
   }
 
-  val json: String                             = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
-  val taxSummaryLiability: TaxSummaryLiability = Json
+  val json: String                                   = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
+  val taxSummaryLiability: SelfAssessmentAPIResponse = Json
     .parse(json)
-    .as[TaxSummaryLiability]
+    .as[SelfAssessmentAPIResponse]
     .copy(incomeTaxStatus = Some(UK()))
 
   val taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
 
-  class FakeATSCalculationUK2022(taxSummaryLiability: TaxSummaryLiability)
+  class FakeATSCalculationUK2022(taxSummaryLiability: SelfAssessmentAPIResponse)
       extends ATSCalculationsUK2022(taxSummaryLiability, taxRates)
 
-  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): ATSCalculationsUK2022 =
+  def sut(taxSummaryLiability: SelfAssessmentAPIResponse = taxSummaryLiability): ATSCalculationsUK2022 =
     new FakeATSCalculationUK2022(taxSummaryLiability)
 
   "UK 2022" must {

@@ -19,7 +19,7 @@ package sa.models
 import common.utils.{BaseSpec, JsonUtil}
 import play.api.libs.json.Json
 
-class TaxSummaryLiabilitySpec extends BaseSpec {
+class SelfAssessmentAPIResponseSpec extends BaseSpec {
 
   private val taxYear = 2024
 
@@ -27,7 +27,7 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
     "correctly parse the data" in {
       val json = JsonUtil.load("/sa/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
 
-      val result = Json.parse(json).as[TaxSummaryLiability]
+      val result = Json.parse(json).as[SelfAssessmentAPIResponse]
       result.taxYear mustBe taxYear
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())
@@ -37,7 +37,7 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
 
     "correctly parse the data where incomeTaxStatus is Null" in {
       val json   = JsonUtil.load("/sa/sa_ats_invalid_null.json", Map("<taxYear>" -> taxYear.toString))
-      val result = Json.parse(json).as[TaxSummaryLiability]
+      val result = Json.parse(json).as[SelfAssessmentAPIResponse]
       result.taxYear mustBe taxYear
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())
@@ -50,7 +50,7 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
         "/sa/sa_ats_income_status_and_fields_missing.json",
         Map("<taxYear>" -> taxYear.toString)
       )
-      val result = Json.parse(json).as[TaxSummaryLiability]
+      val result = Json.parse(json).as[SelfAssessmentAPIResponse]
       result.taxYear mustBe taxYear
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())

@@ -18,10 +18,12 @@ package sa.calculations.ATS2025
 
 import common.models.{Amount, Rate}
 import sa.models.ODSLiabilities.ODSLiabilities.*
-import sa.models.TaxSummaryLiability
+import sa.models.SelfAssessmentAPIResponse
 
-class ATSCalculationsWelsh2025(val summaryData: TaxSummaryLiability, val taxRates: Map[String, Rate])
-    extends ATSCalculations2025 {
+class ATSCalculationsWelsh2025(
+  val selfAssessmentAPIResponse: SelfAssessmentAPIResponse,
+  val taxRates: Map[String, Rate]
+) extends ATSCalculations2025 {
   override def welshIncomeTax: Amount = {
     val welshRate: Double = 0.1
     (

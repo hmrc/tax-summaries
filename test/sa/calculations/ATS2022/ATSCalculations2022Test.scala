@@ -20,21 +20,23 @@ import common.models.{Amount, Rate}
 import common.utils.{BaseSpec, JsonUtil}
 import play.api.libs.json.Json
 import sa.models.ODSLiabilities.ODSLiabilities.TaxOnNonExcludedIncome
-import sa.models.TaxSummaryLiability
+import sa.models.SelfAssessmentAPIResponse
 
 class ATSCalculations2022Test extends BaseSpec {
-  val taxYear                                  = 2022
-  val json: String                             = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
-  val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
+  val taxYear                                        = 2022
+  val json: String                                   = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
+  val taxSummaryLiability: SelfAssessmentAPIResponse = Json.parse(json).as[SelfAssessmentAPIResponse]
 
   val taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
 
-  class FakeATSCalculation2022(val summaryData: TaxSummaryLiability, val taxRates: Map[String, Rate])
-      extends ATSCalculations2022 {
+  class FakeATSCalculation2022(
+    val selfAssessmentAPIResponse: SelfAssessmentAPIResponse,
+    val taxRates: Map[String, Rate]
+  ) extends ATSCalculations2022 {
     override def scottishIncomeTax: Amount = Amount.empty("Dummy scottish income tax amount")
   }
 
-  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): FakeATSCalculation2022 =
+  def sut(taxSummaryLiability: SelfAssessmentAPIResponse = taxSummaryLiability): FakeATSCalculation2022 =
     new FakeATSCalculation2022(taxSummaryLiability, taxRates)
 
   "Generic calculations 2022" must {

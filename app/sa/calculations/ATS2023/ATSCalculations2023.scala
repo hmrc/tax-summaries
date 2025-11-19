@@ -20,11 +20,11 @@ import common.models.{Amount, Rate}
 import sa.calculations.ATSCalculations
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxRate.*
-import sa.models.TaxSummaryLiability
+import sa.models.SelfAssessmentAPIResponse
 
 trait ATSCalculations2023 extends ATSCalculations {
 
-  protected val summaryData: TaxSummaryLiability
+  protected val selfAssessmentAPIResponse: SelfAssessmentAPIResponse
   val taxRates: Map[String, Rate]
 
   override def selfEmployment: Amount =

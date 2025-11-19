@@ -17,9 +17,9 @@
 package sa.calculations.ATS2024
 
 import common.models.{Amount, Rate}
-import sa.models.TaxSummaryLiability
+import sa.models.SelfAssessmentAPIResponse
 
-class ATSCalculationsUK2024(val summaryData: TaxSummaryLiability, val taxRates: Map[String, Rate])
+class ATSCalculationsUK2024(val selfAssessmentAPIResponse: SelfAssessmentAPIResponse, val taxRates: Map[String, Rate])
     extends ATSCalculations2024 {
   override def scottishIncomeTax: Amount = Amount.empty("scottishIncomeTax")
 }

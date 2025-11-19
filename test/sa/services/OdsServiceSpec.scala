@@ -28,7 +28,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
 import sa.calculations.ATSCalculations
 import sa.connectors.SelfAssessmentODSConnector
-import sa.models.{PensionTaxRate, TaxSummaryLiability}
+import sa.models.{PensionTaxRate, SelfAssessmentAPIResponse}
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
@@ -51,14 +51,14 @@ class OdsServiceSpec extends BaseSpec {
 
   private def atsCalculations(taxYear: Int, amount: BigDecimal) =
     Some(new ATSCalculations {
-      override protected val summaryData: TaxSummaryLiability = TaxSummaryLiability(
+      override protected val selfAssessmentAPIResponse: SelfAssessmentAPIResponse = SelfAssessmentAPIResponse(
         taxYear,
         PensionTaxRate(0),
         None,
         Map.empty,
         Map.empty
       )
-      override val taxRates: Map[String, Rate]                = Map.empty
+      override val taxRates: Map[String, Rate]                                    = Map.empty
 
       override def taxLiability: Amount = Amount(amount, "GBP")
 

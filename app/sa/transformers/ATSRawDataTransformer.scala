@@ -27,7 +27,7 @@ import sa.calculations.{ATSCalculations, ATSCalculationsFactory}
 import sa.models.AtsMiddleTierData.noAtsResult
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxRate.*
-import sa.models.{AtsMiddleTierData, Nationality, TaxSummaryLiability}
+import sa.models.{AtsMiddleTierData, Nationality, SelfAssessmentAPIResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -66,14 +66,14 @@ class ATSRawDataTransformer @Inject() (
     )
     .map(_ => (): Unit)
 
-  def atsDataDTO(
+  def transform(
     rawPayloadJson: JsValue,
     rawTaxPayerJson: JsValue,
     UTR: String,
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
-    atsCalculationsFactory(rawPayloadJson.as[TaxSummaryLiability]) match {
+    atsCalculationsFactory(rawPayloadJson.as[SelfAssessmentAPIResponse]) match {
       case Some(calculations) =>
         logger.debug(
           s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"

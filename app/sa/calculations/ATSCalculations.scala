@@ -27,14 +27,14 @@ import sa.utils.DoubleUtils
 
 // scalastyle:off number.of.methods
 trait ATSCalculations extends DoubleUtils with Logging {
-  protected val summaryData: TaxSummaryLiability
+  protected val selfAssessmentAPIResponse: SelfAssessmentAPIResponse
   val taxRates: Map[String, Rate]
-  lazy val incomeTaxStatus: Option[Nationality] = summaryData.incomeTaxStatus
+  lazy val incomeTaxStatus: Option[Nationality] = selfAssessmentAPIResponse.incomeTaxStatus
 
   def get(liability: ODSLiabilities): Amount = {
-    val result = summaryData.atsData.getOrElse(
+    val result = selfAssessmentAPIResponse.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(
+      selfAssessmentAPIResponse.nationalInsuranceData.getOrElse(
         liability, {
           val ex = ATSParsingException(liability.apiValue)
           logger.error(s"Unable to retrieve $liability", ex)
@@ -46,9 +46,9 @@ trait ATSCalculations extends DoubleUtils with Logging {
   }
 
   def getWithDefaultAmount(liability: ODSLiabilities): Amount = {
-    val result = summaryData.atsData.getOrElse(
+    val result = selfAssessmentAPIResponse.atsData.getOrElse(
       liability,
-      summaryData.nationalInsuranceData.getOrElse(liability, Amount.empty(liability.apiValue))
+      selfAssessmentAPIResponse.nationalInsuranceData.getOrElse(liability, Amount.empty(liability.apiValue))
     )
     result.copy(calculus = Some(s"${result.amount}(${liability.apiValue})"))
   }
@@ -242,11 +242,11 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def totalCgTaxLiabilityAsPercentage: Rate = liabilityAsPercentage(capitalGainsTaxPerCurrency)
 
   def includePensionTaxForRate(taxRate: Rate): Amount =
-    if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(PensionLsumTaxDue)
+    if (selfAssessmentAPIResponse.pensionLumpSumTaxRate.percentage === taxRate.percent) get(PensionLsumTaxDue)
     else Amount.empty(PensionLsumTaxDue.apiValue)
 
   def includePensionIncomeForRate(taxRate: Rate): Amount =
-    if (summaryData.pensionLumpSumTaxRate.percentage === taxRate.percent) get(StatePensionGross)
+    if (selfAssessmentAPIResponse.pensionLumpSumTaxRate.percentage === taxRate.percent) get(StatePensionGross)
     else Amount.empty(StatePensionGross.apiValue)
 
   private def liabilityAsPercentage(amountPerUnit: Amount): Rate =

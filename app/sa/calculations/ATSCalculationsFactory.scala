@@ -30,7 +30,7 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
   private val calculationsForNationalityAndYear
-    : Map[(Nationality, Int), (TaxSummaryLiability, Map[String, Rate]) => ATSCalculations] = {
+    : Map[(Nationality, Int), (SelfAssessmentAPIResponse, Map[String, Rate]) => ATSCalculations] = {
     val uk       = UK()
     val scotland = Scottish()
     val wales    = Welsh()
@@ -72,7 +72,7 @@ class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
     )
   }
 
-  def apply(responseFromAPI: TaxSummaryLiability): Option[ATSCalculations] = {
+  def apply(responseFromAPI: SelfAssessmentAPIResponse): Option[ATSCalculations] = {
     val taxYear: Int                = responseFromAPI.taxYear
     def taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
     calculationsForNationalityAndYear.get((responseFromAPI.nationality, taxYear)) match {

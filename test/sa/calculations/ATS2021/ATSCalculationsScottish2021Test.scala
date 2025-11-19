@@ -20,7 +20,7 @@ import common.models.{Amount, Rate}
 import common.utils.{BaseSpec, JsonUtil}
 import play.api.libs.json.Json
 import sa.models.TaxRate.*
-import sa.models.{PensionTaxRate, Scottish, TaxSummaryLiability}
+import sa.models.{PensionTaxRate, Scottish, SelfAssessmentAPIResponse}
 
 class ATSCalculationsScottish2021Test extends BaseSpec {
 
@@ -30,18 +30,18 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     percentage.percent / 100.0
   }
 
-  val json: String                             = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
-  val taxSummaryLiability: TaxSummaryLiability = Json
+  val json: String                                   = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
+  val taxSummaryLiability: SelfAssessmentAPIResponse = Json
     .parse(json)
-    .as[TaxSummaryLiability]
+    .as[SelfAssessmentAPIResponse]
     .copy(incomeTaxStatus = Some(Scottish()))
 
   val taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
 
-  class FakeATSCalculationScottish2021(taxSummaryLiability: TaxSummaryLiability)
+  class FakeATSCalculationScottish2021(taxSummaryLiability: SelfAssessmentAPIResponse)
       extends ATSCalculationsScottish2021(taxSummaryLiability, taxRates)
 
-  def sut(taxSummaryLiability: TaxSummaryLiability = taxSummaryLiability): ATSCalculationsScottish2021 =
+  def sut(taxSummaryLiability: SelfAssessmentAPIResponse = taxSummaryLiability): ATSCalculationsScottish2021 =
     new FakeATSCalculationScottish2021(taxSummaryLiability)
 
   "Scottish 2021" must {
@@ -100,7 +100,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishBasicRateTax intermediate rate" in {
-      val taxSummaryLiabilityIntermediateRate: TaxSummaryLiability =
+      val taxSummaryLiabilityIntermediateRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishIntermediateRate)))
       sut(taxSummaryLiabilityIntermediateRate).scottishBasicRateTax mustBe Amount(
         372.00,
@@ -118,7 +118,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishIntermediateRateTax" in {
-      val taxSummaryLiabilityIntermediateRate: TaxSummaryLiability =
+      val taxSummaryLiabilityIntermediateRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishIntermediateRate)))
       sut(taxSummaryLiabilityIntermediateRate).scottishIntermediateRateTax mustBe Amount(
         177.62,
@@ -128,7 +128,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishHigherRateTax" in {
-      val taxSummaryLiabilityHigherRate: TaxSummaryLiability =
+      val taxSummaryLiabilityHigherRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishHigherRate)))
       sut(taxSummaryLiabilityHigherRate).scottishHigherRateTax mustBe Amount(
         156.93,
@@ -138,7 +138,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishAdditionalRateTax" in {
-      val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
+      val taxSummaryLiabilityAdditionalRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishAdditionalRate)))
       sut(taxSummaryLiabilityAdditionalRate).scottishAdditionalRateTax mustBe Amount(
         189.62,
@@ -156,7 +156,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishStarterRateIncome" in {
-      val taxSummaryLiabilityStarterRate: TaxSummaryLiability =
+      val taxSummaryLiabilityStarterRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishStarterRate)))
       sut(taxSummaryLiabilityStarterRate).scottishStarterRateIncome mustBe Amount(
         34.25,
@@ -182,7 +182,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishIntermediateRateIncome" in {
-      val taxSummaryLiabilityIntermediateRate: TaxSummaryLiability =
+      val taxSummaryLiabilityIntermediateRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishIntermediateRate)))
       sut(taxSummaryLiabilityIntermediateRate).scottishIntermediateRateIncome mustBe Amount(
         1247.35,
@@ -192,7 +192,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishHigherRateIncome" in {
-      val taxSummaryLiabilityHigherRate: TaxSummaryLiability =
+      val taxSummaryLiabilityHigherRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishHigherRate)))
       sut(taxSummaryLiabilityHigherRate).scottishHigherRateIncome mustBe Amount(
         18.37,
@@ -202,7 +202,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return scottishAdditionalRateIncome" in {
-      val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
+      val taxSummaryLiabilityAdditionalRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishAdditionalRate)))
       sut(taxSummaryLiabilityAdditionalRate).scottishAdditionalRateIncome mustBe Amount(
         16.36,
@@ -216,7 +216,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return savingsHigherRateTax" in {
-      val taxSummaryLiabilityHigherRate: TaxSummaryLiability =
+      val taxSummaryLiabilityHigherRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishHigherRate)))
       sut(taxSummaryLiabilityHigherRate).savingsHigherRateTax mustBe Amount(
         25.55,
@@ -226,7 +226,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return savingsAdditionalRateTax" in {
-      val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
+      val taxSummaryLiabilityAdditionalRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishAdditionalRate)))
       sut(taxSummaryLiabilityAdditionalRate).savingsAdditionalRateTax mustBe Amount(
         2.31,
@@ -240,7 +240,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return savingsHigherRateIncome" in {
-      val taxSummaryLiabilityHigherRate: TaxSummaryLiability =
+      val taxSummaryLiabilityHigherRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishHigherRate)))
       sut(taxSummaryLiabilityHigherRate).savingsHigherRateIncome mustBe Amount(
         2.35,
@@ -250,7 +250,7 @@ class ATSCalculationsScottish2021Test extends BaseSpec {
     }
 
     "return savingsAdditionalRateIncome" in {
-      val taxSummaryLiabilityAdditionalRate: TaxSummaryLiability =
+      val taxSummaryLiabilityAdditionalRate: SelfAssessmentAPIResponse =
         taxSummaryLiability.copy(pensionLumpSumTaxRate = PensionTaxRate(rate2021(ScottishAdditionalRate)))
       sut(taxSummaryLiabilityAdditionalRate).savingsAdditionalRateIncome mustBe Amount(
         55.52,
