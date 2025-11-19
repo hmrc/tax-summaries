@@ -64,7 +64,7 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
     }
   }
 
-  def rates(year: Int): Map[String, Rate] = {
+  def taxRates(year: Int): Map[String, Rate] = {
     val ratesInclDefaults = defaultRatePercentages ++ ratePercentagesByYear(year)
     val rates             = ratesInclDefaults.iterator.map { t =>
       t._1 -> Rate(t._2)

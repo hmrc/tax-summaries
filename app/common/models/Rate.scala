@@ -110,17 +110,17 @@ object RateKey {
 
   case object PayeScottishTopRate extends RateKey("paye_scottish_top_rate")
 
-  case object ScottishStarterRate extends RateKey("scottish_starter_rate")
+  case object ScottishIncomeStarterRate extends RateKey("scottish_starter_rate")
 
-  case object ScottishBasicRate extends RateKey("scottish_basic_rate")
+  case object ScottishIncomeBasicRate extends RateKey("scottish_basic_rate")
 
-  case object ScottishIntermediateRate extends RateKey("scottish_intermediate_rate")
+  case object ScottishIncomeIntermediateRate extends RateKey("scottish_intermediate_rate")
 
-  case object ScottishHigherRate extends RateKey("scottish_higher_rate")
+  case object ScottishIncomeHigherRate extends RateKey("scottish_higher_rate")
 
-  case object ScottishAdvancedRate extends RateKey("scottish_advanced_rate")
+  case object ScottishIncomeAdvancedRate extends RateKey("scottish_advanced_rate")
 
-  case object ScottishAdditionalRate extends RateKey("scottish_additional_rate")
+  case object ScottishIncomeAdditionalRate extends RateKey("scottish_additional_rate")
 
   case object SavingsLowerRate extends RateKey(apiValue = "savings_lower_rate")
 
@@ -135,7 +135,7 @@ object RateKey {
       IncomeHigher, InterestHigher, InterestCILower, InterestCIHigher, InterestRPLower, InterestRPHigher, InterestLower, NICS, Ordinary, Savings, TotalCapitalGains, Upper,
       PayeDividendOrdinaryRate, PayeDividendAdditionalRate, PayeHigherRateIncomeTax, PayeAdditionalRateIncomeTax, PayeBasicRateIncomeTax, PayeDividendUpperRate,
       PayeScottishStarterRate, PayeScottishBasicRate, PayeScottishIntermediateRate, PayeScottishHigherRate, PayeScottishAdvancedRate, PayeScottishTopRate,
-      ScottishStarterRate, ScottishBasicRate, ScottishAdvancedRate, ScottishIntermediateRate, ScottishHigherRate, ScottishAdditionalRate,
+      ScottishIncomeStarterRate, ScottishIncomeBasicRate, ScottishIncomeAdvancedRate, ScottishIncomeIntermediateRate, ScottishIncomeHigherRate, ScottishIncomeAdditionalRate,
       SavingsLowerRate, SavingsHigherRate, SavingsAdditionalRate
     )
   // format: on

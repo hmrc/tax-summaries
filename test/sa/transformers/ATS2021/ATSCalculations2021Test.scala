@@ -27,7 +27,7 @@ class ATSCalculations2021Test extends BaseSpec {
   val json: String                             = JsonUtil.load("/sa/utr_random_values.json", Map("<taxYear>" -> taxYear.toString))
   val taxSummaryLiability: TaxSummaryLiability = Json.parse(json).as[TaxSummaryLiability]
 
-  val taxRates: Map[String, Rate] = applicationConfig.rates(taxYear)
+  val taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
 
   class FakeATSCalculation2021(val summaryData: TaxSummaryLiability, val taxRates: Map[String, Rate])
       extends ATSCalculations2021 {

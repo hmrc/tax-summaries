@@ -41,10 +41,8 @@ class TaxsJsonHelper @Inject() (applicationConfig: ApplicationConfig, aTSRawData
     Json.toJson(middleTierData)
   }
 
-  def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] = {
-    val rates = applicationConfig.rates(taxYear)
-    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], rates)
-  }
+  def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] =
+    ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], applicationConfig.taxRates(taxYear))
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
     val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]

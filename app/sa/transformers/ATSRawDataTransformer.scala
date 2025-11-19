@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import common.config.ApplicationConfig
 import common.models.*
 import common.models.LiabilityKey.{AdditionalRate, AdditionalRateAmount, AdditionalRateIncomeTax, AdditionalRateIncomeTaxAmount, Adjustments, AmountAtCIHigherRate, AmountAtCILowerRate, AmountAtEntrepreneursRate, AmountAtHigherRate, AmountAtOrdinaryRate, AmountAtRPCIHigheRate, AmountAtRPCILowerRate, AmountAtRPHigherRate, AmountAtRPLowerRate, AmountDueAtEntrepreneursRate, AmountDueAtHigherRate, AmountDueAtOrdinaryRate, AmountDueCIHigherRate, AmountDueCILowerRate, AmountDueRPCIHigherRate, AmountDueRPCILowerRate, AmountDueRPHigherRate, AmountDueRPLowerRate, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, CgTaxPerCurrencyUnit, DividendOrdinaryRate, DividendOrdinaryRateAmount, DividendUpperRate, DividendUpperRateAmount, EmployeeNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeFromEmployment, LessTaxFreeAmount, MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome, OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, SavingsAdditionalIncome, SavingsAdditionalRateTax, SavingsHigherIncome, SavingsHigherRateTax, SavingsLowerIncome, SavingsLowerRateTax, ScottishAdditionalIncome, ScottishAdditionalRateTax, ScottishAdvancedIncome, ScottishAdvancedRateTax, ScottishBasicIncome, ScottishBasicRateTax, ScottishHigherIncome, ScottishHigherRateTax, ScottishIncomeTax, ScottishIntermediateIncome, ScottishIntermediateRateTax, ScottishStarterIncome, ScottishStarterRateTax, ScottishTopIncome, ScottishTopRateTax, ScottishTotalTax, SelfEmploymentIncome, StartingRateForSavings, StartingRateForSavingsAmount, TaxableGains, TaxableStateBenefits, TotalCgTax, TotalIncomeBeforeTax, TotalIncomeTax, TotalIncomeTaxAndNics, TotalTaxFreeAmount, WelshIncomeTax, YourTotalTax}
-import common.models.RateKey.{Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic, IncomeHigher, InterestCIHigher, InterestCILower, InterestHigher, InterestLower, InterestRPHigher, InterestRPLower, NICS, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, TotalCapitalGains, Upper}
+import common.models.RateKey.{Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic, IncomeHigher, InterestCIHigher, InterestCILower, InterestHigher, InterestLower, InterestRPHigher, InterestRPLower, NICS, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishIncomeAdditionalRate, ScottishIncomeAdvancedRate, ScottishIncomeBasicRate, ScottishIncomeHigherRate, ScottishIncomeIntermediateRate, ScottishIncomeStarterRate, TotalCapitalGains, Upper}
 import play.api.libs.json.*
 import play.api.{Logger, Logging}
 import sa.models.AtsMiddleTierData.noAtsResult
@@ -67,8 +67,8 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
     UTR: String,
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
-    val taxRates: Map[String, Rate] = applicationConfig.rates(taxYear)
-    val logger   = Logger(getClass.getName)
+    val taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
+    val logger                      = Logger(getClass.getName)
     ATSCalculations.make(rawPayloadJson.as[TaxSummaryLiability], taxRates) match {
       case Some(calculations) =>
         logger.debug(
@@ -275,39 +275,21 @@ class ATSRawDataTransformer @Inject() (applicationConfig: ApplicationConfig, aud
 
   private def createTotalIncomeTaxPageRates(taxRates: Map[String, Rate]): Map[RateKey, ApiRate] =
     Map[RateKey, Rate](
-      Savings                                        -> taxRates.getOrElse(StartingRateForSavingsRate, Rate.empty),
-      IncomeBasic                                    -> taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
-      IncomeHigher                                   -> taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
-      IncomeAdditional                               -> taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty),
-      Ordinary                                       -> taxRates.getOrElse(DividendsOrdinaryRate, Rate.empty),
-      Upper                                          -> taxRates.getOrElse(DividendUpperRateRate, Rate.empty),
-      Additional                                     -> taxRates.getOrElse(DividendAdditionalRate, Rate.empty),
-      common.models.RateKey.ScottishStarterRate      -> taxRates.getOrElse(
-        sa.models.TaxRate.ScottishStarterRate,
-        Rate.empty
-      ),
-      common.models.RateKey.ScottishBasicRate        -> taxRates.getOrElse(
-        sa.models.TaxRate.ScottishBasicRate,
-        Rate.empty
-      ),
-      common.models.RateKey.ScottishIntermediateRate -> taxRates.getOrElse(
-        sa.models.TaxRate.ScottishIntermediateRate,
-        Rate.empty
-      ),
-      common.models.RateKey.ScottishHigherRate       -> taxRates.getOrElse(
-        sa.models.TaxRate.ScottishHigherRate,
-        Rate.empty
-      ),
-      common.models.RateKey.ScottishAdvancedRate     -> taxRates.getOrElse(
-        sa.models.TaxRate.ScottishAdvancedRate,
-        Rate.empty
-      ),
-      common.models.RateKey.ScottishAdditionalRate   -> taxRates.getOrElse(
-        sa.models.TaxRate.ScottishAdditionalRate,
-        Rate.empty
-      ),
-      SavingsLowerRate                               -> taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
-      SavingsHigherRate                              -> taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
-      SavingsAdditionalRate                          -> taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty)
+      Savings                        -> taxRates.getOrElse(StartingRateForSavingsRate, Rate.empty),
+      IncomeBasic                    -> taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
+      IncomeHigher                   -> taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
+      IncomeAdditional               -> taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty),
+      Ordinary                       -> taxRates.getOrElse(DividendsOrdinaryRate, Rate.empty),
+      Upper                          -> taxRates.getOrElse(DividendUpperRateRate, Rate.empty),
+      Additional                     -> taxRates.getOrElse(DividendAdditionalRate, Rate.empty),
+      ScottishIncomeStarterRate      -> taxRates.getOrElse(ScottishStarterRate, Rate.empty),
+      ScottishIncomeBasicRate        -> taxRates.getOrElse(ScottishBasicRate, Rate.empty),
+      ScottishIncomeIntermediateRate -> taxRates.getOrElse(ScottishIntermediateRate, Rate.empty),
+      ScottishIncomeHigherRate       -> taxRates.getOrElse(ScottishHigherRate, Rate.empty),
+      ScottishIncomeAdvancedRate     -> taxRates.getOrElse(ScottishAdvancedRate, Rate.empty),
+      ScottishIncomeAdditionalRate   -> taxRates.getOrElse(ScottishAdditionalRate, Rate.empty),
+      SavingsLowerRate               -> taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty),
+      SavingsHigherRate              -> taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty),
+      SavingsAdditionalRate          -> taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty)
     ).view.mapValues(_.apiValue).toMap
 }

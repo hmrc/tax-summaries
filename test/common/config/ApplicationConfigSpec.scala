@@ -60,7 +60,7 @@ class ApplicationConfigSpec extends BaseSpec {
   "calling rates" must {
     "return default percentage rates when no overriding year" in {
       applicationConfig
-        .rates(2021) mustBe Map(
+        .taxRates(2021) mustBe Map(
         "percentageRate1" -> Rate(10),
         "percentageRate2" -> Rate(20),
         "percentageRate3" -> Rate(30)
@@ -69,7 +69,7 @@ class ApplicationConfigSpec extends BaseSpec {
 
     "return default percentage but override where later year uprates" in {
       applicationConfig
-        .rates(2022) mustBe Map(
+        .taxRates(2022) mustBe Map(
         "percentageRate1" -> Rate(10),
         "percentageRate2" -> Rate(60),
         "percentageRate3" -> Rate(30)

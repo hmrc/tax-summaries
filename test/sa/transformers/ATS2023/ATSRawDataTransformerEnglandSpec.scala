@@ -17,7 +17,7 @@
 package sa.transformers.ATS2023
 
 import common.models.LiabilityKey.{LessTaxFreeAmount, NicsAndTaxPerCurrencyUnit, PayCgTaxOn, TotalIncomeTax, TotalIncomeTaxAndNics, YourTotalTax}
-import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishAdditionalRate, ScottishAdvancedRate, ScottishBasicRate, ScottishHigherRate, ScottishIntermediateRate, ScottishStarterRate, Upper}
+import common.models.RateKey.{Additional, IncomeAdditional, IncomeBasic, IncomeHigher, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishIncomeAdditionalRate, ScottishIncomeAdvancedRate, ScottishIncomeBasicRate, ScottishIncomeHigherRate, ScottishIncomeIntermediateRate, ScottishIncomeStarterRate, Upper}
 import common.models.{Amount, ApiRate, LiabilityKey}
 import common.utils.BaseSpec
 import sa.utils.ATSRawDataTransformerBehaviours
@@ -27,22 +27,22 @@ class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransform
     "use the correct tax rates" in new ATSRawDataTransformerTestFixtureEngland {
       transformedData.income_tax.flatMap(_.rates).map(_.toSet) mustBe Some(
         Set(
-          Additional               -> ApiRate("39.35%"),
-          Ordinary                 -> ApiRate("8.75%"),
-          ScottishBasicRate        -> ApiRate("20%"),
-          SavingsLowerRate         -> ApiRate("20%"),
-          SavingsHigherRate        -> ApiRate("40%"),
-          ScottishAdvancedRate     -> ApiRate("0%"),
-          ScottishAdditionalRate   -> ApiRate("46%"),
-          IncomeHigher             -> ApiRate("40%"),
-          ScottishIntermediateRate -> ApiRate("21%"),
-          SavingsAdditionalRate    -> ApiRate("45%"),
-          IncomeAdditional         -> ApiRate("45%"),
-          ScottishHigherRate       -> ApiRate("41%"),
-          ScottishStarterRate      -> ApiRate("19%"),
-          Savings                  -> ApiRate("0%"),
-          Upper                    -> ApiRate("33.75%"),
-          IncomeBasic              -> ApiRate("20%")
+          Additional                     -> ApiRate("39.35%"),
+          Ordinary                       -> ApiRate("8.75%"),
+          ScottishIncomeBasicRate        -> ApiRate("20%"),
+          SavingsLowerRate               -> ApiRate("20%"),
+          SavingsHigherRate              -> ApiRate("40%"),
+          ScottishIncomeAdvancedRate     -> ApiRate("0%"),
+          ScottishIncomeAdditionalRate   -> ApiRate("46%"),
+          IncomeHigher                   -> ApiRate("40%"),
+          ScottishIncomeIntermediateRate -> ApiRate("21%"),
+          SavingsAdditionalRate          -> ApiRate("45%"),
+          IncomeAdditional               -> ApiRate("45%"),
+          ScottishIncomeHigherRate       -> ApiRate("41%"),
+          ScottishIncomeStarterRate      -> ApiRate("19%"),
+          Savings                        -> ApiRate("0%"),
+          Upper                          -> ApiRate("33.75%"),
+          IncomeBasic                    -> ApiRate("20%")
         )
       )
     }

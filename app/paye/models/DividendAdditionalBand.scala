@@ -18,7 +18,6 @@ package paye.models
 
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.{JsPath, Reads}
-import sa.models.TaxRate
 
 case class DividendAdditionalBand(
   dividendAdditionalRateTaxAmoun: Double,

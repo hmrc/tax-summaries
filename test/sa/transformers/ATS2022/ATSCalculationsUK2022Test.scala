@@ -25,7 +25,7 @@ class ATSCalculationsUK2022Test extends BaseSpec {
 
   val taxYear                      = 2022
   def getRate(key: String): Double = {
-    val percentage: Rate = applicationConfig.rates(taxYear).getOrElse(key, Rate.empty)
+    val percentage: Rate = applicationConfig.taxRates(taxYear).getOrElse(key, Rate.empty)
     percentage.percent / 100.0
   }
 
@@ -35,7 +35,7 @@ class ATSCalculationsUK2022Test extends BaseSpec {
     .as[TaxSummaryLiability]
     .copy(incomeTaxStatus = Some(UK()))
 
-  val taxRates = applicationConfig.rates(taxYear)
+  val taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
 
   class FakeATSCalculationUK2022(taxSummaryLiability: TaxSummaryLiability)
       extends ATSCalculationsUK2022(taxSummaryLiability, taxRates)
