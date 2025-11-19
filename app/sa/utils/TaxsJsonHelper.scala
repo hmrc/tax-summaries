@@ -45,7 +45,7 @@ class TaxsJsonHelper @Inject() (
   }
 
   def getATSCalculations(taxYear: Int, rawPayloadJson: JsValue): Option[ATSCalculations] =
-    atsCalculationsFactory.make(rawPayloadJson.as[TaxSummaryLiability])
+    atsCalculationsFactory(rawPayloadJson.as[TaxSummaryLiability])
 
   def hasAtsForPreviousPeriod(rawJson: JsValue): Boolean = {
     val annualTaxSummaries: List[JsValue] = (rawJson \ "annualTaxSummaries").as[List[JsValue]]

@@ -112,7 +112,7 @@ object TaxSummaryLiability extends Logging {
             liability -> amount
         }
       JsSuccess(
-        TaxSummaryLiability.apply(
+        TaxSummaryLiability(
           taxYear,
           pensionTaxRate,
           Some(nationality),

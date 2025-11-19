@@ -73,7 +73,7 @@ class ATSRawDataTransformer @Inject() (
     taxYear: Int
   )(implicit hc: HeaderCarrier): AtsMiddleTierData = {
     val logger = Logger(getClass.getName)
-    atsCalculationsFactory.make(rawPayloadJson.as[TaxSummaryLiability]) match {
+    atsCalculationsFactory(rawPayloadJson.as[TaxSummaryLiability]) match {
       case Some(calculations) =>
         logger.debug(
           s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"

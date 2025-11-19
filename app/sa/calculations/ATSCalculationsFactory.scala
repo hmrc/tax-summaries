@@ -27,6 +27,7 @@ import sa.models.*
 
 import javax.inject.{Inject, Singleton}
 
+@Singleton
 class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
   private val calculationsForNationalityAndYear
     : Map[(Nationality, Int), (TaxSummaryLiability, Map[String, Rate]) => ATSCalculations] = {
@@ -34,58 +35,57 @@ class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
     val scotland = Scottish()
     val wales    = Welsh()
 
-    val calc2025UK       = new ATSCalculationsUK2025(_, _)
-    val calc2025Scotland = new ATSCalculationsScottish2025(_, _)
-    val calc2025Wales    = new ATSCalculationsWelsh2025(_, _)
+    val factoryFor2025UK       = new ATSCalculationsUK2025(_, _)
+    val factoryFor2025Scotland = new ATSCalculationsScottish2025(_, _)
+    val factoryFor2025Wales    = new ATSCalculationsWelsh2025(_, _)
 
-    val calc2024UK       = new ATSCalculationsUK2024(_, _)
-    val calc2024Scotland = new ATSCalculationsScottish2024(_, _)
-    val calc2024Wales    = new ATSCalculationsWelsh2024(_, _)
+    val factoryFor2024UK       = new ATSCalculationsUK2024(_, _)
+    val factoryFor2024Scotland = new ATSCalculationsScottish2024(_, _)
+    val factoryFor2024Wales    = new ATSCalculationsWelsh2024(_, _)
 
-    val calc2023UK       = new ATSCalculationsUK2023(_, _)
-    val calc2023Scotland = new ATSCalculationsScottish2023(_, _)
-    val calc2023Wales    = new ATSCalculationsWelsh2023(_, _)
-    val calc2022UK       = new ATSCalculationsUK2022(_, _)
-    val calc2022Scotland = new ATSCalculationsScottish2022(_, _)
-    val calc2022Wales    = new ATSCalculationsWelsh2022(_, _)
-    val calc2021UK       = new ATSCalculationsUK2021(_, _)
-    val calc2021Scotland = new ATSCalculationsScottish2021(_, _)
-    val calc2021Wales    = new ATSCalculationsWelsh2021(_, _)
+    val factoryFor2023UK       = new ATSCalculationsUK2023(_, _)
+    val factoryFor2023Scotland = new ATSCalculationsScottish2023(_, _)
+    val factoryFor2023Wales    = new ATSCalculationsWelsh2023(_, _)
+    val factoryFor2022UK       = new ATSCalculationsUK2022(_, _)
+    val factoryFor2022Scotland = new ATSCalculationsScottish2022(_, _)
+    val factoryFor2022Wales    = new ATSCalculationsWelsh2022(_, _)
+    val factoryFor2021UK       = new ATSCalculationsUK2021(_, _)
+    val factoryFor2021Scotland = new ATSCalculationsScottish2021(_, _)
+    val factoryFor2021Wales    = new ATSCalculationsWelsh2021(_, _)
 
     Map(
-      (uk, 2025)       -> calc2025UK,
-      (scotland, 2025) -> calc2025Scotland,
-      (wales, 2025)    -> calc2025Wales,
-      (uk, 2024)       -> calc2024UK,
-      (scotland, 2024) -> calc2024Scotland,
-      (wales, 2024)    -> calc2024Wales,
-      (uk, 2023)       -> calc2023UK,
-      (scotland, 2023) -> calc2023Scotland,
-      (wales, 2023)    -> calc2023Wales,
-      (uk, 2022)       -> calc2022UK,
-      (scotland, 2022) -> calc2022Scotland,
-      (wales, 2022)    -> calc2022Wales,
-      (uk, 2021)       -> calc2021UK,
-      (scotland, 2021) -> calc2021Scotland,
-      (wales, 2021)    -> calc2021Wales
+      (uk, 2025)       -> factoryFor2025UK,
+      (scotland, 2025) -> factoryFor2025Scotland,
+      (wales, 2025)    -> factoryFor2025Wales,
+      (uk, 2024)       -> factoryFor2024UK,
+      (scotland, 2024) -> factoryFor2024Scotland,
+      (wales, 2024)    -> factoryFor2024Wales,
+      (uk, 2023)       -> factoryFor2023UK,
+      (scotland, 2023) -> factoryFor2023Scotland,
+      (wales, 2023)    -> factoryFor2023Wales,
+      (uk, 2022)       -> factoryFor2022UK,
+      (scotland, 2022) -> factoryFor2022Scotland,
+      (wales, 2022)    -> factoryFor2022Wales,
+      (uk, 2021)       -> factoryFor2021UK,
+      (scotland, 2021) -> factoryFor2021Scotland,
+      (wales, 2021)    -> factoryFor2021Wales
     )
   }
 
-  @Singleton
-  def make(summaryData: TaxSummaryLiability): Option[ATSCalculations] = {
-    val taxYear: Int                = summaryData.taxYear
+  def apply(responseFromAPI: TaxSummaryLiability): Option[ATSCalculations] = {
+    val taxYear: Int                = responseFromAPI.taxYear
     def taxRates: Map[String, Rate] = applicationConfig.taxRates(taxYear)
-    calculationsForNationalityAndYear.get((summaryData.nationality, taxYear)) match {
-      case Some(found) => Some(found(summaryData, taxRates))
-      case None        =>
+    calculationsForNationalityAndYear.get((responseFromAPI.nationality, taxYear)) match {
+      case Some(factoryForNationalityAndYear) => Some(factoryForNationalityAndYear(responseFromAPI, taxRates))
+      case None                               =>
         val maxDefinedYearForCountry = calculationsForNationalityAndYear.keys
-          .filter(_._1 == summaryData.nationality)
+          .filter(_._1 == responseFromAPI.nationality)
           .map(_._2)
           .max
-        if (summaryData.taxYear > maxDefinedYearForCountry) {
+        if (responseFromAPI.taxYear > maxDefinedYearForCountry) {
           Some(
-            calculationsForNationalityAndYear((summaryData.nationality, maxDefinedYearForCountry))(
-              summaryData,
+            calculationsForNationalityAndYear((responseFromAPI.nationality, maxDefinedYearForCountry))(
+              responseFromAPI,
               taxRates
             )
           )

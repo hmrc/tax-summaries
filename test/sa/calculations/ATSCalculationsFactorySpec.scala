@@ -19,15 +19,14 @@ package sa.calculations
 import common.config.ApplicationConfig
 import common.models.{Amount, Rate}
 import common.utils.BaseSpec
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import sa.calculations.ATS2024.{ATSCalculationsScottish2024, ATSCalculationsUK2024, ATSCalculationsWelsh2024}
 import sa.calculations.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxRate.*
-import sa.utils.DoubleUtils
 
-class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with DoubleUtils {
+class ATSCalculationsFactorySpec extends BaseSpec {
 
   class CalcFixtures(val taxYear: Int, val origin: Nationality)(
     pensionTaxRate: PensionTaxRate,
@@ -67,7 +66,7 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
 
     lazy val appConfig: ApplicationConfig                   = app.injector.instanceOf[ApplicationConfig]
     lazy val atsCalculationsFactory: ATSCalculationsFactory = new ATSCalculationsFactory(appConfig)
-    lazy val calculation: Option[ATSCalculations]           = atsCalculationsFactory.make(taxSummaryLiability)
+    lazy val calculation: Option[ATSCalculations]           = atsCalculationsFactory(taxSummaryLiability)
   }
 
   class Fixture(val taxYear: Int, origin: Nationality) {
@@ -131,6 +130,40 @@ class ATSCalculationsTest extends BaseSpec with ScalaCheckPropertyChecks with Do
       }
       "country is Wales" in {
         val calculation = new Fixture(9999, Welsh())().calculation
+        calculation.isDefined mustBe true
+        calculation.map(_ mustBe a[ATSCalculationsWelsh2025])
+      }
+    }
+    "return the correct calculations class for nationality when year is 2024" when {
+      "country is UK" in {
+        val calculation = new Fixture(2024, UK())().calculation
+        calculation.isDefined mustBe true
+        calculation.map(_ mustBe a[ATSCalculationsUK2024])
+      }
+      "country is Scotland" in {
+        val calculation = new Fixture(2024, Scottish())().calculation
+        calculation.isDefined mustBe true
+        calculation.map(_ mustBe a[ATSCalculationsScottish2024])
+      }
+      "country is Wales" in {
+        val calculation = new Fixture(2024, Welsh())().calculation
+        calculation.isDefined mustBe true
+        calculation.map(_ mustBe a[ATSCalculationsWelsh2024])
+      }
+    }
+    "return the correct calculations class for nationality when year is 2025" when {
+      "country is UK" in {
+        val calculation = new Fixture(2025, UK())().calculation
+        calculation.isDefined mustBe true
+        calculation.map(_ mustBe a[ATSCalculationsUK2025])
+      }
+      "country is Scotland" in {
+        val calculation = new Fixture(2025, Scottish())().calculation
+        calculation.isDefined mustBe true
+        calculation.map(_ mustBe a[ATSCalculationsScottish2025])
+      }
+      "country is Wales" in {
+        val calculation = new Fixture(2025, Welsh())().calculation
         calculation.isDefined mustBe true
         calculation.map(_ mustBe a[ATSCalculationsWelsh2025])
       }
