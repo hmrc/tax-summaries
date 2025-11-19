@@ -18,7 +18,8 @@ package common.utils
 
 import common.utils.TestConstants.testUtr
 import play.api.libs.json.*
-import sa.transformers.{ATSCalculationsFactory, ATSRawDataTransformer}
+import sa.calculations.ATSCalculationsFactory
+import sa.transformers.ATSRawDataTransformer
 import sa.utils.TaxsJsonHelper
 
 class TaxsJsonHelperTest extends BaseSpec {

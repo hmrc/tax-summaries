@@ -26,9 +26,9 @@ import org.mockito.Mockito.*
 import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
+import sa.calculations.ATSCalculations
 import sa.connectors.SelfAssessmentODSConnector
 import sa.models.{PensionTaxRate, TaxSummaryLiability}
-import sa.transformers.ATSCalculations
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 

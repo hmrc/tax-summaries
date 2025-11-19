@@ -23,6 +23,7 @@ import common.models.LiabilityKey.{AdditionalRate, AdditionalRateAmount, Additio
 import common.models.RateKey.{Additional, CapitalGainsEntrepreneur, CapitalGainsOrdinary, CapitalGainsUpper, IncomeAdditional, IncomeBasic, IncomeHigher, InterestCIHigher, InterestCILower, InterestHigher, InterestLower, InterestRPHigher, InterestRPLower, NICS, Ordinary, Savings, SavingsAdditionalRate, SavingsHigherRate, SavingsLowerRate, ScottishIncomeAdditionalRate, ScottishIncomeAdvancedRate, ScottishIncomeBasicRate, ScottishIncomeHigherRate, ScottishIncomeIntermediateRate, ScottishIncomeStarterRate, TotalCapitalGains, Upper}
 import play.api.libs.json.*
 import play.api.{Logger, Logging}
+import sa.calculations.{ATSCalculations, ATSCalculationsFactory}
 import sa.models.AtsMiddleTierData.noAtsResult
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.TaxRate.*

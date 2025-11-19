@@ -18,8 +18,9 @@ package sa.utils
 
 import com.google.inject.Inject
 import play.api.libs.json.{JsNumber, JsValue, Json}
+import sa.calculations.{ATSCalculations, ATSCalculationsFactory}
 import sa.models.{AtsMiddleTierData, AtsYearList, TaxSummaryLiability}
-import sa.transformers.{ATSCalculations, ATSCalculationsFactory, ATSRawDataTransformer, ATSTaxpayerDataTransformer}
+import sa.transformers.{ATSRawDataTransformer, ATSTaxpayerDataTransformer}
 import uk.gov.hmrc.http.HeaderCarrier
 
 class TaxsJsonHelper @Inject() (
