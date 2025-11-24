@@ -68,8 +68,8 @@ object ApiValue extends DefaultReads {
   )
 
   def readFromList[A <: ApiValue](ls: List[A]): Reads[A] = Reads[A] {
-    case JsString(s) =>
-      ls.find(l => l.apiValue == s)
+    case JsString(fieldName) =>
+      ls.find(_.apiValue.equalsIgnoreCase(fieldName))
         .fold[JsResult[A]](JsError("error.expected.apivalue"))(JsSuccess(_))
 
     case _ => JsError("error.expected.jsstring")
