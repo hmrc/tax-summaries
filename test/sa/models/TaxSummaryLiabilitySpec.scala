@@ -39,13 +39,12 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
   }
 
   private def parseJsonAndConvertFieldNamesToLowerCase(jsonAsString: String): JsObject = {
-    val fields = Json.parse(jsonAsString).as[JsObject].fields.map { fieldTuple =>
-      val fieldValue = if (fieldTuple._1 == "tliSlpAtsData") {
-        fieldTuple._2.as[JsObject](convertFieldNamesToLower)
-      } else {
-        fieldTuple._2
+    val fields = Json.parse(jsonAsString).as[JsObject].fields.map { (fieldName, fieldValue) =>
+      val newFieldValue = fieldName match {
+        case "tliSlpAtsData" => fieldValue.as[JsObject](convertFieldNamesToLower)
+        case _               => fieldValue
       }
-      fieldTuple._1 -> fieldValue
+      fieldName -> newFieldValue
     }
     JsObject(fields)
   }
