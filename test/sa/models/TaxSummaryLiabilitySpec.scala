@@ -17,17 +17,45 @@
 package sa.models
 
 import common.utils.{BaseSpec, JsonUtil}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsSuccess, Json, Reads}
 
 class TaxSummaryLiabilitySpec extends BaseSpec {
 
   private val taxYear = 2024
 
-  "TaxSummaryLiability Reads" must {
-    "correctly parse the data" in {
-      val json = JsonUtil.load("/sa/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
+  private val convertFieldNamesToLower: Reads[JsObject] = { jsValue =>
+    val caseSensitiveFields = Seq("incomeTaxStatus", "ctnPensionLumpSumTaxRate")
+    val convertedFields     = jsValue
+      .as[JsObject]
+      .fields
+      .map { fieldTuple =>
+        if (caseSensitiveFields.contains(fieldTuple._1)) { fieldTuple }
+        else {
+          fieldTuple._1.toLowerCase -> fieldTuple._2
+        }
+      }
+      .toSeq
+    JsSuccess(JsObject(convertedFields))
+  }
 
-      val result = Json.parse(json).as[TaxSummaryLiability]
+  private def parseJsonAndConvertFieldNamesToLowerCase(jsonAsString: String): JsObject = {
+    val fields = Json.parse(jsonAsString).as[JsObject].fields.map { fieldTuple =>
+      val fieldValue = if (fieldTuple._1 == "tliSlpAtsData") {
+        fieldTuple._2.as[JsObject](convertFieldNamesToLower)
+      } else {
+        fieldTuple._2
+      }
+      fieldTuple._1 -> fieldValue
+    }
+    JsObject(fields)
+  }
+
+  "TaxSummaryLiability Reads" must {
+    "correctly parse the data, regardless of case of API field names" in {
+      val jsonAsString = JsonUtil.load("/sa/sa_ats_valid.json", Map("<taxYear>" -> taxYear.toString))
+      val parsedJson   = parseJsonAndConvertFieldNamesToLowerCase(jsonAsString)
+
+      val result = parsedJson.as[TaxSummaryLiability]
       result.taxYear mustBe taxYear
       result.pensionLumpSumTaxRate mustBe PensionTaxRate(0.0)
       result.incomeTaxStatus mustBe Some(UK())
