@@ -28,11 +28,9 @@ class TaxSummaryLiabilitySpec extends BaseSpec {
     val convertedFields     = jsValue
       .as[JsObject]
       .fields
-      .map { fieldTuple =>
-        if (caseSensitiveFields.contains(fieldTuple._1)) { fieldTuple }
-        else {
-          fieldTuple._1.toLowerCase -> fieldTuple._2
-        }
+      .map {
+        case fieldTuple @ Tuple2(fieldName, _) if caseSensitiveFields.contains(fieldName) => fieldTuple
+        case Tuple2(fieldName, fieldValue)                                                => fieldName.toLowerCase -> fieldValue
       }
       .toSeq
     JsSuccess(JsObject(convertedFields))
