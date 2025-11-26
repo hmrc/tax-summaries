@@ -41,21 +41,21 @@ class OdsService @Inject() (
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      taxpayer     <- selfAssessmentOdsConnector
-                        .connectToSATaxpayerDetails(utr)
-                        .transform {
-                          case Right(response) if response.status == NOT_FOUND =>
-                            Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                          case Right(response)                                 => Right(response.json.as[JsValue])
-                          case Left(error)                                     => Left(error)
-                        }
-      taxSummaries <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
-                        case Right(response) if response.status == NOT_FOUND =>
-                          Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                        case Right(response)                                 => Right(response.json.as[JsValue])
-                        case Left(error)                                     => Left(error)
-                      }
-    } yield jsonHelper.getAllATSData(taxpayer, taxSummaries, utr, TAX_YEAR)
+      rawTaxpayerJson       <- selfAssessmentOdsConnector
+                                 .connectToSATaxpayerDetails(utr)
+                                 .transform {
+                                   case Right(response) if response.status == NOT_FOUND =>
+                                     Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+                                   case Right(response)                                 => Right(response.json.as[JsValue])
+                                   case Left(error)                                     => Left(error)
+                                 }
+      rawSelfAssessmentJson <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
+                                 case Right(response) if response.status == NOT_FOUND =>
+                                   Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
+                                 case Right(response)                                 => Right(response.json.as[JsValue])
+                                 case Left(error)                                     => Left(error)
+                               }
+    } yield jsonHelper.getAllATSData(rawTaxpayerJson, rawSelfAssessmentJson, utr, TAX_YEAR)
 
   private def findAllYears(utr: String, range: Range)(implicit
     hc: HeaderCarrier,

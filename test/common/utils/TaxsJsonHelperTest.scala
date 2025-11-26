@@ -17,7 +17,8 @@
 package common.utils
 
 import common.utils.TestConstants.testUtr
-import play.api.libs.json._
+import play.api.libs.json.*
+import sa.calculations.ATSCalculationsFactory
 import sa.transformers.ATSRawDataTransformer
 import sa.utils.TaxsJsonHelper
 
@@ -25,9 +26,10 @@ class TaxsJsonHelperTest extends BaseSpec {
   private val prevTaxYear = 2023
   private val taxYear     = 2024
 
-  val aTSRawDataTransformer: ATSRawDataTransformer = inject[ATSRawDataTransformer]
+  val aTSRawDataTransformer: ATSRawDataTransformer   = inject[ATSRawDataTransformer]
+  val atsCalculationsFactory: ATSCalculationsFactory = inject[ATSCalculationsFactory]
 
-  class SetUp extends TaxsJsonHelper(applicationConfig, aTSRawDataTransformer)
+  class SetUp extends TaxsJsonHelper(aTSRawDataTransformer, atsCalculationsFactory)
 
   "hasAtsForPreviousPeriod" must {
 

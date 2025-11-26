@@ -16,15 +16,12 @@
 
 package sa.connectors
 
-import cats.data.EitherT
-import cats.instances.future.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.ATSModule
 import common.connectors.ConnectorSpec
-import common.models.admin.SelfAssessmentDetailsFromIfToggle
 import common.utils.TestConstants.*
 import common.utils.{BaseSpec, WireMockHelper}
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.reset
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -32,7 +29,6 @@ import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpResponse, RequestId, SessionId, UpstreamErrorResponse}
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with WireMockHelper {
@@ -60,12 +56,6 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockFeatureFlagService)
-    when(
-      mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SelfAssessmentDetailsFromIfToggle))
-    ) thenReturn EitherT.rightT(
-      FeatureFlag(SelfAssessmentDetailsFromIfToggle, isEnabled = false)
-    )
-    ()
   }
 
   lazy val sut: SelfAssessmentODSConnector = inject[SelfAssessmentODSConnector]
@@ -86,41 +76,11 @@ class SelfAssessmentODSConnectorTest extends BaseSpec with ConnectorSpec with Wi
 
     val url = s"/self-assessment/individuals/$testUtr/annual-tax-summaries/$taxYear"
 
-    "use IF" when {
-
-      "SelfAssessmentDetailsFromIfToggle is on" in {
-        when(
-          mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SelfAssessmentDetailsFromIfToggle))
-        ) thenReturn EitherT.rightT(
-          FeatureFlag(SelfAssessmentDetailsFromIfToggle, isEnabled = true)
-        )
-
-        stubGet(url, OK, Some(json.toString()))
-
-        val result = sut.connectToSelfAssessment(testUtr, taxYear).value
-
-        whenReady(result) {
-          _.map(_.json) mustBe Right(json)
-        }
-
-        server.verify(
-          getRequestedFor(urlEqualTo(url))
-            .withHeader("Environment", equalTo("if-env"))
-            .withHeader("Authorization", equalTo("Bearer if-bearer"))
-            .withHeader("OriginatorId", equalTo("if-origin"))
-            .withHeader(
-              "CorrelationId",
-              matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
-            )
-        )
-      }
-    }
-
     "return json" when {
 
       "200 is returned" in {
 
-        stubGet(url, OK, Some(json.toString()))
+        stubGet(url, OK, Some(json.toString))
 
         val result = sut.connectToSelfAssessment(testUtr, taxYear).value
 

@@ -18,7 +18,7 @@ package common.config
 
 import com.google.inject.Inject
 import com.typesafe.config.ConfigObject
-import common.models.Item
+import common.models.{Item, Rate}
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -64,7 +64,13 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
     }
   }
 
-  def ratePercentages(year: Int): Map[String, Double] = defaultRatePercentages ++ ratePercentagesByYear(year)
+  def taxRates(year: Int): Map[String, Rate] = {
+    val ratesInclDefaults = defaultRatePercentages ++ ratePercentagesByYear(year)
+    val rates             = ratesInclDefaults.iterator.map { t =>
+      t._1 -> Rate(t._2)
+    }
+    rates.toMap
+  }
 
   def governmentSpend(year: Int): Seq[Item] = governmentSpendByYear(year)
 

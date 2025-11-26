@@ -16,7 +16,7 @@
 
 package common.config
 
-import common.models.Item
+import common.models.{Item, Rate}
 import common.utils.BaseSpec
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -57,15 +57,23 @@ class ApplicationConfigSpec extends BaseSpec {
     appWithConfig(percentageRates ++ governmentSpend)
   }
 
-  "calling ratePercentages" must {
+  "calling taxRates" must {
     "return default percentage rates when no overriding year" in {
       applicationConfig
-        .ratePercentages(2021) mustBe Map("percentageRate1" -> 10, "percentageRate2" -> 20, "percentageRate3" -> 30)
+        .taxRates(2021) mustBe Map(
+        "percentageRate1" -> Rate(10),
+        "percentageRate2" -> Rate(20),
+        "percentageRate3" -> Rate(30)
+      )
     }
 
     "return default percentage but override where later year uprates" in {
       applicationConfig
-        .ratePercentages(2022) mustBe Map("percentageRate1" -> 10, "percentageRate2" -> 60, "percentageRate3" -> 30)
+        .taxRates(2022) mustBe Map(
+        "percentageRate1" -> Rate(10),
+        "percentageRate2" -> Rate(60),
+        "percentageRate3" -> Rate(30)
+      )
     }
   }
 
