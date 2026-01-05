@@ -33,7 +33,6 @@ class GetPayeAtsDataSpec extends IntegrationSpec {
   "Get Paye Ats Data" must {
     "return OK for a valid user" in {
       val payeAtsJson = FileHelper.loadFile("paye/payeAtsData.json")
-      println("\nMOCKED=" + npsAtsDataUrl)
       server.stubFor(WireMock.get(urlEqualTo(npsAtsDataUrl)).willReturn(ok(payeAtsJson)))
 
       val result = route(fakeApplication(), request)
