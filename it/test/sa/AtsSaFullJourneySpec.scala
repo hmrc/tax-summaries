@@ -29,16 +29,17 @@ import sa.models.*
 class AtsSaFullJourneySpec extends SaTestHelper {
   val taxPayerFile = "sa/taxPayerDetails.json"
 
-  "/:UTR/:TAX_YEAR/ats-data" must {
+  private def odsUrl(taxYear: Int): String        = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+  private def apiUrlAtsData(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+  private def apiUrlAtsList(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
+  private val odsUrlList                          = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+  private val apiUrlHasSummary                    = s"/taxs/$utr/has_summary_for_previous_period"
+
+  s"GET on ${apiUrlAtsData(taxYear)}" must {
     "return each section in the middle tier data returned including gov spending data and tax data for latest tax year" in {
-      val taxYear = 2025
-
-      def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-      def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
-
-      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
-        .withHeaders((AUTHORIZATION, "Bearer 123"))
+      val taxYear                                      = 2025
+      def request: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest(GET, apiUrlAtsData(taxYear)).withHeaders((AUTHORIZATION, "Bearer 123"))
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrl(taxYear)))
@@ -57,11 +58,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       s"handle 4xx error response $errStatus correctly as internal server error" in {
         val taxYear = 2025
 
-        def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-        def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
-
-        def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+        def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrlAtsData(taxYear))
           .withHeaders((AUTHORIZATION, "Bearer 123"))
 
         server.stubFor(
@@ -77,11 +74,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     "handle 4xx error response 404 correctly as internal server error" in {
       val taxYear = 2025
 
-      def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-      def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
-
-      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrlAtsData(taxYear))
         .withHeaders((AUTHORIZATION, "Bearer 123"))
 
       server.stubFor(
@@ -98,11 +91,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
         s"handle 5xx error response $errStatus correctly as bad gateway" in {
           val taxYear = 2025
 
-          def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-          def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
-
-          def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+          def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrlAtsData(taxYear))
             .withHeaders((AUTHORIZATION, "Bearer 123"))
 
           server.stubFor(
@@ -118,13 +107,8 @@ class AtsSaFullJourneySpec extends SaTestHelper {
 
   "/:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list" must {
     "return each section in the middle tier data returned including gov spending data and tax data for latest tax year" in {
-      val taxYear = 2025
-
-      def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-      def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
-
-      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+      val taxYear                                      = 2025
+      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrlAtsList(taxYear))
         .withHeaders((AUTHORIZATION, "Bearer 123"))
       server.stubFor(
         WireMock
@@ -146,13 +130,8 @@ class AtsSaFullJourneySpec extends SaTestHelper {
 
     List(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, CONFLICT, PRECONDITION_FAILED).foreach { errStatus =>
       s"handle 4xx error response $errStatus correctly returning empty list" in {
-        val taxYear = 2025
-
-        def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-        def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
-
-        def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+        val taxYear                                      = 2025
+        def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrlAtsList(taxYear))
           .withHeaders((AUTHORIZATION, "Bearer 123"))
 
         server.stubFor(
@@ -178,13 +157,8 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     List(INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT).foreach {
       errStatus =>
         s"handle 5xx error response $errStatus correctly as bad gateway" in {
-          val taxYear = 2025
-
-          def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-          def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
-
-          def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+          val taxYear                                      = 2025
+          def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrlAtsList(taxYear))
             .withHeaders((AUTHORIZATION, "Bearer 123"))
 
           server.stubFor(
@@ -205,13 +179,8 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     }
 
     s"handle 4xx error response 404 correctly as not found" in {
-      val taxYear = 2025
-
-      def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
-
-      def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
-
-      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+      val taxYear                                      = 2025
+      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrlAtsList(taxYear))
         .withHeaders((AUTHORIZATION, "Bearer 123"))
 
       server.stubFor(
@@ -234,13 +203,11 @@ class AtsSaFullJourneySpec extends SaTestHelper {
 
   "/:UTR/has_summary_for_previous_period" must {
     "return an OK when data is retrieved from ODS" in {
-      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
       val request: FakeRequest[AnyContentAsEmpty.type] =
-        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+        FakeRequest(GET, apiUrlHasSummary).withHeaders((AUTHORIZATION, "Bearer 123"))
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrl))
+          .get(urlEqualTo(odsUrlList))
           .willReturn(ok(FileHelper.loadFile("paye/odsData.json")))
       )
 
@@ -249,13 +216,11 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     }
 
     "return NOT_FOUND when ODS returns NOT_FOUND response" in {
-      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
       val request: FakeRequest[AnyContentAsEmpty.type] =
-        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+        FakeRequest(GET, apiUrlHasSummary).withHeaders((AUTHORIZATION, "Bearer 123"))
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrl))
+          .get(urlEqualTo(odsUrlList))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
@@ -264,13 +229,11 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     }
 
     "return an exception when ODS returns an empty ok" in {
-      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
       val request: FakeRequest[AnyContentAsEmpty.type] =
-        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+        FakeRequest(GET, apiUrlHasSummary).withHeaders((AUTHORIZATION, "Bearer 123"))
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrl))
+          .get(urlEqualTo(odsUrlList))
           .willReturn(ok())
       )
 
@@ -286,13 +249,11 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       LOCKED
     ).foreach { httpResponse =>
       s"return an $httpResponse when data is retrieved from ODS" in {
-        val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-        val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
         val request: FakeRequest[AnyContentAsEmpty.type] =
-          FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+          FakeRequest(GET, apiUrlHasSummary).withHeaders((AUTHORIZATION, "Bearer 123"))
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrl))
+            .get(urlEqualTo(odsUrlList))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -307,13 +268,11 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       SERVICE_UNAVAILABLE
     ).foreach { httpResponse =>
       s"return an 502 when $httpResponse status is received from ODS" in {
-        val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-        val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
         val request: FakeRequest[AnyContentAsEmpty.type] =
-          FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+          FakeRequest(GET, apiUrlHasSummary).withHeaders((AUTHORIZATION, "Bearer 123"))
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrl))
+            .get(urlEqualTo(odsUrlList))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -323,13 +282,11 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     }
 
     s"return an 502 when ODS is timing out" in {
-      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
-      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
       val request: FakeRequest[AnyContentAsEmpty.type] =
-        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+        FakeRequest(GET, apiUrlHasSummary).withHeaders((AUTHORIZATION, "Bearer 123"))
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrl))
+          .get(urlEqualTo(odsUrlList))
           .willReturn(ok(FileHelper.loadFile("paye/odsData.json")).withFixedDelay(10000))
       )
 

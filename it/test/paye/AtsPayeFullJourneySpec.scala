@@ -27,15 +27,16 @@ class AtsPayeFullJourneySpec extends IntegrationSpec {
 
   private val npsAtsDataUrl = s"/individual/${nino.withoutSuffix}/tax-account/$taxYearMinusOne/annual-tax-summary"
 
-  val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
-  def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+  private val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
+  private def request: FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   override def beforeEach(): Unit = {
     server.resetAll()
     super.beforeEach()
   }
 
-  "Get Paye Ats Data" must {
+  s"GET on $apiUrl" must {
 
     "return an internal server error with an error message when NPS returns a BAD_REQUEST" in {
       server.stubFor(
