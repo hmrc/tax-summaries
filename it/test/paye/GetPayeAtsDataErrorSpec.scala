@@ -23,7 +23,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{status => getStatus, _}
 
 class GetPayeAtsDataErrorSpec extends IntegrationSpec {
-  val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"
+  val npsAtsDataUrl = s"/individual/${nino.withoutSuffix}/tax-account/$taxYearMinusOne/annual-tax-summary"
 
   val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
   def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
