@@ -17,7 +17,7 @@
 package sa
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.{ok, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
 import common.utils.FileHelper
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.AnyContentAsEmpty
@@ -51,6 +51,68 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       result.income_tax mustBe defined
       result.gov_spending mustBe defined
     }
+
+    List(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, CONFLICT, PRECONDITION_FAILED).foreach { errStatus =>
+      s"handle 4xx error response $errStatus correctly as internal server error" in {
+        val taxYear = 2025
+
+        def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+        def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+
+        def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+          .withHeaders((AUTHORIZATION, "Bearer 123"))
+
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(odsUrl(taxYear)))
+            .willReturn(aResponse().withStatus(errStatus))
+        )
+
+        status(route(app, request).get) mustBe INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "handle 4xx error response 404 correctly as internal server error" in {
+      val taxYear = 2025
+
+      def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+      def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+
+      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+        .withHeaders((AUTHORIZATION, "Bearer 123"))
+
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl(taxYear)))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      status(route(app, request).get) mustBe NOT_FOUND
+    }
+
+    List(INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT).foreach {
+      errStatus =>
+        s"handle 5xx error response $errStatus correctly as bad gateway" in {
+          val taxYear = 2025
+
+          def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+          def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/ats-data"
+
+          def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+            .withHeaders((AUTHORIZATION, "Bearer 123"))
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(odsUrl(taxYear)))
+              .willReturn(aResponse().withStatus(errStatus))
+          )
+
+          status(route(app, request).get) mustBe BAD_GATEWAY
+        }
+    }
   }
 
   "/:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list" must {
@@ -79,8 +141,93 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       val parsedResponse = Json.parse(result).as[JsObject]
       val parsedYearList = (parsedResponse \ "atsYearList").toOption.map(x => x.as[Seq[Int]])
       parsedYearList mustBe Some(Seq(taxYear - 1, taxYear))
-
-      assert(true)
     }
+
+    List(BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, CONFLICT, PRECONDITION_FAILED).foreach { errStatus =>
+      s"handle 4xx error response $errStatus correctly returning empty list" in {
+        val taxYear = 2025
+
+        def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+        def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
+
+        def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+          .withHeaders((AUTHORIZATION, "Bearer 123"))
+
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(odsUrl(taxYear)))
+            .willReturn(aResponse().withStatus(errStatus))
+        )
+
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(odsUrl(taxYear - 1)))
+            .willReturn(aResponse().withStatus(errStatus))
+        )
+
+        val result         = contentAsString(route(app, request).get)
+        val parsedResponse = Json.parse(result).as[JsObject]
+        val parsedYearList = (parsedResponse \ "atsYearList").toOption.map(x => x.as[Seq[Int]])
+        parsedYearList mustBe Some(Nil)
+
+      }
+    }
+
+    List(INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT).foreach {
+      errStatus =>
+        s"handle 5xx error response $errStatus correctly as bad gateway" in {
+          val taxYear = 2025
+
+          def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+          def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
+
+          def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+            .withHeaders((AUTHORIZATION, "Bearer 123"))
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(odsUrl(taxYear)))
+              .willReturn(aResponse().withStatus(errStatus))
+          )
+
+          server.stubFor(
+            WireMock
+              .get(urlEqualTo(odsUrl(taxYear - 1)))
+              .willReturn(aResponse().withStatus(errStatus))
+          )
+
+          status(route(app, request).get) mustBe BAD_GATEWAY
+
+        }
+    }
+
+    s"handle 4xx error response 404 correctly as not found" in {
+      val taxYear = 2025
+
+      def odsUrl(taxYear: Int): String = s"/self-assessment/individuals/" + utr + s"/annual-tax-summaries/$taxYear"
+
+      def apiUrl(taxYear: Int): String = s"/taxs/$utr/$taxYear/2/ats-list"
+
+      def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl(taxYear))
+        .withHeaders((AUTHORIZATION, "Bearer 123"))
+
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl(taxYear)))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl(taxYear - 1)))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      status(route(app, request).get) mustBe NOT_FOUND
+
+    }
+
   }
 }
