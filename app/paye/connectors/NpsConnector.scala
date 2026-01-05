@@ -82,7 +82,6 @@ class NpsConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val ninoWithoutSuffix = nino.take(8)
     featureFlagService.getAsEitherT(PayeDetailsFromHipToggle).flatMap { toggle =>
-
       val url =
         if (toggle.isEnabled) hipUrl(ninoWithoutSuffix, taxYear)
         else ifUrl(ninoWithoutSuffix, taxYear)
