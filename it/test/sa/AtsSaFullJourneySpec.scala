@@ -16,6 +16,7 @@
 
 package sa
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
 import common.utils.FileHelper
@@ -229,5 +230,111 @@ class AtsSaFullJourneySpec extends SaTestHelper {
 
     }
 
+  }
+
+  "/:UTR/has_summary_for_previous_period" must {
+    "return an OK when data is retrieved from ODS" in {
+      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
+      val request: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl))
+          .willReturn(ok(FileHelper.loadFile("paye/odsData.json")))
+      )
+
+      val result = route(app, request)
+      result.map(status) mustBe Some(OK)
+    }
+
+    "return NOT_FOUND when ODS returns NOT_FOUND response" in {
+      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
+      val request: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      val result = route(app, request)
+      result.map(status) mustBe Some(NOT_FOUND)
+    }
+
+    "return an exception when ODS returns an empty ok" in {
+      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
+      val request: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl))
+          .willReturn(ok())
+      )
+
+      val result = route(app, request)
+
+      whenReady(result.get.failed) { e =>
+        e mustBe a[MismatchedInputException]
+      }
+    }
+
+    List(
+      IM_A_TEAPOT,
+      LOCKED
+    ).foreach { httpResponse =>
+      s"return an $httpResponse when data is retrieved from ODS" in {
+        val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+        val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
+        val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(odsUrl))
+            .willReturn(aResponse().withStatus(httpResponse))
+        )
+
+        val result = route(app, request)
+        result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
+      }
+    }
+
+    List(
+      INTERNAL_SERVER_ERROR,
+      BAD_GATEWAY,
+      SERVICE_UNAVAILABLE
+    ).foreach { httpResponse =>
+      s"return an 502 when $httpResponse status is received from ODS" in {
+        val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+        val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
+        val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+        server.stubFor(
+          WireMock
+            .get(urlEqualTo(odsUrl))
+            .willReturn(aResponse().withStatus(httpResponse))
+        )
+
+        val result = route(app, request)
+        result.map(status) mustBe Some(BAD_GATEWAY)
+      }
+    }
+
+    s"return an 502 when ODS is timing out" in {
+      val odsUrl                                       = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+      val apiUrl                                       = s"/taxs/$utr/has_summary_for_previous_period"
+      val request: FakeRequest[AnyContentAsEmpty.type] =
+        FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+      server.stubFor(
+        WireMock
+          .get(urlEqualTo(odsUrl))
+          .willReturn(ok(FileHelper.loadFile("paye/odsData.json")).withFixedDelay(10000))
+      )
+
+      val result = route(app, request)
+      result.map(status) mustBe Some(BAD_GATEWAY)
+    }
   }
 }
