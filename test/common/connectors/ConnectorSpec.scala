@@ -18,8 +18,6 @@ package common.connectors
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.github.tomakehurst.wiremock.http.Fault
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -57,50 +55,5 @@ trait ConnectorSpec
 
     get(url).willReturn(response)
   }
-
-  def stubPost(
-    url: String,
-    responseStatus: Int,
-    requestBody: Option[String],
-    responseBody: Option[String]
-  ): StubMapping = server.stubFor {
-    val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON)
-    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
-
-    requestBody.fold(post(url).willReturn(response))(requestBody =>
-      post(url).withRequestBody(equalToJson(requestBody)).willReturn(response)
-    )
-  }
-
-  def stubWithFault(url: String, requestBody: Option[String], fault: Fault): StubMapping = server.stubFor {
-    val response = aResponse().withFault(fault)
-
-    requestBody.fold(any(urlEqualTo(url)).willReturn(response))(requestBody =>
-      any(urlEqualTo(url)).withRequestBody(equalToJson(requestBody)).willReturn(response)
-    )
-  }
-
-  def stubWithDelay(
-    url: String,
-    responseStatus: Int,
-    requestBody: Option[String],
-    responseBody: Option[String],
-    delay: Int
-  ): StubMapping = server.stubFor {
-    val baseResponse = aResponse().withStatus(responseStatus).withHeader(CONTENT_TYPE, JSON).withFixedDelay(delay)
-    val response     = responseBody.fold(baseResponse)(body => baseResponse.withBody(body))
-
-    requestBody.fold(any(urlEqualTo(url)).willReturn(response))(requestBody =>
-      any(urlEqualTo(url)).withRequestBody(equalToJson(requestBody)).willReturn(response)
-    )
-  }
-
-  def verifyCorrelationIdHeader(requestPattern: RequestPatternBuilder): Unit =
-    server.verify(
-      requestPattern.withHeader(
-        "Correlation-Id",
-        matching("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}")
-      )
-    )
 
 }
