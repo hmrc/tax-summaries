@@ -24,7 +24,6 @@ import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 
 import java.time.temporal.ChronoUnit
 import java.time.{Duration, Instant}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[PayeAtsMiddleTierMongo] {
 

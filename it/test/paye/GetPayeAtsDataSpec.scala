@@ -21,10 +21,11 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualT
 import common.utils.{FileHelper, IntegrationSpec}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{status => getStatus, _}
+import play.api.test.Helpers.{status as getStatus, *}
 
 class GetPayeAtsDataSpec extends IntegrationSpec {
-  val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"
+
+  val npsAtsDataUrl = s"/individual/${nino.withoutSuffix}/tax-account/$taxYearMinusOne/annual-tax-summary"
 
   val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
   def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
@@ -32,6 +33,7 @@ class GetPayeAtsDataSpec extends IntegrationSpec {
   "Get Paye Ats Data" must {
     "return OK for a valid user" in {
       val payeAtsJson = FileHelper.loadFile("paye/payeAtsData.json")
+      println("\nMOCKED=" + npsAtsDataUrl)
       server.stubFor(WireMock.get(urlEqualTo(npsAtsDataUrl)).willReturn(ok(payeAtsJson)))
 
       val result = route(fakeApplication(), request)

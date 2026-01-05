@@ -20,12 +20,10 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, post, url
 import common.models.PertaxApiResponse
 import common.utils.IntegrationSpec
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.UpstreamErrorResponse
-
-import scala.concurrent.ExecutionContext
 
 class PertaxConnectorSpec extends IntegrationSpec {
 
@@ -41,9 +39,8 @@ class PertaxConnectorSpec extends IntegrationSpec {
 
   lazy val pertaxConnector: PertaxConnector =
     app.injector.instanceOf[PertaxConnector]
-  implicit lazy val ec: ExecutionContext    =
-    app.injector.instanceOf[ExecutionContext]
-  private val authoriseUrl: String          =
+
+  private val authoriseUrl: String =
     s"/pertax/authorise"
 
   "PertaxAuthConnector" should {
