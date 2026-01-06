@@ -20,6 +20,7 @@ import common.models.{Amount, Rate}
 import sa.calculations.ATSCalculations
 import sa.models.ODSLiabilities.ODSLiabilities.*
 import sa.models.SelfAssessmentAPIResponse
+import sa.models.TaxRate.{AdditionalRateIncomeTaxRate, BasicRateIncomeTaxRate, HigherRateIncomeTaxRate}
 
 trait ATSCalculations2021 extends ATSCalculations {
 
@@ -86,4 +87,30 @@ trait ATSCalculations2021 extends ATSCalculations {
     }
   }
 
+  override def basicRateIncomeTaxAmount: Amount =
+    get(IncomeTaxBasicRate) +
+      get(SavingsTaxLowerRate) +
+      includePensionTaxForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+
+  override def basicRateIncomeTax: Amount =
+    getWithDefaultAmount(IncomeChargeableBasicRate) +
+      get(SavingsChargeableLowerRate) +
+      includePensionIncomeForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+
+  override def higherRateIncomeTax: Amount =
+    getWithDefaultAmount(IncomeChargeableHigherRate) +
+      get(SavingsChargeableHigherRate) +
+      includePensionIncomeForRate(taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
+
+  override def additionalRateIncomeTax: Amount =
+    getWithDefaultAmount(IncomeChargeableAddHRate) +
+      get(SavingsChargeableAddHRate) +
+      includePensionIncomeForRate(taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
+
+  override def totalAmountEmployeeNic: Amount =
+    get(EmployeeClass1NI) +
+      get(EmployeeClass2NI) +
+      get(Class4Nic)
+
+  override def savingsRate: Amount = get(SavingsChargeableStartRate)
 }
