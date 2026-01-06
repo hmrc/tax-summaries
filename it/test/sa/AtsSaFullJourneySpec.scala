@@ -46,7 +46,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrlData))
-          .willReturn(ok(FileHelper.loadFile("sa/saFullJourney.json")))
+          .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
       val result: AtsMiddleTierData = resultToAtsData(route(app, getRequest(apiUrlAtsData)))
@@ -98,13 +98,13 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrlData))
-          .willReturn(ok(FileHelper.loadFile("sa/saFullJourney.json")))
+          .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrlDataPreviousYear))
-          .willReturn(ok(FileHelper.loadFile("sa/saFullJourney.json")))
+          .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
       val result         = contentAsString(route(app, getRequest(apiUrlAtsList)).get)
@@ -177,7 +177,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrlList))
-          .willReturn(ok(FileHelper.loadFile("paye/odsData.json")))
+          .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsListData.json")))
       )
 
       val result = route(app, getRequest(apiUrlHasSummary))
@@ -246,7 +246,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       server.stubFor(
         WireMock
           .get(urlEqualTo(odsUrlList))
-          .willReturn(ok(FileHelper.loadFile("paye/odsData.json")).withFixedDelay(10000))
+          .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsListData.json")).withFixedDelay(10000))
       )
 
       val result = route(app, getRequest(apiUrlHasSummary))

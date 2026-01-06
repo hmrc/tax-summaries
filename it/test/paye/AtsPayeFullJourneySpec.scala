@@ -104,7 +104,7 @@ class AtsPayeFullJourneySpec extends IntegrationSpec {
     }
 
     "return OK for a valid user" in {
-      val payeAtsJson = FileHelper.loadFile("paye/payeFullJourney.json")
+      val payeAtsJson = FileHelper.loadFile("paye/payeFullJourneyAtsData.json")
       server.stubFor(get(urlEqualTo(npsAtsDataUrl)).willReturn(ok(payeAtsJson)))
 
       val result = route(fakeApplication(), request)
