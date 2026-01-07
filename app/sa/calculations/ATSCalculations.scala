@@ -21,7 +21,7 @@ import play.api.Logging
 import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
-import sa.models.TaxRate.{AdditionalRateIncomeTaxRate, BasicRateIncomeTaxRate, HigherRateIncomeTaxRate}
+import sa.models.TaxRate.{AdditionalRateIncomeTaxRate, HigherRateIncomeTaxRate}
 import sa.transformers.ATSParsingException
 import sa.utils.DoubleUtils
 
@@ -100,15 +100,9 @@ trait ATSCalculations extends DoubleUtils with Logging {
       get(PersonalAllowance) -
       getWithDefaultAmount(MarriageAllceOut)
 
-  def totalAmountEmployeeNic: Amount =
-    get(EmployeeClass1NI) +
-      get(EmployeeClass2NI) +
-      get(Class4Nic)
+  def totalAmountEmployeeNic: Amount
 
-  def basicRateIncomeTaxAmount: Amount =
-    get(IncomeTaxBasicRate) +
-      get(SavingsTaxLowerRate) +
-      includePensionTaxForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+  def basicRateIncomeTaxAmount: Amount
 
   def higherRateIncomeTaxAmount: Amount =
     get(IncomeTaxHigherRate) +
@@ -199,20 +193,11 @@ trait ATSCalculations extends DoubleUtils with Logging {
     totalAmountTaxAndNics +
       totalCapitalGainsTax
 
-  def basicRateIncomeTax: Amount =
-    getWithDefaultAmount(IncomeChargeableBasicRate) +
-      get(SavingsChargeableLowerRate) +
-      includePensionIncomeForRate(taxRates.getOrElse(BasicRateIncomeTaxRate, Rate.empty))
+  def basicRateIncomeTax: Amount
 
-  def higherRateIncomeTax: Amount =
-    getWithDefaultAmount(IncomeChargeableHigherRate) +
-      get(SavingsChargeableHigherRate) +
-      includePensionIncomeForRate(taxRates.getOrElse(HigherRateIncomeTaxRate, Rate.empty))
+  def higherRateIncomeTax: Amount
 
-  def additionalRateIncomeTax: Amount =
-    getWithDefaultAmount(IncomeChargeableAddHRate) +
-      get(SavingsChargeableAddHRate) +
-      includePensionIncomeForRate(taxRates.getOrElse(AdditionalRateIncomeTaxRate, Rate.empty))
+  def additionalRateIncomeTax: Amount
 
   def scottishIncomeTax: Amount
 
@@ -227,7 +212,7 @@ trait ATSCalculations extends DoubleUtils with Logging {
   def nicsAndTaxPerCurrency: Amount =
     taxPerTaxableCurrencyUnit(totalAmountTaxAndNics, totalIncomeBeforeTax)
 
-  def savingsRate: Amount = get(SavingsChargeableStartRate)
+  def savingsRate: Amount
 
   def savingsRateAmount: Amount = get(SavingsTaxStartingRate)
 

@@ -110,5 +110,48 @@ class ATSCalculations2021Test extends BaseSpec {
       )
 
     }
+
+    "calculate basicRateIncomeTaxAmount" in {
+      sut(taxSummaryLiability).basicRateIncomeTaxAmount mustBe Amount(
+        497.70,
+        "GBP",
+        Some("372.00(ctnIncomeTaxBasicRate) + 2.30(ctnSavingsTaxLowerRate) + 123.40(ctnPensionLsumTaxDueAmt)")
+      )
+    }
+
+    "calculate basicRateIncomeTax" in {
+      sut(taxSummaryLiability).basicRateIncomeTax mustBe Amount(
+        1878.19,
+        "GBP",
+        Some("1860.00(ctnIncomeChgbleBasicRate) + 5.05(ctnSavingsChgbleLowerRate) + 13.14(itfStatePensionLsGrossAmt)")
+      )
+    }
+
+    "calculate higherRateIncomeTax" in {
+      sut(taxSummaryLiability).higherRateIncomeTax mustBe Amount(
+        7.58,
+        "GBP",
+        Some("5.23(ctnIncomeChgbleHigherRate) + 2.35(ctnSavingsChgbleHigherRate) + null (itfStatePensionLsGrossAmt)")
+      )
+    }
+
+    "calculate additionalRateIncomeTax" in {
+      sut(taxSummaryLiability).additionalRateIncomeTax mustBe Amount(
+        58.74,
+        "GBP",
+        Some("3.22(ctnIncomeChgbleAddHRate) + 55.52(ctnSavingsChgbleAddHRate) + null (itfStatePensionLsGrossAmt)")
+      )
+    }
+    "calculate totalAmountEmployeeNic" in {
+      sut(taxSummaryLiability).totalAmountEmployeeNic mustBe Amount(
+        233.33,
+        "GBP",
+        Some("100.00(employeeClass1Nic) + 100.00(employeeClass2Nic) + 33.33(class4Nic)")
+      )
+    }
+    "calculate savingsRate" in {
+      sut(taxSummaryLiability).savingsRate mustBe Amount(11.10, "GBP", Some("11.10(ctnSavingsChgbleStartRate)"))
+    }
+
   }
 }

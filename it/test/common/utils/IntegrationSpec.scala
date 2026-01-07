@@ -16,12 +16,17 @@
 
 package common.utils
 
+import cats.data.EitherT
+import cats.instances.future.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.ATSModule
+import common.models.admin.PayeDetailsFromHipToggle
 import org.apache.pekko.Done
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.cache.AsyncCacheApi
@@ -30,9 +35,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import sa.connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
 import uk.gov.hmrc.domain.{Nino, NinoGenerator, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
-import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 /** GET /:UTR/:TAX_YEAR/ats-data controllers.AtsSaDataController.getATSData(UTR: String, TAX_YEAR: Int) GET
@@ -52,7 +59,7 @@ trait IntegrationSpec
     with ScalaFutures
     with IntegrationPatience {
 
-  val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
+  protected val mockCacheApi: AsyncCacheApi = new AsyncCacheApi {
     override def set(key: String, value: Any, expiration: Duration): Future[Done] = Future.successful(Done)
 
     override def remove(key: String): Future[Done] = Future.successful(Done)
@@ -65,6 +72,9 @@ trait IntegrationSpec
 
     override def removeAll(): Future[Done] = Future.successful(Done)
   }
+
+  protected implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+
   override def beforeEach(): Unit = {
     super.beforeEach()
 
@@ -103,8 +113,12 @@ trait IntegrationSpec
       post(urlEqualTo("/pertax/authorise"))
         .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
     )
+    when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromHipToggle))) thenReturn
+      EitherT.rightT(FeatureFlag(PayeDetailsFromHipToggle, isEnabled = true))
     ()
   }
+
+  protected lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
@@ -112,7 +126,8 @@ trait IntegrationSpec
       .overrides(
         bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector],
         bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
-        bind[AsyncCacheApi].toInstance(mockCacheApi)
+        bind[AsyncCacheApi].toInstance(mockCacheApi),
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),
@@ -131,10 +146,10 @@ trait IntegrationSpec
       )
       .build()
 
-  val nino: Nino        = new NinoGenerator().nextNino
-  val utr: SaUtr        = new SaUtrGenerator().nextSaUtr
-  val hc: HeaderCarrier = HeaderCarrier()
+  protected val nino: Nino        = new NinoGenerator().nextNino
+  protected val utr: SaUtr        = new SaUtrGenerator().nextSaUtr
+  protected val hc: HeaderCarrier = HeaderCarrier()
 
-  val taxYear: Int         = 2047
-  val taxYearMinusOne: Int = 2047 - 1
+  protected val taxYear: Int         = 2047
+  protected val taxYearMinusOne: Int = 2047 - 1
 }

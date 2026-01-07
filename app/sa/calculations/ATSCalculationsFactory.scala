@@ -53,6 +53,7 @@ class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
     val factoryFor2021Scotland = new ATSCalculationsScottish2021(_, _)
     val factoryFor2021Wales    = new ATSCalculationsWelsh2021(_, _)
 
+    // Tax year below is the year the tax year ENDs (not starts) since this is what comes back from API.
     Map(
       (uk, 2025)       -> factoryFor2025UK,
       (scotland, 2025) -> factoryFor2025Scotland,

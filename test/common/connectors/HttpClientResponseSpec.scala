@@ -17,7 +17,7 @@
 package common.connectors
 
 import cats.data.EitherT
-import common.utils.{BaseSpec, WireMockHelper}
+import common.utils.BaseSpec
 import org.scalatest.RecoverMethods
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logging
@@ -29,7 +29,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HttpClientResponseSpec
     extends BaseSpec
-    with WireMockHelper
     with ScalaFutures
     with IntegrationPatience
     with RecoverMethods

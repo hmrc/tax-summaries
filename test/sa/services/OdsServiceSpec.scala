@@ -60,6 +60,14 @@ class OdsServiceSpec extends BaseSpec {
       )
       override val taxRates: Map[String, Rate]                                    = Map.empty
 
+      override def basicRateIncomeTaxAmount: Amount = Amount.empty("Dummy basicRateIncomeTaxAmount")
+
+      override def additionalRateIncomeTax: common.models.Amount = Amount.empty("Dummy additionalRateIncomeTax")
+      override def basicRateIncomeTax: common.models.Amount      = Amount.empty("Dummy basicRateIncomeTax")
+      override def higherRateIncomeTax: common.models.Amount     = Amount.empty("Dummy higherRateIncomeTax")
+      override def savingsRate: common.models.Amount             = Amount.empty("Dummy savingsRate")
+      override def totalAmountEmployeeNic: common.models.Amount  = Amount.empty("Dummy totalAmountEmployeeNic")
+
       override def taxLiability: Amount = Amount(amount, "GBP")
 
       override def otherIncome: Amount = Amount.empty("Dummy other income amount")

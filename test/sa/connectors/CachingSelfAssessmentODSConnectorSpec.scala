@@ -19,13 +19,14 @@ package sa.connectors
 import cats.data.EitherT
 import cats.instances.future.*
 import common.config.ApplicationConfig
-import common.connectors.ConnectorSpec
-import common.utils.{BaseSpec, WireMockHelper}
+import common.utils.BaseSpec
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
+import play.api
 import play.api.Application
-import play.api.inject.bind
+import play.api.http.Status.OK
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import sa.repositories.TaxSummariesSessionCacheRepository
@@ -34,22 +35,24 @@ import uk.gov.hmrc.mongo.cache.DataKey
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec with WireMockHelper {
+class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
 
   val mockSelfAssessmentODSConnector: SelfAssessmentODSConnector     = mock[SelfAssessmentODSConnector]
   val mockSessionCacheRepository: TaxSummariesSessionCacheRepository = mock[TaxSummariesSessionCacheRepository]
   private val mockAppConfig                                          = mock[ApplicationConfig]
 
-  override implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
+  private implicit lazy val ec: ExecutionContext = inject[ExecutionContext]
 
-  override implicit lazy val app: Application = app(
-    Map("microservice.services.agent-client-authorisation.port" -> server.port()),
-    bind(classOf[SelfAssessmentODSConnector])
-      .qualifiedWith("default")
-      .toInstance(mockSelfAssessmentODSConnector),
-    bind[TaxSummariesSessionCacheRepository].toInstance(mockSessionCacheRepository),
-    bind[ApplicationConfig].toInstance(mockAppConfig)
-  )
+  private lazy val appn: Application = new GuiceApplicationBuilder()
+    .overrides(
+      api.inject
+        .bind(classOf[SelfAssessmentODSConnector])
+        .qualifiedWith("default")
+        .toInstance(mockSelfAssessmentODSConnector),
+      api.inject.bind[TaxSummariesSessionCacheRepository].toInstance(mockSessionCacheRepository),
+      api.inject.bind[ApplicationConfig].toInstance(mockAppConfig)
+    )
+    .build()
 
   override def beforeEach(): Unit = {
     reset(mockSelfAssessmentODSConnector)
@@ -59,11 +62,9 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec with ConnectorSpec 
     ()
   }
 
-  def connector: CachingSelfAssessmentODSConnector = inject[CachingSelfAssessmentODSConnector]
+  private def connector: CachingSelfAssessmentODSConnector = appn.injector.instanceOf[CachingSelfAssessmentODSConnector]
 
-  val url = "/agent-client-authorisation/status"
-
-  implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  private implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
   "Calling CachingSelfAssessmentODSConnectorSpec.connectToSelfAssessment" must {
     "return a Right response" when {

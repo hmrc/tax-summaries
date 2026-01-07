@@ -19,7 +19,6 @@ package sa.calculations
 import common.config.ApplicationConfig
 import common.models.{Amount, Rate}
 import common.utils.BaseSpec
-import sa.calculations.ATS2024.{ATSCalculationsScottish2024, ATSCalculationsUK2024, ATSCalculationsWelsh2024}
 import sa.calculations.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
 import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
@@ -134,40 +133,31 @@ class ATSCalculationsFactorySpec extends BaseSpec {
         calculation.map(_ mustBe a[ATSCalculationsWelsh2025])
       }
     }
-    "return the correct calculations class for nationality when year is 2024" when {
-      "country is UK" in {
-        val calculation = new Fixture(2024, UK())().calculation
-        calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsUK2024])
-      }
-      "country is Scotland" in {
-        val calculation = new Fixture(2024, Scottish())().calculation
-        calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsScottish2024])
-      }
-      "country is Wales" in {
-        val calculation = new Fixture(2024, Welsh())().calculation
-        calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsWelsh2024])
-      }
-    }
-    "return the correct calculations class for nationality when year is 2025" when {
-      "country is UK" in {
-        val calculation = new Fixture(2025, UK())().calculation
-        calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsUK2025])
-      }
-      "country is Scotland" in {
-        val calculation = new Fixture(2025, Scottish())().calculation
-        calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsScottish2025])
-      }
-      "country is Wales" in {
-        val calculation = new Fixture(2025, Welsh())().calculation
-        calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsWelsh2025])
+
+    val currentTaxYear = fakeTaxYear + 1 // End year for tax year comes back from API
+    (currentTaxYear - 4 to currentTaxYear).foreach { taxYear =>
+      s"return the correct calculations class for nationality when year is $taxYear" when {
+        "country is UK (i.e. England)" in {
+          val calculation = new Fixture(taxYear, UK())().calculation
+          calculation.isDefined mustBe true
+          val className   = calculation.map(_.getClass.getName).getOrElse("")
+          className.endsWith(s"ATSCalculationsUK$taxYear") mustBe true
+        }
+        "country is Scotland" in {
+          val calculation = new Fixture(taxYear, Scottish())().calculation
+          calculation.isDefined mustBe true
+          val className   = calculation.map(_.getClass.getName).getOrElse("")
+          className.endsWith(s"ATSCalculationsScottish$taxYear") mustBe true
+        }
+        "country is Wales" in {
+          val calculation = new Fixture(taxYear, Welsh())().calculation
+          calculation.isDefined mustBe true
+          val className   = calculation.map(_.getClass.getName).getOrElse("")
+          className.endsWith(s"ATSCalculationsWelsh$taxYear") mustBe true
+        }
       }
     }
+
   }
 
 }

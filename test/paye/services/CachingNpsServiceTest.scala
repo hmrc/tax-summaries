@@ -23,6 +23,7 @@ import common.utils.BaseSpec
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.mockito.{ArgumentCaptor, Mockito}
+import org.scalatest.time.{Millis, Seconds, Span}
 import paye.models.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import paye.repositories.Repository
 import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, NOT_FOUND}
@@ -35,7 +36,9 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
 class CachingNpsServiceTest extends BaseSpec {
-  val IM_A_TEAPOT = 418
+  implicit val defaultPatience: PatienceConfig =
+    PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
+  val IM_A_TEAPOT                              = 418
 
   val repository: Repository         = mock[Repository]
   val innerService: DirectNpsService = mock[DirectNpsService]

@@ -140,6 +140,6 @@ class ATSRawDataTransformerEnglandSpec extends BaseSpec with ATSRawDataTransform
   }
 }
 
-protected trait ATSRawDataTransformerTestFixtureEngland extends ATSRawDataTransformerTestFixtureBase {
+trait ATSRawDataTransformerTestFixtureEngland extends ATSRawDataTransformerTestFixtureBase {
   override protected val incomeTaxStatus: String = "0001"
 }

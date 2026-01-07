@@ -16,19 +16,28 @@
 
 package paye
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlEqualTo}
-import common.utils.IntegrationSpec
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, ok, urlEqualTo}
+import common.utils.{FileHelper, IntegrationSpec}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{status => getStatus, _}
+import play.api.test.Helpers.{status as getStatus, *}
 
-class GetPayeAtsDataErrorSpec extends IntegrationSpec {
-  val npsAtsDataUrl = s"/individuals/annual-tax-summary/${nino.withoutSuffix}/$taxYearMinusOne"
+class AtsPayeFullJourneySpec extends IntegrationSpec {
 
-  val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
-  def request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+  private val npsAtsDataUrl = s"/individual/${nino.withoutSuffix}/tax-account/$taxYearMinusOne/annual-tax-summary"
 
-  "Get Paye Ats Data" must {
+  private val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
+  private def request: FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest(GET, apiUrl).withHeaders((AUTHORIZATION, "Bearer 123"))
+
+  override def beforeEach(): Unit = {
+    server.resetAll()
+    super.beforeEach()
+  }
+
+  s"GET on $apiUrl" must {
+
     "return an internal server error with an error message when NPS returns a BAD_REQUEST" in {
       server.stubFor(
         get(urlEqualTo(npsAtsDataUrl)).willReturn(
@@ -93,5 +102,21 @@ class GetPayeAtsDataErrorSpec extends IntegrationSpec {
         message must include("teapot body")
       }
     }
+
+    "return OK for a valid user" in {
+      val payeAtsJson = FileHelper.loadFile("paye/payeFullJourneyAtsData.json")
+      server.stubFor(get(urlEqualTo(npsAtsDataUrl)).willReturn(ok(payeAtsJson)))
+
+      val result = route(fakeApplication(), request)
+      result.map(getStatus) mustBe Some(OK)
+    }
+
+    "additional calls to the same API will return the cached value and the same result" in {
+      server.stubFor(get(urlEqualTo(npsAtsDataUrl)).willReturn(aResponse().withStatus(BAD_REQUEST)))
+
+      val result = route(fakeApplication(), request)
+      result.map(getStatus) mustBe Some(OK)
+    }
+
   }
 }
