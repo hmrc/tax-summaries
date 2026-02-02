@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
 import common.utils.FileHelper
+import play.api.Application
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -41,6 +42,8 @@ class AtsSaFullJourneySpec extends SaTestHelper {
   private def getRequest(url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withHeaders((AUTHORIZATION, "Bearer 123"))
 
+  private lazy val appn: Application = fakeApplication()
+
   s"GET on $apiUrlAtsData"    must {
     "return each section in the middle tier data returned including gov spending data and tax data for latest tax year" in {
       server.stubFor(
@@ -49,7 +52,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
-      val result: AtsMiddleTierData = resultToAtsData(route(app, getRequest(apiUrlAtsData)))
+      val result: AtsMiddleTierData = resultToAtsData(route(appn, getRequest(apiUrlAtsData)))
       result.income_data mustBe defined
       result.allowance_data mustBe defined
       result.capital_gains_data mustBe defined
@@ -65,7 +68,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
             .willReturn(aResponse().withStatus(errStatus))
         )
 
-        status(route(app, getRequest(apiUrlAtsData)).get) mustBe INTERNAL_SERVER_ERROR
+        status(route(appn, getRequest(apiUrlAtsData)).get) mustBe INTERNAL_SERVER_ERROR
       }
     }
 
@@ -76,7 +79,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      status(route(app, getRequest(apiUrlAtsData)).get) mustBe NOT_FOUND
+      status(route(appn, getRequest(apiUrlAtsData)).get) mustBe NOT_FOUND
     }
 
     List(INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT).foreach {
@@ -88,7 +91,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
               .willReturn(aResponse().withStatus(errStatus))
           )
 
-          status(route(app, getRequest(apiUrlAtsData)).get) mustBe BAD_GATEWAY
+          status(route(appn, getRequest(apiUrlAtsData)).get) mustBe BAD_GATEWAY
         }
     }
   }
@@ -107,7 +110,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
-      val result         = contentAsString(route(app, getRequest(apiUrlAtsList)).get)
+      val result         = contentAsString(route(appn, getRequest(apiUrlAtsList)).get)
       val parsedResponse = Json.parse(result).as[JsObject]
       val parsedYearList = (parsedResponse \ "atsYearList").toOption.map(x => x.as[Seq[Int]])
       parsedYearList mustBe Some(Seq(taxYear - 1, taxYear))
@@ -127,7 +130,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
             .willReturn(aResponse().withStatus(errStatus))
         )
 
-        val result         = contentAsString(route(app, getRequest(apiUrlAtsList)).get)
+        val result         = contentAsString(route(appn, getRequest(apiUrlAtsList)).get)
         val parsedResponse = Json.parse(result).as[JsObject]
         val parsedYearList = (parsedResponse \ "atsYearList").toOption.map(x => x.as[Seq[Int]])
         parsedYearList mustBe Some(Nil)
@@ -150,7 +153,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
               .willReturn(aResponse().withStatus(errStatus))
           )
 
-          status(route(app, getRequest(apiUrlAtsList)).get) mustBe BAD_GATEWAY
+          status(route(appn, getRequest(apiUrlAtsList)).get) mustBe BAD_GATEWAY
 
         }
     }
@@ -168,7 +171,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      status(route(app, getRequest(apiUrlAtsList)).get) mustBe NOT_FOUND
+      status(route(appn, getRequest(apiUrlAtsList)).get) mustBe NOT_FOUND
     }
   }
 
@@ -180,7 +183,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsListData.json")))
       )
 
-      val result = route(app, getRequest(apiUrlHasSummary))
+      val result = route(appn, getRequest(apiUrlHasSummary))
       result.map(status) mustBe Some(OK)
     }
 
@@ -191,7 +194,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      val result = route(app, getRequest(apiUrlHasSummary))
+      val result = route(appn, getRequest(apiUrlHasSummary))
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
@@ -202,7 +205,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(ok())
       )
 
-      val result = route(app, getRequest(apiUrlHasSummary))
+      val result = route(appn, getRequest(apiUrlHasSummary))
 
       whenReady(result.get.failed) { e =>
         e mustBe a[MismatchedInputException]
@@ -220,7 +223,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val result = route(app, getRequest(apiUrlHasSummary))
+        val result = route(appn, getRequest(apiUrlHasSummary))
         result.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       }
     }
@@ -237,7 +240,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
-        val result = route(app, getRequest(apiUrlHasSummary))
+        val result = route(appn, getRequest(apiUrlHasSummary))
         result.map(status) mustBe Some(BAD_GATEWAY)
       }
     }
@@ -249,7 +252,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsListData.json")).withFixedDelay(10000))
       )
 
-      val result = route(app, getRequest(apiUrlHasSummary))
+      val result = route(appn, getRequest(apiUrlHasSummary))
       result.map(status) mustBe Some(BAD_GATEWAY)
     }
   }

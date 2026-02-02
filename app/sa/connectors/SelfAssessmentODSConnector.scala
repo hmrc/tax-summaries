@@ -23,6 +23,7 @@ import com.google.inject.{Inject, Singleton}
 import common.config.ApplicationConfig
 import common.connectors.HttpClientResponse
 import common.models.HttpResponseJsonFormat.given
+import common.models.admin.SaDetailsFromHipToggle
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.Format
@@ -32,8 +33,10 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
+import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
-import java.util.UUID
+import java.nio.charset.StandardCharsets
+import java.util.{Base64, UUID}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SelfAssessmentODSConnector {
@@ -128,14 +131,11 @@ class CachingSelfAssessmentODSConnector @Inject() (
 class DefaultSelfAssessmentODSConnector @Inject() (
   http: HttpClientV2,
   applicationConfig: ApplicationConfig,
-  httpClientResponse: HttpClientResponse
+  httpClientResponse: HttpClientResponse,
+  featureFlagService: FeatureFlagService
 )(implicit ec: ExecutionContext)
     extends SelfAssessmentODSConnector
     with Logging {
-
-  private def serviceUrl: String = applicationConfig.npsServiceUrl
-
-  private def desUrl(path: String): String = s"$serviceUrl$path"
 
   private def createHeader()(implicit hc: HeaderCarrier): Seq[(String, String)] =
     Seq(
@@ -150,31 +150,66 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       case _                                                => HttpReads[Either[UpstreamErrorResponse, A]]
     }
 
+  private val hipAuth = {
+    val clientId: String     = applicationConfig.hipClientIdSA
+    val clientSecret: String = applicationConfig.hipClientSecretSA
+    val token                = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes(StandardCharsets.UTF_8))
+    Seq(
+      HeaderNames.authorisation -> s"Basic $token"
+    )
+  }
+
+  private def desUrl(path: String): String = s"${applicationConfig.npsServiceUrl}$path"
+
+  private def hipUrl(path: String): String = ""
+  // s"${applicationConfig.hipBaseURL}/individual/$ninoWithoutSuffix/tax-account/$taxYear/annual-tax-summary"
+
+  private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
+    if (hipToggle)
+      Seq(
+        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"        -> UUID.randomUUID().toString
+      ) ++ hipAuth
+    else
+      Seq(
+        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"        -> UUID.randomUUID().toString
+      )
+
   def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
+      val url =
+        if (toggle.isEnabled) hipUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
+        else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
 
-    val path = s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear"
-    val url  = desUrl(path)
-
-    httpClientResponse.readSA(
-      http
-        .get(url"$url")
-        .setHeader(createHeader(): _*)
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
-    )
+      httpClientResponse.readSA(
+        http
+          .get(url"$url")
+          .setHeader(createHeader(toggle.isEnabled): _*)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
+      )
+    }
 
   def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.readSA(
-      http
-        .get(url"${desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries")}")
-        .setHeader(createHeader(): _*)
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
-    )
+    featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
+      val url =
+        if (toggle.isEnabled) hipUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries")
+        else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries")
+      httpClientResponse.readSA(
+        http
+          .get(url"$url")
+          .setHeader(createHeader(): _*)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
+      )
+    }
 
   def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,

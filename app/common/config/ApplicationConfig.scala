@@ -104,5 +104,8 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
   val hipClientId: String           = servicesConfig.getConfString("hip-hod.clientId", "local")
   val hipClientSecret: String       = servicesConfig.getConfString("hip-hod.clientSecret", "local")
 
+  val hipClientIdSA: String     = servicesConfig.getConfString("hip-hod-sa.clientId", "local")
+  val hipClientSecretSA: String = servicesConfig.getConfString("hip-hod-sa.clientSecret", "local")
+
   lazy val appName: String = servicesConfig.getString("appName")
 }
