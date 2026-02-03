@@ -161,7 +161,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
 
   private def desUrl(path: String): String = s"${applicationConfig.npsServiceUrl}$path"
 
-  private def hipUrl(path: String): String = ""
+  private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURL}$path"
   // s"${applicationConfig.hipBaseURL}/individual/$ninoWithoutSuffix/tax-account/$taxYear/annual-tax-summary"
 
   private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =

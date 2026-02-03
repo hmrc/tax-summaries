@@ -116,7 +116,7 @@ trait IntegrationSpec
     when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromHipToggle))) thenReturn
       EitherT.rightT(FeatureFlag(PayeDetailsFromHipToggle, isEnabled = true))
     when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SaDetailsFromHipToggle))) thenReturn
-      EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = false))
+      EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = true))
     ()
   }
 
