@@ -48,14 +48,14 @@ class AtsSaFullJourneyToggleOffSpec extends SaTestHelper {
     FakeRequest(GET, url).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   private lazy val appn: Application = fakeApplication()
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit    = {
     super.beforeEach()
 
     when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SaDetailsFromHipToggle))) thenReturn
       EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = false))
 
     ()
-    
+
   }
   s"GET on $apiUrlAtsData"    must {
     "return each section in the middle tier data returned including gov spending data and tax data for latest tax year" in {
