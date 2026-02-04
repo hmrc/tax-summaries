@@ -162,7 +162,6 @@ class DefaultSelfAssessmentODSConnector @Inject() (
   private def desUrl(path: String): String = s"${applicationConfig.npsServiceUrl}$path"
 
   private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURLSA}$path"
-  // s"${applicationConfig.hipBaseURL}/individual/$ninoWithoutSuffix/tax-account/$taxYear/annual-tax-summary"
 
   private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
     if (hipToggle)
@@ -184,9 +183,8 @@ class DefaultSelfAssessmentODSConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
       val url =
-        if (toggle.isEnabled) hipUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
+        if (toggle.isEnabled) hipUrl(s"/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
         else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
-
       httpClientResponse.readSA(
         http
           .get(url"$url")
@@ -201,12 +199,12 @@ class DefaultSelfAssessmentODSConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
       val url =
-        if (toggle.isEnabled) hipUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries")
+        if (toggle.isEnabled) hipUrl(s"/v1/self-assessment/individuals/$utr/annual-tax-summaries")
         else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries")
       httpClientResponse.readSA(
         http
           .get(url"$url")
-          .setHeader(createHeader(): _*)
+          .setHeader(createHeader(toggle.isEnabled): _*)
           .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
       )
     }

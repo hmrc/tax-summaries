@@ -96,15 +96,14 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
   lazy val ifAuthorization: String = "Bearer " + servicesConfig.getConfString("if-hod.authorizationToken", "local")
   lazy val ifOriginatorId: String  = servicesConfig.getConfString("if-hod.originatorId", "")
 
-  private lazy val hipPath: String   = servicesConfig.getConfString("hip-hod.path", "")
-  lazy val hipBaseURL: String        = s"${servicesConfig.baseUrl("hip-hod")}$hipPath"
-  private lazy val hipPathSA: String = servicesConfig.getConfString("hip-hod-sa.path", "")
-  lazy val hipBaseURLSA: String      = s"${servicesConfig.baseUrl("hip-hod-sa")}$hipPathSA"
-  lazy val hipEnvironment: String    = servicesConfig.getConfString("hip-hod.env", "local")
-  lazy val hipAuthorization: String  = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
-  lazy val hipOriginatorId: String   = servicesConfig.getConfString("hip-hod.originatorId", "")
-  val hipClientId: String            = servicesConfig.getConfString("hip-hod.clientId", "local")
-  val hipClientSecret: String        = servicesConfig.getConfString("hip-hod.clientSecret", "local")
+  private lazy val hipPath: String  = servicesConfig.getConfString("hip-hod.path", "")
+  lazy val hipBaseURL: String       = s"${servicesConfig.baseUrl("hip-hod")}$hipPath"
+  lazy val hipBaseURLSA: String     = s"${servicesConfig.baseUrl("hip-hod-sa")}"
+  lazy val hipEnvironment: String   = servicesConfig.getConfString("hip-hod.env", "local")
+  lazy val hipAuthorization: String = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
+  lazy val hipOriginatorId: String  = servicesConfig.getConfString("hip-hod.originatorId", "")
+  val hipClientId: String           = servicesConfig.getConfString("hip-hod.clientId", "local")
+  val hipClientSecret: String       = servicesConfig.getConfString("hip-hod.clientSecret", "local")
 
   val hipClientIdSA: String     = servicesConfig.getConfString("hip-hod-sa.clientId", "local")
   val hipClientSecretSA: String = servicesConfig.getConfString("hip-hod-sa.clientSecret", "local")
