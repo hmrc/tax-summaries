@@ -96,8 +96,7 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
   lazy val ifAuthorization: String = "Bearer " + servicesConfig.getConfString("if-hod.authorizationToken", "local")
   lazy val ifOriginatorId: String  = servicesConfig.getConfString("if-hod.originatorId", "")
 
-  private lazy val hipPath: String  = servicesConfig.getConfString("hip-hod.path", "")
-  lazy val hipBaseURL: String       = s"${servicesConfig.baseUrl("hip-hod")}$hipPath"
+  lazy val hipBaseURL: String       = s"${servicesConfig.baseUrl("hip-hod")}"
   lazy val hipBaseURLSA: String     = s"${servicesConfig.baseUrl("hip-hod-sa")}"
   lazy val hipEnvironment: String   = servicesConfig.getConfString("hip-hod.env", "local")
   lazy val hipAuthorization: String = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
