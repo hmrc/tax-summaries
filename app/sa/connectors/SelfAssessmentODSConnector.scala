@@ -151,8 +151,8 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     }
 
   private val hipAuth = {
-    val clientId: String     = applicationConfig.hipClientIdSA
-    val clientSecret: String = applicationConfig.hipClientSecretSA
+    val clientId: String     = applicationConfig.hipClientId
+    val clientSecret: String = applicationConfig.hipClientSecret
     val token                = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes(StandardCharsets.UTF_8))
     Seq(
       HeaderNames.authorisation -> s"Basic $token"
