@@ -35,10 +35,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
   private val apiUrlAtsList: String = s"/taxs/$utr/$taxYear/2/ats-list"
   private val apiUrlHasSummary      = s"/taxs/$utr/has_summary_for_previous_period"
 
-  private val odsUrlData: String             = s"/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear"
+  private val odsUrlData: String             = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear"
   private val odsUrlDataPreviousYear: String =
-    s"/v1/self-assessment/individuals/$utr/annual-tax-summaries/${taxYear - 1}"
-  private val odsUrlList                     = s"/v1/self-assessment/individuals/$utr/annual-tax-summaries"
+    s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/${taxYear - 1}"
+  private val odsUrlList                     = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries"
 
   private def getRequest(url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withHeaders((AUTHORIZATION, "Bearer 123"))
