@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import sbt.*
 object AppDependencies {
 
   private val playVersion = "play-30"
-  private val hmrcMongoVersion = "2.10.0"
-  private val bootstrapVersion = "10.4.0"
+  private val hmrcMongoVersion = "2.12.0"
+  private val bootstrapVersion = "10.5.0"
 
   val compile: Seq[ModuleID] = Seq(
     filters,
@@ -30,7 +30,7 @@ object AppDependencies {
     "uk.gov.hmrc" %% s"domain-$playVersion" % "13.0.0",
     "org.typelevel" %% "cats-core" % "2.13.0",
     "uk.gov.hmrc" %% "tax-year" % "6.0.0",
-    "uk.gov.hmrc" %% s"mongo-feature-toggles-client-$playVersion" % "2.3.0"
+    "uk.gov.hmrc" %% s"mongo-feature-toggles-client-$playVersion" % "2.4.0"
   )
 
   val test: Seq[ModuleID] = Seq(
