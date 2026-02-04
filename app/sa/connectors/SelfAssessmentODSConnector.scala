@@ -166,9 +166,11 @@ class DefaultSelfAssessmentODSConnector @Inject() (
   private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
     if (hipToggle)
       Seq(
+        "Environment"          -> applicationConfig.hipEnvironment,
         HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
         HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
-        "CorrelationId"        -> UUID.randomUUID().toString
+        "CorrelationId"        -> UUID.randomUUID().toString,
+        "Gov-Uk-Originator-Id" -> applicationConfig.hipOriginatorId
       ) ++ hipAuth
     else
       Seq(
@@ -185,6 +187,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       val url =
         if (toggle.isEnabled) hipUrl(s"/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
         else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
+
       httpClientResponse.readSA(
         http
           .get(url"$url")
