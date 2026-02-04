@@ -161,7 +161,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
 
   private def desUrl(path: String): String = s"${applicationConfig.npsServiceUrl}$path"
 
-  private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURLSA}$path"
+  private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURL}$path"
 
   private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
     if (hipToggle)
