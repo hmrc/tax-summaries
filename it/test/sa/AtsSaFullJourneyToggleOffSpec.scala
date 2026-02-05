@@ -16,8 +16,8 @@
 
 package sa
 
-import cats.instances.future.*
 import cats.data.EitherT
+import cats.instances.future.*
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
@@ -50,6 +50,14 @@ class AtsSaFullJourneyToggleOffSpec extends SaTestHelper {
   private lazy val appn: Application = fakeApplication()
   override def beforeEach(): Unit    = {
     super.beforeEach()
+
+    val taxPayerUrl = "/self-assessment/individual/" + utr + "/designatory-details/taxpayer"
+
+    server.stubFor(
+      WireMock
+        .get(urlEqualTo(taxPayerUrl))
+        .willReturn(ok(FileHelper.loadFile(taxPayerFile)))
+    )
 
     when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SaDetailsFromHipToggle))) thenReturn
       EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = false))

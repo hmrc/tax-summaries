@@ -187,7 +187,6 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       val url =
         if (toggle.isEnabled) hipUrl(s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
         else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
-
       httpClientResponse.readSA(
         http
           .get(url"$url")
@@ -216,10 +215,15 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     hc: HeaderCarrier,
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    httpClientResponse.readSA(
-      http
-        .get(url"${desUrl(s"/self-assessment/individual/$utr/designatory-details/taxpayer")}")
-        .setHeader(createHeader(): _*)
-        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
-    )
+    featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
+      val url =
+        if (toggle.isEnabled) hipUrl(s"/ods-sa/v1/self-assessment/individual/$utr/designatory-details/taxpayer")
+        else desUrl(s"/self-assessment/individual/$utr/designatory-details/taxpayer")
+      httpClientResponse.readSA(
+        http
+          .get(url"$url")
+          .setHeader(createHeader(): _*)
+          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
+      )
+    }
 }
