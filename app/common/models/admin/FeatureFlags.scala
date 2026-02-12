@@ -21,13 +21,22 @@ import uk.gov.hmrc.mongoFeatureToggles.model.{Environment, FeatureFlagName}
 
 object AllFeatureFlags {
   val list: List[FeatureFlagName] =
-    List(PayeDetailsFromHipToggle)
+    List(PayeDetailsFromHipToggle, SaDetailsFromHipToggle)
 }
 
 case object PayeDetailsFromHipToggle extends FeatureFlagName {
   override val name: String                         = "paye-details-from-hip-toggle"
   override val description: Option[String]          = Some(
     "Enable/disable calls to HIP for PAYE annual tax summary data using API-1535: `/individuals/annual-tax-summary/<nino>/<taxYear>`"
+  )
+  override val lockedEnvironments: Seq[Environment] =
+    Seq(Environment.Local, Environment.Qa, Environment.Production, Environment.Staging)
+}
+
+case object SaDetailsFromHipToggle extends FeatureFlagName {
+  override val name: String                         = "sa-details-from-hip-toggle"
+  override val description: Option[String]          = Some(
+    "Enable/disable calls to HIP for SA annual tax summary data"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Qa, Environment.Production, Environment.Staging)

@@ -34,13 +34,14 @@ trait SaTestHelper extends IntegrationSpec {
   override def beforeEach(): Unit = {
     super.beforeEach()
 
-    val taxPayerUrl = "/self-assessment/individual/" + utr + "/designatory-details/taxpayer"
+    val taxPayerUrl = s"/ods-sa/v1/self-assessment/individual/$utr/designatory-details/taxpayer"
 
     server.stubFor(
       WireMock
         .get(urlEqualTo(taxPayerUrl))
         .willReturn(ok(FileHelper.loadFile(taxPayerFile)))
     )
+
     ()
 
   }

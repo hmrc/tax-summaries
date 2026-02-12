@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,55 @@
 
 package sa
 
+import cats.data.EitherT
+import cats.instances.future.*
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, ok, urlEqualTo}
+import common.models.admin.SaDetailsFromHipToggle
 import common.utils.FileHelper
+import org.mockito.Mockito.when
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import sa.models.*
+import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 
-class AtsSaFullJourneySpec extends SaTestHelper {
+class AtsSaFullJourneyToggleOffSpec extends SaTestHelper {
   override val taxYear = 2025
   val taxPayerFile     = "sa/taxPayerDetails.json"
 
   private val apiUrlAtsData: String = s"/taxs/$utr/$taxYear/ats-data"
   private val apiUrlAtsList: String = s"/taxs/$utr/$taxYear/2/ats-list"
-  private val apiUrlHasSummary      = s"/taxs/$utr/has_summary_for_previous_period"
 
-  private val odsUrlData: String             = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear"
-  private val odsUrlDataPreviousYear: String =
-    s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/${taxYear - 1}"
-  private val odsUrlList                     = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries"
+  private val odsUrlData: String             = s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear"
+  private val odsUrlDataPreviousYear: String = s"/self-assessment/individuals/$utr/annual-tax-summaries/${taxYear - 1}"
+  private val odsUrlList                     = s"/self-assessment/individuals/$utr/annual-tax-summaries"
+  private val apiUrlHasSummary               = s"/taxs/$utr/has_summary_for_previous_period"
 
   private def getRequest(url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withHeaders((AUTHORIZATION, "Bearer 123"))
 
   private lazy val appn: Application = fakeApplication()
+  override def beforeEach(): Unit    = {
+    super.beforeEach()
 
+    val taxPayerUrl = "/self-assessment/individual/" + utr + "/designatory-details/taxpayer"
+
+    server.stubFor(
+      WireMock
+        .get(urlEqualTo(taxPayerUrl))
+        .willReturn(ok(FileHelper.loadFile(taxPayerFile)))
+    )
+
+    when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SaDetailsFromHipToggle))) thenReturn
+      EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = false))
+
+    ()
+
+  }
   s"GET on $apiUrlAtsData"    must {
     "return each section in the middle tier data returned including gov spending data and tax data for latest tax year" in {
       server.stubFor(

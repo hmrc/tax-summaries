@@ -53,7 +53,7 @@ class NpsConnector @Inject() (
   def url(path: String): String = s"$serviceUrl$path"
 
   private def hipUrl(ninoWithoutSuffix: String, taxYear: Int): String =
-    s"${applicationConfig.hipBaseURL}/individual/$ninoWithoutSuffix/tax-account/$taxYear/annual-tax-summary"
+    s"${applicationConfig.hipBaseURL}/paye/individual/$ninoWithoutSuffix/tax-account/$taxYear/annual-tax-summary"
 
   private def ifUrl(ninoWithoutSuffix: String, taxYear: Int): String =
     s"${applicationConfig.ifBaseURL}/individuals/annual-tax-summary/$ninoWithoutSuffix/$taxYear"
@@ -85,7 +85,6 @@ class NpsConnector @Inject() (
       val url =
         if (toggle.isEnabled) hipUrl(ninoWithoutSuffix, taxYear)
         else ifUrl(ninoWithoutSuffix, taxYear)
-
       httpClientResponse.readPaye(
         http
           .get(url"$url")

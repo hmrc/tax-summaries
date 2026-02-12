@@ -20,7 +20,7 @@ import cats.data.EitherT
 import cats.instances.future.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.ATSModule
-import common.models.admin.PayeDetailsFromHipToggle
+import common.models.admin.{PayeDetailsFromHipToggle, SaDetailsFromHipToggle}
 import org.apache.pekko.Done
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -115,6 +115,8 @@ trait IntegrationSpec
     )
     when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromHipToggle))) thenReturn
       EitherT.rightT(FeatureFlag(PayeDetailsFromHipToggle, isEnabled = true))
+    when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SaDetailsFromHipToggle))) thenReturn
+      EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = true))
     ()
   }
 

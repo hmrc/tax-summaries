@@ -25,7 +25,7 @@ import play.api.test.Helpers.{status as getStatus, *}
 
 class AtsPayeFullJourneySpec extends IntegrationSpec {
 
-  private val npsAtsDataUrl = s"/individual/${nino.withoutSuffix}/tax-account/$taxYearMinusOne/annual-tax-summary"
+  private val npsAtsDataUrl = s"/paye/individual/${nino.withoutSuffix}/tax-account/$taxYearMinusOne/annual-tax-summary"
 
   private val apiUrl                                       = s"/taxs/$nino/$taxYear/paye-ats-data"
   private def request: FakeRequest[AnyContentAsEmpty.type] =
