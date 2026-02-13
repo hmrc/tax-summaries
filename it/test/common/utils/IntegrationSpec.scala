@@ -20,7 +20,7 @@ import cats.data.EitherT
 import cats.instances.future.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.ATSModule
-import common.models.admin.{PayeDetailsFromHipToggle, SaDetailsFromHipToggle}
+import common.models.admin.SaDetailsFromHipToggle
 import org.apache.pekko.Done
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -113,8 +113,6 @@ trait IntegrationSpec
       post(urlEqualTo("/pertax/authorise"))
         .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
     )
-    when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(PayeDetailsFromHipToggle))) thenReturn
-      EitherT.rightT(FeatureFlag(PayeDetailsFromHipToggle, isEnabled = true))
     when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SaDetailsFromHipToggle))) thenReturn
       EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = true))
     ()
@@ -140,8 +138,6 @@ trait IntegrationSpec
         "microservice.services.pertax.port"            -> server.port(),
         "microservice.services.hip-hod.port"           -> server.port(),
         "microservice.services.hip-hod.host"           -> "127.0.0.1",
-        "microservice.services.if-hod.port"            -> server.port(),
-        "microservice.services.if-hod.host"            -> "127.0.0.1",
         "play.ws.timeout.request"                      -> "1000ms",
         "play.ws.timeout.connection"                   -> "500ms",
         "mongodb.uri"                                  -> s"mongodb://127.0.0.1:27017/test-${this.getClass.getSimpleName}"
