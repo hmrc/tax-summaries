@@ -53,7 +53,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise[Unit](any(), any())(any(), any()))
         .thenReturn(Future.successful(()))
 
-      val result = harness.onPageLoad()(FakeRequest("GET", "/1111111111/ats-list"))
+      val result = harness.onPageLoad()(FakeRequest("GET", "/111111111222222222222222221/ats-list"))
       status(result) mustBe OK
     }
 
