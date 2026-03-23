@@ -67,13 +67,7 @@ class AtsSaDataController @Inject() (
           "annualTaxSummaries" ->
             singleListForAllYears.map { year =>
               Json.obj(
-                "taxYearEnd" -> year,
-                "links"      -> List(
-                  Json.obj(
-                    "rel"  -> "details",
-                    "href" -> s"https://digital.ws.hmrc.gov.uk/self-assessment/individuals/$utr/annual-tax-summaries/$year"
-                  )
-                )
+                "taxYearEnd" -> year
               )
             }
         ),
