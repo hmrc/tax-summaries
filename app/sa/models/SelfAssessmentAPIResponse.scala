@@ -67,7 +67,6 @@ object SelfAssessmentAPIResponse extends Logging {
 
   implicit val reads: Reads[SelfAssessmentAPIResponse] = new Reads[SelfAssessmentAPIResponse] {
     override def reads(json: JsValue): JsResult[SelfAssessmentAPIResponse] = {
-      val href           = (json \ "links" \\ "href").flatMap(_.asOpt[String]).headOption.getOrElse("")
       val taxYear        = (json \ "taxYear").as[Int]
       val nationality    = (json \ "tliSlpAtsData" \ "incomeTaxStatus").asOpt[Nationality].getOrElse(UK())
       val pensionTaxRate = (json \ "tliSlpAtsData" \ "ctnPensionLumpSumTaxRate").as[PensionTaxRate]
@@ -75,23 +74,14 @@ object SelfAssessmentAPIResponse extends Logging {
       val saPayeNicDetails = (json \ "saPayeNicDetails").as[JsValue]
       val tliSlpAtsData    = (json \ "tliSlpAtsData").as[JsValue]
 
-      val pattern = ".*/self-assessment/individuals/([0-9]+)/annual-tax-summaries/.*".r
-
-      val utr = href match {
-        case pattern(utr) => utr
-        case _            => ""
-      }
-
       val nationalInsuranceData = saPayeNicDetails
         .as[Map[ODSLiabilities, Option[Amount]]](
           alwaysSuccessfulMapReads[ODSLiabilities, Amount](readsLiabilities(taxYear), implicitly)
         )
         .map {
           case (liability, None)                                              =>
-            logger.warn(s"id: $utr, TaxYear: $taxYear, field: $liability, value: null")
             liability -> Amount(0, "GBP")
           case (liability, Some(amount)) if amount.amount == BigDecimal(0.00) =>
-            logger.info(s"id: $utr, TaxYear: $taxYear, field: $liability, value: zero")
             liability -> amount
           case (liability, Some(amount))                                      =>
             liability -> amount
@@ -103,10 +93,8 @@ object SelfAssessmentAPIResponse extends Logging {
         )
         .map {
           case (liability, None)                                              =>
-            logger.warn(s"id: $utr, TaxYear: $taxYear, field: $liability, value: null")
             liability -> Amount(0, "GBP")
           case (liability, Some(amount)) if amount.amount == BigDecimal(0.00) =>
-            logger.info(s"id: $utr, TaxYear: $taxYear, field: $liability, value: zero")
             liability -> amount
           case (liability, Some(amount))                                      =>
             liability -> amount
