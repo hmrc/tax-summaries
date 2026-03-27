@@ -28,6 +28,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import paye.connectors.{DefaultNpsConnector, NpsConnector}
 import play.api.Application
 import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
@@ -126,6 +127,8 @@ trait IntegrationSpec
       .overrides(
         bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector],
         bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
+        bind[NpsConnector].to[DefaultNpsConnector],
+        bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
         bind[AsyncCacheApi].toInstance(mockCacheApi),
         bind[FeatureFlagService].toInstance(mockFeatureFlagService)
       )
