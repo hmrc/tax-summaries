@@ -27,7 +27,6 @@ class ATSModule extends Module {
     Seq(
       bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
       bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
-      bind[ApplicationStartUp].toSelf.eagerly(),
       bind[NpsConnector].to[CachingNpsConnector],
       bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
       bind[ApplicationStartUp].toSelf.eagerly()

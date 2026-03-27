@@ -93,14 +93,14 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
 
   lazy val pertaxHost: String = servicesConfig.baseUrl("pertax")
 
-  lazy val hipBaseURL: String         = servicesConfig.baseUrl("hip-hod")
-  lazy val hipEnvironment: String     = servicesConfig.getConfString("hip-hod.env", "local")
-  lazy val hipAuthorization: String   = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
-  lazy val hipOriginatorId: String    = servicesConfig.getConfString("hip-hod.originatorId", "")
-  val token: String                   = {
-    val hipClientId: String = servicesConfig.getConfString("hip-hod.clientId", "local")
+  lazy val hipBaseURL: String       = servicesConfig.baseUrl("hip-hod")
+  lazy val hipEnvironment: String   = servicesConfig.getConfString("hip-hod.env", "local")
+  lazy val hipAuthorization: String = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
+  lazy val hipOriginatorId: String  = servicesConfig.getConfString("hip-hod.originatorId", "")
+  val token: String                 = {
+    val hipClientId: String     = servicesConfig.getConfString("hip-hod.clientId", "local")
     val hipClientSecret: String = servicesConfig.getConfString("hip-hod.clientSecret", "local")
     Base64.getEncoder.encodeToString(s"$hipClientId:$hipClientSecret".getBytes(StandardCharsets.UTF_8))
   }
-  lazy val appName: String            = servicesConfig.getString("appName")
+  lazy val appName: String          = servicesConfig.getString("appName")
 }
