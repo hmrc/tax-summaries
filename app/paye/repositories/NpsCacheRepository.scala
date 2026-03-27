@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NpsCacheRepository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)(implicit
   ec: ExecutionContext
 ) extends PlayMongoRepository[PayeAtsMiddleTierMongo](
-      collectionName = "tax-summaries",
+      collectionName = "paye-cache",
       mongoComponent = mongoComponent,
       domainFormat = PayeAtsMiddleTierMongo.format,
       indexes = Seq(
