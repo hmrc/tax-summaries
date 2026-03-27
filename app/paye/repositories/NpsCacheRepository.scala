@@ -28,8 +28,9 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class Repository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
-    extends PlayMongoRepository[PayeAtsMiddleTierMongo](
+class NpsCacheRepository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)(implicit
+  ec: ExecutionContext
+) extends PlayMongoRepository[PayeAtsMiddleTierMongo](
       collectionName = "tax-summaries",
       mongoComponent = mongoComponent,
       domainFormat = PayeAtsMiddleTierMongo.format,
@@ -43,24 +44,22 @@ class Repository @Inject() (config: ApplicationConfig, mongoComponent: MongoComp
       )
     ) {
 
-  private def filterById(nino: String, taxYear: Int): Bson = Filters.equal("_id", s"$nino::$taxYear")
+  private def filterById(id: String): Bson = Filters.equal("_id", id)
 
-  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
-
+  def get(id: String): Future[Option[PayeAtsMiddleTierMongo]] = {
+    // id is $nino::$taxYear
     val modifier = Updates.set("expiresAt", config.calculateExpiryTime())
-
-    collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
+    collection.findOneAndUpdate(filterById(id), modifier).toFutureOption()
 
   }
 
   def set(dataMongo: PayeAtsMiddleTierMongo): Future[Boolean] =
     collection
       .replaceOne(
-        filter = filterById(dataMongo.data.nino, dataMongo.data.taxYear),
+        filter = filterById(dataMongo._id),
         replacement = dataMongo,
         options = ReplaceOptions().upsert(true)
       )
       .toFuture()
       .map(result => result.wasAcknowledged())
-
 }

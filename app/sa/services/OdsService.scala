@@ -41,14 +41,7 @@ class OdsService @Inject() (
     request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
-      rawTaxpayerJson       <- selfAssessmentOdsConnector
-                                 .connectToSATaxpayerDetails(utr)
-                                 .transform {
-                                   case Right(response) if response.status == NOT_FOUND =>
-                                     Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
-                                   case Right(response)                                 => Right(response.json.as[JsValue])
-                                   case Left(error)                                     => Left(error)
-                                 }
+      rawTaxpayerJson       <- connectToSATaxpayerDetails(utr)
       rawSelfAssessmentJson <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
                                  case Right(response) if response.status == NOT_FOUND =>
                                    Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))

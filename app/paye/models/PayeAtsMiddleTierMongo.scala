@@ -16,14 +16,14 @@
 
 package paye.models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, JsObject, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
 case class PayeAtsMiddleTierMongo(
   _id: String,
-  data: PayeAtsMiddleTier,
+  data: JsObject,
   expiresAt: Instant
 )
 

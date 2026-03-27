@@ -22,8 +22,10 @@ import common.models.{Item, Rate}
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.nio.charset.StandardCharsets
 import java.sql.Timestamp
 import java.time.{Instant, LocalDateTime}
+import java.util.Base64
 import scala.jdk.CollectionConverters.*
 
 class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration: Configuration) {
@@ -91,12 +93,13 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
 
   lazy val pertaxHost: String = servicesConfig.baseUrl("pertax")
 
-  lazy val hipBaseURL: String       = servicesConfig.baseUrl("hip-hod")
-  lazy val hipEnvironment: String   = servicesConfig.getConfString("hip-hod.env", "local")
-  lazy val hipAuthorization: String = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
-  lazy val hipOriginatorId: String  = servicesConfig.getConfString("hip-hod.originatorId", "")
-  val hipClientId: String           = servicesConfig.getConfString("hip-hod.clientId", "local")
-  val hipClientSecret: String       = servicesConfig.getConfString("hip-hod.clientSecret", "local")
-
-  lazy val appName: String = servicesConfig.getString("appName")
+  lazy val hipBaseURL: String         = servicesConfig.baseUrl("hip-hod")
+  lazy val hipEnvironment: String     = servicesConfig.getConfString("hip-hod.env", "local")
+  lazy val hipAuthorization: String   = "Bearer " + servicesConfig.getConfString("hip-hod.authorizationToken", "local")
+  lazy val hipOriginatorId: String    = servicesConfig.getConfString("hip-hod.originatorId", "")
+  private val hipClientId: String     = servicesConfig.getConfString("hip-hod.clientId", "local")
+  private val hipClientSecret: String = servicesConfig.getConfString("hip-hod.clientSecret", "local")
+  val token: String                   =
+    Base64.getEncoder.encodeToString(s"$hipClientId:$hipClientSecret".getBytes(StandardCharsets.UTF_8))
+  lazy val appName: String            = servicesConfig.getString("appName")
 }

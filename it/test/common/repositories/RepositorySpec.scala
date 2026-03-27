@@ -18,7 +18,8 @@ package common.repositories
 
 import common.utils.IntegrationSpec
 import paye.models.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
-import paye.repositories.Repository
+import paye.repositories.NpsCacheRepository
+import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 
@@ -34,8 +35,8 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
     prepareDatabase()
   }
 
-  val repository: PlayMongoRepository[PayeAtsMiddleTierMongo] = app.injector.instanceOf[Repository]
-  val serviceRepo: Repository                                 = repository.asInstanceOf[Repository]
+  val repository: PlayMongoRepository[PayeAtsMiddleTierMongo] = app.injector.instanceOf[NpsCacheRepository]
+  val serviceRepo: NpsCacheRepository                         = repository.asInstanceOf[NpsCacheRepository]
 
   def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
 
@@ -54,7 +55,7 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
 
       val dataMongo = PayeAtsMiddleTierMongo(
         _id = buildId("NINONINO", taxYear),
-        data = data,
+        data = Json.toJson(data).as[JsObject],
         expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MILLIS)
       )
 
@@ -62,7 +63,7 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
       storedOk.futureValue mustBe true
 
       val retrieved = serviceRepo
-        .get("NINONINO", taxYear)
+        .get(s"NINONINO::$taxYear")
         .map(
           _.getOrElse(fail("The record was not found in the database"))
         )

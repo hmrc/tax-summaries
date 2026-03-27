@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package paye.utils
+package common.config
 
-import common.utils.JsonUtil
-import paye.models.PayeAtsData
-import play.api.libs.json.Json
+import paye.connectors.{CachingNpsConnector, DefaultNpsConnector, NpsConnector}
+import play.api.inject.{Binding, Module}
+import play.api.{Configuration, Environment}
 
-object PayeAtsDataUtil extends JsonUtil {
+class NPSModule extends Module {
 
-  val jsonString: String = load("/paye/paye_annual_tax_summary.json")
-
-  val atsData: PayeAtsData = Json.parse(jsonString).as[PayeAtsData]
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
+    Seq(
+      bind[NpsConnector].to[CachingNpsConnector],
+      bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
+      bind[ApplicationStartUp].toSelf.eagerly()
+    )
 
 }

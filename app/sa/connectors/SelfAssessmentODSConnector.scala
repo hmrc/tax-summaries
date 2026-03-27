@@ -35,8 +35,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpReads, HttpResponse, St
 import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
-import java.nio.charset.StandardCharsets
-import java.util.{Base64, UUID}
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SelfAssessmentODSConnector {
@@ -150,15 +149,6 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       case _                                                => HttpReads[Either[UpstreamErrorResponse, A]]
     }
 
-  private val hipAuth = {
-    val clientId: String     = applicationConfig.hipClientId
-    val clientSecret: String = applicationConfig.hipClientSecret
-    val token                = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes(StandardCharsets.UTF_8))
-    Seq(
-      HeaderNames.authorisation -> s"Basic $token"
-    )
-  }
-
   private def desUrl(path: String): String = s"${applicationConfig.npsServiceUrl}$path"
 
   private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURL}$path"
@@ -166,17 +156,18 @@ class DefaultSelfAssessmentODSConnector @Inject() (
   private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
     if (hipToggle)
       Seq(
-        "Environment"          -> applicationConfig.hipEnvironment,
-        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
-        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
-        "CorrelationId"        -> UUID.randomUUID().toString,
-        "Gov-Uk-Originator-Id" -> applicationConfig.hipOriginatorId
-      ) ++ hipAuth
+        "Environment"             -> applicationConfig.hipEnvironment,
+        HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"           -> UUID.randomUUID().toString,
+        "Gov-Uk-Originator-Id"    -> applicationConfig.hipOriginatorId,
+        HeaderNames.authorisation -> s"Basic ${applicationConfig.token}"
+      )
     else
       Seq(
-        HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
-        HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
-        "CorrelationId"        -> UUID.randomUUID().toString
+        HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
+        HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
+        "CorrelationId"           -> UUID.randomUUID().toString
       )
 
   def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
