@@ -1,10 +1,4 @@
 {
-  "links": [
-    {
-      "href": "/self-assessment/individuals/1130492359/annual-tax-summaries/2023",
-      "rel": "self"
-    }
-  ],
   "taxYear": <taxYear>,
   "saPayeNicDetails": {
     "employeeClass1Nic": {

@@ -136,13 +136,6 @@ class DefaultSelfAssessmentODSConnector @Inject() (
     extends SelfAssessmentODSConnector
     with Logging {
 
-  private def createHeader()(implicit hc: HeaderCarrier): Seq[(String, String)] =
-    Seq(
-      HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
-      HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
-      "CorrelationId"        -> UUID.randomUUID().toString
-    )
-
   private def readEitherOfWithNotFound[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
     HttpReads.ask.flatMap {
       case (_, _, response) if response.status == NOT_FOUND => HttpReads[A].map(Right.apply)
@@ -213,7 +206,7 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       httpClientResponse.readSA(
         http
           .get(url"$url")
-          .setHeader(createHeader(): _*)
+          .setHeader(createHeader(toggle.isEnabled): _*)
           .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
       )
     }
