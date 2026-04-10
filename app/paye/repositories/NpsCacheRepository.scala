@@ -20,6 +20,7 @@ import common.config.ApplicationConfig
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
 import paye.models.PayeAtsMiddleTierMongo
+import play.api.libs.json.JsObject
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -46,20 +47,22 @@ class NpsCacheRepository @Inject() (config: ApplicationConfig, mongoComponent: M
 
   private def filterById(id: String): Bson = Filters.equal("_id", id)
 
-  def get(id: String): Future[Option[PayeAtsMiddleTierMongo]] = {
-    // id is $nino::$taxYear
+  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
+    // id is s"$nino$taxYear"
     val modifier = Updates.set("expiresAt", config.calculateExpiryTime())
-    collection.findOneAndUpdate(filterById(id), modifier).toFutureOption()
+    collection.findOneAndUpdate(filterById(s"$nino$taxYear"), modifier).toFutureOption()
 
   }
 
-  def set(dataMongo: PayeAtsMiddleTierMongo): Future[Boolean] =
+  def set(nino: String, taxYear: Int, data: JsObject): Future[Boolean] = {
+    val mongoData = PayeAtsMiddleTierMongo(s"$nino$taxYear", data, config.calculateExpiryTime())
     collection
       .replaceOne(
-        filter = filterById(dataMongo._id),
-        replacement = dataMongo,
+        filter = filterById(mongoData._id),
+        replacement = mongoData,
         options = ReplaceOptions().upsert(true)
       )
       .toFuture()
       .map(result => result.wasAcknowledged())
+  }
 }

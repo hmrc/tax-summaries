@@ -38,8 +38,6 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
   val repository: PlayMongoRepository[PayeAtsMiddleTierMongo] = app.injector.instanceOf[NpsCacheRepository]
   val serviceRepo: NpsCacheRepository                         = repository.asInstanceOf[NpsCacheRepository]
 
-  def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
-
   "a repository" must {
     "must be able to store and retrieve a payload" in {
       val taxYear: Int      = 2024
@@ -53,22 +51,25 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
         JSON format implicit to include nanoseconds.
        */
 
-      val dataMongo = PayeAtsMiddleTierMongo(
-        _id = buildId("NINONINO", taxYear),
-        data = Json.toJson(data).as[JsObject],
-        expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MILLIS)
-      )
+      val dataObject = Json.toJson(data).as[JsObject]
 
-      val storedOk = serviceRepo.set(dataMongo)
+      val storedOk = serviceRepo.set("NINONINO", taxYear, dataObject)
       storedOk.futureValue mustBe true
 
       val retrieved = serviceRepo
-        .get(s"NINONINO::$taxYear")
+        .get("NINONINO", taxYear)
         .map(
           _.getOrElse(fail("The record was not found in the database"))
         )
-
-      retrieved.futureValue mustBe dataMongo
+        .futureValue
+      val dataMongo = PayeAtsMiddleTierMongo(
+        _id = s"NINONINO$taxYear",
+        data = dataObject,
+        expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MINUTES)
+      )
+      retrieved._id mustBe dataMongo._id
+      retrieved.data mustBe dataMongo.data
+      retrieved.expiresAt.truncatedTo(ChronoUnit.MINUTES) mustBe dataMongo.expiresAt
     }
   }
 }

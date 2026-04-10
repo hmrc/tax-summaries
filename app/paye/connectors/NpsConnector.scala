@@ -40,8 +40,7 @@ trait NpsConnector {
 
 class CachingNpsConnector @Inject() (
   @Named("default") underlying: NpsConnector,
-  sessionCacheRepository: NpsCacheRepository,
-  config: ApplicationConfig
+  sessionCacheRepository: NpsCacheRepository
 )(implicit ec: ExecutionContext)
     extends NpsConnector {
 
@@ -50,7 +49,7 @@ class CachingNpsConnector @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
     EitherT(
       sessionCacheRepository
-        .get(s"$nino::$taxYear")
+        .get(nino, taxYear)
         .map[Future[Either[UpstreamErrorResponse, HttpResponse]]] {
           case Some(dataMongo) => Future(Right(HttpResponse(200, dataMongo.data.toString)))
           case None            => refreshCache(nino, taxYear).value
@@ -66,9 +65,7 @@ class CachingNpsConnector @Inject() (
       _       <-
         EitherT[Future, UpstreamErrorResponse, Boolean](
           sessionCacheRepository
-            .set(
-              models.PayeAtsMiddleTierMongo(s"$nino::$taxYear", apiData.json.as[JsObject], config.calculateExpiryTime())
-            )
+            .set(nino, taxYear, apiData.json.as[JsObject])
             .map(Right(_))
         )
     } yield apiData
