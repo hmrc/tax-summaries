@@ -17,61 +17,91 @@
 package paye.connectors
 
 import cats.data.EitherT
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
+import com.google.inject.name.Named
 import common.config.ApplicationConfig
 import common.connectors.HttpClientResponse
+import paye.models
+import paye.repositories.NpsCacheRepository
 import play.api.Logging
+import play.api.libs.json.JsObject
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import java.nio.charset.StandardCharsets
-import java.util.{Base64, UUID}
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class NpsConnector @Inject() (
+trait NpsConnector {
+  def connectToPayeTaxSummary(nino: String, taxYear: Int)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
+}
+
+class CachingNpsConnector @Inject() (
+  @Named("default") underlying: NpsConnector,
+  sessionCacheRepository: NpsCacheRepository
+)(implicit ec: ExecutionContext)
+    extends NpsConnector {
+
+  override def connectToPayeTaxSummary(nino: String, taxYear: Int)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    EitherT(
+      sessionCacheRepository
+        .get(nino, taxYear)
+        .map[Future[Either[UpstreamErrorResponse, HttpResponse]]] {
+          case Some(dataMongo) => Future(Right(HttpResponse(200, dataMongo.data.toString)))
+          case None            => refreshCache(nino, taxYear).value
+        }
+        .flatten
+    )
+
+  private def refreshCache(nino: String, taxYear: Int)(implicit
+    hc: HeaderCarrier
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
+    for {
+      apiData <- underlying.connectToPayeTaxSummary(nino, taxYear)
+      _       <-
+        EitherT[Future, UpstreamErrorResponse, Boolean](
+          sessionCacheRepository
+            .set(nino, taxYear, apiData.json.as[JsObject])
+            .map(Right(_))
+        )
+    } yield apiData
+}
+
+@Singleton
+class DefaultNpsConnector @Inject() (
   http: HttpClientV2,
   applicationConfig: ApplicationConfig,
   httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
-    extends Logging {
+    extends NpsConnector,
+      Logging {
 
-  private val hipAuth = {
-    val clientId: String     = applicationConfig.hipClientId
-    val clientSecret: String = applicationConfig.hipClientSecret
-    val token                = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes(StandardCharsets.UTF_8))
-    Seq(
-      HeaderNames.authorisation -> s"Basic $token"
-    )
-  }
-
-  def serviceUrl: String = applicationConfig.npsServiceUrl
-
-  def url(path: String): String = s"$serviceUrl$path"
-
-  private def hipUrl(ninoWithoutSuffix: String, taxYear: Int): String =
+  private def url(ninoWithoutSuffix: String, taxYear: Int): String =
     s"${applicationConfig.hipBaseURL}/paye/individual/$ninoWithoutSuffix/tax-account/$taxYear/annual-tax-summary"
 
   private def createHeader(implicit hc: HeaderCarrier): Seq[(String, String)] =
     Seq(
-      "Environment"          -> applicationConfig.hipEnvironment,
-      HeaderNames.xSessionId -> hc.sessionId.fold("-")(_.value),
-      HeaderNames.xRequestId -> hc.requestId.fold("-")(_.value),
-      "CorrelationId"        -> UUID.randomUUID().toString,
-      "Gov-Uk-Originator-Id" -> applicationConfig.hipOriginatorId
-    ) ++ hipAuth
+      "Environment"             -> applicationConfig.hipEnvironment,
+      HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
+      HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
+      "CorrelationId"           -> UUID.randomUUID().toString,
+      "Gov-Uk-Originator-Id"    -> applicationConfig.hipOriginatorId,
+      HeaderNames.authorisation -> s"Basic ${applicationConfig.token}"
+    )
 
   def connectToPayeTaxSummary(nino: String, taxYear: Int)(implicit
     hc: HeaderCarrier
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
     val ninoWithoutSuffix = nino.take(8)
-    val url               = hipUrl(ninoWithoutSuffix, taxYear)
     httpClientResponse.readPaye(
       http
-        .get(url"$url")
+        .get(url"${url(ninoWithoutSuffix, taxYear)}")
         .setHeader(createHeader: _*)
         .execute[Either[UpstreamErrorResponse, HttpResponse]]
     )
-
   }
 }

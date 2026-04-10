@@ -18,7 +18,8 @@ package common.repositories
 
 import common.utils.IntegrationSpec
 import paye.models.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
-import paye.repositories.Repository
+import paye.repositories.NpsCacheRepository
+import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 
@@ -34,10 +35,8 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
     prepareDatabase()
   }
 
-  val repository: PlayMongoRepository[PayeAtsMiddleTierMongo] = app.injector.instanceOf[Repository]
-  val serviceRepo: Repository                                 = repository.asInstanceOf[Repository]
-
-  def buildId(nino: String, taxYear: Int): String = s"$nino::$taxYear"
+  val repository: PlayMongoRepository[PayeAtsMiddleTierMongo] = app.injector.instanceOf[NpsCacheRepository]
+  val serviceRepo: NpsCacheRepository                         = repository.asInstanceOf[NpsCacheRepository]
 
   "a repository" must {
     "must be able to store and retrieve a payload" in {
@@ -52,13 +51,9 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
         JSON format implicit to include nanoseconds.
        */
 
-      val dataMongo = PayeAtsMiddleTierMongo(
-        _id = buildId("NINONINO", taxYear),
-        data = data,
-        expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MILLIS)
-      )
+      val dataObject = Json.toJson(data).as[JsObject]
 
-      val storedOk = serviceRepo.set(dataMongo)
+      val storedOk = serviceRepo.set("NINONINO", taxYear, dataObject)
       storedOk.futureValue mustBe true
 
       val retrieved = serviceRepo
@@ -66,8 +61,15 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
         .map(
           _.getOrElse(fail("The record was not found in the database"))
         )
-
-      retrieved.futureValue mustBe dataMongo
+        .futureValue
+      val dataMongo = PayeAtsMiddleTierMongo(
+        _id = s"NINONINO$taxYear",
+        data = dataObject,
+        expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MINUTES)
+      )
+      retrieved._id mustBe dataMongo._id
+      retrieved.data mustBe dataMongo.data
+      retrieved.expiresAt.truncatedTo(ChronoUnit.MINUTES) mustBe dataMongo.expiresAt
     }
   }
 }

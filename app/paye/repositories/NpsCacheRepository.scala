@@ -20,6 +20,7 @@ import common.config.ApplicationConfig
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
 import paye.models.PayeAtsMiddleTierMongo
+import play.api.libs.json.JsObject
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -28,9 +29,10 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class Repository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
-    extends PlayMongoRepository[PayeAtsMiddleTierMongo](
-      collectionName = "tax-summaries",
+class NpsCacheRepository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)(implicit
+  ec: ExecutionContext
+) extends PlayMongoRepository[PayeAtsMiddleTierMongo](
+      collectionName = "paye-cache",
       mongoComponent = mongoComponent,
       domainFormat = PayeAtsMiddleTierMongo.format,
       indexes = Seq(
@@ -43,24 +45,24 @@ class Repository @Inject() (config: ApplicationConfig, mongoComponent: MongoComp
       )
     ) {
 
-  private def filterById(nino: String, taxYear: Int): Bson = Filters.equal("_id", s"$nino::$taxYear")
+  private def filterById(id: String): Bson = Filters.equal("_id", id)
 
   def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
-
+    // id is s"$nino$taxYear"
     val modifier = Updates.set("expiresAt", config.calculateExpiryTime())
-
-    collection.findOneAndUpdate(filterById(nino, taxYear), modifier).toFutureOption()
+    collection.findOneAndUpdate(filterById(s"$nino$taxYear"), modifier).toFutureOption()
 
   }
 
-  def set(dataMongo: PayeAtsMiddleTierMongo): Future[Boolean] =
+  def set(nino: String, taxYear: Int, data: JsObject): Future[Boolean] = {
+    val mongoData = PayeAtsMiddleTierMongo(s"$nino$taxYear", data, config.calculateExpiryTime())
     collection
       .replaceOne(
-        filter = filterById(dataMongo.data.nino, dataMongo.data.taxYear),
-        replacement = dataMongo,
+        filter = filterById(mongoData._id),
+        replacement = mongoData,
         options = ReplaceOptions().upsert(true)
       )
       .toFuture()
       .map(result => result.wasAcknowledged())
-
+  }
 }

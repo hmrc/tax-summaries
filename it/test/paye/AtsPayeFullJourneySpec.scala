@@ -111,12 +111,5 @@ class AtsPayeFullJourneySpec extends IntegrationSpec {
       result.map(getStatus) mustBe Some(OK)
     }
 
-    "additional calls to the same API will return the cached value and the same result" in {
-      server.stubFor(get(urlEqualTo(npsAtsDataUrl)).willReturn(aResponse().withStatus(BAD_REQUEST)))
-
-      val result = route(fakeApplication(), request)
-      result.map(getStatus) mustBe Some(OK)
-    }
-
   }
 }

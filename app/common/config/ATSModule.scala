@@ -16,6 +16,7 @@
 
 package common.config
 
+import paye.connectors.{CachingNpsConnector, DefaultNpsConnector, NpsConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import sa.connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
@@ -26,6 +27,8 @@ class ATSModule extends Module {
     Seq(
       bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
       bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
+      bind[NpsConnector].to[CachingNpsConnector],
+      bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
       bind[ApplicationStartUp].toSelf.eagerly()
     )
 
