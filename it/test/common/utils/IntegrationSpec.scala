@@ -20,6 +20,7 @@ import cats.data.EitherT
 import cats.instances.future.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.ATSModule
+import common.config.CryptoProvider
 import common.models.admin.SaDetailsFromHipToggle
 import org.apache.pekko.Done
 import org.mockito.Mockito.when
@@ -38,6 +39,7 @@ import uk.gov.hmrc.domain.{Nino, NinoGenerator, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
@@ -130,7 +132,8 @@ trait IntegrationSpec
         bind[NpsConnector].to[DefaultNpsConnector],
         bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
         bind[AsyncCacheApi].toInstance(mockCacheApi),
-        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService),
+        bind[Encrypter with Decrypter].toProvider[CryptoProvider]
       )
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),

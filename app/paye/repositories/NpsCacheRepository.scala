@@ -20,6 +20,8 @@ import common.config.ApplicationConfig
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
 import paye.models.PayeAtsMiddleTierMongo
+import paye.services.SensitiveFormatService
+import paye.utils.HashUtil
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -29,12 +31,18 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NpsCacheRepository @Inject() (config: ApplicationConfig, mongoComponent: MongoComponent)(implicit
+class NpsCacheRepository @Inject() (
+  config: ApplicationConfig,
+  mongoComponent: MongoComponent,
+  sensitiveFormatService: SensitiveFormatService
+)(implicit
   ec: ExecutionContext
 ) extends PlayMongoRepository[PayeAtsMiddleTierMongo](
       collectionName = "paye-cache",
       mongoComponent = mongoComponent,
-      domainFormat = PayeAtsMiddleTierMongo.format,
+      domainFormat = PayeAtsMiddleTierMongo.formatSensitive(
+        sensitiveFormatService.sensitiveFormatJsObject
+      ),
       indexes = Seq(
         IndexModel(
           Indexes.ascending("expiresAt"),
@@ -47,15 +55,22 @@ class NpsCacheRepository @Inject() (config: ApplicationConfig, mongoComponent: M
 
   private def filterById(id: String): Bson = Filters.equal("_id", id)
 
-  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
-    // id is s"$nino$taxYear"
-    val modifier = Updates.set("expiresAt", config.calculateExpiryTime())
-    collection.findOneAndUpdate(filterById(s"$nino$taxYear"), modifier).toFutureOption()
+  private def cacheId(nino: String, taxYear: Int): String =
+    HashUtil.sha256(
+      s"${nino.trim.toUpperCase}$taxYear"
+    )
 
+  def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
+
+    val id       = cacheId(nino, taxYear)
+    val modifier = Updates.set("expiresAt", config.calculateExpiryTime())
+    collection.findOneAndUpdate(filterById(id), modifier).toFutureOption()
   }
 
   def set(nino: String, taxYear: Int, data: JsObject): Future[Boolean] = {
-    val mongoData = PayeAtsMiddleTierMongo(s"$nino$taxYear", data, config.calculateExpiryTime())
+
+    val id        = cacheId(nino, taxYear)
+    val mongoData = PayeAtsMiddleTierMongo(id, data, config.calculateExpiryTime())
     collection
       .replaceOne(
         filter = filterById(mongoData._id),

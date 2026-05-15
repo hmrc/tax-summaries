@@ -16,7 +16,9 @@
 
 package paye.models
 
-import play.api.libs.json.{Format, JsObject, Json}
+import paye.services.SensitiveFormatService.SensitiveJsObject
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.{Format, JsObject, JsPath, Json, OWrites, Reads}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
@@ -29,6 +31,42 @@ case class PayeAtsMiddleTierMongo(
 
 object PayeAtsMiddleTierMongo extends MongoJavatimeFormats.Implicits {
 
-  implicit val format: Format[PayeAtsMiddleTierMongo] = Json.format[PayeAtsMiddleTierMongo]
+  implicit val format: Format[PayeAtsMiddleTierMongo] =
+    Json.format[PayeAtsMiddleTierMongo]
 
+  def formatSensitive(
+    formatSensitiveObject: Format[SensitiveJsObject]
+  ): Format[PayeAtsMiddleTierMongo] = {
+
+    val formatInstant: Format[Instant] =
+      MongoJavatimeFormats.instantFormat
+
+    val reads: Reads[PayeAtsMiddleTierMongo] =
+      (
+        (JsPath \ "_id").read[String] and
+          (JsPath \ "data").read[SensitiveJsObject](formatSensitiveObject) and
+          (JsPath \ "expiresAt").read[Instant](formatInstant)
+      ) { (id, sensitiveData, expiresAt) =>
+        PayeAtsMiddleTierMongo(
+          _id = id,
+          data = sensitiveData.decryptedValue,
+          expiresAt = expiresAt
+        )
+      }
+
+    val writes: OWrites[PayeAtsMiddleTierMongo] =
+      (
+        (JsPath \ "_id").write[String] and
+          (JsPath \ "data").write[SensitiveJsObject](formatSensitiveObject) and
+          (JsPath \ "expiresAt").write[Instant](formatInstant)
+      ) { mongo =>
+        (
+          mongo._id,
+          SensitiveJsObject(mongo.data),
+          mongo.expiresAt
+        )
+      }
+
+    Format(reads, writes)
+  }
 }

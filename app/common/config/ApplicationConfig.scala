@@ -80,6 +80,9 @@ class ApplicationConfig @Inject() (servicesConfig: ServicesConfig, configuration
 
   private lazy val mongoTTL: Long = configuration.getOptional[Int]("mongodb.timeToLiveInMinutes").getOrElse(15).toLong
 
+  lazy val mongoEncryptionEnabled: Boolean =
+    configuration.getOptional[Boolean]("mongo.encryption.enabled").getOrElse(true)
+
   def calculateExpiryTime(): Instant = Timestamp.valueOf(LocalDateTime.now.plusMinutes(mongoTTL)).toInstant
 
   lazy val environment: String = servicesConfig.getConfString("tax-summaries-hod.env", "local")
