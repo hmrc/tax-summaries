@@ -18,6 +18,7 @@ package common.config
 
 import common.utils.BaseSpec
 import play.api.Configuration
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 class CryptoProviderSpec extends BaseSpec {
 
@@ -31,6 +32,18 @@ class CryptoProviderSpec extends BaseSpec {
       val provider               = new CryptoProvider(configuration, fakeEncrypterDecrypter)
 
       provider.get() mustBe fakeEncrypterDecrypter
+    }
+
+    "return crypto when mongo encryption is enabled" in {
+      val configuration = Configuration(
+        "mongo.encryption.enabled" -> true,
+        "mongo.encryption.key" -> "12345678901234567890123456789012"
+      )
+
+      val fakeEncrypterDecrypter = new FakeEncrypterDecrypter()
+      val provider = new CryptoProvider(configuration, fakeEncrypterDecrypter)
+
+      provider.get() mustBe a[Encrypter with Decrypter]
     }
   }
 }
