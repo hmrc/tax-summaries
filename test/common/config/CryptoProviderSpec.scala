@@ -37,11 +37,11 @@ class CryptoProviderSpec extends BaseSpec {
     "return crypto when mongo encryption is enabled" in {
       val configuration = Configuration(
         "mongo.encryption.enabled" -> true,
-        "mongo.encryption.key" -> "12345678901234567890123456789012"
+        "mongo.encryption.key"     -> "12345678901234567890123456789012"
       )
 
       val fakeEncrypterDecrypter = new FakeEncrypterDecrypter()
-      val provider = new CryptoProvider(configuration, fakeEncrypterDecrypter)
+      val provider               = new CryptoProvider(configuration, fakeEncrypterDecrypter)
 
       provider.get() mustBe a[Encrypter with Decrypter]
     }
