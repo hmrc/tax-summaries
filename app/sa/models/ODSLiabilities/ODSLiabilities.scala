@@ -367,7 +367,8 @@ object ODSLiabilities {
       2022 -> allLiabilities2022,
       2023 -> allLiabilities2023,
       2024 -> allLiabilities2024,
-      2025 -> allLiabilities2025
+      2025 -> allLiabilities2025,
+      2026 -> allLiabilities2025
     )
   }
 

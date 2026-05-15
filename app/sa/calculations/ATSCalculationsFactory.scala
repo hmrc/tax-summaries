@@ -55,6 +55,9 @@ class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
 
     // Tax year below is the year the tax year ENDs (not starts) since this is what comes back from API.
     Map(
+      (uk, 2026)       -> factoryFor2025UK,
+      (scotland, 2026) -> factoryFor2025Scotland,
+      (wales, 2026)    -> factoryFor2025Wales,
       (uk, 2025)       -> factoryFor2025UK,
       (scotland, 2025) -> factoryFor2025Scotland,
       (wales, 2025)    -> factoryFor2025Wales,
