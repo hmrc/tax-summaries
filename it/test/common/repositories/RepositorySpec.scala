@@ -19,6 +19,7 @@ package common.repositories
 import common.utils.IntegrationSpec
 import paye.models.{PayeAtsMiddleTier, PayeAtsMiddleTierMongo}
 import paye.repositories.NpsCacheRepository
+import paye.utils.HashUtil
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
@@ -63,7 +64,7 @@ class RepositorySpec extends IntegrationSpec with PlayMongoRepositorySupport[Pay
         )
         .futureValue
       val dataMongo = PayeAtsMiddleTierMongo(
-        _id = s"NINONINO$taxYear",
+        _id = HashUtil.sha256(s"NINONINO$taxYear"),
         data = dataObject,
         expiresAt = Instant.now().plus(Duration.ofMinutes(minuteOffset)).truncatedTo(ChronoUnit.MINUTES)
       )
