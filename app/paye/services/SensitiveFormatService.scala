@@ -17,9 +17,9 @@
 package paye.services
 
 import com.google.inject.Inject
+import common.config.ApplicationConfig
 import play.api.libs.json.*
 import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, PlainText, Sensitive}
-import common.config.ApplicationConfig
 
 import scala.util.{Failure, Success, Try}
 

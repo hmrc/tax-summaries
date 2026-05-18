@@ -18,9 +18,9 @@ package paye.services
 
 import common.config.{ApplicationConfig, FakeEncrypterDecrypter}
 import common.utils.BaseSpec
+import paye.services.SensitiveFormatService.SensitiveJsObject
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
-import paye.services.SensitiveFormatService.SensitiveJsObject
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 
 class SensitiveFormatServiceSpec extends BaseSpec with BeforeAndAfterEach {

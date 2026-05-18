@@ -17,9 +17,9 @@
 package common.config
 
 import paye.connectors.{CachingNpsConnector, DefaultNpsConnector, NpsConnector}
+import sa.connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
-import sa.connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 class ATSModule extends Module {

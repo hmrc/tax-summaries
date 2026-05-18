@@ -17,11 +17,11 @@
 package paye.repositories
 
 import common.config.ApplicationConfig
-import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model.*
 import paye.models.PayeAtsMiddleTierMongo
 import paye.services.SensitiveFormatService
 import paye.utils.HashUtil
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model.*
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -57,7 +57,7 @@ class NpsCacheRepository @Inject() (
 
   private def cacheId(nino: String, taxYear: Int): String =
     HashUtil.sha256(
-      s"${nino.trim.toUpperCase}$taxYear"
+      s"$nino$taxYear"
     )
 
   def get(nino: String, taxYear: Int): Future[Option[PayeAtsMiddleTierMongo]] = {
