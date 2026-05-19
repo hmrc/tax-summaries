@@ -19,8 +19,10 @@ package common.utils
 import cats.data.EitherT
 import cats.instances.future.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import common.config.ATSModule
+import common.config.{ATSModule, CryptoProvider}
 import common.models.admin.SaDetailsFromHipToggle
+import sa.connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
+import paye.connectors.{DefaultNpsConnector, NpsConnector}
 import org.apache.pekko.Done
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -28,16 +30,15 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import paye.connectors.{DefaultNpsConnector, NpsConnector}
 import play.api.Application
 import play.api.cache.AsyncCacheApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import sa.connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
 import uk.gov.hmrc.domain.{Nino, NinoGenerator, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
 import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
@@ -130,7 +131,8 @@ trait IntegrationSpec
         bind[NpsConnector].to[DefaultNpsConnector],
         bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
         bind[AsyncCacheApi].toInstance(mockCacheApi),
-        bind[FeatureFlagService].toInstance(mockFeatureFlagService)
+        bind[FeatureFlagService].toInstance(mockFeatureFlagService),
+        bind[Encrypter with Decrypter].toProvider[CryptoProvider]
       )
       .configure(
         "microservice.services.tax-summaries-hod.port" -> server.port(),

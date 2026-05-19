@@ -20,13 +20,25 @@ import common.utils.{BaseSpec, Generators}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.libs.json.{JsObject, Json}
 
+import java.time.Instant
+
 class PayeAtsMiddleTierTest extends BaseSpec with ScalaCheckPropertyChecks {
 
+  "format" must {
+    "write and read PayeAtsMiddleTierMongo" in {
+      val model = PayeAtsMiddleTierMongo(
+        _id = "id",
+        data = Json.obj("test" -> "value"),
+        expiresAt = Instant.ofEpochMilli(0)
+      )
+
+      Json.toJson(model).as[PayeAtsMiddleTierMongo] mustBe model
+    }
+  }
   "PayeAtsMiddleTier must round trip through Json " in {
     forAll(Generators.genPayeAsMiddleTier) { data =>
       val json = Json.toJson(data)
       val obj  = json.as[PayeAtsMiddleTier]
-
       obj mustBe data
     }
   }
@@ -36,6 +48,5 @@ class PayeAtsMiddleTierTest extends BaseSpec with ScalaCheckPropertyChecks {
     val json = Json.toJson(data).as[JsObject] - "includeBRDMessage"
     val obj  = json.as[PayeAtsMiddleTier]
     obj mustBe data
-
   }
 }
