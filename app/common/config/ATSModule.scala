@@ -30,6 +30,7 @@ class ATSModule extends Module {
       bind[SAConnector].qualifiedWith("default").to[DefaultSAConnector],
       bind[NpsConnector].to[CachingNpsConnector],
       bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
-      bind[Encrypter with Decrypter].toProvider[CryptoProvider]
+      bind[Encrypter with Decrypter].toProvider[CryptoProvider],
+      bind[ApplicationStartUp].toSelf.eagerly()
     )
 }
