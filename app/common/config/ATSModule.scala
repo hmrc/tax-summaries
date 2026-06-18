@@ -17,7 +17,7 @@
 package common.config
 
 import paye.connectors.{CachingNpsConnector, DefaultNpsConnector, NpsConnector}
-import sa.connectors.{CachingSelfAssessmentODSConnector, DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
+import sa.connectors.{CachingSAConnector, DefaultSAConnector, SAConnector}
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
@@ -26,11 +26,10 @@ class ATSModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] =
     Seq(
-      bind[SelfAssessmentODSConnector].to[CachingSelfAssessmentODSConnector],
-      bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
+      bind[SAConnector].to[CachingSAConnector],
+      bind[SAConnector].qualifiedWith("default").to[DefaultSAConnector],
       bind[NpsConnector].to[CachingNpsConnector],
       bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
-      bind[Encrypter with Decrypter].toProvider[CryptoProvider],
-      bind[ApplicationStartUp].toSelf.eagerly()
+      bind[Encrypter with Decrypter].toProvider[CryptoProvider]
     )
 }

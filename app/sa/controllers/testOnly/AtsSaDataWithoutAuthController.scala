@@ -20,13 +20,13 @@ import com.google.inject.Inject
 import common.utils.ATSErrorHandler
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import sa.services.OdsService
+import sa.services.SAService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
 class AtsSaDataWithoutAuthController @Inject() (
-  odsService: OdsService,
+  saService: SAService,
   atsErrorHandler: ATSErrorHandler,
   cc: ControllerComponents
 )(implicit val ec: ExecutionContext)
@@ -34,7 +34,7 @@ class AtsSaDataWithoutAuthController @Inject() (
     with Logging {
 
   def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = Action.async { implicit request =>
-    odsService
+    saService
       .getPayload(utr, tax_year)
       .fold(
         error => atsErrorHandler.errorToResponse(error),

@@ -16,19 +16,14 @@
 
 package common.utils
 
-import cats.data.EitherT
-import cats.instances.future.*
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import common.config.{ATSModule, CryptoProvider}
-import common.models.admin.SaDetailsFromHipToggle
-import sa.connectors.{DefaultSelfAssessmentODSConnector, SelfAssessmentODSConnector}
+import sa.connectors.{DefaultSAConnector, SAConnector}
 import paye.connectors.{DefaultNpsConnector, NpsConnector}
 import org.apache.pekko.Done
-import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.cache.AsyncCacheApi
@@ -36,8 +31,6 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.{Nino, NinoGenerator, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongoFeatureToggles.model.FeatureFlag
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 import scala.concurrent.duration.Duration
@@ -115,23 +108,19 @@ trait IntegrationSpec
       post(urlEqualTo("/pertax/authorise"))
         .willReturn(ok("{\"code\": \"ACCESS_GRANTED\", \"message\": \"Access granted\"}"))
     )
-    when(mockFeatureFlagService.getAsEitherT(org.mockito.ArgumentMatchers.eq(SaDetailsFromHipToggle))) thenReturn
-      EitherT.rightT(FeatureFlag(SaDetailsFromHipToggle, isEnabled = true))
+
     ()
   }
-
-  protected lazy val mockFeatureFlagService: FeatureFlagService = mock[FeatureFlagService]
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .disable[ATSModule]
       .overrides(
-        bind[SelfAssessmentODSConnector].to[DefaultSelfAssessmentODSConnector],
-        bind[SelfAssessmentODSConnector].qualifiedWith("default").to[DefaultSelfAssessmentODSConnector],
+        bind[SAConnector].to[DefaultSAConnector],
+        bind[SAConnector].qualifiedWith("default").to[DefaultSAConnector],
         bind[NpsConnector].to[DefaultNpsConnector],
         bind[NpsConnector].qualifiedWith("default").to[DefaultNpsConnector],
         bind[AsyncCacheApi].toInstance(mockCacheApi),
-        bind[FeatureFlagService].toInstance(mockFeatureFlagService),
         bind[Encrypter with Decrypter].toProvider[CryptoProvider]
       )
       .configure(

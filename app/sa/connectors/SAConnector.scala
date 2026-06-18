@@ -23,7 +23,6 @@ import com.google.inject.{Inject, Singleton}
 import common.config.ApplicationConfig
 import common.connectors.HttpClientResponse
 import common.models.HttpResponseJsonFormat.given
-import common.models.admin.SaDetailsFromHipToggle
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.Format
@@ -33,12 +32,11 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpReads, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
-import uk.gov.hmrc.mongoFeatureToggles.services.FeatureFlagService
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-trait SelfAssessmentODSConnector {
+trait SAConnector {
   def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
@@ -55,12 +53,12 @@ trait SelfAssessmentODSConnector {
   ): EitherT[Future, UpstreamErrorResponse, HttpResponse]
 }
 
-class CachingSelfAssessmentODSConnector @Inject() (
-  @Named("default") underlying: SelfAssessmentODSConnector,
+class CachingSAConnector @Inject() (
+  @Named("default") underlying: SAConnector,
   sessionCacheRepository: TaxSummariesSessionCacheRepository,
   applicationConfig: ApplicationConfig
 )(implicit ec: ExecutionContext)
-    extends SelfAssessmentODSConnector {
+    extends SAConnector {
 
   private def cache[L, A: Format](
     key: String
@@ -127,13 +125,12 @@ class CachingSelfAssessmentODSConnector @Inject() (
 }
 
 @Singleton
-class DefaultSelfAssessmentODSConnector @Inject() (
+class DefaultSAConnector @Inject() (
   http: HttpClientV2,
   applicationConfig: ApplicationConfig,
-  httpClientResponse: HttpClientResponse,
-  featureFlagService: FeatureFlagService
+  httpClientResponse: HttpClientResponse
 )(implicit ec: ExecutionContext)
-    extends SelfAssessmentODSConnector
+    extends SAConnector
     with Logging {
 
   private def readEitherOfWithNotFound[A: HttpReads]: HttpReads[Either[UpstreamErrorResponse, A]] =
@@ -142,72 +139,54 @@ class DefaultSelfAssessmentODSConnector @Inject() (
       case _                                                => HttpReads[Either[UpstreamErrorResponse, A]]
     }
 
-  private def desUrl(path: String): String = s"${applicationConfig.npsServiceUrl}$path"
+  private def saUrl(path: String): String = s"${applicationConfig.hipBaseURL}$path"
 
-  private def hipUrl(path: String): String = s"${applicationConfig.hipBaseURL}$path"
-
-  private def createHeader(hipToggle: Boolean)(implicit hc: HeaderCarrier): Seq[(String, String)] =
-    if (hipToggle)
-      Seq(
-        "Environment"             -> applicationConfig.hipEnvironment,
-        HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
-        HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
-        "CorrelationId"           -> UUID.randomUUID().toString,
-        "Gov-Uk-Originator-Id"    -> applicationConfig.hipOriginatorId,
-        HeaderNames.authorisation -> s"Basic ${applicationConfig.token}"
-      )
-    else
-      Seq(
-        HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
-        HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
-        "CorrelationId"           -> UUID.randomUUID().toString
-      )
+  private def createHeader()(implicit hc: HeaderCarrier): Seq[(String, String)] =
+    Seq(
+      "Environment"             -> applicationConfig.hipEnvironment,
+      HeaderNames.xSessionId    -> hc.sessionId.fold("-")(_.value),
+      HeaderNames.xRequestId    -> hc.requestId.fold("-")(_.value),
+      "CorrelationId"           -> UUID.randomUUID().toString,
+      "Gov-Uk-Originator-Id"    -> applicationConfig.hipOriginatorId,
+      HeaderNames.authorisation -> s"Basic ${applicationConfig.token}"
+    )
 
   def connectToSelfAssessment(utr: String, taxYear: Int)(implicit
     hc: HeaderCarrier,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
-      val url =
-        if (toggle.isEnabled) hipUrl(s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
-        else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
-      httpClientResponse.readSA(
-        http
-          .get(url"$url")
-          .setHeader(createHeader(toggle.isEnabled): _*)
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
-      )
-    }
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url = saUrl(s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear")
+    httpClientResponse.readSA(
+      http
+        .get(url"$url")
+        .setHeader(createHeader()*)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
+    )
+  }
 
   def connectToSelfAssessmentList(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
-      val url =
-        if (toggle.isEnabled) hipUrl(s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries")
-        else desUrl(s"/self-assessment/individuals/$utr/annual-tax-summaries")
-      httpClientResponse.readSA(
-        http
-          .get(url"$url")
-          .setHeader(createHeader(toggle.isEnabled): _*)
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
-      )
-    }
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url = saUrl(s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries")
+    httpClientResponse.readSA(
+      http
+        .get(url"$url")
+        .setHeader(createHeader()*)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
+    )
+  }
 
   def connectToSATaxpayerDetails(utr: String)(implicit
     hc: HeaderCarrier,
     request: Request[_]
-  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    featureFlagService.getAsEitherT(SaDetailsFromHipToggle).flatMap { toggle =>
-      val url =
-        if (toggle.isEnabled) hipUrl(s"/ods-sa/v1/self-assessment/individual/$utr/designatory-details/taxpayer")
-        else desUrl(s"/self-assessment/individual/$utr/designatory-details/taxpayer")
-      httpClientResponse.readSA(
-        http
-          .get(url"$url")
-          .setHeader(createHeader(toggle.isEnabled): _*)
-          .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
-      )
-    }
+  ): EitherT[Future, UpstreamErrorResponse, HttpResponse] = {
+    val url = saUrl(s"/ods-sa/v1/self-assessment/individual/$utr/designatory-details/taxpayer")
+    httpClientResponse.readSA(
+      http
+        .get(url"$url")
+        .setHeader(createHeader()*)
+        .execute[Either[UpstreamErrorResponse, HttpResponse]](readEitherOfWithNotFound, implicitly)
+    )
+  }
 }
