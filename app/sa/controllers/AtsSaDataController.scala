@@ -22,14 +22,14 @@ import common.utils.ATSErrorHandler
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import sa.services.OdsService
+import sa.services.SAService
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext
 
 class AtsSaDataController @Inject() (
-  odsService: OdsService,
+  saService: SAService,
   atsErrorHandler: ATSErrorHandler,
   authAction: AuthAction,
   cc: ControllerComponents,
@@ -39,7 +39,7 @@ class AtsSaDataController @Inject() (
     with Logging {
 
   def hasAts(utr: String): Action[AnyContent] = authAction.async { implicit request =>
-    odsService
+    saService
       .getList(utr)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
@@ -48,7 +48,7 @@ class AtsSaDataController @Inject() (
   }
 
   def getAtsSaData(utr: String, tax_year: Int): Action[AnyContent] = authAction.async { implicit request =>
-    odsService
+    saService
       .getPayload(utr, tax_year)
       .fold(
         error => atsErrorHandler.errorToResponse(error),
@@ -59,9 +59,9 @@ class AtsSaDataController @Inject() (
   def getAtsSaList(utr: String, endYear: Int, numberOfYears: Int): Action[AnyContent] = authAction.async {
     implicit request =>
       val response = for {
-        singleListForAllYears <- odsService
+        singleListForAllYears <- saService
                                    .getATSList(utr, endYear - numberOfYears, endYear)
-        taxPayer              <- odsService.connectToSATaxpayerDetails(utr)
+        taxPayer              <- saService.connectToSATaxpayerDetails(utr)
       } yield jsonHelper.createTaxYearJson(
         Json.obj(
           "annualTaxSummaries" ->

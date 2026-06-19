@@ -35,9 +35,9 @@ import uk.gov.hmrc.mongo.cache.DataKey
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
+class CachingSAConnectorSpec extends BaseSpec {
 
-  val mockSelfAssessmentODSConnector: SelfAssessmentODSConnector     = mock[SelfAssessmentODSConnector]
+  val mockSAConnector: SAConnector                                   = mock[SAConnector]
   val mockSessionCacheRepository: TaxSummariesSessionCacheRepository = mock[TaxSummariesSessionCacheRepository]
   private val mockAppConfig                                          = mock[ApplicationConfig]
 
@@ -46,23 +46,23 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
   private lazy val appn: Application = new GuiceApplicationBuilder()
     .overrides(
       api.inject
-        .bind(classOf[SelfAssessmentODSConnector])
+        .bind(classOf[SAConnector])
         .qualifiedWith("default")
-        .toInstance(mockSelfAssessmentODSConnector),
+        .toInstance(mockSAConnector),
       api.inject.bind[TaxSummariesSessionCacheRepository].toInstance(mockSessionCacheRepository),
       api.inject.bind[ApplicationConfig].toInstance(mockAppConfig)
     )
     .build()
 
   override def beforeEach(): Unit = {
-    reset(mockSelfAssessmentODSConnector)
+    reset(mockSAConnector)
     reset(mockSessionCacheRepository)
     reset(mockAppConfig)
     when(mockAppConfig.environment).thenReturn("tax-summaries-hod.env")
     ()
   }
 
-  private def connector: CachingSelfAssessmentODSConnector = appn.injector.instanceOf[CachingSelfAssessmentODSConnector]
+  private def connector: CachingSAConnector = appn.injector.instanceOf[CachingSAConnector]
 
   private implicit val userRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
@@ -78,7 +78,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         )
           .thenReturn(Future.successful(("", "")))
 
-        when(mockSelfAssessmentODSConnector.connectToSelfAssessment("utr", 2022))
+        when(mockSAConnector.connectToSelfAssessment("utr", 2022))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
 
         val saResponse = connector.connectToSelfAssessment("utr", 2022).value.futureValue
@@ -89,7 +89,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         verify(mockSessionCacheRepository, times(1))
           .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
 
-        verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessment("utr", 2022)
+        verify(mockSAConnector, times(1)).connectToSelfAssessment("utr", 2022)
 
         saResponse mustBe a[Right[_, _]]
       }
@@ -98,7 +98,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
           .thenReturn(Future.successful(Some(HttpResponse(OK, ""))))
 
-        when(mockSelfAssessmentODSConnector.connectToSelfAssessment("utr", 2022))
+        when(mockSAConnector.connectToSelfAssessment("utr", 2022))
           .thenReturn(null)
 
         when(
@@ -114,7 +114,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         verify(mockSessionCacheRepository, times(0))
           .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
 
-        verify(mockSelfAssessmentODSConnector, times(0)).connectToSelfAssessment("utr", 2022)
+        verify(mockSAConnector, times(0)).connectToSelfAssessment("utr", 2022)
 
         saResponse mustBe a[Right[_, _]]
 
@@ -122,19 +122,19 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
 
       "a cached value is NOT used when in a 'local' (stubbed) env (i.e. local or staging) and one of test utrs" in {
         when(mockAppConfig.environment).thenReturn("local")
-        when(mockSelfAssessmentODSConnector.connectToSelfAssessment(any(), any())(any(), any()))
+        when(mockSAConnector.connectToSelfAssessment(any(), any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
         val saResponse = connector.connectToSelfAssessment("0000000010", 2022).value.futureValue
         verify(mockSessionCacheRepository, times(0))
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
-        verify(mockSelfAssessmentODSConnector, times(1))
+        verify(mockSAConnector, times(1))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000010"), ArgumentMatchers.eq(2022))(any(), any())
         saResponse mustBe a[Right[_, _]]
       }
 
       "a cached value is used when in a 'local' (stubbed) env (i.e. local or staging) and NOT one of test utrs" in {
         when(mockAppConfig.environment).thenReturn("local")
-        when(mockSelfAssessmentODSConnector.connectToSelfAssessment(any(), any())(any(), any()))
+        when(mockSAConnector.connectToSelfAssessment(any(), any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
         when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
           .thenReturn(Future.successful(Some(HttpResponse(OK, ""))))
@@ -142,14 +142,14 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         val saResponse = connector.connectToSelfAssessment("0000000030", 2022).value.futureValue
         verify(mockSessionCacheRepository, times(1))
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
-        verify(mockSelfAssessmentODSConnector, times(0))
+        verify(mockSAConnector, times(0))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000030"), ArgumentMatchers.eq(2022))(any(), any())
         saResponse mustBe a[Right[_, _]]
       }
 
       "a cached value is used when in 'live' (non-stubbed) env and one of test utrs" in {
         when(mockAppConfig.environment).thenReturn("live")
-        when(mockSelfAssessmentODSConnector.connectToSelfAssessment(any(), any())(any(), any()))
+        when(mockSAConnector.connectToSelfAssessment(any(), any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
         when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
           .thenReturn(Future.successful(Some(HttpResponse(OK, ""))))
@@ -157,14 +157,14 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         val saResponse = connector.connectToSelfAssessment("0000000010", 2022).value.futureValue
         verify(mockSessionCacheRepository, times(1))
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
-        verify(mockSelfAssessmentODSConnector, times(0))
+        verify(mockSAConnector, times(0))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000010"), ArgumentMatchers.eq(2022))(any(), any())
         saResponse mustBe a[Right[_, _]]
       }
 
       "a cached value is used when in 'qa' (non-stubbed) env and one of test utrs" in {
         when(mockAppConfig.environment).thenReturn("ist0")
-        when(mockSelfAssessmentODSConnector.connectToSelfAssessment(any(), any())(any(), any()))
+        when(mockSAConnector.connectToSelfAssessment(any(), any())(any(), any()))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
         when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
           .thenReturn(Future.successful(Some(HttpResponse(OK, ""))))
@@ -172,7 +172,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         val saResponse = connector.connectToSelfAssessment("0000000010", 2022).value.futureValue
         verify(mockSessionCacheRepository, times(1))
           .getFromSession[HttpResponse](DataKey(any[String]()))(any(), any())
-        verify(mockSelfAssessmentODSConnector, times(0))
+        verify(mockSAConnector, times(0))
           .connectToSelfAssessment(ArgumentMatchers.eq("0000000010"), ArgumentMatchers.eq(2022))(any(), any())
         saResponse mustBe a[Right[_, _]]
       }
@@ -182,7 +182,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
       when(mockSessionCacheRepository.getFromSession[HttpResponse](DataKey(any[String]()))(any(), any()))
         .thenReturn(Future.successful(None))
 
-      when(mockSelfAssessmentODSConnector.connectToSelfAssessment("utr", 2022))
+      when(mockSAConnector.connectToSelfAssessment("utr", 2022))
         .thenReturn(EitherT.leftT(UpstreamErrorResponse("Server error", 500)))
 
       when(
@@ -198,7 +198,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
       verify(mockSessionCacheRepository, times(0))
         .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
 
-      verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessment("utr", 2022)
+      verify(mockSAConnector, times(1)).connectToSelfAssessment("utr", 2022)
 
       saResponse mustBe a[Left[_, _]]
     }
@@ -214,7 +214,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
           mockSessionCacheRepository.putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
         ).thenReturn(Future.successful(("", "")))
 
-        when(mockSelfAssessmentODSConnector.connectToSelfAssessmentList("utr"))
+        when(mockSAConnector.connectToSelfAssessmentList("utr"))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
 
         val saResponse = connector.connectToSelfAssessmentList("utr").value.futureValue
@@ -225,7 +225,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         verify(mockSessionCacheRepository, times(1))
           .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
 
-        verify(mockSelfAssessmentODSConnector, times(1)).connectToSelfAssessmentList("utr")
+        verify(mockSAConnector, times(1)).connectToSelfAssessmentList("utr")
 
         saResponse mustBe a[Right[_, _]]
       }
@@ -242,7 +242,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
           mockSessionCacheRepository.putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
         ).thenReturn(Future.successful(("", "")))
 
-        when(mockSelfAssessmentODSConnector.connectToSATaxpayerDetails("utr"))
+        when(mockSAConnector.connectToSATaxpayerDetails("utr"))
           .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](HttpResponse(OK, "")))
 
         val saResponse = connector.connectToSATaxpayerDetails("utr").value.futureValue
@@ -253,7 +253,7 @@ class CachingSelfAssessmentODSConnectorSpec extends BaseSpec {
         verify(mockSessionCacheRepository, times(1))
           .putSession[HttpResponse](DataKey(any[String]()), any())(any(), any(), any())
 
-        verify(mockSelfAssessmentODSConnector, times(1)).connectToSATaxpayerDetails("utr")
+        verify(mockSAConnector, times(1)).connectToSATaxpayerDetails("utr")
 
         saResponse mustBe a[Right[_, _]]
       }

@@ -35,10 +35,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
   private val apiUrlAtsList: String = s"/taxs/$utr/$taxYear/2/ats-list"
   private val apiUrlHasSummary      = s"/taxs/$utr/has_summary_for_previous_period"
 
-  private val odsUrlData: String             = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear"
-  private val odsUrlDataPreviousYear: String =
+  private val saUrlData: String             = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/$taxYear"
+  private val saUrlDataPreviousYear: String =
     s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries/${taxYear - 1}"
-  private val odsUrlList                     = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries"
+  private val saUrlList                     = s"/ods-sa/v1/self-assessment/individuals/$utr/annual-tax-summaries"
 
   private def getRequest(url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url).withHeaders((AUTHORIZATION, "Bearer 123"))
@@ -49,7 +49,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     "return each section in the middle tier data returned including gov spending data and tax data for latest tax year" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlData))
+          .get(urlEqualTo(saUrlData))
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
@@ -65,7 +65,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       s"handle 4xx error response $errStatus correctly as internal server error" in {
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrlData))
+            .get(urlEqualTo(saUrlData))
             .willReturn(aResponse().withStatus(errStatus))
         )
 
@@ -76,7 +76,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     "handle 4xx error response 404 correctly as internal server error" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlData))
+          .get(urlEqualTo(saUrlData))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
@@ -88,7 +88,7 @@ class AtsSaFullJourneySpec extends SaTestHelper {
         s"handle 5xx error response $errStatus correctly as bad gateway" in {
           server.stubFor(
             WireMock
-              .get(urlEqualTo(odsUrlData))
+              .get(urlEqualTo(saUrlData))
               .willReturn(aResponse().withStatus(errStatus))
           )
 
@@ -101,13 +101,13 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     "return each section in the middle tier data returned including gov spending data and tax data for latest tax year" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlData))
+          .get(urlEqualTo(saUrlData))
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlDataPreviousYear))
+          .get(urlEqualTo(saUrlDataPreviousYear))
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsData.json")))
       )
 
@@ -121,13 +121,13 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       s"handle 4xx error response $errStatus correctly returning empty list" in {
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrlData))
+            .get(urlEqualTo(saUrlData))
             .willReturn(aResponse().withStatus(errStatus))
         )
 
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrlDataPreviousYear))
+            .get(urlEqualTo(saUrlDataPreviousYear))
             .willReturn(aResponse().withStatus(errStatus))
         )
 
@@ -144,13 +144,13 @@ class AtsSaFullJourneySpec extends SaTestHelper {
         s"handle 5xx error response $errStatus correctly as bad gateway" in {
           server.stubFor(
             WireMock
-              .get(urlEqualTo(odsUrlData))
+              .get(urlEqualTo(saUrlData))
               .willReturn(aResponse().withStatus(errStatus))
           )
 
           server.stubFor(
             WireMock
-              .get(urlEqualTo(odsUrlDataPreviousYear))
+              .get(urlEqualTo(saUrlDataPreviousYear))
               .willReturn(aResponse().withStatus(errStatus))
           )
 
@@ -162,13 +162,13 @@ class AtsSaFullJourneySpec extends SaTestHelper {
     s"handle 4xx error response 404 correctly as not found" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlData))
+          .get(urlEqualTo(saUrlData))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlDataPreviousYear))
+          .get(urlEqualTo(saUrlDataPreviousYear))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
@@ -177,10 +177,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
   }
 
   s"GET on $apiUrlHasSummary" must {
-    "return an OK when data is retrieved from ODS" in {
+    "return an OK when SA data is retrieved" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlList))
+          .get(urlEqualTo(saUrlList))
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsListData.json")))
       )
 
@@ -188,10 +188,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       result.map(status) mustBe Some(OK)
     }
 
-    "return NOT_FOUND when ODS returns NOT_FOUND response" in {
+    "return NOT_FOUND when NOT_FOUND is returned" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlList))
+          .get(urlEqualTo(saUrlList))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
@@ -199,10 +199,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       result.map(status) mustBe Some(NOT_FOUND)
     }
 
-    "return an exception when ODS returns an empty ok" in {
+    "return an exception an empty ok is returned" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlList))
+          .get(urlEqualTo(saUrlList))
           .willReturn(ok())
       )
 
@@ -217,10 +217,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       IM_A_TEAPOT,
       LOCKED
     ).foreach { httpResponse =>
-      s"return an $httpResponse when data is retrieved from ODS" in {
+      s"return an $httpResponse when data is retrieved" in {
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrlList))
+            .get(urlEqualTo(saUrlList))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -234,10 +234,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       BAD_GATEWAY,
       SERVICE_UNAVAILABLE
     ).foreach { httpResponse =>
-      s"return an 502 when $httpResponse status is received from ODS" in {
+      s"return an 502 when $httpResponse status is received" in {
         server.stubFor(
           WireMock
-            .get(urlEqualTo(odsUrlList))
+            .get(urlEqualTo(saUrlList))
             .willReturn(aResponse().withStatus(httpResponse))
         )
 
@@ -246,10 +246,10 @@ class AtsSaFullJourneySpec extends SaTestHelper {
       }
     }
 
-    s"return an 502 when ODS is timing out" in {
+    s"return an 502 when timed out" in {
       server.stubFor(
         WireMock
-          .get(urlEqualTo(odsUrlList))
+          .get(urlEqualTo(saUrlList))
           .willReturn(ok(FileHelper.loadFile("sa/saFullJourneyAtsListData.json")).withFixedDelay(10000))
       )
 

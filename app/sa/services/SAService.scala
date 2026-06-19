@@ -22,16 +22,16 @@ import play.api.Logger
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Request
-import sa.connectors.SelfAssessmentODSConnector
-import sa.services.OdsService.{FailureInfo, InterimResult, toEither}
+import sa.connectors.SAConnector
+import sa.services.SAService.{FailureInfo, InterimResult, toEither}
 import sa.utils.TaxsJsonHelper
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OdsService @Inject() (
+class SAService @Inject() (
   jsonHelper: TaxsJsonHelper,
-  selfAssessmentOdsConnector: SelfAssessmentODSConnector
+  saConnector: SAConnector
 )(implicit ec: ExecutionContext) {
   private val logger = Logger(getClass.getName)
 
@@ -42,7 +42,7 @@ class OdsService @Inject() (
   ): EitherT[Future, UpstreamErrorResponse, JsValue] =
     for {
       rawTaxpayerJson       <- connectToSATaxpayerDetails(utr)
-      rawSelfAssessmentJson <- selfAssessmentOdsConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
+      rawSelfAssessmentJson <- saConnector.connectToSelfAssessment(utr, TAX_YEAR).transform {
                                  case Right(response) if response.status == NOT_FOUND =>
                                    Left(UpstreamErrorResponse("NOT_FOUND", NOT_FOUND))
                                  case Right(response)                                 => Right(response.json.as[JsValue])
@@ -55,7 +55,7 @@ class OdsService @Inject() (
     request: Request[_]
   ): Future[InterimResult] = {
     def connectToSA(taxYear: Int): Future[InterimResult] =
-      selfAssessmentOdsConnector.connectToSelfAssessment(utr, taxYear).value map {
+      saConnector.connectToSelfAssessment(utr, taxYear).value map {
         case Right(HttpResponse(NOT_FOUND, _, _))                    => InterimResult(Nil, Nil, 1)
         case Left(error) if error.statusCode == BAD_REQUEST          => InterimResult(Nil, Nil, 0)
         case Left(error) if error.statusCode < INTERNAL_SERVER_ERROR =>
@@ -120,7 +120,7 @@ class OdsService @Inject() (
   def getList(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
-    selfAssessmentOdsConnector
+    saConnector
       .connectToSelfAssessmentList(utr)
       .transform {
         case Right(response) if response.status == NOT_FOUND =>
@@ -133,7 +133,7 @@ class OdsService @Inject() (
   def connectToSATaxpayerDetails(
     utr: String
   )(implicit hc: HeaderCarrier, request: Request[_]): EitherT[Future, UpstreamErrorResponse, JsValue] =
-    selfAssessmentOdsConnector
+    saConnector
       .connectToSATaxpayerDetails(utr)
       .transform {
         case Right(response) if response.status == NOT_FOUND =>
@@ -144,7 +144,7 @@ class OdsService @Inject() (
       }
 }
 
-object OdsService {
+object SAService {
   private case class FailureInfo(upstreamErrorResponse: UpstreamErrorResponse, failedYear: Int)
 
   private case class InterimResult(processedYears: Seq[Int], failureInfo: Seq[FailureInfo], notFoundCount: Int)

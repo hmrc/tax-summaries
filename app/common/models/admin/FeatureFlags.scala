@@ -21,13 +21,13 @@ import uk.gov.hmrc.mongoFeatureToggles.model.{Environment, FeatureFlagName}
 
 object AllFeatureFlags {
   val list: List[FeatureFlagName] =
-    List(SaDetailsFromHipToggle)
+    List(DummyFlag)
 }
 
-case object SaDetailsFromHipToggle extends FeatureFlagName {
-  override val name: String                         = "sa-details-from-hip-toggle"
+case object DummyFlag extends FeatureFlagName {
+  override val name: String                         = "dummy-flag"
   override val description: Option[String]          = Some(
-    "Enable/disable calls to HIP for SA annual tax summary data"
+    "Dummy placeholder"
   )
   override val lockedEnvironments: Seq[Environment] =
     Seq(Environment.Local, Environment.Qa, Environment.Production, Environment.Staging)
