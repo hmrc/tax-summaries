@@ -15,6 +15,21 @@ Requirements
 ------------
 
 This service is written in [Scala] and [Play], so needs the latest [JRE] to run.
+
+Running the service using service manager
+------------
+sm2 --start TAXS
+
+Running the app locally
+------------
+sbt "run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes"
+
+
+Testing
+------------
+Please run Unit tests by running `sbt test` and `sbt it:test`
+
+
  
 ### License
 
