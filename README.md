@@ -15,7 +15,7 @@ sbt "run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes"
 
 Testing
 ------------
-Please run Unit tests by running `sbt test` and `sbt it:test`
+To execute Unit and Integration tests run `sbt test` and `sbt it:test`
 
 ## Endpoints
 
@@ -23,7 +23,7 @@ Please run Unit tests by running `sbt test` and `sbt it:test`
 - [Get PAYE details for nino and tax year](api-docs/getPAYEDetailsForNinoTaxYear.md): `GET /:NINO/:TAX_YEAR/paye-ats-data`
 - [Get PAYE details for nino and tax year range](api-docs/getPAYEDetailsForNinoTaxYearRange.md): `GET /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data`
 - [Get SA details for UTR and tax year](api-docs/getSADetailsForUTRTaxYear.md): `GET /:UTR/:TAX_YEAR/ats-data`
-- [Get tax years for UTR and tax year range](api-docs/getSATaxYearsForUTRTaxYearRange.md): `GET /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list`
+- [Get SA tax years for UTR and tax year range](api-docs/getSATaxYearsForUTRTaxYearRange.md): `GET /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list`
 - [Has summary for previous period](api-docs/hasSummaryForPreviousPeriod.md): `GET /:UTR/has_summary_for_previous_period`
  
 ### License

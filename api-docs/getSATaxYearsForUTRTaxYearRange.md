@@ -1,4 +1,4 @@
-# Get tax years for UTR and tax year range
+# Get SA tax years for UTR and tax year range
 
 Returns a list of tax years for a UTR and tax year where there is SA tax liability for the tax year.
 
