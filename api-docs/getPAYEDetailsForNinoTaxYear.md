@@ -35,8 +35,6 @@ Calls to this API must be made by an authenticated and authorised user (at least
 
 The response body returns the paye tax and NI details and the government spend figures.
 
-**Response Body**
-
 The fields included will depend on the tax year and country where the tax has been paid (England, Scotland or Wales). All the sections below though should be present.
 
 | Field Name  | Description                     | Data Type | Mandatory/Optional | Notes                          |

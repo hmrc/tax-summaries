@@ -32,7 +32,17 @@ Calls to this API must be made by an authenticated and authorised user (at least
 
 **Response Body**
 
-The response body returns either true or false.
+The response body returns a JSON object with a boolean field "has_ats" with a value of either true or false.
+
+**Response Body Examples**
+
+***An example response. Fields returned will vary depending on the tax year and country.***
+
+```json
+{
+  "has_ats": true
+}
+```
 
 ### Responses
 **Code**: `401 UNAUTHORIZED`
