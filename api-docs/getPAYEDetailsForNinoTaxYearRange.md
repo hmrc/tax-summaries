@@ -49,9 +49,18 @@ An array of JSON objects, one per tax year in the range. The fields included wil
 | gov_spending   | The government spending details | Object    | Mandatory          | |
 | includeBRDMessage   |  Indicates if the Basic Rate Divergence message should be included in an individuals ATS            | Boolean   | Mandatory          | |
 
+The non-rate fields returned as JSON objects in the various sections are in the following form:
+
+| Field Name | Description                                                                  | Data Type | Mandatory/Optional | Notes                          |
+|------------|------------------------------------------------------------------------------|-----------|--------------------|--------------------------------|
+| amount     | The amount                                                                   | Number    | Mandatory          |                                |
+| currency   | The currency: always GBP                                                     | String    | Mandatory          |                                |
+| calculus | The field from which the value is taken. The fields are listed [here](https://github.com/hmrc/tax-summaries/blob/9247c2f6d116613a599297862b9d49b00c4d3c78/app/common/models/LiabilityKey.scala#L183). | String    | Mandatory          |  |
+
+
 **Response Body Examples**
 
-***The response will be an array of JSON objects. The structure of the JSON objects are the same as the endpoint for one tax year. ***
+***The response will be an array of JSON objects. The structure of the JSON objects are the same as the endpoint for one tax year.***
 
 
 ```json

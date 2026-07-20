@@ -1,6 +1,6 @@
 # Get Government Spend
 
-Returns the government spend figures (a.k.a. PESA stats) for a tax year.
+Returns the government spend (a.k.a. PESA - "Public Expenditure Statistical Analyses") percentages for a tax year.
 
 Calls to this API must be made by an authenticated and authorised user (at least confidence level 50) with the matching id.
 

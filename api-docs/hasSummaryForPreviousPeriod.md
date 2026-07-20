@@ -36,7 +36,7 @@ The response body returns a JSON object with a boolean field "has_ats" with a va
 
 **Response Body Examples**
 
-***An example response. Fields returned will vary depending on the tax year and country.***
+***An example response.***
 
 ```json
 {
