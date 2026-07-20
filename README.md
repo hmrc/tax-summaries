@@ -19,16 +19,12 @@ Please run Unit tests by running `sbt test` and `sbt it:test`
 
 ## Endpoints
 
-| Method | Endpoint                           | Note                                                                                                                                                                                                                                                                          |
-|--------|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|GET   | /government-spend/:TAX_YEAR| Get government spend figures for the tax year                                                                                                                                                                                                                                 |
-|GET   | /:NINO/:TAX_YEAR/paye-ats-data| Get PAYE tax & NI details for the NINO and tax year                                                                                                                                                                                                                           |
-|GET   | /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data| Get PAYE tax & NI details for the NINO and range of tax years                                                                                                                                                                                                                 |
-|GET   | /:UTR/:TAX_YEAR/ats-data| Get SA tax & NI details for the UTR and tax year                                                                                                                                                                                                                              |
-|GET   | /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list| Get list of tax years for the UTR starting from the specified tax year and going back by the specified number of years where there are SA tax & NI details                                                                                                                    |
-|GET   | /:UTR/has_summary_for_previous_period| Return true if there are any tax & NI summary details for the UTR. Used by [BTA](https://github.com/hmrc/business-tax-account/blob/cd20d2e265cbc13b6f21103b5e09c2c767732e60/app/connectors/TsrConnector.scala#L24) only to determine whether to display a link to ATS or not. |
-
-
+- [Get Government Spend](api-docs/getGovernmentSpend.md): `GET /government-spend/:TAX_YEAR`
+- [Get PAYE details for nino and tax year](api-docs/getPAYEDetailsForNinoTaxYear.md): `GET /:NINO/:TAX_YEAR/paye-ats-data`
+- [Get PAYE details for nino and tax year range](api-docs/getPAYEDetailsForNinoTaxYearRange.md): `GET /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data`
+- [Get SA details for UTR and tax year](api-docs/getSADetailsForUTRTaxYear.md): `GET /:UTR/:TAX_YEAR/ats-data`
+- [Get tax years for UTR and tax year range](api-docs/getSATaxYearsForUTRTaxYearRange.md): `GET /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list`
+- [Has summary for previous period](api-docs/hasSummaryForPreviousPeriod.md): `GET /:UTR/has_summary_for_previous_period`
  
 ### License
 
