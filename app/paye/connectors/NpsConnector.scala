@@ -42,7 +42,8 @@ class CachingNpsConnector @Inject() (
   @Named("default") underlying: NpsConnector,
   sessionCacheRepository: NpsCacheRepository
 )(implicit ec: ExecutionContext)
-    extends NpsConnector {
+    extends NpsConnector
+    with Logging {
 
   override def connectToPayeTaxSummary(nino: String, taxYear: Int)(implicit
     hc: HeaderCarrier
@@ -50,6 +51,10 @@ class CachingNpsConnector @Inject() (
     EitherT(
       sessionCacheRepository
         .get(nino, taxYear)
+        .recover { case e: SecurityException =>
+          logger.error("Cache decryption failed, refetching", e)
+          None
+        }
         .map[Future[Either[UpstreamErrorResponse, HttpResponse]]] {
           case Some(dataMongo) => Future(Right(HttpResponse(200, dataMongo.data.toString)))
           case None            => refreshCache(nino, taxYear).value

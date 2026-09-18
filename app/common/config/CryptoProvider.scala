@@ -28,14 +28,16 @@ class CryptoProvider @Inject() (
 ) extends Provider[Encrypter with Decrypter] {
 
   override def get(): Encrypter with Decrypter = {
+    val gcmCypher              =
+      SymmetricCryptoFactory.aesGcmCryptoFromConfig(baseConfigKey = "mongo.encryption", configuration.underlying)
+    val ecbCypher              =
+      SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "mongodb.encryption", configuration.underlying)
     val mongoEncryptionEnabled =
       configuration.getOptional[Boolean]("mongo.encryption.enabled").getOrElse(true)
 
     if (mongoEncryptionEnabled) {
-      SymmetricCryptoFactory.aesCryptoFromConfig(
-        baseConfigKey = "mongo.encryption",
-        configuration.underlying
-      )
+      SymmetricCryptoFactory.composeCrypto(currentCrypto = gcmCypher, previousDecrypters = List(ecbCypher))
+
     } else {
       fakeEncrypterDecrypter
     }
