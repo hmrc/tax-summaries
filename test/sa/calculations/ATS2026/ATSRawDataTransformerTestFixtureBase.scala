@@ -464,7 +464,6 @@ trait AtsRawDataTransformerTestFixtureBaseCalculations {
   protected def expTotalCgTax: Amount = calcExp(
     "ctnLowerRateCgtRPCI",
     "ctnHigherRateCgtRPCI",
-//    "lowerRateCgtCI",
     "higherRateCgtCI",
     "lowerRateCgtRP",
     "higherRateCgtRP",

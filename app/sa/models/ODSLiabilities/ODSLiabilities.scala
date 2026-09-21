@@ -317,10 +317,10 @@ object ODSLiabilities {
   case object LowerRateCgtRP extends ODSLiabilities("lowerRateCgtRP")
   case object CGAtHigherRateRP extends ODSLiabilities("cGAtHigherRateRP")
   case object HigherRateCgtRP extends ODSLiabilities("higherRateCgtRP")
-  case object TRFCharge extends ODSLiabilities("trfCharge")
-  case object WFPCharge extends ODSLiabilities("wfpCharge")
-  case object FIREL extends ODSLiabilities("fiRel")
-  case object FERelRestricted extends ODSLiabilities("feRelRestricted")
+  case object TemporaryRepatriationFacility extends ODSLiabilities("trfCharge")
+  case object WinterFuelPaymentCharge extends ODSLiabilities("wfpCharge")
+  case object ForeignIncomeRelief extends ODSLiabilities("fiRel")
+  case object ForeignEarningReliefRestricted extends ODSLiabilities("feRelRestricted")
 
 
   // format: off
@@ -345,7 +345,7 @@ object ODSLiabilities {
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
       TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced,
-      WFPCharge, FIREL, FERelRestricted, TRFCharge
+      WinterFuelPaymentCharge, ForeignIncomeRelief, ForeignEarningReliefRestricted, TemporaryRepatriationFacility
     )
 
   private val mapLiabilities: Map[Int, List[ODSLiabilities with ApiValue]] = {
@@ -369,19 +369,11 @@ object ODSLiabilities {
         CapOffshoreTrustLiability
       )
 
-    val allLiabilities2026 = allLiabilities2024 ++
-      List(
-        BrdReduction, BrdCharge,
-        IncomeTermination,
-        TaxablePayScottishAdvancedRate, TaxableRedundancySar, TaxOnPayScottishAdvancedRate, TaxOnRedundancySar,
-        CGAtLowerRateCI, CGAtHigherRateCI, HigherRateCgtCI, //LowerRateCgtCI needs removing
-        CGAtLowerRateRP, LowerRateCgtRP, CGAtHigherRateRP, HigherRateCgtRP,
-        CapOffshoreTrustLiability
-      )
+    val allLiabilities2026 = allLiabilities2025.filter(_ != LowerRateCgtCI)
       ++ List(
-      TRFCharge,
-      WFPCharge,
-      FIREL, FERelRestricted
+      TemporaryRepatriationFacility,
+      WinterFuelPaymentCharge,
+      ForeignIncomeRelief, ForeignEarningReliefRestricted
     )
 
 

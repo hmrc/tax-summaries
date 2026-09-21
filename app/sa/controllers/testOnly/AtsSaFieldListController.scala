@@ -195,7 +195,6 @@ class AtsSaFieldListController @Inject() (
 
   def getFieldList(tax_year: Int): Action[AnyContent] = Action {
     val items = tax_year match {
-      case 2021 => fields2023
       case 2022 => fields2023
       case 2023 => fields2023
       case 2024 => fields2024
