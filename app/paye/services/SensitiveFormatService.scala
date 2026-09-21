@@ -24,6 +24,7 @@ import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, PlainText, Sensitive}
 import scala.util.{Failure, Success, Try}
 
 class SensitiveFormatService @Inject() (encrypterDecrypter: Encrypter with Decrypter, config: ApplicationConfig) {
+
   import SensitiveFormatService.*
 
   private def writeJsObjectWithEncryption(jsObject: JsObject): JsValue =
@@ -38,15 +39,8 @@ class SensitiveFormatService @Inject() (encrypterDecrypter: Encrypter with Decry
       Try(encrypterDecrypter.decrypt(Crypted(s))) match {
         case Success(plainText) =>
           JsSuccess(SensitiveJsObject(Json.parse(plainText.value).as[JsObject]))
-
-        /*
-            Both of the below cases cater for two scenarios where the value is not encrypted:-
-              either an unencrypted JsString or any other JsValue.
-            This is to avoid breaking users' session in case data written before encryption introduced.
-         */
-
-        case Failure(_: SecurityException) => JsSuccess(SensitiveJsObject(JsString(s).as[JsObject]))
-        case Failure(exception)            => throw exception
+        case Failure(exception) =>
+          throw exception
       }
     case jsObject: JsObject => JsSuccess(SensitiveJsObject(jsObject))
     case other              => JsError(s"Unexpected JsValue: $other")
