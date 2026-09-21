@@ -1,20 +1,30 @@
 
-Annual Tax Summary - Individual application 
+Annual Tax Summary - Backend Microservice
 ====================================================================
 
-A [gov.uk](https://www.gov.uk/) online application service that allows individuals to view the annual summary of their personal tax and National Insurance contributions (NICs) and how they're spent.
+Annual Tax Summary is an online service that allows individuals and agents to view the annual summary of an individual's personal tax and National Insurance contributions (NICs) and how they've been spent.
 
-
-Summary
------------
-
-This service is designed to collect Individual personal tax and how they're spent.
-
-
-Requirements
+Running the service using service manager
 ------------
+sm2 --start TAXS
 
-This service is written in [Scala] and [Play], so needs the latest [JRE] to run.
+Running the app locally
+------------
+sbt "run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes"
+
+
+Testing
+------------
+To execute Unit and Integration tests run `sbt test` and `sbt it:test`
+
+## Endpoints
+
+- [Get Government Spend](api-docs/getGovernmentSpend.md): `GET /government-spend/:TAX_YEAR`
+- [Get PAYE details for nino and tax year](api-docs/getPAYEDetailsForNinoTaxYear.md): `GET /:NINO/:TAX_YEAR/paye-ats-data`
+- [Get PAYE details for nino and tax year range](api-docs/getPAYEDetailsForNinoTaxYearRange.md): `GET /:NINO/:YEAR_FROM/:YEAR_TO/paye-ats-data`
+- [Get SA details for UTR and tax year](api-docs/getSADetailsForUTRTaxYear.md): `GET /:UTR/:TAX_YEAR/ats-data`
+- [Get SA tax years for UTR and tax year range](api-docs/getSATaxYearsForUTRTaxYearRange.md): `GET /:UTR/:ENDYEAR/:NUMBEROFYEARS/ats-list`
+- [Has summary for previous period](api-docs/hasSummaryForPreviousPeriod.md): `GET /:UTR/has_summary_for_previous_period`
  
 ### License
 
