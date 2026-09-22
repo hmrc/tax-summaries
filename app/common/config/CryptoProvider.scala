@@ -38,7 +38,7 @@ class CryptoProvider @Inject() (
         baseConfigKey = "mongo.encryption",
         cryptoConfiguration.underlying
       )
-      SymmetricCryptoFactory.composeCrypto(currentCrypto = legacyEcb, previousDecrypters = List(gcm))
+      SymmetricCryptoFactory.composeCrypto(currentCrypto = gcm, previousDecrypters = List(legacyEcb))
     } else {
       fakeEncrypterDecrypter
     }
