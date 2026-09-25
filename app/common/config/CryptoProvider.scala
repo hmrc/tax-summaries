@@ -30,15 +30,10 @@ class CryptoProvider @Inject() (
 
   override def get(): Encrypter with Decrypter =
     if (applicationConfig.mongoEncryptionEnabled) {
-      val gcm       = SymmetricCryptoFactory.aesGcmCryptoFromConfig(
+      SymmetricCryptoFactory.aesGcmCryptoFromConfig(
         baseConfigKey = "mongodb.encryption",
         cryptoConfiguration.underlying
       )
-      val legacyEcb = SymmetricCryptoFactory.aesCryptoFromConfig(
-        baseConfigKey = "mongo.encryption",
-        cryptoConfiguration.underlying
-      )
-      SymmetricCryptoFactory.composeCrypto(currentCrypto = gcm, previousDecrypters = List(legacyEcb))
     } else {
       fakeEncrypterDecrypter
     }
