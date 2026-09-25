@@ -19,7 +19,7 @@ package sa.calculations
 import common.config.ApplicationConfig
 import common.models.{Amount, Rate}
 import common.utils.BaseSpec
-import sa.calculations.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
+import sa.calculations.ATS2026.{ATSCalculationsScottish2026, ATSCalculationsUK2026, ATSCalculationsWelsh2026}
 import sa.models.*
 import sa.models.ODSLiabilities.ODSLiabilities
 import sa.models.ODSLiabilities.ODSLiabilities.*
@@ -120,17 +120,17 @@ class ATSCalculationsFactorySpec extends BaseSpec {
       "country is UK" in {
         val calculation = new Fixture(9999, UK())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsUK2025])
+        calculation.map(_ mustBe a[ATSCalculationsUK2026])
       }
       "country is Scotland" in {
         val calculation = new Fixture(9999, Scottish())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsScottish2025])
+        calculation.map(_ mustBe a[ATSCalculationsScottish2026])
       }
       "country is Wales" in {
         val calculation = new Fixture(9999, Welsh())().calculation
         calculation.isDefined mustBe true
-        calculation.map(_ mustBe a[ATSCalculationsWelsh2025])
+        calculation.map(_ mustBe a[ATSCalculationsWelsh2026])
       }
     }
 

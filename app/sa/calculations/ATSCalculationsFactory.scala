@@ -23,6 +23,7 @@ import sa.calculations.ATS2022.{ATSCalculationsScottish2022, ATSCalculationsUK20
 import sa.calculations.ATS2023.{ATSCalculationsScottish2023, ATSCalculationsUK2023, ATSCalculationsWelsh2023}
 import sa.calculations.ATS2024.{ATSCalculationsScottish2024, ATSCalculationsUK2024, ATSCalculationsWelsh2024}
 import sa.calculations.ATS2025.{ATSCalculationsScottish2025, ATSCalculationsUK2025, ATSCalculationsWelsh2025}
+import sa.calculations.ATS2026.{ATSCalculationsScottish2026, ATSCalculationsUK2026, ATSCalculationsWelsh2026}
 import sa.models.*
 
 import javax.inject.{Inject, Singleton}
@@ -34,6 +35,10 @@ class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
     val uk       = UK()
     val scotland = Scottish()
     val wales    = Welsh()
+
+    val factoryFor2026UK       = new ATSCalculationsUK2026(_, _)
+    val factoryFor2026Scotland = new ATSCalculationsScottish2026(_, _)
+    val factoryFor2026Wales    = new ATSCalculationsWelsh2026(_, _)
 
     val factoryFor2025UK       = new ATSCalculationsUK2025(_, _)
     val factoryFor2025Scotland = new ATSCalculationsScottish2025(_, _)
@@ -55,6 +60,9 @@ class ATSCalculationsFactory @Inject() (applicationConfig: ApplicationConfig) {
 
     // Tax year below is the year the tax year ENDs (not starts) since this is what comes back from API.
     Map(
+      (uk, 2026)       -> factoryFor2026UK,
+      (scotland, 2026) -> factoryFor2026Scotland,
+      (wales, 2026)    -> factoryFor2026Wales,
       (uk, 2025)       -> factoryFor2025UK,
       (scotland, 2025) -> factoryFor2025Scotland,
       (wales, 2025)    -> factoryFor2025Wales,
