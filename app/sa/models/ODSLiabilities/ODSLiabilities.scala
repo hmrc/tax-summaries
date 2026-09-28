@@ -317,6 +317,10 @@ object ODSLiabilities {
   case object LowerRateCgtRP extends ODSLiabilities("lowerRateCgtRP")
   case object CGAtHigherRateRP extends ODSLiabilities("cGAtHigherRateRP")
   case object HigherRateCgtRP extends ODSLiabilities("higherRateCgtRP")
+  case object TemporaryRepatriationFacility extends ODSLiabilities("trfCharge")
+  case object WinterFuelPaymentCharge extends ODSLiabilities("wfpCharge")
+  case object ForeignIncomeRelief extends ODSLiabilities("fiRel")
+  case object ForeignEarningReliefRestricted extends ODSLiabilities("feRelRestricted")
 
 
   // format: off
@@ -340,7 +344,9 @@ object ODSLiabilities {
       TaxablePayScottishStarterRate, TaxCharged, TaxCreditsForDivs, TaxDueAfterAllceRlf, TaxExcluded, TaxOnPayScottishIntermediateRate,
       TaxOnPayScottishStarterRate, TopSlicingRelief, TotalTaxCreditRelief, TradeUnionDeathBenefits, VctSharesRelief,
       EmployeeClass1NI, EmployeeClass2NI, EmployerNI, LFIRelief, SavingsPartnership, DividendsPartnership,
-      TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced)
+      TaxOnNonExcludedIncome, SummaryTotForeignSav, GiftAidTaxReduced,
+      WinterFuelPaymentCharge, ForeignIncomeRelief, ForeignEarningReliefRestricted, TemporaryRepatriationFacility
+    )
 
   private val mapLiabilities: Map[Int, List[ODSLiabilities with ApiValue]] = {
     val allLiabilities2022 = allLiabilities ++ List(
@@ -358,16 +364,25 @@ object ODSLiabilities {
         BrdReduction, BrdCharge,
         IncomeTermination,
         TaxablePayScottishAdvancedRate, TaxableRedundancySar, TaxOnPayScottishAdvancedRate, TaxOnRedundancySar,
-        CGAtLowerRateCI, LowerRateCgtCI, CGAtHigherRateCI, HigherRateCgtCI, 
+        CGAtLowerRateCI, LowerRateCgtCI, CGAtHigherRateCI, HigherRateCgtCI,
         CGAtLowerRateRP, LowerRateCgtRP, CGAtHigherRateRP, HigherRateCgtRP,
         CapOffshoreTrustLiability
       )
+
+    val allLiabilities2026 = allLiabilities2025.filter(_ != LowerRateCgtCI)
+      ++ List(
+      TemporaryRepatriationFacility,
+      WinterFuelPaymentCharge,
+      ForeignIncomeRelief, ForeignEarningReliefRestricted
+    )
+
 
     Map(
       2022 -> allLiabilities2022,
       2023 -> allLiabilities2023,
       2024 -> allLiabilities2024,
-      2025 -> allLiabilities2025
+      2025 -> allLiabilities2025,
+      2026 -> allLiabilities2026
     )
   }
 
