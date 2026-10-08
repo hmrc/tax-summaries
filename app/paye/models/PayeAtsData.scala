@@ -26,6 +26,8 @@ case class PayeAtsData(
   includeBRDMessage: Option[Boolean],
   taxableStateBenefits: Option[Double],
   averageRateTax: Option[Int],
+  hicbcAmount: Option[BigDecimal],
+  winterFuelPaymentAmount: Option[BigDecimal],
   /*
                           The field scottishIncomeTax is actually the WELSH income tax.
                           See the comment below for WelshIncomeTax key.
