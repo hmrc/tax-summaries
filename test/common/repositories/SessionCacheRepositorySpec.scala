@@ -47,12 +47,12 @@ class SessionCacheRepositorySpec extends BaseSpec with MongoSupport {
     val data    = FakeData("test")
     val hc      = HeaderCarrier(sessionId = Some(SessionId("SessionId-0000")))
     val wrongHc = HeaderCarrier(sessionId = Some(SessionId("SessionId-xxxx")))
-    repository.putSession[FakeData](DataKey[FakeData]("testId"), data)(implicitly, hc, implicitly).futureValue
+    repository.putSession[FakeData](DataKey[FakeData]("testId"), data)(implicitly, hc, implicitly)
 
-    val result      = repository.getFromSession(DataKey[FakeData]("testId"))(implicitly, hc).futureValue
+    val result      = repository.getFromSession(DataKey[FakeData]("testId"))(implicitly, hc).futureValue.get
     val resultWrong = repository.getFromSession(DataKey[FakeData]("testId"))(implicitly, wrongHc).futureValue
 
-    result mustBe Some(data)
+    result mustBe data
     resultWrong mustBe None
   }
 
