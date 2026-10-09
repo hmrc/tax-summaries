@@ -72,6 +72,10 @@ object LiabilityKey extends DefaultReads {
 
   case object MarriageAllowanceReceivedAmount extends LiabilityKey("marriage_allowance_received_amount")
 
+  case object HicbcAmount extends LiabilityKey("hicbc_amount")
+
+  case object WinterFuelPaymentAmount extends LiabilityKey("winter_fuel_payment_amount")
+
   case object MarriageAllowanceTransferredAmount extends LiabilityKey("marriage_allowance_transferred_amount")
 
   case object NicsAndTaxPerCurrencyUnit extends LiabilityKey("nics_and_tax_per_currency_unit")
@@ -241,7 +245,7 @@ object LiabilityKey extends DefaultReads {
     AmountDueAtEntrepreneursRate, AmountDueAtHigherRate, AmountDueAtOrdinaryRate, AmountDueRPCIHigherRate,
     AmountDueRPCILowerRate, BasicRateIncomeTax, BasicRateIncomeTaxAmount, BenefitsFromEmployment, CgTaxPerCurrencyUnit,
     EmployeeNicAmount, HigherRateIncomeTax, HigherRateIncomeTaxAmount, IncomeFromEmployment, LessTaxFreeAmount,
-    MarriageAllowanceReceivedAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, MarriedCouplesAllowance,
+    MarriageAllowanceReceivedAmount, HicbcAmount, WinterFuelPaymentAmount, MarriageAllowanceTransferredAmount, NicsAndTaxPerCurrencyUnit, MarriedCouplesAllowance,
     LessTaxAdjustmentPrevYear, TaxUnderpaidPrevYear, IncomeAfterTaxAndNics, EmployerNicAmount, LiableTaxAmount, NicsAndTaxRate,
     DividendOrdinaryRate, DividendOrdinaryRateAmount, OtherAdjustmentsIncreasing, OtherAdjustmentsReducing, OtherAllowancesAmount, OtherIncome,
     OtherPensionIncome, PayCgTaxOn, PersonalTaxFreeAmount, ScottishIncomeTax, SelfEmploymentIncome, StartingRateForSavings,
