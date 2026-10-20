@@ -1,6 +1,8 @@
 {
   "includeBRDMessage": false,
   "averageRateTax": 22,
+  "hicbcAmount": 3000.00,
+  "winterFuelPaymentAmount": 200.00,
   "adjustments": {
     "taxFreeAmount": 11850.00,
     "lessTaxAdjustmentPreviousYear": 9030.83

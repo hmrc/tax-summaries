@@ -24,7 +24,9 @@ case class Adjustments(
   marriageAllowanceTransferred: Option[Double],
   marriedCouplesAllowanceAdjustment: Option[Double],
   lessTaxAdjustmentPreviousYear: Option[Double],
-  taxUnderpaidPreviousYear: Option[Double]
+  taxUnderpaidPreviousYear: Option[Double],
+  hicbcAmount: Option[Double],
+  winterFuelPaymentAmount: Option[Double]
 )
 
 object Adjustments {

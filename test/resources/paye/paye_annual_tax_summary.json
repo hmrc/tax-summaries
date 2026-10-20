@@ -9,7 +9,9 @@
     "marriageAllowanceTransferred": 1250.00,
     "marriedCouplesAllowanceAdjustment": 500.00,
     "lessTaxAdjustmentPreviousYear": 200.00,
-    "taxUnderpaidPreviousYear": 200.00
+    "taxUnderpaidPreviousYear": 200.00,
+    "hicbcAmount": 3000.00,
+    "winterFuelPaymentAmount": 200.00
   },
   "income": {
     "incomeFromEmployment": 25000.00,
