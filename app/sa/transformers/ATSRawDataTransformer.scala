@@ -76,7 +76,7 @@ class ATSRawDataTransformer @Inject() (
     atsCalculationsFactory(rawPayloadJson.as[SelfAssessmentAPIResponse]) match {
       case Some(calculations) =>
         logger.debug(
-          s"Liability for utr $UTR for tax year $taxYear is ${calculations.taxLiability.calculus.getOrElse("")}"
+          s"Tax liability calculated for UTR $UTR for tax year $taxYear : ${calculations.taxLiability.calculus.getOrElse("")}"
         )
         initiateAudit(UTR, taxYear, calculations)
         try
